@@ -1,0 +1,3 @@
+[submodule "package/packages"]
+	path = package/packages
+	url = git@gitlab.labs.nic.cz:router/openwrt-packages.git
