@@ -25,7 +25,7 @@ endif
 
 zImage:=$(BIN_DIR)/$(IMG_PREFIX)-zImage$(IMAGE_SUFFIX)
 
-DTS_TARGETS = mpc8548cds_32b p1010rdb tl-wdr4900-v1 p1020rdb
+DTS_TARGETS = mpc8548cds_32b p1010rdb tl-wdr4900-v1 p1020rdb p2020rdb
 BOOT_IMAGES:=zImage cuImage.tl-wdr4900-v1
 
 define Image/Prepare
@@ -60,6 +60,10 @@ endef
 
 define Image/Build/Profile/Default
 	$(call Image/Build/Profile/TLWDR4900,$(1))
+endef
+
+define Image/Build/Profile/P2020RDBPCA
+	echo "P2020RDBPCA build"
 endef
 
 define Image/Build/ext2
