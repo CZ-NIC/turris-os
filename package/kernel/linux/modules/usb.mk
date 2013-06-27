@@ -90,7 +90,7 @@ $(eval $(call KernelPackage,usb-uhci,1))
 
 define KernelPackage/usb-ohci
   TITLE:=Support for OHCI controllers
-  DEPENDS:=+TARGET_brcm47xx:kmod-usb-brcm47xx
+  DEPENDS:=+@TARGET_brcm47xx:kmod-usb-brcm47xx
   KCONFIG:= \
 	CONFIG_USB_OHCI \
 	CONFIG_USB_OHCI_HCD \
@@ -112,7 +112,7 @@ $(eval $(call KernelPackage,usb-ohci,1))
 
 define KernelPackage/usb2-fsl
   TITLE:=Support for Freescale USB2 controllers
-  DEPENDS:=TARGET_mpc85xx
+  DEPENDS:=@TARGET_mpc85xx
   KCONFIG:=\
 	CONFIG_USB_FSL_MPH_DR_OF \
   	CONFIG_USB_EHCI_FSL=y
@@ -130,7 +130,7 @@ $(eval $(call KernelPackage,usb2-fsl))
 
 define KernelPackage/usb2
   TITLE:=Support for USB2 controllers
-  DEPENDS:=+TARGET_brcm47xx:kmod-usb-brcm47xx +TARGET_mpc85xx:kmod-usb2-fsl
+  DEPENDS:=+@TARGET_brcm47xx:kmod-usb-brcm47xx +@TARGET_mpc85xx:kmod-usb2-fsl
   KCONFIG:=CONFIG_USB_EHCI_HCD \
 	CONFIG_USB_EHCI_ATH79=y \
 	CONFIG_USB_EHCI_BCM63XX=y \
