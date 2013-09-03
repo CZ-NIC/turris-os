@@ -3,14 +3,6 @@
 set_preinit_iface() {
 	ifname=eth0
 
-	insmod diag
-	insmod hwmon
-	insmod pps_core
-	insmod ptp
-	insmod tg3
-	insmod b44
-	insmod bgmac
-
 	# hardware specific overrides
 	case "$(cat /proc/diag/model)" in
 		"Linksys WAP54G V1") ifname=eth1;;
@@ -19,7 +11,17 @@ set_preinit_iface() {
 		"ASUS (unknown, BCM4702)") ifname=eth1;;
 		"Sitecom WL-105b") ifname=eth1;;
 	esac
+
+	# The interface has to be up to configure the switch
 	ifconfig $ifname 0.0.0.0 up
+	[ -f /lib/modules/`uname -r`/switch-robo.ko ] && {
+		rmmod switch-robo
+		insmod switch-robo
+	}
+	[ -f /lib/modules/`uname -r`/switch-adm.ko ] && {
+		rmmod switch-adm
+		insmod switch-adm
+	}
 }
 
 init_iface() {

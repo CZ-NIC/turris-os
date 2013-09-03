@@ -212,11 +212,14 @@
 	};
 
 	otg@101c0000 {
-		compatible = "ralink,rt3050-otg";
+		compatible = "ralink,rt3050-otg", "snps,dwc2";
 		reg = <0x101c0000 40000>;
 
 		interrupt-parent = <&intc>;
 		interrupts = <18>;
+
+		resets = <&rstctrl 22>;
+		reset-names = "otg";
 
 		status = "disabled";
 	};

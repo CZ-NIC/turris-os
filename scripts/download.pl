@@ -152,7 +152,7 @@ foreach my $mirror (@ARGV) {
 			push @mirrors, "http://downloads.sourceforge.net/$1";
 		}
 	} elsif ($mirror =~ /^\@GNU\/(.+)$/) {
-		push @mirrors, "ftp://ftp.gnu.org/gnu/$1";
+		push @mirrors, "http://ftp.gnu.org/pub/gnu/$1";
 		push @mirrors, "http://ftpmirror.gnu.org/$1";
 		push @mirrors, "ftp://ftp.belnet.be/mirror/ftp.gnu.org/gnu/$1";
 		push @mirrors, "ftp://ftp.mirror.nl/pub/mirror/gnu/$1";
@@ -167,10 +167,6 @@ foreach my $mirror (@ARGV) {
 		foreach my $dir (@extra) {
 			push @mirrors, "ftp://ftp.all.kernel.org/pub/$dir";
 			push @mirrors, "http://ftp.all.kernel.org/pub/$dir";
-			push @mirrors, "ftp://ftp.de.kernel.org/pub/$dir";
-			push @mirrors, "http://ftp.de.kernel.org/pub/$dir";
-			push @mirrors, "ftp://ftp.fr.kernel.org/pub/$dir";
-			push @mirrors, "http://ftp.fr.kernel.org/pub/$dir";
 		}
     } elsif ($mirror =~ /^\@GNOME\/(.+)$/) {
 		push @mirrors, "http://ftp.gnome.org/pub/GNOME/sources/$1";

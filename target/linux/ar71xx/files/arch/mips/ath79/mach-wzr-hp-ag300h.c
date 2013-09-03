@@ -43,22 +43,14 @@ static struct mtd_partition wzrhpag300h_flash_partitions[] = {
 		.size		= 0x0010000,
 		.mask_flags	= MTD_WRITEABLE,
 	}, {
-		.name		= "kernel",
+		.name		= "firmware",
 		.offset		= 0x0060000,
-		.size		= 0x0100000,
-	}, {
-		.name		= "rootfs",
-		.offset		= 0x0160000,
-		.size		= 0x1e90000,
+		.size		= 0x1f90000,
 	}, {
 		.name		= "user_property",
 		.offset		= 0x1ff0000,
 		.size		= 0x0010000,
 		.mask_flags	= MTD_WRITEABLE,
-	}, {
-		.name		= "firmware",
-		.offset		= 0x0060000,
-		.size		= 0x1f90000,
 	}
 };
 
@@ -140,21 +132,21 @@ static struct gpio_keys_button wzrhpag300h_gpio_keys[] __initdata = {
 		.active_low	= 1,
 	}, {
 		.desc		= "router_auto",
-		.type		= EV_KEY,
+		.type		= EV_SW,
 		.code		= BTN_6,
 		.debounce_interval = WZRHPAG300H_KEYS_DEBOUNCE_INTERVAL,
 		.gpio		= 6,
 		.active_low	= 1,
 	}, {
 		.desc		= "router_off",
-		.type		= EV_KEY,
+		.type		= EV_SW,
 		.code		= BTN_5,
 		.debounce_interval = WZRHPAG300H_KEYS_DEBOUNCE_INTERVAL,
 		.gpio		= 7,
 		.active_low	= 1,
 	}, {
 		.desc		= "movie_engine",
-		.type		= EV_KEY,
+		.type		= EV_SW,
 		.code		= BTN_7,
 		.debounce_interval = WZRHPAG300H_KEYS_DEBOUNCE_INTERVAL,
 		.gpio		= 8,

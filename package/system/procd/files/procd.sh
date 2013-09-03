@@ -67,6 +67,9 @@ _procd_open_service() {
 
 _procd_close_service() {
 	json_close_object
+	_procd_open_trigger
+	service_triggers
+	_procd_close_trigger
 	_procd_ubus_call set
 }
 
@@ -109,6 +112,10 @@ _procd_open_instance() {
 	json_add_object "$name"
 }
 
+_procd_open_trigger() {
+	json_add_array "triggers"
+}
+
 _procd_set_param() {
 	local type="$1"; shift
 
@@ -123,6 +130,27 @@ _procd_set_param() {
 			json_add_int "$type" "$1"
 		;;
 	esac
+}
+
+_procd_add_config_trigger() {
+	json_add_array
+	_procd_add_array_data "config.change"
+
+	json_add_array
+	_procd_add_array_data "if"
+
+	json_add_array
+	_procd_add_array_data "eq" "package" "$1"
+	shift
+	json_close_array
+
+	json_add_array
+	_procd_add_array_data "run_script" "$@"
+	json_close_array
+
+	json_close_array
+
+	json_close_array
 }
 
 _procd_append_param() {
@@ -144,6 +172,10 @@ _procd_close_instance() {
 	json_close_object
 }
 
+_procd_close_trigger() {
+	json_close_array
+}
+
 _procd_add_instance() {
 	_procd_open_instance
 	_procd_set_command "$@"
@@ -155,7 +187,7 @@ _procd_kill() {
 	local instance="$2"
 
 	json_init
-	[ -n "$service" ] && json_add_string service "$service"
+	[ -n "$service" ] && json_add_string name "$service"
 	[ -n "$instance" ] && json_add_string instance "$instance"
 	_procd_ubus_call delete
 }
@@ -164,6 +196,9 @@ _procd_wrapper \
 	procd_open_service \
 	procd_close_service \
 	procd_add_instance \
+	procd_add_config_trigger \
+	procd_open_trigger \
+	procd_close_trigger \
 	procd_open_instance \
 	procd_close_instance \
 	procd_set_param \

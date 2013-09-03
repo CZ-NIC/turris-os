@@ -163,21 +163,6 @@ endef
 $(eval $(call KernelPackage,ata-sil24))
 
 
-define KernelPackage/ata-sis
-  TITLE:=SIS SATA support
-  KCONFIG:=CONFIG_SATA_SIS
-  FILES:=$(LINUX_DIR)/drivers/ata/sata_sis.ko
-  AUTOLOAD:=$(call AutoLoad,41,sata_sis,1)
-  $(call AddDepends/ata)
-endef
-
-define KernelPackage/ata-sis/description
- Support for SIS Serial ATA controllers.
-endef
-
-$(eval $(call KernelPackage,ata-sis))
-
-
 define KernelPackage/ata-via-sata
   TITLE:=VIA SATA support
   KCONFIG:=CONFIG_SATA_VIA
@@ -206,6 +191,7 @@ $(eval $(call KernelPackage,block2mtd))
 define KernelPackage/dm
   SUBMENU:=$(BLOCK_MENU)
   TITLE:=Device Mapper
+  DEPENDS:=+kmod-crypto-manager
   # All the "=n" are unnecessary, they're only there
   # to stop the config from asking the question.
   # MIRROR is M because I've needed it for pvmove.
@@ -320,29 +306,25 @@ $(eval $(call KernelPackage,md-raid10))
 
 
 define KernelPackage/md-raid456
-$(call KernelPackage/md/Depends,)
+$(call KernelPackage/md/Depends,+kmod-lib-raid6 +kmod-lib-xor)
   TITLE:=RAID Level 456 Driver
   KCONFIG:= \
-       CONFIG_XOR_BLOCKS \
        CONFIG_ASYNC_CORE \
        CONFIG_ASYNC_MEMCPY \
        CONFIG_ASYNC_XOR \
        CONFIG_ASYNC_PQ \
        CONFIG_ASYNC_RAID6_RECOV \
        CONFIG_ASYNC_RAID6_TEST=n \
-       CONFIG_MD_RAID6_PQ \
        CONFIG_MD_RAID456 \
        CONFIG_MULTICORE_RAID456=n
   FILES:= \
-	$(LINUX_DIR)/crypto/xor.ko \
 	$(LINUX_DIR)/crypto/async_tx/async_tx.ko \
 	$(LINUX_DIR)/crypto/async_tx/async_memcpy.ko \
 	$(LINUX_DIR)/crypto/async_tx/async_xor.ko \
 	$(LINUX_DIR)/crypto/async_tx/async_pq.ko \
 	$(LINUX_DIR)/crypto/async_tx/async_raid6_recov.ko \
-	$(LINUX_DIR)/drivers/md/raid456.ko \
-	$(LINUX_DIR)/lib/raid6/raid6_pq.ko
-  AUTOLOAD:=$(call AutoLoad,28, xor async_tx async_memcpy async_xor raid6_pq async_pq async_raid6_recov raid456)
+	$(LINUX_DIR)/drivers/md/raid456.ko
+  AUTOLOAD:=$(call AutoLoad,28, async_tx async_memcpy async_xor async_pq async_raid6_recov raid456)
 endef
 
 define KernelPackage/md-raid456/description
@@ -491,6 +473,7 @@ $(eval $(call KernelPackage,ide-it821x))
 
 define KernelPackage/libsas
   SUBMENU:=$(BLOCK_MENU)
+  DEPENDS:=@TARGET_x86
   TITLE:=SAS Domain Transport Attributes
   KCONFIG:=CONFIG_SCSI_SAS_LIBSAS \
 	CONFIG_SCSI_SAS_ATTRS \

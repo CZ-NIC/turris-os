@@ -78,7 +78,6 @@ menu "Target Images"
 	config TARGET_ROOTFS_EXT4FS
 		bool "ext4"
 		default y if USES_EXT4
-		depends on !TARGET_ROOTFS_INITRAMFS
 		help
 		  Ext4 file system with some free space for uml images
 
@@ -86,35 +85,32 @@ menu "Target Images"
 		bool "iso"
 		default n
 		depends on TARGET_x86_generic
-		depends on !TARGET_ROOTFS_INITRAMFS
 		help
 		  Create some bootable ISO image
 
 	config TARGET_ROOTFS_JFFS2
 		bool "jffs2"
 		default y if USES_JFFS2
-		depends on !TARGET_ROOTFS_INITRAMFS
 		help
 		  Build a jffs2 root filesystem
 
 	config TARGET_ROOTFS_JFFS2_NAND
 		bool "jffs2 for NAND"
 		default y if USES_JFFS2_NAND
-		depends on !TARGET_ROOTFS_INITRAMFS && USES_JFFS2_NAND
+		depends on USES_JFFS2_NAND
 		help
 		  Build a jffs2 root filesystem for NAND flash
 
 	config TARGET_ROOTFS_SQUASHFS
 		bool "squashfs"
 		default y if USES_SQUASHFS
-		depends on !TARGET_ROOTFS_INITRAMFS
 		help
 		  Build a squashfs-lzma root filesystem
 
 	config TARGET_ROOTFS_UBIFS
 		bool "ubifs"
 		default y if USES_UBIFS
-		depends on !TARGET_ROOTFS_INITRAMFS && USES_UBIFS
+		depends on USES_UBIFS
 		help
 		  Build a ubifs root filesystem
 
@@ -142,6 +138,20 @@ menu "Target Images"
 		default 0
 		help
 		  Allows you to change the percentage of reserved blocks in the root filesystem
+
+	config TARGET_ROOTFS_INCLUDE_KERNEL
+		bool "include kernel in rootfs"
+		depends on TARGET_ROOTFS_UBIFS || TARGET_ROOTFS_EXT4FS
+		default n if USES_UBIFS
+		help
+		  Include the kernel image in the rootfs
+
+	config TARGET_ROOTFS_INCLUDE_DTB
+		bool "include dtb in rootfs"
+		depends on TARGET_ROOTFS_UBIFS || TARGET_ROOTFS_EXT4FS
+		default n if USES_UBIFS
+		help
+		  Include the device tree blob file in the rootfs
 
 endmenu
 
@@ -234,6 +244,11 @@ menu "Global build settings"
 		bool "Compile the kernel with tracing support"
 		default n
 
+	config KERNEL_FTRACE_SYSCALLS
+		bool "Trace system calls"
+		depends on KERNEL_FTRACE
+		default n
+
 	config KERNEL_ENABLE_DEFAULT_TRACERS
 		bool "Trace process context switches and events"
 		depends on KERNEL_FTRACE
@@ -306,6 +321,9 @@ menu "Global build settings"
 
 	config KERNEL_RELAY
 		bool
+
+	config KERNEL_KEXEC
+		bool "Enable kexec support"
 
 	#
 	# CGROUP support symbols
@@ -444,13 +462,10 @@ menu "Global build settings"
 			  the kmem extension can use it to guarantee that no group of processes
 			  will ever exhaust kernel resources alone.
 
-		config KERNEL_PERF_EVENTS
-			bool
-			default y if KERNEL_CGROUP_PERF
-
 		config KERNEL_CGROUP_PERF
 			bool "Enable perf_event per-cpu per-container group (cgroup) monitoring"
 			default n
+			select KERNEL_PERF_EVENTS
 			help
 			  This option extends the per-cpu mode to restrict monitoring to
 			  threads which belong to the cgroup specified and run on the

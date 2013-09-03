@@ -7,7 +7,7 @@
 
 define KernelPackage/usb-rt305x-dwc_otg
   TITLE:=RT305X USB controller driver
-  DEPENDS:=@TARGET_ramips_rt305x
+  DEPENDS:=@TARGET_ramips_rt305x @LINUX_3_9
   KCONFIG:= \
 	CONFIG_DWC_OTG \
 	CONFIG_DWC_OTG_HOST_ONLY=y \
@@ -24,3 +24,18 @@ define KernelPackage/usb-rt305x-dwc_otg/description
 endef
 
 $(eval $(call KernelPackage,usb-rt305x-dwc_otg))
+
+I2C_RALINK_MODULES:= \
+  CONFIG_I2C_RALINK:drivers/i2c/busses/i2c-ralink
+
+define KernelPackage/i2c-ralink
+  $(call i2c_defaults,$(I2C_RALINK_MODULES),59)
+  TITLE:=Ralink I2C Controller
+  DEPENDS:=@TARGET_ramips kmod-i2c-core
+endef
+
+define KernelPackage/i2c-ralink/description
+ Kernel modules for enable ralink i2c controller.
+endef
+
+$(eval $(call KernelPackage,i2c-ralink))

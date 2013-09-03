@@ -8,7 +8,8 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/image.mk
 
 BOARDS := \
-	imx6dl-wandboard
+	imx6dl-wandboard \
+	imx6q-gw5400-a
 
 # board-specific Flattened Image Tree
 define mkfit
@@ -16,7 +17,7 @@ define mkfit
 		-v 'OpenWrt Linux-$(LINUX_VERSION)' \
 		-d $(LINUX_DIR)/arch/arm/boot/dts/$(1).dtb -k $(LINUX_DIR)/arch/arm/boot/zImage \
 		-o $(KDIR)/$(1)-uImage.its
-	mkimage -B $(LINUX_DIR)/scripts/dtc/dtc -f $(KDIR)/$(1)-uImage.its $(BIN_DIR)/openwrt-$(1)-uImage.itb
+	PATH=$(LINUX_DIR)/scripts/dtc:$(PATH) mkimage -f $(KDIR)/$(1)-uImage.its $(BIN_DIR)/openwrt-$(1)-uImage.itb
 endef
 
 # emit FIT images, DTB's and generic zImage
@@ -25,7 +26,7 @@ define Image/BuildKernel
 		$(call mkfit,$(board),0x10008000)
 		cp $(LINUX_DIR)/arch/arm/boot/dts/$(board).dtb $(BIN_DIR)
 	)
-	cp $(LINUX_DIR)/arch/arm/boot/zImage $(BIN_DIR)/openwrt-$(BOARD)-zImage
+	cp $(KDIR)/zImage $(BIN_DIR)/openwrt-$(BOARD)-zImage
 endef
 
 # board-specific sysupgrade image

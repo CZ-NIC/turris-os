@@ -13,7 +13,7 @@ WATCHDOG_DIR:=watchdog
 define KernelPackage/bluetooth
   SUBMENU:=$(OTHER_MENU)
   TITLE:=Bluetooth support
-  DEPENDS:=@USB_SUPPORT +kmod-usb-core
+  DEPENDS:=@USB_SUPPORT +kmod-usb-core +kmod-crypto-hash
   KCONFIG:= \
 	CONFIG_BLUEZ \
 	CONFIG_BLUEZ_L2CAP \
@@ -135,7 +135,7 @@ $(eval $(call KernelPackage,gpio-dev))
 define KernelPackage/gpio-mcp23s08
   SUBMENU:=$(OTHER_MENU)
   TITLE:=Microchip MCP23xxx I/O expander
-  DEPENDS:=@GPIO_SUPPORT
+  DEPENDS:=@GPIO_SUPPORT +PACKAGE_kmod-i2c-core:kmod-i2c-core
   KCONFIG:=CONFIG_GPIO_MCP23S08
   FILES:=$(LINUX_DIR)/drivers/gpio/gpio-mcp23s08.ko
   AUTOLOAD:=$(call AutoLoad,40,gpio-mcp23s08)
@@ -247,7 +247,7 @@ define KernelPackage/rfkill
   FILES:= \
     $(LINUX_DIR)/net/rfkill/rfkill.ko
   AUTOLOAD:=$(call AutoLoad,20,rfkill)
-  $(call SetDepends/rfkill)
+  $(call SetDepends/rfkill,+kmod-input-core)
 endef
 
 define KernelPackage/rfkill/description
@@ -439,7 +439,7 @@ $(eval $(call KernelPackage,rtc-marvell))
 define KernelPackage/rtc-pcf8563
   SUBMENU:=$(OTHER_MENU)
   TITLE:=Philips PCF8563/Epson RTC8564 RTC support
-  $(call AddDepends/rtc)
+  $(call AddDepends/rtc,+kmod-i2c-core)
   KCONFIG:=CONFIG_RTC_DRV_PCF8563
   FILES:=$(LINUX_DIR)/drivers/rtc/rtc-pcf8563.ko
   AUTOLOAD:=$(call AutoLoad,60,rtc-pcf8563)
@@ -488,6 +488,7 @@ define KernelPackage/mtdtests
   SUBMENU:=$(OTHER_MENU)
   TITLE:=MTD subsystem tests
   KCONFIG:=CONFIG_MTD_TESTS
+  DEPENDS:=+kmod-nand
   FILES:=\
 	$(LINUX_DIR)/drivers/mtd/tests/mtd_nandecctest.ko \
 	$(LINUX_DIR)/drivers/mtd/tests/mtd_oobtest.ko \
@@ -551,7 +552,7 @@ define KernelPackage/serial-8250
 	CONFIG_SERIAL_8250_SHARE_IRQ=y \
 	CONFIG_SERIAL_8250_DETECT_IRQ=n \
 	CONFIG_SERIAL_8250_RSA=n
-  FILES:=$(LINUX_DIR)/drivers/tty/serial/8250/8250$(if $(call kernel_patchver_ge,3.7),$(if $(call kernel_patchver_le,3.9),_core)).ko
+  FILES:=$(LINUX_DIR)/drivers/tty/serial/8250/8250$(if $(call kernel_patchver_ge,3.7),$(if $(call kernel_patchver_le,3.8),_core)).ko
 endef
 
 define KernelPackage/serial-8250/description
@@ -640,7 +641,7 @@ define KernelPackage/pps
   TITLE:=PPS support
   KCONFIG:=CONFIG_PPS
   FILES:=$(LINUX_DIR)/drivers/pps/pps_core.ko
-  AUTOLOAD:=$(call AutoLoad,20,pps_core)
+  AUTOLOAD:=$(call AutoLoad,17,pps_core,1)
 endef
 
 define KernelPacakge/pps/description
@@ -658,7 +659,7 @@ define KernelPackage/ptp
   DEPENDS:=+kmod-pps
   KCONFIG:=CONFIG_PTP_1588_CLOCK
   FILES:=$(LINUX_DIR)/drivers/ptp/ptp.ko
-  AUTOLOAD:=$(call AutoLoad,25,ptp)
+  AUTOLOAD:=$(call AutoLoad,18,ptp,1)
 endef
 
 define KernelPacakge/ptp/description
@@ -684,3 +685,17 @@ define KernelPacakge/ptp-gianfar/description
 endef
 
 $(eval $(call KernelPackage,ptp-gianfar))
+
+define KernelPackage/random-core
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=Hardware Random Number Generator Core support
+  KCONFIG:=CONFIG_HW_RANDOM
+  FILES:=$(LINUX_DIR)/drivers/char/hw_random/rng-core.ko
+  AUTOLOAD:=$(call AutoLoad,10,rng-core)
+endef
+
+define KernelPackage/random-core/description
+   Kernel module for the HW random number generator core infrastructure
+endef
+
+$(eval $(call KernelPackage,random-core))

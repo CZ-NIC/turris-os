@@ -24,7 +24,7 @@ I2C_CORE_MODULES:= \
   CONFIG_I2C:drivers/i2c/i2c-core \
   CONFIG_I2C_CHARDEV:drivers/i2c/i2c-dev
 
-ifeq (CONFIG_OF,y)
+ifeq ($(CONFIG_OF),y)
   I2C_CORE_MODULES+=CONFIG_OF_I2C:drivers/of/of_i2c
 endif
 
@@ -158,7 +158,7 @@ I2C_TINY_USB_MODULES:= \
 define KernelPackage/i2c-tiny-usb
   $(call i2c_defaults,$(I2C_TINY_USB_MODULES),59)
   TITLE:=I2C Tiny USB adaptor
-  DEPENDS:=@USB_SUPPORT kmod-i2c-core
+  DEPENDS:=@USB_SUPPORT kmod-i2c-core +kmod-usb-core
 endef
 
 define KernelPackage/i2c-tiny-usb/description

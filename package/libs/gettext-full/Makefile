@@ -35,6 +35,9 @@ define Package/libintl-full
 endef
 
 TARGET_CFLAGS += $(FPIC)
+ifneq ($(HOST_OS),Linux)
+  TARGET_CFLAGS += -I$(STAGING_DIR_HOST)/include
+endif
 
 CONFIGURE_ARGS += \
 	--enable-shared \
@@ -50,7 +53,7 @@ CONFIGURE_ARGS += \
 	--without-emacs
 
 HOST_CONFIGURE_ARGS += \
-	--with-included-libxml
+	--with-included-libxml --without-libxml2-prefix --with-included-libcroco
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib/libintl-full/include

@@ -54,15 +54,18 @@ ifneq ($(PKG_NAME),toolchain)
 	@( \
 		rm -f $(PKG_INFO_DIR)/$(1).missing; \
 		( \
-			export READELF=$(TARGET_CROSS)readelf XARGS="$(XARGS)"; \
+			export \
+				READELF=$(TARGET_CROSS)readelf \
+				OBJCOPY=$(TARGET_CROSS)objcopy \
+				XARGS="$(XARGS)"; \
 			$(SCRIPT_DIR)/gen-dependencies.sh "$$(IDIR_$(1))"; \
 		) | while read FILE; do \
 			grep -q "$$$$FILE" $(PKG_INFO_DIR)/$(1).provides || \
 				echo "$$$$FILE" >> $(PKG_INFO_DIR)/$(1).missing; \
 		done; \
 		if [ -f "$(PKG_INFO_DIR)/$(1).missing" ]; then \
-			echo "Package $(1) is missing dependencies for the following libraries:"; \
-			cat "$(PKG_INFO_DIR)/$(1).missing"; \
+			echo "Package $(1) is missing dependencies for the following libraries:" >&2; \
+			cat "$(PKG_INFO_DIR)/$(1).missing" >&2; \
 			false; \
 		fi; \
 	)
@@ -128,12 +131,12 @@ ifeq ($(DUMP),)
 	$(call Package/$(1)/install,$$(IDIR_$(1)))
 	-find $$(IDIR_$(1)) -name 'CVS' -o -name '.svn' -o -name '.#*' -o -name '*~'| $(XARGS) rm -rf
 	@( \
-		find $$(IDIR_$(1)) -name lib\*.so\* | awk -F/ '{ print $$$$NF }'; \
+		find $$(IDIR_$(1)) -name lib\*.so\* -or -name \*.ko | awk -F/ '{ print $$$$NF }'; \
 		for file in $$(patsubst %,$(PKG_INFO_DIR)/%.provides,$$(IDEPEND_$(1))); do \
 			if [ -f "$$$$file" ]; then \
 				cat $$$$file; \
 			fi; \
-		done; \
+		done; $(Package/$(1)/extra_provides) \
 	) | sort -u > $(PKG_INFO_DIR)/$(1).provides
 	$(if $(PROVIDES),@for pkg in $(PROVIDES); do cp $(PKG_INFO_DIR)/$(1).provides $(PKG_INFO_DIR)/$$$$pkg.provides; done)
 	$(CheckDependencies)

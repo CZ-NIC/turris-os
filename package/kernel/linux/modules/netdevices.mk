@@ -97,7 +97,7 @@ define KernelPackage/et131x
   KCONFIG:= \
 	CONFIG_ET131X \
 	CONFIG_ET131X_DEBUG=n
-  DEPENDS:=@PCI_SUPPORT
+  DEPENDS:=@PCI_SUPPORT +kmod-libphy
   AUTOLOAD:=$(call AutoLoad,70,et131x)
 endef
 
@@ -403,7 +403,7 @@ $(eval $(call KernelPackage,e1000))
 define KernelPackage/e1000e
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   TITLE:=Intel(R) PRO/1000 PCIe cards kernel support
-  DEPENDS:=@PCIE_SUPPORT
+  DEPENDS:=@PCIE_SUPPORT +(!LINUX_3_3&&!LINUX_3_6&&!LINUX_3_7):kmod-ptp
   KCONFIG:=CONFIG_E1000E
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/intel/e1000e/e1000e.ko
   AUTOLOAD:=$(call AutoLoad,50,e1000e)
@@ -422,7 +422,7 @@ define KernelPackage/b44
   DEPENDS:=@PCI_SUPPORT +!TARGET_brcm47xx:kmod-ssb
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/broadcom/b44.ko
-  AUTOLOAD:=$(call AutoLoad,50,b44)
+  AUTOLOAD:=$(call AutoLoad,19,b44,1)
 endef
 
 define KernelPackage/b44/description
@@ -476,7 +476,7 @@ define KernelPackage/tg3
   DEPENDS:=+!TARGET_brcm47xx:kmod-libphy +!LINUX_3_3:kmod-hwmon-core +(LINUX_3_8||LINUX_3_9||LINUX_3_10):kmod-ptp
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/broadcom/tg3.ko
-  AUTOLOAD:=$(call AutoLoad,50,tg3)
+  AUTOLOAD:=$(call AutoLoad,19,tg3,1)
 endef
 
 define KernelPackage/tg3/description

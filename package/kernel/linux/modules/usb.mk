@@ -112,7 +112,7 @@ $(eval $(call KernelPackage,usb-ohci,1))
 
 define KernelPackage/usb2-fsl
   TITLE:=Support for Freescale USB2 controllers
-  DEPENDS:=TARGET_mpc85xx
+  DEPENDS:=@TARGET_mpc85xx
   KCONFIG:=\
 	CONFIG_USB_FSL_MPH_DR_OF \
   	CONFIG_USB_EHCI_FSL=y
@@ -170,6 +170,29 @@ define KernelPackage/usb2-pci/description
 endef
 
 $(eval $(call KernelPackage,usb2-pci))
+
+
+define KernelPackage/usb-dwc2
+  TITLE:=DWC2 USB controller driver
+  DEPENDS:=@LINUX_3_10
+  KCONFIG:= \
+	CONFIG_USB_DWC2 \
+	CONFIG_USB_DWC2_DEBUG=n \
+	CONFIG_USB_DWC2_VERBOSE=n \
+	CONFIG_USB_DWC2_TRACK_MISSED_SOFS=n
+  FILES:= \
+	$(LINUX_DIR)/drivers/staging/dwc2/dwc2.ko \
+	$(LINUX_DIR)/drivers/staging/dwc2/dwc2_platform.ko
+  AUTOLOAD:=$(call AutoLoad,54,dwc2 dwc2_platform,1)
+  $(call AddDepends/usb)
+endef
+
+define KernelPackage/usb-dwc2/description
+  This driver provides USB Device Controller support for the
+  Synopsys DesignWare USB OTG Core.
+endef
+
+$(eval $(call KernelPackage,usb-dwc2))
 
 
 define KernelPackage/usb-acm
@@ -332,7 +355,7 @@ define KernelPackage/usb-serial-ipw
   KCONFIG:=CONFIG_USB_SERIAL_IPW
   FILES:=$(LINUX_DIR)/drivers/usb/serial/ipw.ko
   AUTOLOAD:=$(call AutoLoad,65,ipw)
-  $(call AddDepends/usb-serial)
+  $(call AddDepends/usb-serial,+kmod-usb-serial-wwan)
 endef
 
 $(eval $(call KernelPackage,usb-serial-ipw))
@@ -507,7 +530,9 @@ define KernelPackage/usb-serial-keyspan
 	CONFIG_USB_SERIAL_KEYSPAN_MPR \
 	CONFIG_USB_SERIAL_KEYSPAN_USA49W \
 	CONFIG_USB_SERIAL_KEYSPAN_USA49WLC
-  FILES:=$(LINUX_DIR)/drivers/usb/serial/keyspan.ko
+  FILES:= \
+	$(LINUX_DIR)/drivers/usb/serial/keyspan.ko \
+	$(wildcard $(LINUX_DIR)/drivers/usb/misc/ezusb.ko)
   AUTOLOAD:=$(call AutoLoad,65,keyspan)
   $(call AddDepends/usb-serial)
 endef
@@ -555,7 +580,7 @@ define KernelPackage/usb-serial-qualcomm
   KCONFIG:=CONFIG_USB_SERIAL_QUALCOMM
   FILES:=$(LINUX_DIR)/drivers/usb/serial/qcserial.ko
   AUTOLOAD:=$(call AutoLoad,65,qcserial)
-  $(call AddDepends/usb-serial)
+  $(call AddDepends/usb-serial,+kmod-usb-serial-wwan)
 endef
 
 define KernelPackage/usb-serial-qualcomm/description
@@ -710,6 +735,7 @@ endef
 
 define KernelPackage/usb-net-asix
   TITLE:=Kernel module for USB-to-Ethernet Asix convertors
+  DEPENDS:=+!LINUX_3_3:kmod-libphy
   KCONFIG:=CONFIG_USB_NET_AX8817X
   FILES:=$(LINUX_DIR)/drivers/$(USBNET_DIR)/asix.ko
   AUTOLOAD:=$(call AutoLoad,61,asix)
@@ -850,7 +876,7 @@ define KernelPackage/usb-net-cdc-mbim
   FILES:= \
    $(LINUX_DIR)/drivers/$(USBNET_DIR)/cdc_mbim.ko
   AUTOLOAD:=$(call AutoLoad,62,cdc_mbim)
-  $(call AddDepends/usb-net,+kmod-usb-wdm,+kmod-usb-net-cdc-ncm)
+  $(call AddDepends/usb-net,+kmod-usb-wdm +kmod-usb-net-cdc-ncm)
 endef
 
 define KernelPackage/usb-net-cdc-mbim/description
@@ -1000,3 +1026,36 @@ $(call KernelPackage/usbip/Default)
   $(call AddDepends/usb)
 endef
 $(eval $(call KernelPackage,usbip-server))
+
+define KernelPackage/usb-chipidea
+    TITLE:=Support for ChipIdea controllers
+    DEPENDS:= +kmod-usb2
+    KCONFIG:= \
+	CONFIG_USB_CHIPIDEA \
+	CONFIG_USB_CHIPIDEA_HOST=y \
+	CONFIG_USB_CHIPIDEA_DEBUG=y
+    FILES:=\
+	$(LINUX_DIR)/drivers/usb/chipidea/ci_hdrc.ko
+    AUTOLOAD:=$(call AutoLoad,51,ci_hdrc,1)
+    $(call AddDepends/usb)
+endef
+
+define KernelPackage/usb-chipidea/description
+    Kernel support for USB ChipIdea controllers
+endef
+
+$(eval $(call KernelPackage,usb-chipidea,1))
+
+define KernelPackage/usbmon
+  TITLE:=USB traffic monitor
+  KCONFIG:=CONFIG_USB_MON
+  $(call AddDepends/usb)
+  FILES:=$(LINUX_DIR)/drivers/usb/mon/usbmon.ko
+  AUTOLOAD:=$(call AutoLoad,60,usbmon)
+endef
+
+define KernelPackage/usbmon/description
+ Kernel support for USB traffic monitoring.
+endef
+
+$(eval $(call KernelPackage,usbmon))

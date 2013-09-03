@@ -5,10 +5,6 @@
 # See /LICENSE for more information.
 #
 
-define Image/Prepare
-	cp $(LINUX_DIR)/arch/arm/boot/uImage $(KDIR)/uImage
-endef
-
 define Image/BuildKernel
 	# Orion Kernel uImages
  # DT2: mach id 1514 (0x5EA)
@@ -18,6 +14,13 @@ define Image/BuildKernel
 	-C none -a 0x00008000 -e 0x00008000 -n 'Linux-$(LINUX_VERSION)' \
 	-d $(KDIR)/dt2-zImage $(KDIR)/dt2-uImage
 	cp $(KDIR)/dt2-uImage $(BIN_DIR)/openwrt-dt2-uImage
+ # LaCie 2big Network: mach id 2342 (0x926)
+	echo -en "\x09\x1c\xa0\xe3\x26\x10\x81\xe3" > $(KDIR)/net2big-zImage
+	cat $(LINUX_DIR)/arch/arm/boot/zImage >> $(KDIR)/net2big-zImage
+	$(STAGING_DIR_HOST)/bin/mkimage -A arm -O linux -T kernel \
+	-C none -a 0x00008000 -e 0x00008000 -n 'Linux-$(LINUX_VERSION)' \
+	-d $(KDIR)/net2big-zImage $(KDIR)/net2big-uImage
+	cp $(KDIR)/net2big-uImage $(BIN_DIR)/openwrt-net2big-uImage
 endef
 
 define Image/Build/Freecom

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2012 OpenWrt.org
+# Copyright (C) 2012-2013 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -11,9 +11,9 @@ ARCH:=arm
 BOARD:=brcm2708
 BOARDNAME:=Broadcom BCM2708/BCM2835
 FEATURES:=ext4 audio usb usbgadget display gpio
-MAINTAINER:=Ian Ridge <ianridge[at]gmail.com>
+MAINTAINER:=Florian Fainelli <florian@openwrt.org>
 
-LINUX_VERSION:=3.3.8
+LINUX_VERSION:=3.10.1
 
 include $(INCLUDE_DIR)/target.mk
 DEFAULT_PACKAGES += brcm2708-gpu-fw kmod-usb-hid kmod-sound-core kmod-sound-arm-bcm2835
