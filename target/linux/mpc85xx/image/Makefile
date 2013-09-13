@@ -25,7 +25,7 @@ endif
 
 zImage:=$(BIN_DIR)/$(IMG_PREFIX)-zImage$(IMAGE_SUFFIX)
 
-DTS_TARGETS = mpc8548cds_32b p1010rdb tl-wdr4900-v1 p1020rdb p2020rdb
+DTS_TARGETS = mpc8548cds_32b p1010rdb tl-wdr4900-v1 p1020rdb p2020rdb turris
 BOOT_IMAGES:=zImage cuImage.tl-wdr4900-v1
 
 define Image/Prepare
@@ -35,10 +35,11 @@ define Image/Prepare
 endef
 
 define Image/BuildKernel
-	cp $(KDIR)/zImage$(IMAGE_SUFFIX) $(zImage)
-	$(foreach dts,$(DTS_TARGETS),
-		$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/powerpc/boot/dts/$(dts).dts > $(BIN_DIR)/$(IMG_PREFIX)-$(dts).fdt
-	)
+	cp $(KDIR)/zImage $(zImage)
+endef
+
+define Image/makeDTS
+	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/powerpc/boot/dts/$(1).dts > $(BIN_DIR)/$(IMG_PREFIX)-$(1).fdt
 endef
 
 define Image/Build/TPLINK
@@ -55,14 +56,30 @@ define Image/Build/TPLINK
 endef
 
 define Image/Build/Profile/TLWDR4900
+	$(call Image/makeDTS,tl-wdr4900-v1)
 	$(call Image/Build/TPLINK,$(1),tl-wdr4900-v1,cuImage.tl-wdr4900-v1,0x49000001,1,16Mppc)
 endef
 
 define Image/Build/Profile/Default
 	$(call Image/Build/Profile/TLWDR4900,$(1))
+	$(call Image/Build/Profile/Turris,$(1))
+endef
+
+define Image/Build/Profile/Turris
+	echo "Building for Turris!!!!!!!!!!!!!!!"
+	$(STAGING_DIR_HOST)/bin/mkfs.jffs2 -b -e 128KiB -o $(KDIR)/root.jffs2-128k-be -d $(KDIR)/../root-mpc85xx 
+	dd if=$(KDIR)/root.jffs2-128k-be of=$(BIN_DIR)/$(IMG_PREFIX)-jffs2-128k-be.img bs=128k conv=sync
+	$(call Image/makeDTS,turris)
+	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
+	truncate -s 256K $(BIN_DIR)/$(IMG_PREFIX)-turris.bin 
+	dd if=$(BIN_DIR)/$(IMG_PREFIX)-zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
+	truncate -s 3840K $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
+	dd if=$(BIN_DIR)/$(IMG_PREFIX)-jffs2-128k-be.img bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
+	truncate -s 15104K $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
 endef
 
 define Image/Build/Profile/P2020RDBPCA
+	$(call Image/makeDTS,p2020rdb)
 	echo "P2020RDBPCA build"
 endef
 
@@ -75,7 +92,15 @@ define Image/Build/squashfs
 	cp $(KDIR)/root.squashfs $(BIN_DIR)/$(IMG_PREFIX)-root.squashfs
 endef
 
-PROFILE ?= Default
+define Image/Build/jffs2-64k
+        dd if=$(KDIR)/root.$(1) of=$(BIN_DIR)/$(IMG_PREFIX)-$(1).img bs=64k conv=sync
+endef
+
+define Image/Build/jffs2-128k
+        dd if=$(KDIR)/root.$(1) of=$(BIN_DIR)/$(IMG_PREFIX)-$(1).img bs=128k conv=sync
+endef
+
+#PROFILE ?= Default
 
 define Image/Build
 	$(call Image/Build/$(1),$(1))
