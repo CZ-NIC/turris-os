@@ -1,5 +1,5 @@
---- /dev/null	2013-08-26 08:29:39.474553019 +0200
-+++ build_dir/target-powerpc_uClibc-0.9.33.2/linux-mpc85xx_generic/linux-3.8.13/arch/powerpc/boot/dts/turris.dts	2013-10-01 15:58:23.903528247 +0200
+--- a/dev/null	
++++ b/arch/powerpc/boot/dts/turris.dts
 @@ -0,0 +1,251 @@
 +/*
 + * Turris RDB Device Tree Source
