@@ -1,5 +1,5 @@
---- /dev/null	2013-08-26 08:29:39.474553019 +0200
-+++ build_dir/target-powerpc_uClibc-0.9.33.2/linux-mpc85xx_generic/linux-3.8.13/arch/powerpc/boot/dts/turris.dts	2013-10-01 15:58:23.903528247 +0200
+--- /dev/null	
++++ b/arch/powerpc/boot/dts/turris.dts
 @@ -0,0 +1,251 @@
 +/*
 + * Turris RDB Device Tree Source
@@ -38,7 +38,7 @@
 +
 +		/* NOR and NAND Flashes */
 +		ranges = <0x0 0x0 0x0 0xef000000 0x01000000
-+			  0x1 0x0 0x0 0xffa00000 0x00040000
++			  0x1 0x0 0x0 0xff800000 0x8000000
 +			  0x2 0x0 0x0 0xffb00000 0x00020000>;
 +
 +		nor@0,0 {
@@ -92,7 +92,7 @@
 +			#size-cells = <1>;
 +			compatible = "fsl,p2020-fcm-nand",
 +				     "fsl,elbc-fcm-nand";
-+			reg = <0x1 0x0 0x40000>;
++			reg = <0x1 0x0 0x8000000>;
 +
 +			partition@0 {
 +				/* This location must not be altered  */
