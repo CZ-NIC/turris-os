@@ -12,7 +12,7 @@ BOARDNAME:=Freescale MPC85xx
 CFLAGS:=-Os -pipe -fno-caller-saves -mcpu=8540
 FEATURES:=spe_fpu squashfs
 MAINTAINER:=Imre Kaloz <kaloz@openwrt.org>
-SUBTARGETS=generic
+SUBTARGETS=p1010 p2020
 
 LINUX_VERSION:=3.8.13
 
