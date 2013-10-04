@@ -15,7 +15,7 @@
 +/include/ "fsl/p2020si-pre.dtsi"
 +
 +/ {
-+	model = "fsl,P2020RDB";
++	model = "Turris";
 +	compatible = "fsl,P2020RDB";
 +
 +	aliases {
