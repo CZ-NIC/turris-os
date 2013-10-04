@@ -8,7 +8,9 @@
 define Profile/Turris
 	NAME:=Turris
 	PACKAGES:=\
-		kmod-usb-core kmod-usb2 kmod-usb2-fsl
+		kmod-usb-core kmod-usb2 kmod-usb2-fsl \
+                kmod-ath9k kmod-hostpad hostpad
+
 endef
 
 define Profile/Turris/Description
