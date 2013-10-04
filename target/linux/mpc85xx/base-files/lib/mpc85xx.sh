@@ -16,6 +16,9 @@ mpc85xx_board_detect() {
 	*"TL-WDR4900 v1")
 		name="tl-wdr4900-v1"
 		;;
+	"Turris")
+		name="turris"
+		;;
 	esac
 
 	[ -z "$name" ] && name="unknown"
