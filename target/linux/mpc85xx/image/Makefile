@@ -68,13 +68,16 @@ endef
 
 define Image/Build/Profile/Turris
 	echo "Building for Turris!!!!!!!!!!!!!!!"
+	$(call Image/makeDTS,turris)
 	$(STAGING_DIR_HOST)/bin/mkfs.jffs2 -b -e 128KiB -o $(KDIR)/root.jffs2-128k-be -d $(KDIR)/../root-mpc85xx 
 	dd if=$(KDIR)/root.jffs2-128k-be of=$(BIN_DIR)/$(IMG_PREFIX)-jffs2-128k-be.img bs=128k conv=sync
-	$(call Image/makeDTS,turris)
+	
 	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
-	truncate -s 256K $(BIN_DIR)/$(IMG_PREFIX)-turris.bin 
-	dd if=$(BIN_DIR)/$(IMG_PREFIX)-zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
+	truncate -s 512K $(BIN_DIR)/$(IMG_PREFIX)-turris.bin 
+	
+	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
 	truncate -s 3840K $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
+	
 	dd if=$(BIN_DIR)/$(IMG_PREFIX)-jffs2-128k-be.img bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
 	truncate -s 15104K $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
 endef
