@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/arch/powerpc/boot/dts/turris.dts
-@@ -0,0 +1,239 @@
+@@ -0,0 +1,231 @@
 +/*
 + * Turris RDB Device Tree Source
 + *
@@ -50,16 +50,8 @@
 +			device-width = <1>;
 +
 +			partition@0 {
-+				/* This location must not be altered  */
-+				/* 256KB for Vitesse 7385 Switch firmware */
-+				reg = <0x0 0x00040000>;
-+				label = "NOR (RO) Vitesse-7385 Firmware";
-+				read-only;
-+			};
-+
-+			partition@40000 {
-+				/* 256KB for DTB Image */
-+				reg = <0x00040000 0x00040000>;
++				/* 512KB for DTB Image */
++				reg = <0x0 0x00080000>;
 +				label = "NOR (RO) DTB Image";
 +				read-only;
 +			};
