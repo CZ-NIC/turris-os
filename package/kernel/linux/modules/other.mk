@@ -220,6 +220,28 @@ endef
 
 $(eval $(call KernelPackage,mmc))
 
+define KernelPackage/mmc-fsl-p2020
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=MMC/SD Card Support on Freescale P2020
+  DEPENDS:=kmod-mmc @TARGET_mpc85xx
+  KCONFIG:= \
+	CONFIG_MMC_SDHCI \
+	CONFIG_MMC_SDHCI_PLTFM \
+	CONFIG_MMC_SDHCI_OF_ESDHC \
+	CONFIG_MMC_SDHCI_PCI=n \
+	CONFIG_MMC_SDHCI_OF_HLWD=n
+  FILES:= \
+	$(LINUX_DIR)/drivers/mmc/host/sdhci.ko \
+	$(LINUX_DIR)/drivers/mmc/host/sdhci-pltfm.ko \
+	$(LINUX_DIR)/drivers/mmc/host/sdhci-of-esdhc.ko
+  AUTOLOAD:=$(call AutoLoad,91,sdhci sdhci-pltfm sdhci-of-esdhc,1)
+endef
+
+define KernelPackage/mmc-fsl-p2020/description
+ Kernel support for MMC/SD cards on Freescale P2020
+endef
+
+$(eval $(call KernelPackage,mmc-fsl-p2020))
 
 define KernelPackage/oprofile
   SUBMENU:=$(OTHER_MENU)
