@@ -5,6 +5,7 @@
 # See /LICENSE for more information.
 #
 
+JFFS2_BLOCKSIZE := 128k
 define Profile/P2020RDBPCA
 	NAME:=P2020RDB-PCA
 	PACKAGES:=\

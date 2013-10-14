@@ -5,6 +5,7 @@
 # See /LICENSE for more information.
 #
 
+JFFS2_BLOCKSIZE := 128k
 define Profile/Turris
 	NAME:=Turris
 	PACKAGES:=\
