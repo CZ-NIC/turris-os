@@ -5,6 +5,7 @@
 # See /LICENSE for more information.
 #
 
+JFFS2_BLOCKSIZE := 64k
 define Profile/TLWDR4900
 	NAME:=TP-Link TL-WDR4900
 	PACKAGES:=\
