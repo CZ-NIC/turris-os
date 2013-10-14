@@ -6,7 +6,7 @@
 #
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/image.mk
-JFFS2_BLOCKSIZE = 64k
+#JFFS2_BLOCKSIZE = 64k 128k
 
 define imgname
 $(BIN_DIR)/$(IMG_PREFIX)-$(2)-$(patsubst jffs2-%,jffs2,$(patsubst squashfs-%,squashfs,$(1)))
@@ -61,24 +61,22 @@ define Image/Build/Profile/TLWDR4900
 	$(call Image/Build/TPLINK,$(1),tl-wdr4900-v1,cuImage.tl-wdr4900-v1,0x49000001,1,16Mppc)
 endef
 
-define Image/Build/Profile/Default
-	$(call Image/Build/Profile/TLWDR4900,$(1))
-	$(call Image/Build/Profile/Turris,$(1))
-endef
+#define Image/Build/Profile/Default
+#	$(call Image/Build/Profile/TLWDR4900,$(1))
+#	$(call Image/Build/Profile/Turris,$(1))
+#endef
 
 define Image/Build/Profile/Turris
 	echo "Building for Turris!!!!!!!!!!!!!!!"
 	$(call Image/makeDTS,turris)
-	$(STAGING_DIR_HOST)/bin/mkfs.jffs2 -b -e 128KiB -o $(KDIR)/root.jffs2-128k-be -d $(KDIR)/../root-mpc85xx 
-	dd if=$(KDIR)/root.jffs2-128k-be of=$(BIN_DIR)/$(IMG_PREFIX)-jffs2-128k-be.img bs=128k conv=sync
 	
 	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
 	truncate -s 512K $(BIN_DIR)/$(IMG_PREFIX)-turris.bin 
 	
 	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
-	truncate -s 3840K $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
+	truncate -s 4M $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
 	
-	dd if=$(BIN_DIR)/$(IMG_PREFIX)-jffs2-128k-be.img bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
+	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
 	truncate -s 15104K $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
 endef
 
