@@ -66,7 +66,7 @@ endef
 #	$(call Image/Build/Profile/Turris,$(1))
 #endef
 
-define Image/Build/Profile/Turris
+define Image/Build/Profile/Turris-nor
 	echo "Building for Turris!!!!!!!!!!!!!!!"
 	$(call Image/makeDTS,turris)
 	
