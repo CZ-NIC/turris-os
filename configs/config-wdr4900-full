@@ -1062,7 +1062,7 @@ CONFIG_PACKAGE_syslog-ng3=y
 # CONFIG_PACKAGE_binutils is not set
 # CONFIG_PACKAGE_cppunit is not set
 # CONFIG_PACKAGE_diffutils is not set
-CONFIG_PACKAGE_gdb=m
+# CONFIG_PACKAGE_gdb is not set
 # CONFIG_PACKAGE_gdbserver is not set
 # CONFIG_PACKAGE_make is not set
 # CONFIG_PACKAGE_objdump is not set
@@ -1071,13 +1071,7 @@ CONFIG_PACKAGE_gdb=m
 # CONFIG_PACKAGE_tig is not set
 # CONFIG_PACKAGE_trace-cmd is not set
 # CONFIG_PACKAGE_trace-cmd-extra is not set
-CONFIG_PACKAGE_valgrind=m
-CONFIG_PACKAGE_valgrind-cachegrind=m
-CONFIG_PACKAGE_valgrind-callgrind=m
-CONFIG_PACKAGE_valgrind-drd=m
-CONFIG_PACKAGE_valgrind-helgrind=m
-CONFIG_PACKAGE_valgrind-massif=m
-CONFIG_PACKAGE_valgrind-vgdb=m
+# CONFIG_PACKAGE_valgrind is not set
 
 #
 # Extra packages
@@ -3295,10 +3289,10 @@ CONFIG_PACKAGE_wpad-mini=m
 # Editors
 #
 # CONFIG_PACKAGE_joe is not set
-CONFIG_PACKAGE_mg=y
+# CONFIG_PACKAGE_mg is not set
 # CONFIG_PACKAGE_nano is not set
-CONFIG_PACKAGE_vim=y
-CONFIG_PACKAGE_vim-full=y
+# CONFIG_PACKAGE_vim is not set
+# CONFIG_PACKAGE_vim-full is not set
 # CONFIG_PACKAGE_vim-help is not set
 # CONFIG_PACKAGE_vim-runtime is not set
 # CONFIG_PACKAGE_zile is not set
@@ -3425,7 +3419,7 @@ CONFIG_PACKAGE_sysfsutils=m
 # CONFIG_PACKAGE_avrdude is not set
 # CONFIG_PACKAGE_avrusbboot is not set
 # CONFIG_PACKAGE_bandwidthd is not set
-CONFIG_PACKAGE_bash=m
+# CONFIG_PACKAGE_bash is not set
 # CONFIG_PACKAGE_bash-completion is not set
 # CONFIG_PACKAGE_bc is not set
 # CONFIG_PACKAGE_bluelog is not set
