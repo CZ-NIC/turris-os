@@ -13,7 +13,10 @@ define Profile/TURRISNAND
 		kmod-ath9k kmod-hostpad hostpad kmod-i2c-core \
 		kmod-i2c-mpc kmod-usb-storage-extras kmod-usb-storage \
 		block-mount kmod-mmc kmod-mmc-fsl-p2020 \
-		vim-full mg
+		vim-full mg \
+		cznic-cacert-bundle libatsha204 libnetconf nethist nuci \
+		oneshot python-libatsha204 daemon-watchdog vixie-cron \
+		logsend nikola updater 
 endef
 
 define Profile/TURRISNAND/Description

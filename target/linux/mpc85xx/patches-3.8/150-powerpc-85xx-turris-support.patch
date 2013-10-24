@@ -1,5 +1,5 @@
 --- /dev/null
-+++ b/arch/powerpc/boot/dts/turris.dts
++++ b/arch/powerpc/boot/dts/turris-nand.dts
 @@ -0,0 +1,231 @@
 +/*
 + * Turris RDB Device Tree Source
