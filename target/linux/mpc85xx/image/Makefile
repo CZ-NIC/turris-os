@@ -26,7 +26,7 @@ endif
 
 zImage:=$(BIN_DIR)/$(IMG_PREFIX)-zImage$(IMAGE_SUFFIX)
 
-DTS_TARGETS = mpc8548cds_32b p1010rdb tl-wdr4900-v1 p1020rdb p2020rdb turris
+DTS_TARGETS = mpc8548cds_32b p1010rdb tl-wdr4900-v1 p1020rdb p2020rdb turris-nor turris
 BOOT_IMAGES:=zImage cuImage.tl-wdr4900-v1
 
 define Image/Prepare
@@ -66,18 +66,18 @@ endef
 #	$(call Image/Build/Profile/Turris,$(1))
 #endef
 
-define Image/Build/Profile/Turris
+define Image/Build/Profile/TURRISNOR
 	echo "Building for Turris!!!!!!!!!!!!!!!"
-	$(call Image/makeDTS,turris)
+	$(call Image/makeDTS,turris-nor)
 	
-	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
-	truncate -s 512K $(BIN_DIR)/$(IMG_PREFIX)-turris.bin 
+	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nor.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin
+	truncate -s 512K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin 
 	
-	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
-	truncate -s 4M $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
+	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin
+	truncate -s 4M $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin
 	
-	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
-	truncate -s 15104K $(BIN_DIR)/$(IMG_PREFIX)-turris.bin
+	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin
+	truncate -s 15104K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin
 endef
 
 define Image/Build/Profile/P2020RDBPCA

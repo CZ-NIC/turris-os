@@ -6,18 +6,17 @@
 #
 
 JFFS2_BLOCKSIZE := 128k
-define Profile/Turris
-	NAME:=Turris
+define Profile/TURRISNOR
+	NAME:=Turris-nor
 	PACKAGES:=\
 		kmod-usb-core kmod-usb2 kmod-usb2-fsl \
-                kmod-ath9k kmod-hostpad hostpad kmod-i2c-core \
+		kmod-ath9k kmod-hostpad hostpad kmod-i2c-core \
 		kmod-i2c-mpc kmod-usb-storage-extras kmod-usb-storage \
 		block-mount kmod-mmc kmod-mmc-fsl-p2020 \
 		vim-full mg
-
 endef
 
-define Profile/Turris/Description
-	Package set optimized for the Turris.
+define Profile/TURRISNOR/Descriptioqn
+	Package set optimized for the Turris NOR.
 endef
-$(eval $(call Profile,Turris))
+$(eval $(call Profile,TURRISNOR))

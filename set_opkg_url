@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ -z $TARGET_BOARD ]; then
+	echo Variable TARGET_BOARD is not set!
+	exit 1
+fi
+
+sed -i "s/TARGET_BOARD/$TARGET_BOARD/" ./files/etc/opkg.conf
