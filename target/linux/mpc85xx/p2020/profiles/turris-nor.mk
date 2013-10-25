@@ -13,7 +13,9 @@ define Profile/TURRISNOR
 		kmod-ath9k kmod-hostpad hostpad kmod-i2c-core \
 		kmod-i2c-mpc kmod-usb-storage-extras kmod-usb-storage \
 		block-mount kmod-mmc kmod-mmc-fsl-p2020 \
-		vim-full mg
+		vim-full mg \
+		mtd-utils mtd-utils-nandwrite mtd-utils-nandtest mtd-utils-nanddump \
+		mtd-utils mtd-utils-flash-erase mtd-utils-flash-eraseall mtd-utils-flash-info
 endef
 
 define Profile/TURRISNOR/Descriptioqn
