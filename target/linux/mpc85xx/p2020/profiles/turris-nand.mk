@@ -15,7 +15,7 @@ define Profile/TURRISNAND
 		block-mount kmod-mmc kmod-mmc-fsl-p2020 \
 		vim-full mg \
 		nuci updater daemon-watchdog logsend ucollect-count \
-		ucollect-buckets unbound oneshot logrotate \
+		ucollect-buckets ucollect-badconf unbound oneshot logrotate \
 		mtd-utils mtd-utils-nandwrite mtd-utils-nandtest mtd-utils-nanddump \
 		mtd-utils mtd-utils-flash-erase mtd-utils-flash-eraseall mtd-utils-flash-info
 endef
