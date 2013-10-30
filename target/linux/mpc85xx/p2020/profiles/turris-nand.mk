@@ -17,7 +17,8 @@ define Profile/TURRISNAND
 		nuci updater daemon-watchdog logsend ucollect-count \
 		ucollect-buckets ucollect-badconf unbound oneshot logrotate \
 		mtd-utils mtd-utils-nandwrite mtd-utils-nandtest mtd-utils-nanddump \
-		mtd-utils-flash-erase mtd-utils-flash-eraseall mtd-utils-flash-info
+		mtd-utils-flash-erase mtd-utils-flash-eraseall mtd-utils-flash-info \
+		hwclock
 endef
 
 define Profile/TURRISNAND/Description
