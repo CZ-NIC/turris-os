@@ -1,5 +1,5 @@
 --- /dev/null
-+++ b/arch/powerpc/boot/dts/turris-nand.dts
++++ b/arch/powerpc/boot/dts/turris-nand-256m.dts
 @@ -0,0 +1,231 @@
 +/*
 + * Turris RDB Device Tree Source
@@ -38,7 +38,7 @@
 +
 +		/* NOR and NAND Flashes */
 +		ranges = <0x0 0x0 0x0 0xef000000 0x01000000
-+			  0x1 0x0 0x0 0xff800000 0x8000000
++			  0x1 0x0 0x0 0xff800000 0x10000000
 +			  0x2 0x0 0x0 0xffb00000 0x00020000>;
 +
 +		nor@0,0 {
@@ -84,7 +84,7 @@
 +			#size-cells = <1>;
 +			compatible = "fsl,p2020-fcm-nand",
 +				     "fsl,elbc-fcm-nand";
-+			reg = <0x1 0x0 0x8000000>;
++			reg = <0x1 0x0 0x10000000>;
 +
 +			partition@0 {
 +				/* This location must not be altered  */
@@ -109,8 +109,8 @@
 +			};
 +
 +			partition@600000 {
-+				/* 122MB for JFFS2 based Root file System */
-+				reg = <0x00600000 0x7A00000>;
++				/* 250MB for JFFS2 based Root file System */
++				reg = <0x00600000 0xFA00000>;
 +				label = "NAND (RW) JFFS2 Root File System";
 +			};
 +
@@ -233,7 +233,7 @@
 +
 +/include/ "fsl/p2020si-post.dtsi"
 --- /dev/null
-+++ b/arch/powerpc/boot/dts/turris-nor.dts
++++ b/arch/powerpc/boot/dts/turris-nor-256m.dts
 @@ -0,0 +1,225 @@
 +/*
 + * Turris RDB Device Tree Source
@@ -272,7 +272,7 @@
 +
 +		/* NOR and NAND Flashes */
 +		ranges = <0x0 0x0 0x0 0xef000000 0x01000000
-+			  0x1 0x0 0x0 0xff800000 0x8000000
++			  0x1 0x0 0x0 0xff800000 0x10000000
 +			  0x2 0x0 0x0 0xffb00000 0x00020000>;
 +
 +		nor@0,0 {
@@ -315,7 +315,7 @@
 +			#size-cells = <1>;
 +			compatible = "fsl,p2020-fcm-nand",
 +				     "fsl,elbc-fcm-nand";
-+			reg = <0x1 0x0 0x8000000>;
++			reg = <0x1 0x0 0x10000000>;
 +
 +			partition@0 {
 +				/* This location must not be altered  */
@@ -337,8 +337,8 @@
 +			};
 +
 +			partition@600000 {
-+				/* 122MB for JFFS2 based Root file System */
-+				reg = <0x00600000 0x7A00000>;
++				/* 250MB for JFFS2 based Root file System */
++				reg = <0x00600000 0xFA00000>;
 +				label = "NAND (RW) JFFS2 Root File System";
 +			};
 +
