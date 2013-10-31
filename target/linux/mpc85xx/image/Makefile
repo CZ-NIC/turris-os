@@ -21,12 +21,12 @@ $(call imgname,$(1),$(2))-factory.bin
 endef
 
 ifeq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),y)
-  IMAGE_SUFFIX=-initramfs
+	IMAGE_SUFFIX=-initramfs
 endif
 
 zImage:=$(BIN_DIR)/$(IMG_PREFIX)-zImage$(IMAGE_SUFFIX)
 
-DTS_TARGETS = mpc8548cds_32b p1010rdb tl-wdr4900-v1 p1020rdb p2020rdb turris-nor turris-nand
+DTS_TARGETS = mpc8548cds_32b p1010rdb tl-wdr4900-v1 p1020rdb p2020rdb turris-nor-128m turris-nand-128m turris-nor-256m turris-nand-256m
 BOOT_IMAGES:=zImage cuImage.tl-wdr4900-v1
 
 define Image/Prepare
@@ -76,30 +76,42 @@ endef
 
 define Image/Build/Profile/TURRISNOR
 	echo "Building for Turris NOR!!!!!!!!!!!!!!!"
-	$(call Image/makeDTS,turris-nor)
+	$(call Image/makeDTS,turris-nor-128m)
+	$(call Image/makeDTS,turris-nor-256m)	
+
+	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
+	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
+	truncate -s 512K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
+	truncate -s 512K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
 	
-	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nor.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin
-	truncate -s 512K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin 
+	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
+	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
+	truncate -s 4M $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
+	truncate -s 4M $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
 	
-	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin
-	truncate -s 4M $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin
-	
-	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin
+	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
+	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
 	
 	# truncate -s 15104K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin
 endef
 
 define Image/Build/Profile/TURRISNAND
 	echo "Building for Turris NAND!!!!!!!!!!!!!!!"
-	$(call Image/makeDTS,turris-nand)
+	$(call Image/makeDTS,turris-nand-128m)
+	$(call Image/makeDTS,turris-nand-256m)
 	
-	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nand.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nand.bin
-	truncate -s 1M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand.bin 
+	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nand.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
+	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nand.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
+	truncate -s 1M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
+	truncate -s 1M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin 
 	
-	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand.bin
-	truncate -s 5M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand.bin
+	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
+	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
+	truncate -s 5M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
+	truncate -s 5M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
 	
-	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand.bin
+	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
+	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
 endef
 
 
@@ -118,11 +130,11 @@ define Image/Build/squashfs
 endef
 
 define Image/Build/jffs2-64k
-        dd if=$(KDIR)/root.$(1) of=$(BIN_DIR)/$(IMG_PREFIX)-$(1).img bs=64k conv=sync
+	dd if=$(KDIR)/root.$(1) of=$(BIN_DIR)/$(IMG_PREFIX)-$(1).img bs=64k conv=sync
 endef
 
 define Image/Build/jffs2-128k
-        dd if=$(KDIR)/root.$(1) of=$(BIN_DIR)/$(IMG_PREFIX)-$(1).img bs=128k conv=sync
+	dd if=$(KDIR)/root.$(1) of=$(BIN_DIR)/$(IMG_PREFIX)-$(1).img bs=128k conv=sync
 endef
 
 #PROFILE ?= Default
