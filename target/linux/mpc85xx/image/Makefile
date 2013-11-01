@@ -100,8 +100,8 @@ define Image/Build/Profile/TURRISNAND
 	$(call Image/makeDTS,turris-nand-128m)
 	$(call Image/makeDTS,turris-nand-256m)
 	
-	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nand.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
-	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nand.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
+	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
+	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
 	truncate -s 1M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
 	truncate -s 1M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin 
 	
