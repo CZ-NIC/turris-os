@@ -13,12 +13,10 @@ define Profile/TURRISNAND
 		kmod-ath9k kmod-hostapd hostapd kmod-i2c-core \
 		kmod-i2c-mpc kmod-usb-storage-extras kmod-usb-storage \
 		block-mount kmod-mmc kmod-mmc-fsl-p2020 \
-		vim-full mg \
-		nuci updater daemon-watchdog logsend ucollect-count \
-		ucollect-buckets ucollect-badconf unbound oneshot logrotate \
+		nuci updater logsend unbound oneshot logrotate \
 		mtd-utils mtd-utils-nandwrite mtd-utils-nandtest mtd-utils-nanddump \
 		mtd-utils-flash-erase mtd-utils-flash-eraseall mtd-utils-flash-info \
-		hwclock luci
+		luci
 endef
 
 define Profile/TURRISNAND/Description
