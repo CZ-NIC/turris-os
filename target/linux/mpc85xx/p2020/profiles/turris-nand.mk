@@ -18,7 +18,7 @@ define Profile/TURRISNAND
 		ucollect-buckets ucollect-badconf unbound oneshot logrotate \
 		mtd-utils mtd-utils-nandwrite mtd-utils-nandtest mtd-utils-nanddump \
 		mtd-utils-flash-erase mtd-utils-flash-eraseall mtd-utils-flash-info \
-		hwclock
+		hwclock luci
 endef
 
 define Profile/TURRISNAND/Description
