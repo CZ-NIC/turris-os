@@ -10,12 +10,12 @@ define Profile/TURRISNOR
 	NAME:=Turris-nor
 	PACKAGES:=\
 		kmod-usb-core kmod-usb2 kmod-usb2-fsl \
-		kmod-ath9k kmod-hostpad hostpad kmod-i2c-core \
+		kmod-i2c-core \
 		kmod-i2c-mpc kmod-usb-storage-extras kmod-usb-storage \
 		block-mount kmod-mmc kmod-mmc-fsl-p2020 \
 		mtd-utils mtd-utils-nandwrite mtd-utils-nandtest mtd-utils-nanddump \
-		mtd-utils-flash-erase mtd-utils-flash-eraseall mtd-utils-flash-info \
-		hwclock
+		mtd-utils-flash-erase mtd-utils-flash-eraseall \
+		-opkg -dnsmasq -firewall -6relayd -odhcp6c -iptables -ip6tables -ppp -dropbear
 endef
 
 define Profile/TURRISNOR/Description
