@@ -113,7 +113,9 @@ define Image/Build/Profile/TURRISNAND
 	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
 	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
 
+	[ -d $(BIN_DIR)/medkit-128 ] && rm -rf $(BIN_DIR)/medkit-128 
 	mkdir $(BIN_DIR)/medkit-128
+	[ -d $(BIN_DIR)/medkit-256 ] && rm -rf $(BIN_DIR)/medkit-256
 	mkdir $(BIN_DIR)/medkit-256
 	tar cf $(BIN_DIR)/medkit-128/medkit-128m.tar $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.fdt $(BIN_DIR)/$(IMG_PREFIX)-zImage $(BIN_DIR)/$(IMG_PREFIX)-jffs2-128k.img
 	tar cf $(BIN_DIR)/medkit-256/medkit-256m.tar $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.fdt $(BIN_DIR)/$(IMG_PREFIX)-zImage $(BIN_DIR)/$(IMG_PREFIX)-jffs2-128k.img
