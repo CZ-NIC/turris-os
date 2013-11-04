@@ -112,6 +112,18 @@ define Image/Build/Profile/TURRISNAND
 	
 	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
 	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
+
+	if [ -d $(BIN_DIR)/medkit-128 ]; then rm -rf $(BIN_DIR)/medkit-128; fi
+	mkdir $(BIN_DIR)/medkit-128
+	if [ -d $(BIN_DIR)/medkit-256 ]; then rm -rf $(BIN_DIR)/medkit-256; fi
+	mkdir $(BIN_DIR)/medkit-256
+	tar cf $(BIN_DIR)/medkit-128/medkit-128m.tar $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.fdt $(BIN_DIR)/$(IMG_PREFIX)-zImage $(BIN_DIR)/$(IMG_PREFIX)-jffs2-128k.img
+	tar cf $(BIN_DIR)/medkit-256/medkit-256m.tar $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.fdt $(BIN_DIR)/$(IMG_PREFIX)-zImage $(BIN_DIR)/$(IMG_PREFIX)-jffs2-128k.img
+	xz -9 $(BIN_DIR)/medkit-128/medkit-128m.tar
+	xz -9 $(BIN_DIR)/medkit-256/medkit-256m.tar
+	# $(STAGING_DIR_HOST)/bin/mkfs.jffs2 $(JFFS2_OPTS) -e 128KiB -o $(BIN_DIR)/medkit-128.jffs  -d $(BIN_DIR)/medkit-128 -v 2>&1 1>/dev/null
+	# $(STAGING_DIR_HOST)/bin/mkfs.jffs2 $(JFFS2_OPTS) -e 128KiB -o $(BIN_DIR)/medkit-256.jffs  -d $(BIN_DIR)/medkit-256 -v 2>&1 1>/dev/null
+	# rm -rf $(BIN_DIR)/medkit-128 $(BIN_DIR)/medkit-256
 endef
 
 
