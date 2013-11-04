@@ -1,6 +1,6 @@
 --- /dev/null
-+++ b/arch/powerpc/boot/dts/turris-nand-128m.dts
-@@ -0,0 +1,231 @@
++++ b/arch/powerpc/boot/dts/turris-nor-128m.dts
+@@ -0,0 +1,237 @@
 +/*
 + * Turris RDB Device Tree Source
 + *
@@ -41,43 +41,52 @@
 +			  0x1 0x0 0x0 0xff800000 0x8000000
 +			  0x2 0x0 0x0 0xffb00000 0x00020000>;
 +
-+		nor@0,0 {
-+			#address-cells = <1>;
-+			#size-cells = <1>;
-+			compatible = "cfi-flash";
-+			reg = <0x0 0x0 0x1000000>;
-+			bank-width = <2>;
-+			device-width = <1>;
++                nor@0,0 {
++                        #address-cells = <1>;
++                        #size-cells = <1>;
++                        compatible = "cfi-flash";
++                        reg = <0x0 0x0 0x1000000>;
++                        bank-width = <2>;
++                        device-width = <1>;
 +
-+			partition@0 {
-+				/* 512KB for DTB Image */
-+				reg = <0x0 0x00080000>;
-+				label = "NOR (RO) DTB Image";
-+				read-only;
-+			};
++                        partition@0 {
++                                /* 128KB for DTB Image */
++                                reg = <0x0 0x00020000>;
++                                label = "NOR (RW) DTB Image";
++                        };
 +
-+			partition@80000 {
-+				/* 3.5 MB for Linux Kernel Image */
-+				reg = <0x00080000 0x00380000>;
-+				label = "NOR (RO) Linux Kernel Image";
-+				read-only;
-+			};
++                        partition@20000 {
++                                /* 2 MB for Linux Kernel Image */
++                                reg = <0x00020000 0x00200000>;
++                                label = "NOR (RW) Linux Kernel Image";
++                        };
 +
-+			partition@400000 {
-+				/* 11MB for JFFS2 based Root file System */
-+				reg = <0x00400000 0x00b00000>;
-+				label = "NOR (RW) JFFS2 Root File System";
-+			};
++                        partition@220000 {
++                                /* 3 MB for JFFS2 based Root file System */
++                                reg = <0x00220000 0x00200000>;
++                                label = "NOR (RW) JFFS2 Root File System";
++                        };
 +
-+			partition@f00000 {
-+				/* This location must not be altered  */
-+				/* 512KB for u-boot Bootloader Image */
-+				/* 512KB for u-boot Environment Variables */
-+				reg = <0x00f00000 0x00100000>;
-+				label = "NOR (RO) U-Boot Image";
-+				read-only;
-+			};
-+		};
++                        partition@420000 {
++                                /* for nand fw backup */
++                                reg = <0x00420000 0x9C0000>;
++                                label = "NOR (RW) NAND FW backup";
++                        };
++
++                        partition@E00000 {
++                                /* 1 MB for Certificates backup */
++                                reg = <0x00E00000 0x00100000>;
++                                label = "NOR (RW) Cert backup";
++                        };
++
++                        partition@f00000 {
++                                /* This location must not be altered  */
++                                /* 512KB for u-boot Bootloader Image */
++                                /* 512KB for u-boot Environment Variables */
++                                reg = <0x00f00000 0x00100000>;
++                                label = "NOR (RW) U-Boot Image";
++                        };
++                };
 +
 +		nand@1,0 {
 +			#address-cells = <1>;
@@ -90,22 +99,19 @@
 +				/* This location must not be altered  */
 +				/* 1MB for u-boot Bootloader Image */
 +				reg = <0x0 0x00100000>;
-+				label = "NAND (RO) U-Boot Image";
-+				read-only;
++				label = "NAND (RW) U-Boot Image";
 +			};
 +
 +			partition@100000 {
 +				/* 1MB for DTB Image */
 +				reg = <0x00100000 0x00100000>;
-+				label = "NAND (RO) DTB Image";
-+				read-only;
++				label = "NAND (RW) DTB Image";
 +			};
 +
 +			partition@200000 {
 +				/* 4MB for Linux Kernel Image */
 +				reg = <0x00200000 0x00400000>;
-+				label = "NAND (RO) Linux Kernel Image";
-+				read-only;
++				label = "NAND (RW) Linux Kernel Image";
 +			};
 +
 +			partition@600000 {
@@ -233,8 +239,8 @@
 +
 +/include/ "fsl/p2020si-post.dtsi"
 --- /dev/null
-+++ b/arch/powerpc/boot/dts/turris-nor-128m.dts
-@@ -0,0 +1,225 @@
++++ b/arch/powerpc/boot/dts/turris-nand-128m.dts
+@@ -0,0 +1,241 @@
 +/*
 + * Turris RDB Device Tree Source
 + *
@@ -275,40 +281,53 @@
 +			  0x1 0x0 0x0 0xff800000 0x8000000
 +			  0x2 0x0 0x0 0xffb00000 0x00020000>;
 +
-+		nor@0,0 {
-+			#address-cells = <1>;
-+			#size-cells = <1>;
-+			compatible = "cfi-flash";
-+			reg = <0x0 0x0 0x1000000>;
-+			bank-width = <2>;
-+			device-width = <1>;
 +
-+			partition@0 {
-+				/* 512KB for DTB Image */
-+				reg = <0x0 0x00080000>;
-+				label = "NOR (RW) DTB Image";
-+			};
++                nor@0,0 {
++                        #address-cells = <1>;
++                        #size-cells = <1>;
++                        compatible = "cfi-flash";
++                        reg = <0x0 0x0 0x1000000>;
++                        bank-width = <2>;
++                        device-width = <1>;
 +
-+			partition@80000 {
-+				/* 3.5 MB for Linux Kernel Image */
-+				reg = <0x00080000 0x00380000>;
-+				label = "NOR (RW) Linux Kernel Image";
-+			};
++                        partition@0 {
++                                /* 128KB for DTB Image */
++                                reg = <0x0 0x00020000>;
++                                label = "NOR (RW) DTB Image";
++                        };
 +
-+			partition@400000 {
-+				/* 11MB for JFFS2 based Root file System */
-+				reg = <0x00400000 0x00b00000>;
-+				label = "NOR (RW) JFFS2 Root File System";
-+			};
++                        partition@20000 {
++                                /* 2 MB for Linux Kernel Image */
++                                reg = <0x00020000 0x00200000>;
++                                label = "NOR (RW) Linux Kernel Image";
++                        };
 +
-+			partition@f00000 {
-+				/* This location must not be altered  */
-+				/* 512KB for u-boot Bootloader Image */
-+				/* 512KB for u-boot Environment Variables */
-+				reg = <0x00f00000 0x00100000>;
-+				label = "NOR (RW) U-Boot Image";
-+			};
-+		};
++                        partition@220000 {
++                                /* 3 MB for JFFS2 based Root file System */
++                                reg = <0x00220000 0x00200000>;
++                                label = "NOR (RW) JFFS2 Root File System";
++                        };
++
++                        partition@420000 {
++                                /* for nand fw backup */
++                                reg = <0x00420000 0x9C0000>;
++                                label = "NOR (RW) NAND FW backup";
++                        };
++
++                        partition@E00000 {
++                                /* 1 MB for Certificates backup */
++                                reg = <0x00E00000 0x00100000>;
++                                label = "NOR (RW) Cert backup";
++                        };
++
++                        partition@f00000 {
++                                /* This location must not be altered  */
++                                /* 512KB for u-boot Bootloader Image */
++                                /* 512KB for u-boot Environment Variables */
++                                reg = <0x00f00000 0x00100000>;
++                                label = "NOR (RW) U-Boot Image";
++                        };
++                };
 +
 +		nand@1,0 {
 +			#address-cells = <1>;
@@ -321,19 +340,22 @@
 +				/* This location must not be altered  */
 +				/* 1MB for u-boot Bootloader Image */
 +				reg = <0x0 0x00100000>;
-+				label = "NAND (RW) U-Boot Image";
++				label = "NAND (RO) U-Boot Image";
++				read-only;
 +			};
 +
 +			partition@100000 {
 +				/* 1MB for DTB Image */
 +				reg = <0x00100000 0x00100000>;
-+				label = "NAND (RW) DTB Image";
++				label = "NAND (RO) DTB Image";
++				read-only;
 +			};
 +
 +			partition@200000 {
 +				/* 4MB for Linux Kernel Image */
 +				reg = <0x00200000 0x00400000>;
-+				label = "NAND (RW) Linux Kernel Image";
++				label = "NAND (RO) Linux Kernel Image";
++				read-only;
 +			};
 +
 +			partition@600000 {
