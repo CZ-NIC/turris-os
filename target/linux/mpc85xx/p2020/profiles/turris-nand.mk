@@ -10,7 +10,7 @@ define Profile/TURRISNAND
 	NAME:=Turris-nand
 	PACKAGES:=\
 		kmod-usb-core kmod-usb2 kmod-usb2-fsl \
-		kmod-ath9k kmod-hostpad hostpad kmod-i2c-core \
+		kmod-ath9k kmod-hostapd hostapd kmod-i2c-core \
 		kmod-i2c-mpc kmod-usb-storage-extras kmod-usb-storage \
 		block-mount kmod-mmc kmod-mmc-fsl-p2020 \
 		vim-full mg \
