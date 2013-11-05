@@ -5,17 +5,21 @@
 # See /LICENSE for more information.
 #
 
+# kmod-usb-core kmod-usb2 kmod-usb2-fsl \
+# kmod-i2c-core \
+# kmod-i2c-mpc kmod-usb-storage-extras kmod-usb-storage \
+# block-mount kmod-mmc kmod-mmc-fsl-p2020 \
+
 JFFS2_BLOCKSIZE := 128k
 define Profile/TURRISNOR
 	NAME:=Turris-nor
 	PACKAGES:=\
-		kmod-usb-core kmod-usb2 kmod-usb2-fsl \
-		kmod-i2c-core \
-		kmod-i2c-mpc kmod-usb-storage-extras kmod-usb-storage \
-		block-mount kmod-mmc kmod-mmc-fsl-p2020 \
 		mtd-utils mtd-utils-nandwrite mtd-utils-nandtest mtd-utils-nanddump \
-		mtd-utils-flash-erase mtd-utils-flash-eraseall \
-		-opkg -dnsmasq -firewall -6relayd -odhcp6c -iptables -ip6tables -ppp -dropbear
+		mtd-utils-flash-erase mtd-utils-flash-eraseall rescue-mode \
+		-opkg -dnsmasq -firewall -6relayd -odhcp6c -iptables -ip6tables -ppp -dropbear \
+		-swconfig -ubox -uci -kmod-leds-gpio -kmod-ipt-conntrack -kmod-ipt-core -kmod-ipt-nat \
+		-kmod-ipt-nathelper -ubus -ubusd -jshn -netifd -kmod-input-core -kmod-input-gpio-keys \
+		-kmod-booke-wdt -kmod-button-hotplug -base-files 
 endef
 
 define Profile/TURRISNOR/Description
