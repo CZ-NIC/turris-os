@@ -128,9 +128,9 @@
 +		ranges = <0x0 0x0 0xffe00000 0x100000>;
 +
 +		i2c@3000 {
-+			rtc@68 {
++			rtc@6f {
 +				compatible = "dallas,ds1339";
-+				reg = <0x68>;
++				reg = <0x6f>;
 +			};
 +		};
 +
@@ -377,9 +377,9 @@
 +		ranges = <0x0 0x0 0xffe00000 0x100000>;
 +
 +		i2c@3000 {
-+			rtc@68 {
++			rtc@6f {
 +				compatible = "dallas,ds1339";
-+				reg = <0x68>;
++				reg = <0x6f>;
 +			};
 +		};
 +
