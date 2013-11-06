@@ -41,7 +41,7 @@
 +			  0x1 0x0 0x0 0xff800000 0x8000000
 +			  0x2 0x0 0x0 0xffb00000 0x00020000>;
 +
-+                nor@0,0 {
++		nor@0,0 {
 +                        #address-cells = <1>;
 +                        #size-cells = <1>;
 +                        compatible = "cfi-flash";
@@ -56,26 +56,26 @@
 +                        };
 +
 +                        partition@20000 {
-+                                /* 2 MB for Linux Kernel Image */
-+                                reg = <0x00020000 0x00200000>;
++                                /* 1.7 MB for Linux Kernel Image */
++                                reg = <0x00020000 0x1A0000>;
 +                                label = "NOR (RW) Linux Kernel Image";
 +                        };
 +
-+                        partition@220000 {
-+                                /* 3 MB for JFFS2 based Root file System */
-+                                reg = <0x00220000 0x00200000>;
++                        partition@1C0000 {
++                                /* 1.5 MB for JFFS2 based Root file System */
++                                reg = <0x001C0000 0x180000>;
 +                                label = "NOR (RW) JFFS2 Root File System";
 +                        };
 +
-+                        partition@420000 {
++                        partition@340000 {
 +                                /* for nand fw backup */
-+                                reg = <0x00420000 0x9C0000>;
++                                reg = <0x00340000 0xae0000>;
 +                                label = "NOR (RW) NAND FW backup";
 +                        };
 +
-+                        partition@E00000 {
-+                                /* 1 MB for Certificates backup */
-+                                reg = <0x00E00000 0x00100000>;
++                        partition@E40000 {
++                                /* 128KB for Certificates backup */
++                                reg = <0xE40000 0x000C0000>;
 +                                label = "NOR (RW) Cert backup";
 +                        };
 +
@@ -240,7 +240,7 @@
 +/include/ "fsl/p2020si-post.dtsi"
 --- /dev/null
 +++ b/arch/powerpc/boot/dts/turris-nand-128m.dts
-@@ -0,0 +1,241 @@
+@@ -0,0 +1,246 @@
 +/*
 + * Turris RDB Device Tree Source
 + *
@@ -281,8 +281,7 @@
 +			  0x1 0x0 0x0 0xff800000 0x8000000
 +			  0x2 0x0 0x0 0xffb00000 0x00020000>;
 +
-+
-+                nor@0,0 {
++		nor@0,0 {
 +                        #address-cells = <1>;
 +                        #size-cells = <1>;
 +                        compatible = "cfi-flash";
@@ -294,29 +293,33 @@
 +                                /* 128KB for DTB Image */
 +                                reg = <0x0 0x00020000>;
 +                                label = "NOR (RW) DTB Image";
++				read-only;
 +                        };
 +
 +                        partition@20000 {
-+                                /* 2 MB for Linux Kernel Image */
-+                                reg = <0x00020000 0x00200000>;
++                                /* 1.7 MB for Linux Kernel Image */
++                                reg = <0x00020000 0x1A0000>;
 +                                label = "NOR (RW) Linux Kernel Image";
++				read-only;
 +                        };
 +
-+                        partition@220000 {
-+                                /* 3 MB for JFFS2 based Root file System */
-+                                reg = <0x00220000 0x00200000>;
++                        partition@1C0000 {
++                                /* 1.5 MB for JFFS2 based Root file System */
++                                reg = <0x001C0000 0x180000>;
 +                                label = "NOR (RW) JFFS2 Root File System";
++				read-only;
 +                        };
 +
-+                        partition@420000 {
++                        partition@340000 {
 +                                /* for nand fw backup */
-+                                reg = <0x00420000 0x9C0000>;
++                                reg = <0x00340000 0xae0000>;
 +                                label = "NOR (RW) NAND FW backup";
++				read-only;
 +                        };
 +
-+                        partition@E00000 {
-+                                /* 1 MB for Certificates backup */
-+                                reg = <0x00E00000 0x00100000>;
++                        partition@E40000 {
++                                /* 128KB for Certificates backup */
++                                reg = <0xE40000 0x000C0000>;
 +                                label = "NOR (RW) Cert backup";
 +                        };
 +
@@ -326,8 +329,10 @@
 +                                /* 512KB for u-boot Environment Variables */
 +                                reg = <0x00f00000 0x00100000>;
 +                                label = "NOR (RW) U-Boot Image";
++				read-only;
 +                        };
 +                };
++
 +
 +		nand@1,0 {
 +			#address-cells = <1>;

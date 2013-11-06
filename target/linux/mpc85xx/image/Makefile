@@ -86,8 +86,8 @@ define Image/Build/Profile/TURRISNOR
 	
 	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
 	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
-	truncate -s 2560K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
-	truncate -s 2560K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
+	truncate -s 1792K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
+	truncate -s 1792K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
 	
 	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
 	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
