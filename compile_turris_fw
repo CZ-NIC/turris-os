@@ -1,0 +1,32 @@
+#!/bin/bash -xe
+
+[ -f ./Makefile ] && make clean || true
+[ -d ./tmp ] && rm -rf ./tmp
+[ -d ./bin ] && rm -rf ./bin
+
+# Install luci feed
+./scripts/feeds update luci
+./scripts/feeds install luci
+
+# Build NAND FW
+cp configs/config-turris-nand .config
+make defconfig
+make clean
+make "$@" 
+
+# Clean
+[ -d ./bin-nand ] && rm -rf ./bin-nand
+mv ./bin ./bin-nand
+make clean
+[ -d ./tmp ] && rm -rf ./tmp
+
+# Build NOR FW
+cp configs/config-turris-nor ./config
+make defconfig
+make clean
+make "$@"
+[ -d ./bin/packages ] && rm -rf ./bin/packages
+[ -d ./bin-nor ] && rm -rf ./bin-nor
+mv ./bin ./bin-nor
+
+
