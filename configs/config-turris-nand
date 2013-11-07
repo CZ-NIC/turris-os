@@ -16,3 +16,4 @@ CONFIG_PACKAGE_ucollect-buckets=m
 CONFIG_PACKAGE_ucollect-core=m
 CONFIG_PACKAGE_ucollect-count=m
 CONFIG_PACKAGE_daemon-watchdog=m
+CONFIG_PACKAGE_updater-testkey=m
