@@ -10,3 +10,9 @@ CONFIG_TARGET_ROOTFS_SQUASHFS=n
 CONFIG_BUSYBOX_CONFIG_CROND=n
 CONFIG_BUSYBOX_CONFIG_CRONTAB=n
 CONFIG_BUSYBOX_CONFIG_SYSLOGD=y
+# These are needed as packages for updater
+CONFIG_PACKAGE_ucollect-badconf=m
+CONFIG_PACKAGE_ucollect-buckets=m
+CONFIG_PACKAGE_ucollect-core=m
+CONFIG_PACKAGE_ucollect-count=m
+CONFIG_PACKAGE_daemon-watchdog=m
