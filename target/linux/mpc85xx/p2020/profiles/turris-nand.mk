@@ -16,7 +16,7 @@ define Profile/TURRISNAND
 		nuci updater logsend unbound oneshot logrotate \
 		mtd-utils mtd-utils-nandwrite mtd-utils-nandtest mtd-utils-nanddump \
 		mtd-utils-flash-erase mtd-utils-flash-eraseall mtd-utils-flash-info \
-		luci
+		luci daemon-watchdog
 endef
 
 define Profile/TURRISNAND/Description
