@@ -4,6 +4,9 @@
 [ -d ./tmp ] && rm -rf ./tmp
 [ -d ./bin ] && rm -rf ./bin
 
+# Build u-boot
+./compile_u-boot
+
 # Install luci feed
 ./scripts/feeds update luci
 ./scripts/feeds install luci
@@ -21,11 +24,11 @@ make clean
 [ -d ./tmp ] && rm -rf ./tmp
 
 # Build NOR FW
-cp configs/config-turris-nor ./config
+cp configs/config-turris-nor .config
 make defconfig
 make clean
 make "$@"
-[ -d ./bin/packages ] && rm -rf ./bin/packages
+[ -d ./bin/mpc85xx/packages ] && rm -rf ./bin/mpc85xx/packages
 [ -d ./bin-nor ] && rm -rf ./bin-nor
 mv ./bin ./bin-nor
 
