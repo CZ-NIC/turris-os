@@ -14,7 +14,8 @@
 # Build NAND FW
 cp configs/config-turris-nand .config
 make defconfig
-TARGET_BOARD=turris ./set_opkg_url
+export TARGET_BOARD=turris
+./set_opkg_url
 make clean
 make "$@" 
 
