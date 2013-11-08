@@ -1,3 +1,4 @@
+FEATURES:= $(FEATURES) rtc 
 BOARDNAME:=P2020
 
 define Target/Description
