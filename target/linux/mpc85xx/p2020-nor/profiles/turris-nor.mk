@@ -10,7 +10,6 @@
 # kmod-i2c-mpc kmod-usb-storage-extras kmod-usb-storage \
 # block-mount kmod-mmc kmod-mmc-fsl-p2020 \
 
-JFFS2_BLOCKSIZE := 128k
 define Profile/TURRISNOR
 	NAME:=Turris-nor
 	PACKAGES:=\
