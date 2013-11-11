@@ -19,9 +19,9 @@ export TARGET_BOARD=turris
 ./set_opkg_url
 make clean
 if [ -z "$BUILD_ALL" ]; then
-	make "$@" 
+	make "$@"
 else
-	make make -j1 V=99 IGNORE_ERRORS=m
+	make -j1 V=99 IGNORE_ERRORS=m
 fi
 
 # Clean
