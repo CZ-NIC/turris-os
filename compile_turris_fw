@@ -13,11 +13,16 @@
 
 # Build NAND FW
 cp configs/config-turris-nand .config
+[ -n "$BUILD_ALL" ] && echo "CONFIG_ALL=y" >> .config
 make defconfig
 export TARGET_BOARD=turris
 ./set_opkg_url
 make clean
-make "$@" 
+if [ -z "$BUILD_ALL" ]; then
+	make "$@" 
+else
+	make make -j1 V=99 IGNORE_ERRORS=m
+fi
 
 # Clean
 [ -d ./bin-nand ] && rm -rf ./bin-nand
