@@ -91,8 +91,16 @@ define Image/Build/Profile/TURRISNOR
 	
 	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
 	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
+	truncate -s 3328K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
+	truncate -s 3328K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
 	
-	# truncate -s 15104K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin
+	if [ -f $(TOPDIR)/bin-nand/mpc85xx/medkit-128/medkit-128m.tar.xz ]; then \
+		dd if=$(TOPDIR)/bin-nand/mpc85xx/medkit-128/medkit-128m.tar.xz bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin; \
+	fi
+	if [ -f $(TOPDIR)/bin-nand/mpc85xx/medkit-256/medkit-256m.tar.xz ]; then \
+		dd if=$(TOPDIR)/bin-nand/mpc85xx/medkit-256/medkit-256m.tar.xz bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin; \
+	fi
+
 endef
 
 define Image/Build/Profile/TURRISNAND
