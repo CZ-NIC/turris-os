@@ -9,6 +9,13 @@ NAND_BLOCKSIZE := 2048:128k
 
 define Profile/TURRISNAND
 	NAME:=Turris-nand
+# Hacks:
+# * zlib is included so curl gets --compress. Even when curl depends on it, it
+#   was not available at the time of compilation. Maybe some kind of race
+#   condition.
+# * cert-backup is conditional dependency on some targets (eg. this one). The
+#   build system is confused enough not to select it automatically, so we list
+#   it here explicitly.
 	PACKAGES:=\
 		kmod-usb-core kmod-usb2 kmod-usb2-fsl \
 		kmod-ath9k kmod-hostapd hostapd kmod-i2c-core \
@@ -17,7 +24,7 @@ define Profile/TURRISNAND
 		nuci updater logsend unbound oneshot logrotate \
 		mtd-utils mtd-utils-nandwrite mtd-utils-nandtest mtd-utils-nanddump \
 		mtd-utils-flash-erase mtd-utils-flash-eraseall mtd-utils-flash-info \
-		luci zlib curl
+		luci zlib curl cert-backup
 endef
 
 define Profile/TURRISNAND/Description
