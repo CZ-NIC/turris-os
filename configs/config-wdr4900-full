@@ -3635,3 +3635,4 @@ CONFIG_PACKAGE_openssl-util=y
 # libraries
 #
 # CONFIG_PACKAGE_orbit2 is not set
+CONFIG_PACKAGE_foris=y
