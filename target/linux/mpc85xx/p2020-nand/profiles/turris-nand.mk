@@ -24,7 +24,7 @@ define Profile/TURRISNAND
 		nuci updater logsend unbound oneshot logrotate \
 		mtd-utils mtd-utils-nandwrite mtd-utils-nandtest mtd-utils-nanddump \
 		mtd-utils-flash-erase mtd-utils-flash-eraseall mtd-utils-flash-info \
-		luci zlib curl cert-backup foris
+		luci zlib curl cert-backup foris update_mac
 endef
 
 define Profile/TURRISNAND/Description
