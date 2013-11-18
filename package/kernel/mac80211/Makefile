@@ -1546,7 +1546,7 @@ else
 	b43-fwcutter -w $(1)/lib/firmware/ $(PKG_BUILD_DIR)/$(PKG_B43_FWV4_OBJECT)
 endif
 ifneq ($(CONFIG_B43_FW_SQUASH),)
-	b43-fwsquash.py "$(CONFIG_B43_FW_SQUASH_PHYTYPES)" "$(CONFIG_B43_FW_SQUASH_COREREVS)" "$(1)/lib/firmware/b43"
+	$(TOPDIR)/tools/b43-tools/files/b43-fwsquash.py "$(CONFIG_B43_FW_SQUASH_PHYTYPES)" "$(CONFIG_B43_FW_SQUASH_COREREVS)" "$(1)/lib/firmware/b43"
 endif
 endef
 
@@ -1554,7 +1554,7 @@ define KernelPackage/b43legacy/install
 	$(INSTALL_DIR) $(1)/lib/firmware/
 	b43-fwcutter --unsupported -w $(1)/lib/firmware/ $(DL_DIR)/$(PKG_B43_FWV3_SOURCE)
 ifneq ($(CONFIG_B43LEGACY_FW_SQUASH),)
-	b43-fwsquash.py "G" "$(CONFIG_B43LEGACY_FW_SQUASH_COREREVS)" "$(1)/lib/firmware/b43legacy"
+	$(TOPDIR)/tools/b43-tools/files/b43-fwsquash.py "G" "$(CONFIG_B43LEGACY_FW_SQUASH_COREREVS)" "$(1)/lib/firmware/b43legacy"
 endif
 endef
 
