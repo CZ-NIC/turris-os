@@ -129,7 +129,7 @@
 +
 +		i2c@3000 {
 +			rtc@6f {
-+				compatible = "dallas,ds1339";
++				compatible = "mcp7940";
 +				reg = <0x6f>;
 +			};
 +		};
@@ -378,7 +378,7 @@
 +
 +		i2c@3000 {
 +			rtc@6f {
-+				compatible = "dallas,ds1339";
++				compatible = "mcp7940";
 +				reg = <0x6f>;
 +			};
 +		};

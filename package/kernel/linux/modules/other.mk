@@ -458,6 +458,37 @@ endef
 
 $(eval $(call KernelPackage,rtc-marvell))
 
+define KernelPackage/rtc-mcp7940
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=MicroChip MCP7940 RTC support
+  $(call AddDepends/rtc, +kmod-i2c-core)
+  KCONFIG:=CONFIG_RTC_DRV_MCP7940
+  FILES:=$(LINUX_DIR)/drivers/rtc/rtc-mcp7940.ko
+  AUTOLOAD:=$(call AutoLoad,60,rtc-mcp7940)
+endef
+
+define KernelPackage/rtc-mcp7940/description
+ Kernel module for MicroChip 7940 RTC.
+endef
+
+$(eval $(call KernelPackage,rtc-mcp7940))
+
+define KernelPackage/rtc-ds1307
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=Dallas/Maxim DS1307/37/38/39/40, ST M41T00, EPSON RX-8025
+  $(call AddDepends/rtc, +kmod-i2c-core)
+  KCONFIG:=CONFIG_RTC_DRV_DS1307
+  FILES:=$(LINUX_DIR)/drivers/rtc/rtc-ds1307.ko
+  AUTOLOAD:=$(call AutoLoad,60,rtc-ds1307)
+endef
+
+define KernelPackage/rtc-ds1307/description
+ This driver should handle DS1307, DS1337, DS1338, DS1339, DS1340, ST M41T00,
+ EPSON RX-8025 and probably other chips.
+endef
+
+$(eval $(call KernelPackage,rtc-ds1307))
+
 define KernelPackage/rtc-pcf8563
   SUBMENU:=$(OTHER_MENU)
   TITLE:=Philips PCF8563/Epson RTC8564 RTC support
