@@ -9,7 +9,8 @@
 
 [ -e "/sys/class/leds/wifi" ] && ucidef_set_led_wlan "wifi" "wifi" "wifi" "phy0tpt"
 [ -e "/sys/class/leds/usb" ] && ucidef_set_led_usbdev "usb" "usb" "usb" "1-1"
-[ -e "/sys/class/leds/internet" ] &&	ucidef_set_led_netdev "internet" "internet" "internet" "pppoe-wan"
+[ -e "/sys/class/leds/usb2" ] && ucidef_set_led_usbdev "usb2" "usb2" "usb2" "2-1"
+[ -e "/sys/class/leds/internet" ] && ucidef_set_led_netdev "internet" "internet" "internet" "pppoe-wan"
 
 for a in `ls /sys/class/leds/`; do
 	grep -q "\[none\]" /sys/class/leds/$a/trigger
@@ -20,10 +21,6 @@ board=$(lantiq_board_id)
 
 case "$board" in
 VG3503J)
-	ucidef_set_led_netdev "lan1" "lan1" "bt:green:lan1" "eth0"
-	ucidef_set_led_netdev "lan2" "lan2" "bt:green:lan2" "eth1"
-	ucidef_set_led_netdev "port1" "port1" "bt:green:port1" "eth0"
-	ucidef_set_led_netdev "port2" "port2" "bt:green:port2" "eth1"
 	ucidef_set_led_netdev "vdsl" "vdsl" "bt:green:dsl" "ptm0"
 	;;
 *)

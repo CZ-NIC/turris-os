@@ -55,11 +55,11 @@
 	(ETH_FRAME_LEN + ETH_FCS_LEN + VLAN_HLEN)
 #define AG71XX_RX_BUF_SIZE (AG71XX_RX_PKT_SIZE + NET_SKB_PAD + NET_IP_ALIGN)
 
-#define AG71XX_TX_RING_SIZE_DEFAULT	64
+#define AG71XX_TX_RING_SIZE_DEFAULT	32
 #define AG71XX_RX_RING_SIZE_DEFAULT	128
 
-#define AG71XX_TX_RING_SIZE_MAX		256
-#define AG71XX_RX_RING_SIZE_MAX		256
+#define AG71XX_TX_RING_SIZE_MAX		32
+#define AG71XX_RX_RING_SIZE_MAX		128
 
 #ifdef CONFIG_AG71XX_DEBUG
 #define DBG(fmt, args...)	pr_debug(fmt, ## args)
@@ -91,8 +91,11 @@ struct ag71xx_buf {
 		void		*rx_buf;
 	};
 	struct ag71xx_desc	*desc;
-	dma_addr_t		dma_addr;
-	unsigned long		timestamp;
+	union {
+		dma_addr_t	dma_addr;
+		unsigned long	timestamp;
+	};
+	unsigned int		len;
 };
 
 struct ag71xx_ring {

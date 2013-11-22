@@ -49,7 +49,7 @@ platform_do_upgrade_combined() {
 
 	if [ -n "$partitions" ] && [ -n "$kernelpart" ] && \
 	   [ ${kern_blocks:-0} -gt 0 ] && \
-	   [ ${root_blocks:-0} -gt ${kern_blocks:-0} ] && \
+	   [ ${root_blocks:-0} -gt 0 ] && \
 	   [ ${erase_size:-0} -gt 0 ];
 	then
 		local append=""
@@ -67,6 +67,10 @@ tplink_get_image_hwid() {
 
 tplink_get_image_boot_size() {
 	get_image "$@" | dd bs=4 count=1 skip=37 2>/dev/null | hexdump -v -n 4 -e '1/1 "%02x"'
+}
+
+seama_get_type_magic() {
+	get_image "$@" | dd bs=1 count=4 skip=53 2>/dev/null | hexdump -v -n 4 -e '1/1 "%02x"'
 }
 
 platform_check_image() {
@@ -94,6 +98,7 @@ platform_check_image() {
 	ap96 | \
 	db120 | \
 	hornet-ub | \
+	bxu2000n-2-a1 | \
 	zcn-1523h-2 | \
 	zcn-1523h-5)
 		[ "$magic_long" != "68737173" -a "$magic_long" != "19852003" ] && {
@@ -105,6 +110,7 @@ platform_check_image() {
 	ap81 | \
 	ap83 | \
 	ap132 | \
+	dir-505-a1 | \
 	dir-600-a1 | \
 	dir-615-c1 | \
 	dir-615-e4 | \
@@ -112,10 +118,12 @@ platform_check_image() {
 	dir-835-a1 | \
 	ew-dorin | \
 	ew-dorin-router | \
+	hornet-ub-x2 | \
 	mzk-w04nu | \
 	mzk-w300nh | \
 	tew-632brp | \
 	tew-712br | \
+	tew-732br | \
 	wrt400n | \
 	airrouter | \
 	bullet-m | \
@@ -147,6 +155,20 @@ platform_check_image() {
 		dir825b_check_image "$1" && return 0
 		;;
 
+	mynet-n600)
+		[ "$magic_long" != "5ea3a417" ] && {
+			echo "Invalid image, bad magic: $magic_long"
+			return 1
+		}
+
+		local typemagic=$(seama_get_type_magic "$1")
+		[ "$typemagic" != "6669726d" ] && {
+			echo "Invalid image, bad type: $typemagic"
+			return 1
+		}
+
+		return 0;
+		;;
 	mr600 | \
 	mr600v2 | \
 	om2p | \
@@ -157,25 +179,32 @@ platform_check_image() {
 		;;
 
 	archer-c7 | \
+	tl-mr10u | \
 	tl-mr11u | \
+	tl-mr13u | \
 	tl-mr3020 | \
 	tl-mr3040 | \
+	tl-mr3040-v2 | \
 	tl-mr3220 | \
 	tl-mr3220-v2 | \
 	tl-mr3420 | \
 	tl-mr3420-v2 | \
 	tl-wa7510n | \
+	tl-wa750re | \
+	tl-wa850re | \
 	tl-wa901nd | \
 	tl-wa901nd-v2 | \
 	tl-wdr3500 | \
 	tl-wdr4300 | \
 	tl-wr703n | \
+	tl-wr710n | \
 	tl-wr720n-v3 | \
 	tl-wr741nd | \
 	tl-wr741nd-v4 | \
 	tl-wr841n-v1 | \
 	tl-wr841n-v7 | \
 	tl-wr841n-v8 | \
+	tl-wr842n-v2 | \
 	tl-wr941nd | \
 	tl-wr1041n-v2 | \
 	tl-wr1043nd | \
@@ -213,7 +242,8 @@ platform_check_image() {
 		}
 		return 0
 		;;
-	wndr3700)
+	wndr3700 | \
+	wnr612-v2)
 		local hw_magic
 
 		hw_magic="$(ar71xx_get_mtd_part_magic firmware)"
@@ -297,6 +327,10 @@ platform_do_upgrade() {
 	om2p-hs | \
 	om2p-lc)
 		platform_do_upgrade_openmesh "$ARGV"
+		;;
+	uap-pro)
+		MTD_CONFIG_ARGS="-s 0x180000"
+		default_do_upgrade "$ARGV"
 		;;
 	*)
 		default_do_upgrade "$ARGV"

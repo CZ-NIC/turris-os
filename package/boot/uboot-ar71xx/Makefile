@@ -14,7 +14,9 @@ PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(KERNEL_BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
-PKG_SOURCE_URL:=ftp://ftp.denx.de/pub/u-boot
+PKG_SOURCE_URL:= \
+	http://mirror2.openwrt.org/sources \
+	ftp://ftp.denx.de/pub/u-boot
 PKG_MD5SUM:=
 PKG_TARGETS:=bin
 
@@ -37,7 +39,7 @@ define Package/uboot-ar71xx-$(1)
   SECTION:=boot
   CATEGORY:=Boot Loaders
   TITLE:=$(2)
-  DEPENDS:=@TARGET_ar71xx
+  DEPENDS:=@TARGET_ar71xx_generic
   URL:=http://www.denx.de/wiki/U-Boot
   DEFAULT:=y if (TARGET_ar71xx_generic_NBG_460N_550N_550NH || TARGET_ar71xx_generic_Default || CONFIG_TARGET_ar71xx_generic_Minimal)
   VARIANT:=$(1)

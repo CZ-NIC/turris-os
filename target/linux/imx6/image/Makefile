@@ -7,54 +7,132 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/image.mk
 
-BOARDS := \
-	imx6dl-wandboard \
-	imx6q-gw5400-a
-
-# board-specific Flattened Image Tree
-define mkfit
-	/bin/sh $(LINUX_DIR)/scripts/mkits.sh -A arm -C none -a $(2) -e $(2) \
-		-v 'OpenWrt Linux-$(LINUX_VERSION)' \
-		-d $(LINUX_DIR)/arch/arm/boot/dts/$(1).dtb -k $(LINUX_DIR)/arch/arm/boot/zImage \
-		-o $(KDIR)/$(1)-uImage.its
-	PATH=$(LINUX_DIR)/scripts/dtc:$(PATH) mkimage -f $(KDIR)/$(1)-uImage.its $(BIN_DIR)/openwrt-$(1)-uImage.itb
+define sanitize_profile_name
+$(shell echo $(PROFILE) | tr '[:upper:]' '[:lower:]' | sed 's/_/-/g')
 endef
 
-# emit FIT images, DTB's and generic zImage
-define Image/BuildKernel
-	$(foreach board,$(BOARDS),
-		$(call mkfit,$(board),0x10008000)
-		cp $(LINUX_DIR)/arch/arm/boot/dts/$(board).dtb $(BIN_DIR)
+define Image/BuildKernel/Template
+
+	$(CP) $(LINUX_DIR)/arch/arm/boot/dts/$(1).dtb $(BIN_DIR)/$(IMG_PREFIX)-$(1).dtb
+
+	$(call Image/BuildKernel/MkFIT,$(1),$(KDIR)/zImage,$(BIN_DIR)/$(IMG_PREFIX)-$(1).dtb,none,0x10008000,0x10008000)
+	$(CP) $(KDIR)/fit-$(1).itb $(BIN_DIR)/$(IMG_PREFIX)-$(1)-fit-uImage.itb
+
+ ifneq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),)
+	$(call Image/BuildKernel/MkFIT,$(1),$(KDIR)/zImage-initramfs,$(BIN_DIR)/$(IMG_PREFIX)-$(1).dtb,none,0x10008000,0x10008000,-initramfs)
+	$(CP) $(KDIR)/fit-$(1)-initramfs.itb $(BIN_DIR)/$(IMG_PREFIX)-$(1)-fit-uImage-initramfs.itb
+ endif
+
+	$(CP) $(KDIR)/zImage $(BIN_DIR)/$(IMG_PREFIX)-zImage
+	$(call Image/BuildKernel/MkuImage, \
+		none, 0x10008000, 0x10008000, \
+		$(BIN_DIR)/$(IMG_PREFIX)-zImage, \
+		$(BIN_DIR)/$(IMG_PREFIX)-uImage \
 	)
-	cp $(KDIR)/zImage $(BIN_DIR)/openwrt-$(BOARD)-zImage
+
+ ifneq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),)
+	$(CP) $(KDIR)/zImage-initramfs $(BIN_DIR)/$(IMG_PREFIX)-zImage-initramfs
+	$(call Image/BuildKernel/MkuImage, \
+		none, 0x10008000, 0x10008000, \
+		$(BIN_DIR)/$(IMG_PREFIX)-zImage-initramfs, \
+		$(BIN_DIR)/$(IMG_PREFIX)-uImage-initramfs \
+	)
+ endif
 endef
 
-# board-specific sysupgrade image
-define BuildFirmware/Generic
-	dd if=$(BIN_DIR)/openwrt-$(1)-uImage.itb of=$(KDIR)/uImage.pad bs=64k conv=sync; \
-	dd if=$(KDIR)/root.$(2) of=$(KDIR)/root.$(2).pad bs=128k conv=sync; \
-	sh $(TOPDIR)/scripts/combined-image.sh \
-		$(KDIR)/uImage.pad \
-		$(KDIR)/root.$(2).pad \
-		$(BIN_DIR)/$(IMG_PREFIX)-$(patsubst jffs2-%,jffs2,$(patsubst squashfs-%,squashfs,$(1)))-sysupgrade.bin
+define Image/InstallKernel/Template
+
+ ifneq ($(CONFIG_TARGET_ROOTFS_INCLUDE_KERNEL),)
+	$(INSTALL_DIR) $(TARGET_DIR)/boot
+   ifneq ($(CONFIG_TARGET_ROOTFS_INCLUDE_UIMAGE),)
+	$(CP) $(BIN_DIR)/$(IMG_PREFIX)-uImage $(TARGET_DIR)/boot/
+	ln -sf $(IMG_PREFIX)-uImage $(TARGET_DIR)/boot/uImage
+   endif
+   ifneq ($(CONFIG_TARGET_ROOTFS_INCLUDE_ZIMAGE),)
+	$(CP) $(BIN_DIR)/$(IMG_PREFIX)-zImage $(TARGET_DIR)/boot/
+	ln -sf $(IMG_PREFIX)-zImage $(TARGET_DIR)/boot/zImage
+   endif
+   ifneq ($(CONFIG_TARGET_ROOTFS_INCLUDE_FIT),)
+	$(foreach dts,$(shell echo $(1)), \
+		$(CP) $(BIN_DIR)/$(IMG_PREFIX)-$(dts)-fit-uImage.itb $(TARGET_DIR)/boot/
+	)
+   endif
+ endif
+
+ ifneq ($(CONFIG_TARGET_ROOTFS_INCLUDE_DTB),)
+	$(INSTALL_DIR) $(TARGET_DIR)/boot
+	$(foreach dts,$(shell echo $(1)), \
+		$(CP) $(BIN_DIR)/$(IMG_PREFIX)-$(dts).dtb $(TARGET_DIR)/boot/ ; \
+		ln -sf $(IMG_PREFIX)-$(dts).dtb $(TARGET_DIR)/boot/$(dts).dtb ; \
+	)
+ endif
+endef
+
+define Image/Build/squashfs
+	$(call prepare_generic_squashfs,$(KDIR)/root.$(1))
+	dd if=$(KDIR)/root.$(1) of=$(BIN_DIR)/$(IMG_PREFIX)-$(1).bin bs=128k conv=sync
+	( \
+		dd if=$(BIN_DIR)/$(IMG_PREFIX)-$(call sanitize_profile_name)-fit-uImage.itb bs=2048k conv=sync; \
+		dd if=$(KDIR)/root.$(1) bs=128k conv=sync; \
+	) > $(BIN_DIR)/$(IMG_PREFIX)-$(call sanitize_profile_name)-fit-$(1).bin
+endef
+
+define Image/mkfs/targz
+
+	$(TAR) -czpf $(BIN_DIR)/$(IMG_PREFIX)-$(call sanitize_profile_name)-rootfs.tar.gz --numeric-owner --owner=0 --group=0 -C $(TARGET_DIR)/ .
+endef
+
+define ubifs_imx_gateworks_ventana
+	# Micron MT29F1G08ABAD/MT29F2G08ABAE/MT29F4G08ABAD/MT29F8G08ADAD NAND
+	$(eval VENTANA_UBIFS_OPTS:="-m 2048 -e 124KiB -c 8124")
+	$(eval VENTANA_UBI_OPTS:="-m 2048 -p 128KiB -s 2048")
+	$(call Image/mkfs/ubifs)
+	$(CP) $(KDIR)/root.ubifs $(BIN_DIR)/$(IMG_PREFIX)-$(call sanitize_profile_name)-rootfs_normal.ubifs
+	$(CP) $(KDIR)/root.ubi $(BIN_DIR)/$(IMG_PREFIX)-$(call sanitize_profile_name)-rootfs_normal.ubi
+
+	# Micron MT29F8G08ABAC/MT29F16G08ADAC 1GB/2GB NAND
+	$(eval VENTANA_UBIFS_OPTS:="-m 4096 -e 248KiB -c 8124")
+	$(eval VENTANA_UBI_OPTS:="-m 4096 -p 256KiB -s 4096")
+	$(call Image/mkfs/ubifs)
+	$(CP) $(KDIR)/root.ubifs $(BIN_DIR)/$(IMG_PREFIX)-$(call sanitize_profile_name)-rootfs_large.ubifs
+	$(CP) $(KDIR)/root.ubi $(BIN_DIR)/$(IMG_PREFIX)-$(call sanitize_profile_name)-rootfs_large.ubi
+endef
+
+define Image/Build/ubifs
+	true
+endef
+
+define Image/Build/ubi
+	true
+endef
+
+
+Image/BuildKernel/Template/generic=$(call Image/BuildKernel/Template)
+Image/InstallKernel/Template/generic=$(call Image/InstallKernel/Template)
+
+Image/BuildKernel/Template/IMX6DL_WANDBOARD=$(call Image/BuildKernel/Template,imx6dl-wandboard)
+Image/InstallKernel/Template/IMX6DL_WANDBOARD=$(call Image/InstallKernel/Template,imx6dl-wandboard)
+
+Image/BuildKernel/Template/VENTANA=$(foreach dts,$(shell echo $(VENTANA_DTS)),$(call Image/BuildKernel/Template,$(dts)))
+Image/InstallKernel/Template/VENTANA=$(call Image/InstallKernel/Template,$(VENTANA_DTS))
+Image/ubifs/VENTANA=$(call ubifs_imx_gateworks_ventana)
+
+
+define Image/BuildKernel
+	$(call Image/BuildKernel/Template/$(PROFILE))
+endef
+
+define Image/InstallKernel
+	$(call Image/InstallKernel/Template/$(PROFILE))
+	$(if $(Image/ubifs/$(PROFILE)), \
+		$(call Image/ubifs/$(PROFILE))
+	)
 endef
 
 define Image/Build
-	$(call Image/Build/$(1),$(1))
-	$(foreach board,$(BOARDS),
-		$(call BuildFirmware/Generic,$(board),$(1))
-	)
-endef
-
-# rootfs and board-specific combined kernel+rootfs for convenience
-define Image/Build/squashfs
-	$(call prepare_generic_squashfs,$(KDIR)/root.$(1))
-	dd if=$(KDIR)/root.$(1) of=$(BIN_DIR)/openwrt-$(BOARD)-$(1).img bs=128k conv=sync
-	$(foreach board,$(BOARDS),
-		( \
-		dd if=$(BIN_DIR)/openwrt-$(board)-uImage.itb bs=2048k conv=sync; \
-		dd if=$(KDIR)/root.$(1) bs=64k conv=sync; \
-		) > $(BIN_DIR)/$(IMG_PREFIX)-$(board)-$(1).bin
+	$(if $(Image/Build/$(1)), \
+		$(call Image/Build/$(1),$(1)), \
+		$(CP) $(KDIR)/root.$(1) $(BIN_DIR)/$(IMG_PREFIX)-$(call sanitize_profile_name)-$(1).img \
 	)
 endef
 

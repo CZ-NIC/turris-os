@@ -34,6 +34,7 @@ case "$FIRMWARE" in
 	dir-300-b1 | \
 	dir-600-b1 | \
 	dir-600-b2 | \
+	dir-610-a1 | \
 	dir-615-d)
 		rt2x00_eeprom_extract "devdata" 16384 512
 		;;
@@ -61,12 +62,16 @@ case "$FIRMWARE" in
 	all5002 | \
 	all5003 | \
 	argus-atp52b | \
+	awm002-evb | \
 	bc2 | \
 	br6425 | \
 	broadway | \
 	br6524n | \
 	carambola | \
 	d105 | \
+	dcs-930 | \
+	dir-300-b7 | \
+	dir-320-b1 | \
 	dir-615-h1 | \
 	dir-620-a1 | \
 	dir-620-d1 | \
@@ -77,6 +82,7 @@ case "$FIRMWARE" in
 	freestation5 | \
 	hw550-3g | \
 	mofi3500-3gn | \
+	mpr-a1 | \
 	mpr-a2 | \
 	pwh2004 | \
 	nbg-419n | \
@@ -104,7 +110,8 @@ case "$FIRMWARE" in
 	mzk-w300nh2 | \
 	ur-326n4g | \
 	ur-336un | \
-	xdxrn502j)
+	xdxrn502j | \
+	hg255d)
 		rt2x00_eeprom_extract "factory" 0 512
 		;;
 

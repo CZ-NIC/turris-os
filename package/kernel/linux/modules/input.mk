@@ -27,12 +27,12 @@ define KernelPackage/hid-generic
   TITLE:=Generic HID device support
   KCONFIG:=CONFIG_HID_GENERIC
   FILES:=$(LINUX_DIR)/drivers/hid/hid-generic.ko
-  AUTOLOAD:=$(call AutoLoad,62,hid-generic)
+  AUTOLOAD:=$(call AutoProbe,hid-generic)
   $(call AddDepends/hid)
 endef
 
 define KernelPackage/hid/description
-  Kernel modules for generic HID device (e.g. keyboards and mice) support
+ Kernel modules for generic HID device (e.g. keyboards and mice) support
 endef
 
 $(eval $(call KernelPackage,hid-generic))
@@ -42,7 +42,6 @@ define KernelPackage/input-core
   TITLE:=Input device core
   KCONFIG:=CONFIG_INPUT
   FILES:=$(LINUX_DIR)/drivers/input/input-core.ko
-  AUTOLOAD:=$(call AutoLoad,19,input-core,1)
 endef
 
 define KernelPackage/input-core/description
@@ -76,7 +75,7 @@ define KernelPackage/input-gpio-keys
 	CONFIG_KEYBOARD_GPIO \
 	CONFIG_INPUT_KEYBOARD=y
   FILES:=$(LINUX_DIR)/drivers/input/keyboard/gpio_keys.ko
-  AUTOLOAD:=$(call AutoLoad,60,gpio_keys)
+  AUTOLOAD:=$(call AutoProbe,gpio_keys)
   $(call AddDepends/input)
 endef
 
@@ -96,7 +95,7 @@ define KernelPackage/input-gpio-keys-polled
 	CONFIG_KEYBOARD_GPIO_POLLED \
 	CONFIG_INPUT_KEYBOARD=y
   FILES:=$(LINUX_DIR)/drivers/input/keyboard/gpio_keys_polled.ko
-  AUTOLOAD:=$(call AutoLoad,62,gpio_keys_polled,1)
+  AUTOLOAD:=$(call AutoProbe,gpio_keys_polled,1)
   $(call AddDepends/input)
 endef
 
@@ -112,7 +111,7 @@ define KernelPackage/input-gpio-encoder
   TITLE:=GPIO rotay encoder
   KCONFIG:=CONFIG_INPUT_GPIO_ROTARY_ENCODER
   FILES:=$(LINUX_DIR)/drivers/input/misc/rotary_encoder.ko
-  AUTOLOAD:=$(call AutoLoad,62,rotary_encoder)
+  AUTOLOAD:=$(call AutoProbe,rotary_encoder)
   $(call AddDepends/input,@GPIO_SUPPORT)
 endef
 
@@ -128,12 +127,12 @@ define KernelPackage/input-joydev
   TITLE:=Joystick device support
   KCONFIG:=CONFIG_INPUT_JOYDEV
   FILES:=$(LINUX_DIR)/drivers/input/joydev.ko
-  AUTOLOAD:=$(call AutoLoad,62,joydev)
+  AUTOLOAD:=$(call AutoProbe,joydev)
   $(call AddDepends/input)
 endef
 
 define KernelPackage/input-joydev/description
-  Kernel module for joystick support
+ Kernel module for joystick support
 endef
 
 $(eval $(call KernelPackage,input-joydev))
@@ -144,7 +143,6 @@ define KernelPackage/input-polldev
   TITLE:=Polled Input device support
   KCONFIG:=CONFIG_INPUT_POLLDEV
   FILES:=$(LINUX_DIR)/drivers/input/input-polldev.ko
-  AUTOLOAD:=$(call AutoLoad,20,input-polldev,1)
   $(call AddDepends/input)
 endef
 
@@ -156,17 +154,17 @@ $(eval $(call KernelPackage,input-polldev))
 
 
 define KernelPackage/input-matrixkmap
-   SUBMENU:=$(INPUT_MODULES_MENU)
-   TITLE:=Input matrix devices support
-   KCONFIG:=CONFIG_INPUT_MATRIXKMAP
-   DEPENDS:=@!LINUX_3_3
-   FILES:=$(LINUX_DIR)/drivers/input/matrix-keymap.ko
-   AUTOLOAD:=$(call AutoLoad,20,matrix-keymap)
-   $(call AddDepends/input)
+  SUBMENU:=$(INPUT_MODULES_MENU)
+  TITLE:=Input matrix devices support
+  KCONFIG:=CONFIG_INPUT_MATRIXKMAP
+  DEPENDS:=@!LINUX_3_3
+  FILES:=$(LINUX_DIR)/drivers/input/matrix-keymap.ko
+  AUTOLOAD:=$(call AutoProbe,matrix-keymap)
+  $(call AddDepends/input)
 endef
 
 define KernelPackage/input-matrix/description
-  Kernel module support for input matrix devices
+ Kernel module support for input matrix devices
 endef
 
 $(eval $(call KernelPackage,input-matrixkmap))
@@ -186,3 +184,21 @@ define KernelPackage/acpi-button/description
 endef
 
 $(eval $(call KernelPackage,acpi-button))
+
+
+define KernelPackage/keyboard-imx
+  SUBMENU:=$(INPUT_MODULES_MENU)
+  TITLE:=IMX keypad support
+  DEPENDS:=@(TARGET_mxs||TARGET_imx6) +kmod-input-matrixkmap
+  KCONFIG:= \
+	CONFIG_KEYBOARD_IMX \
+	CONFIG_INPUT_KEYBOARD=y
+  FILES:=$(LINUX_DIR)/drivers/input/keyboard/imx_keypad.ko
+  AUTOLOAD:=$(call AutoProbe,imx_keypad)
+endef
+
+define KernelPackage/keyboard-imx/description
+ Enable support for IMX keypad port.
+endef
+
+$(eval $(call KernelPackage,keyboard-imx))

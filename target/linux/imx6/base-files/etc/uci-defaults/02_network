@@ -5,19 +5,29 @@
 
 [ -e /etc/config/network ] && exit 0
 
-. /lib/functions/uci-defaults.sh
-
 touch /etc/config/network
+
+. /lib/functions/uci-defaults.sh
 
 ucidef_set_interface_loopback
 
-board=$(cat /proc/device-tree/model)
-
-case "$board" in
+case "`cat /proc/device-tree/model`" in
+"Gateworks Ventana i.MX6 DualLite GW51XX" |\
+"Gateworks Ventana i.MX6 DualLite GW52XX" |\
+"Gateworks Ventana i.MX6 Quad GW51XX" |\
+"Gateworks Ventana i.MX6 Quad GW52XX")
+	ucidef_set_interface_lan 'eth0'
+	;;
+"Gateworks Ventana i.MX6 DualLite GW53XX" |\
+"Gateworks Ventana i.MX6 DualLite GW54XX" |\
+"Gateworks Ventana i.MX6 Quad GW53XX" |\
+"Gateworks Ventana i.MX6 Quad GW54XX" |\
+"Gateworks Ventana GW5400-A")
+	ucidef_set_interfaces_lan_wan 'eth0' 'eth1'
+	;;
 "Wandboard i.MX6 Dual Lite Board")
 	ucidef_set_interface_wan 'eth0'
 	;;
-
 esac
 
 uci commit network

@@ -16,7 +16,7 @@ define KernelPackage/fs-autofs4
 endef
 
 define KernelPackage/fs-autofs4/description
-  Kernel module for AutoFS4 support
+ Kernel module for AutoFS4 support
 endef
 
 $(eval $(call KernelPackage,fs-autofs4))
@@ -36,7 +36,7 @@ define KernelPackage/fs-btrfs
 endef
 
 define KernelPackage/fs-btrfs/description
-  Kernel module for BTRFS support
+ Kernel module for BTRFS support
 endef
 
 $(eval $(call KernelPackage,fs-btrfs))
@@ -90,7 +90,7 @@ define KernelPackage/fs-exportfs
   TITLE:=exportfs kernel server support
   KCONFIG:=CONFIG_EXPORTFS
   FILES=$(LINUX_DIR)/fs/exportfs/exportfs.ko
-  AUTOLOAD:=$(call AutoLoad,20,exportfs)
+  AUTOLOAD:=$(call AutoLoad,20,exportfs,1)
 endef
 
 define KernelPackage/fs-exportfs/description

@@ -10,9 +10,9 @@ ARCH:=arm
 BOARD:=cns21xx
 BOARDNAME:=Cavium Networks Econa CNS21xx
 FEATURES:=squashfs
-CFLAGS:=-Os -pipe -march=armv4 -mtune=fa526 -fno-caller-saves
+CPU_TYPE:=fa526
 
-LINUX_VERSION:=3.8.13
+LINUX_VERSION:=3.10.18
 
 include $(INCLUDE_DIR)/target.mk
 
