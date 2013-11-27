@@ -18,11 +18,7 @@ make defconfig
 export TARGET_BOARD=turris
 ./set_opkg_url
 make clean
-if [ -z "$BUILD_ALL" ]; then
-	make "$@"
-else
-	make -j1 V=99 IGNORE_ERRORS=m
-fi
+make "$@"
 
 # Clean
 [ -d ./bin-nand ] && rm -rf ./bin-nand
