@@ -3,7 +3,7 @@ hostapd_set_bss_options() {
 	local vif="$2"
 	local enc wep_rekey wpa_group_rekey wpa_pair_rekey wpa_master_rekey wps_possible
 
-	config_get enc "$vif" encryption
+	config_get enc "$vif" encryption "none"
 	config_get wep_rekey        "$vif" wep_rekey        # 300
 	config_get wpa_group_rekey  "$vif" wpa_group_rekey  # 300
 	config_get wpa_pair_rekey   "$vif" wpa_pair_rekey   # 300
@@ -73,6 +73,14 @@ hostapd_set_bss_options() {
 
 	# use crypto/auth settings for building the hostapd config
 	case "$enc" in
+		none)
+			wps_possible=1
+			wpa=0
+			crypto=
+			# Here we make the assumption that if we're in open mode
+			# with WPS enabled, we got to be in unconfigured state.
+			wps_not_configured=1
+		;;
 		*psk*)
 			config_get psk "$vif" key
 			if [ ${#psk} -eq 64 ]; then
@@ -85,7 +93,7 @@ hostapd_set_bss_options() {
 			[ -n "$wpa_pair_rekey"   ] && append "$var" "wpa_ptk_rekey=$wpa_pair_rekey"    "$N"
 			[ -n "$wpa_master_rekey" ] && append "$var" "wpa_gmk_rekey=$wpa_master_rekey"  "$N"
 		;;
-		*wpa*)
+		*wpa*|*8021x*)
 			# required fields? formats?
 			# hostapd is particular, maybe a default configuration for failures
 			config_get auth_server "$vif" auth_server
@@ -98,9 +106,13 @@ hostapd_set_bss_options() {
 			config_get auth_secret "$vif" auth_secret
 			[ -z "$auth_secret" ] && config_get auth_secret "$vif" key
 			append "$var" "auth_server_shared_secret=$auth_secret" "$N"
+			# You don't really want to enable this unless you are doing
+			# some corner case testing or are using OpenWrt as a work around
+			# for some systematic issues.
 			config_get_bool auth_cache "$vif" auth_cache 0
-			[ "$auth_cache" -gt 0 ] || append "$var" "disable_pmksa_caching=1" "$N"
-			[ "$auth_cache" -gt 0 ] || append "$var" "okc=0" "$N"
+			config_get rsn_preauth "$vif" rsn_preauth
+			[ "$auth_cache" -gt 0 ] || [[ "$rsn_preauth" = 1 ]] || append "$var" "disable_pmksa_caching=1" "$N"
+			[ "$auth_cache" -gt 0 ] || [[ "$rsn_preauth" = 1 ]] || append "$var" "okc=0" "$N"
 			config_get acct_server "$vif" acct_server
 			[ -n "$acct_server" ] && append "$var" "acct_server_addr=$acct_server" "$N"
 			config_get acct_port "$vif" acct_port
@@ -108,6 +120,15 @@ hostapd_set_bss_options() {
 			[ -n "$acct_port" ] && append "$var" "acct_server_port=$acct_port" "$N"
 			config_get acct_secret "$vif" acct_secret
 			[ -n "$acct_secret" ] && append "$var" "acct_server_shared_secret=$acct_secret" "$N"
+			config_get eap_reauth_period "$vif" eap_reauth_period
+			[ -n "$eap_reauth_period" ] && append "$var" "eap_reauth_period=$eap_reauth_period" "$N"
+			config_get dae_client "$vif" dae_client
+			config_get dae_secret "$vif" dae_secret
+			[ -n "$dae_client" -a -n "$dae_secret" ] && {
+				config_get dae_port  "$vif" dae_port
+				append "$var" "radius_das_port=${dae_port:-3799}" "$N"
+				append "$var" "radius_das_client=$dae_client $dae_secret" "$N"
+			}
 			config_get nasid "$vif" nasid
 			append "$var" "nas_identifier=$nasid" "$N"
 			append "$var" "eapol_key_index_workaround=1" "$N"
@@ -173,10 +194,15 @@ hostapd_set_bss_options() {
 		config_get device_type "$vif" wps_device_type "6-0050F204-1"
 		config_get device_name "$vif" wps_device_name "OpenWrt AP"
 		config_get manufacturer "$vif" wps_manufacturer "openwrt.org"
+		config_get wps_pin "$vif" wps_pin "12345670"
+
+		config_get_bool ext_registrar "$vif" ext_registrar 0
+		[ "$ext_registrar" -gt 0 -a -n "$bridge" ] && append "$var" "upnp_iface=$bridge" "$N"
 
 		append "$var" "eap_server=1" "$N"
-		append "$var" "wps_state=2" "$N"
-		append "$var" "ap_setup_locked=1" "$N"
+		append "$var" "ap_pin=$wps_pin" "$N"
+		append "$var" "wps_state=${wps_not_configured:-2}" "$N"
+		append "$var" "ap_setup_locked=0" "$N"
 		append "$var" "device_type=$device_type" "$N"
 		append "$var" "device_name=$device_name" "$N"
 		append "$var" "manufacturer=$manufacturer" "$N"
@@ -190,12 +216,25 @@ hostapd_set_bss_options() {
 
 	if [ "$wpa" -ge "2" ]
 	then
-		# RSN -> allow preauthentication
-		config_get_bool rsn_preauth "$vif" rsn_preauth "$auth_cache"
+		# RSN -> allow preauthentication. You have two
+		# options, rsn_preauth for production or rsn_preauth_testing
+		# for validation / testing.
 		if [ -n "$bridge" -a "$rsn_preauth" = 1 ]
 		then
 			append "$var" "rsn_preauth=1" "$N"
 			append "$var" "rsn_preauth_interfaces=$bridge" "$N"
+			append "$var" "okc=1" "$N"
+		else
+			# RSN preauthentication testings hould disable
+			# Opportunistic Key Caching (okc) as otherwise the PMKSA
+			# entry for a test could come from the Opportunistic Key Caching
+			config_get rsn_preauth_testing "$vif" rsn_preauth_testing
+			if [ -n "$bridge" -a "$rsn_preauth_testing" = 1 ]
+			then
+				append "$var" "rsn_preauth=1" "$N"
+				append "$var" "rsn_preauth_interfaces=$bridge" "$N"
+				append "$var" "okc=0" "$N"
+			fi
 		fi
 
 		# RSN -> allow management frame protection

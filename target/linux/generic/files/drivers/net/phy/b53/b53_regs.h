@@ -135,6 +135,9 @@
 #define B53_DUPLEX_STAT_GE		0x08
 #define B53_DUPLEX_STAT_63XX		0x0c
 
+/* Revision ID register for BCM5325 */
+#define B53_REV_ID_25			0x50
+
 /* Strap Value (48 bit) */
 #define B53_STRAP_VALUE			0x70
 #define   SV_GMII_CTRL_115		BIT(27)
@@ -279,8 +282,10 @@
 #define B53_VLAN_WRITE_65		0x0a
 #define B53_VLAN_READ			0x0c
 #define   VA_MEMBER_MASK		0x3f
-#define   VA_UNTAG_S			6
-#define   VA_UNTAG_MASK			(0x3f << VA_UNTAG_S)
+#define   VA_UNTAG_S_25			6
+#define   VA_UNTAG_MASK_25		0x3f
+#define   VA_UNTAG_S_65			7
+#define   VA_UNTAG_MASK_65		0x1f
 #define   VA_VID_HIGH_S			12
 #define   VA_VID_HIGH_MASK		(0xffff << VA_VID_HIGH_S)
 #define   VA_VALID_25			BIT(20)

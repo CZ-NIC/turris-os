@@ -74,4 +74,13 @@
 		],
 		[ "exec", "/sbin/hotplug-call", "%SUBSYSTEM%" ]
 	],
+	[ "if",
+		[ "and",
+			[ "eq", "SUBSYSTEM",
+				[ "tty", "usb-serial" ]
+			],
+			[ "regex", "DEVNAME", "^ttyUSB" ],
+		],
+		[ "exec", "/sbin/hotplug-call", "tty" ]
+	],
 ]

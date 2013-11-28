@@ -145,7 +145,7 @@ static void ag71xx_ring_tx_clean(struct ag71xx *ag)
 		}
 
 		if (ring->buf[i].skb) {
-			bytes_compl += ring->buf[i].skb->len;
+			bytes_compl += ring->buf[i].len;
 			pkts_compl++;
 			dev_kfree_skb_any(ring->buf[i].skb);
 		}
@@ -684,6 +684,7 @@ static netdev_tx_t ag71xx_hard_start_xmit(struct sk_buff *skb,
 				  DMA_TO_DEVICE);
 
 	netdev_sent_queue(dev, skb->len);
+	ring->buf[i].len = skb->len;
 	ring->buf[i].skb = skb;
 	ring->buf[i].timestamp = jiffies;
 
@@ -824,6 +825,7 @@ static int ag71xx_tx_packets(struct ag71xx *ag)
 		unsigned int i = ring->dirty % ring->size;
 		struct ag71xx_desc *desc = ring->buf[i].desc;
 		struct sk_buff *skb = ring->buf[i].skb;
+		int len = ring->buf[i].len;
 
 		if (!ag71xx_desc_empty(desc)) {
 			if (pdata->is_ar7240 &&
@@ -834,8 +836,8 @@ static int ag71xx_tx_packets(struct ag71xx *ag)
 
 		ag71xx_wr(ag, AG71XX_REG_TX_STATUS, TX_STATUS_PS);
 
-		bytes_compl += skb->len;
-		ag->dev->stats.tx_bytes += skb->len;
+		bytes_compl += len;
+		ag->dev->stats.tx_bytes += len;
 		ag->dev->stats.tx_packets++;
 
 		dev_kfree_skb_any(skb);
@@ -846,6 +848,9 @@ static int ag71xx_tx_packets(struct ag71xx *ag)
 	}
 
 	DBG("%s: %d packets sent out\n", ag->dev->name, sent);
+
+	if (!sent)
+		return 0;
 
 	netdev_completed_queue(ag->dev, sent, bytes_compl);
 	if ((ring->curr - ring->dirty) < (ring->size * 3) / 4)
@@ -887,7 +892,6 @@ static int ag71xx_rx_packets(struct ag71xx *ag, int limit)
 		dma_unmap_single(&dev->dev, ring->buf[i].dma_addr,
 				 AG71XX_RX_BUF_SIZE, DMA_FROM_DEVICE);
 
-		dev->last_rx = jiffies;
 		dev->stats.rx_packets++;
 		dev->stats.rx_bytes += pktlen;
 
@@ -1042,13 +1046,23 @@ static void ag71xx_netpoll(struct net_device *dev)
 }
 #endif
 
+static int ag71xx_change_mtu(struct net_device *dev, int new_mtu)
+{
+	if (new_mtu < 68 ||
+	    new_mtu > AG71XX_TX_MTU_LEN - ETH_HLEN - ETH_FCS_LEN)
+		return -EINVAL;
+
+	dev->mtu = new_mtu;
+	return 0;
+}
+
 static const struct net_device_ops ag71xx_netdev_ops = {
 	.ndo_open		= ag71xx_open,
 	.ndo_stop		= ag71xx_stop,
 	.ndo_start_xmit		= ag71xx_hard_start_xmit,
 	.ndo_do_ioctl		= ag71xx_do_ioctl,
 	.ndo_tx_timeout		= ag71xx_tx_timeout,
-	.ndo_change_mtu		= eth_change_mtu,
+	.ndo_change_mtu		= ag71xx_change_mtu,
 	.ndo_set_mac_address	= eth_mac_addr,
 	.ndo_validate_addr	= eth_validate_addr,
 #ifdef CONFIG_NET_POLL_CONTROLLER
@@ -1164,16 +1178,6 @@ static int ag71xx_probe(struct platform_device *pdev)
 
 	netif_napi_add(dev, &ag->napi, ag71xx_poll, AG71XX_NAPI_WEIGHT);
 
-	err = register_netdev(dev);
-	if (err) {
-		dev_err(&pdev->dev, "unable to register net device\n");
-		goto err_free_desc;
-	}
-
-	pr_info("%s: Atheros AG71xx at 0x%08lx, irq %d, mode:%s\n",
-		dev->name, dev->base_addr, dev->irq,
-		ag71xx_get_phy_if_mode_name(pdata->phy_if_mode));
-
 	ag71xx_dump_regs(ag);
 
 	ag71xx_hw_init(ag);
@@ -1182,7 +1186,7 @@ static int ag71xx_probe(struct platform_device *pdev)
 
 	err = ag71xx_phy_connect(ag);
 	if (err)
-		goto err_unregister_netdev;
+		goto err_free_desc;
 
 	err = ag71xx_debugfs_init(ag);
 	if (err)
@@ -1190,12 +1194,22 @@ static int ag71xx_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, dev);
 
+	err = register_netdev(dev);
+	if (err) {
+		dev_err(&pdev->dev, "unable to register net device\n");
+		goto err_debugfs_exit;
+	}
+
+	pr_info("%s: Atheros AG71xx at 0x%08lx, irq %d, mode:%s\n",
+		dev->name, dev->base_addr, dev->irq,
+		ag71xx_get_phy_if_mode_name(pdata->phy_if_mode));
+
 	return 0;
 
+err_debugfs_exit:
+	ag71xx_debugfs_exit(ag);
 err_phy_disconnect:
 	ag71xx_phy_disconnect(ag);
-err_unregister_netdev:
-	unregister_netdev(dev);
 err_free_desc:
 	dma_free_coherent(NULL, sizeof(struct ag71xx_desc), ag->stop_desc,
 			  ag->stop_desc_dma);

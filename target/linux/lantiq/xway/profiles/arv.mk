@@ -22,7 +22,7 @@ define Profile/ARV4518PWR01
   NAME:=ARV4518PWR01
   PACKAGES:=kmod-ltq-hcd-danube kmod-ledtrig-usbdev \
 	kmod-ltq-adsl-danube-mei kmod-ltq-adsl-danube \
-	kmod-ltq-adsl-danube-fw-b kmod-ltq-atm-danube \
+	kmod-ltq-adsl-danube-fw-a kmod-ltq-atm-danube \
 	ltq-adsl-app ppp-mod-pppoa \
   	kmod-ath5k wpad-mini \
 	swconfig
@@ -34,7 +34,7 @@ define Profile/ARV4518PWR01A
   NAME:=ARV4518PWR01A
   PACKAGES:=kmod-ltq-hcd-danube kmod-ledtrig-usbdev \
         kmod-ltq-adsl-danube-mei kmod-ltq-adsl-danube \
-        kmod-ltq-adsl-danube-fw-b kmod-ltq-atm-danube \
+        kmod-ltq-adsl-danube-fw-a kmod-ltq-atm-danube \
         ltq-adsl-app ppp-mod-pppoa \
         kmod-ath5k wpad-mini \
         swconfig
@@ -58,7 +58,7 @@ define Profile/ARV4519PW
   NAME:=Vodafone, Pirelli - ARV4519PW
   PACKAGES:=kmod-ltq-hcd-danube kmod-ledtrig-usbdev \
 	kmod-ltq-adsl-danube-mei kmod-ltq-adsl-danube \
-	kmod-ltq-adsl-danube-fw-b kmod-ltq-atm-danube \
+	kmod-ltq-adsl-danube-fw-a kmod-ltq-atm-danube \
 	ltq-adsl-app ppp-mod-pppoa \
 	swconfig
 endef
@@ -69,7 +69,7 @@ define Profile/ARV7518PW
   NAME:=Astoria - ARV7518PW
   PACKAGES:=kmod-ltq-hcd-danube kmod-ledtrig-usbdev \
 	kmod-ltq-adsl-danube-mei kmod-ltq-adsl-danube \
-	kmod-ltq-adsl-danube-fw-b kmod-ltq-atm-danube \
+	kmod-ltq-adsl-danube-fw-a kmod-ltq-atm-danube \
 	ltq-adsl-app ppp-mod-pppoa \
   	kmod-ath9k wpad-mini \
 	swconfig
@@ -116,20 +116,13 @@ $(eval $(call Profile,ARV752DPW))
 
 define Profile/ARV752DPW22
   NAME:=Easybox 803 - ARV752DPW22
-  PACKAGES:=kmod-usb2 kmod-usb-uhci kmod-ltq-hcd-danube kmod-ledtrig-usbdev \
+  PACKAGES:=kmod-usb2-pci kmod-usb-uhci kmod-ltq-hcd-danube kmod-ledtrig-usbdev \
 	kmod-ltq-adsl-danube-mei kmod-ltq-adsl-danube \
 	kmod-ltq-adsl-danube-fw-b kmod-ltq-atm-danube \
 	ltq-adsl-app ppp-mod-pppoa \
 	kmod-ltq-tapi kmod-ltq-vmmc \
+	kmod-rt2800-pci wpad-mini \
 	swconfig
 endef
 
 $(eval $(call Profile,ARV752DPW22))
-
-define Profile/VG3503J
-  NAME:=BT Openreach - ECI VDSL Modem
-  PACKAGES:=kmod-ltq-vdsl-vr9-mei kmod-ltq-vdsl-vr9 \
-	kmod-ltq-ptm-vr9 ltq-vdsl-app
-endef
-
-$(eval $(call Profile,VG3503J))

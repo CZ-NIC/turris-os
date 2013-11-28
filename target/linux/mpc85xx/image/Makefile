@@ -125,7 +125,7 @@ define Image/Build/Profile/TURRISNAND
 	mkdir $(BIN_DIR)/medkit-128
 	if [ -d $(BIN_DIR)/medkit-256 ]; then rm -rf $(BIN_DIR)/medkit-256; fi
 	mkdir $(BIN_DIR)/medkit-256
-	gunzip -c $(BIN_DIR)/openwrt-mpc85xx-p2020-nand-rootfs.tar.gz > $(BIN_DIR)/openwrt-mpc85xx-p2020-nand-rootfs.tar
+	gunzip -c $(BIN_DIR)/openwrt-mpc85xx-p2020-nand-TURRISNAND-rootfs.tar.gz > $(BIN_DIR)/openwrt-mpc85xx-p2020-nand-rootfs.tar
 	tar cf $(BIN_DIR)/medkit-128/medkit-128m.tar -C $(BIN_DIR) $(IMG_PREFIX)-turris-nand-128m.fdt $(IMG_PREFIX)-zImage openwrt-mpc85xx-p2020-nand-rootfs.tar
 	tar cf $(BIN_DIR)/medkit-256/medkit-256m.tar -C $(BIN_DIR) $(IMG_PREFIX)-turris-nand-256m.fdt $(IMG_PREFIX)-zImage openwrt-mpc85xx-p2020-nand-rootfs.tar
 	xz -9 $(BIN_DIR)/medkit-128/medkit-128m.tar

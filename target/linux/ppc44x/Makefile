@@ -10,10 +10,10 @@ ARCH:=powerpc
 BOARD:=ppc44x
 BOARDNAME:=AMCC/IBM PPC44x
 FEATURES:=squashfs broken
-CFLAGS:=-Os -pipe -fno-caller-saves -mcpu=440
+CPU_TYPE:=440
 MAINTAINER:=Imre Kaloz <kaloz@openwrt.org>
 
-LINUX_VERSION:=3.8.13
+LINUX_VERSION:=3.10.18
 
 include $(INCLUDE_DIR)/target.mk
 

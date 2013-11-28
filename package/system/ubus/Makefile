@@ -1,13 +1,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ubus
-PKG_VERSION:=2013-05-30
+PKG_VERSION:=2013-11-07
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git://nbd.name/luci2/ubus.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=f72dca720bb50d45b1b01bab5b01cb80c78c5230
+PKG_SOURCE_VERSION:=8ea96670367e5dd23988b51ee4f0f790393effaf
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_MIRROR_MD5SUM:=
 CMAKE_INSTALL:=1
@@ -21,33 +21,29 @@ include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
 define Package/ubus
-  SECTION:=luci2
-  CATEGORY:=LuCI2
-  SUBMENU:=System
+  SECTION:=base
+  CATEGORY:=Base system
   DEPENDS:=+libubus +libblobmsg-json +ubusd
   TITLE:=OpenWrt RPC client utility
 endef
 
 define Package/ubusd
-  SECTION:=luci2
-  CATEGORY:=LuCI2
-  SUBMENU:=System
+  SECTION:=base
+  CATEGORY:=Base system
   TITLE:=OpenWrt RPC daemon
   DEPENDS:=+libubox
 endef
 
 define Package/libubus
-  SECTION:=luci2
-  CATEGORY:=LuCI2
-  SUBMENU:=Libraries
+  SECTION:=libs
+  CATEGORY:=Libraries
   DEPENDS:=+libubox
   TITLE:=OpenWrt RPC client library
 endef
 
 define Package/libubus-lua
-  SECTION:=luci2
-  CATEGORY:=LuCI2
-  SUBMENU:=Libraries
+  SECTION:=libs
+  CATEGORY:=Libraries
   DEPENDS:=+libubus +liblua
   TITLE:=Lua binding for the OpenWrt RPC client
 endef

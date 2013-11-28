@@ -6,29 +6,10 @@
 	compatible = "ralink,mt7620a-eval-board", "ralink,mt7620a-soc";
 	model = "Ralink MT7620a + MT7610e evaluation board";
 
-	memory@0 {
-		reg = <0x0 0x2000000>;
-	};
-
-	chosen {
-		bootargs = "console=ttyS0,57600";
-	};
-
 	palmbus@10000000 {
-		sysc@0 {
-			ralink,pinmux = "spi", "uartlite", "mdio", "wled", "ephy", "rgmii1", "rgmii2";
-			ralink,gpiomux = "i2c", "jtag";
-			ralink,uartmux = "gpio";
-			ralink,wdtmux = <1>;
-		};
-
-		gpio0: gpio@600 {
-			status = "okay";
-		};
-
 		spi@b00 {
 			status = "okay";
-		
+
 			m25p80@0 {
 				#address-cells = <1>;
 				#size-cells = <1>;
@@ -63,19 +44,31 @@
 		};
 	};
 
+	pinctrl {
+		state_default: pinctrl0 {
+			gpio {
+				ralink,group = "i2c", "uartf";
+				ralink,function = "gpio";
+			};
+		};
+	};
+
 	ethernet@10100000 {
 		status = "okay";
-		
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&rgmii1_pins &rgmii2_pins &mdio_pins>;
+
+		ralink,port-map = "llllw";
+
 		port@4 {
-			compatible = "lantiq,mt7620a-gsw-port", "ralink,eth-port";
-			reg = <4>;
+			status = "okay";
 			phy-mode = "rgmii";
 			phy-handle = <&phy4>;
 		};
 
 		port@5 {
-			compatible = "lantiq,mt7620a-gsw-port", "ralink,eth-port";
-			reg = <5>;
+			status = "okay";
 			phy-mode = "rgmii";
 			phy-handle = <&phy5>;
 		};
@@ -96,7 +89,6 @@
 	};
 
 	gsw@10110000 {
-		status = "okay";
 		ralink,port4 = "gmac";
 	};
 

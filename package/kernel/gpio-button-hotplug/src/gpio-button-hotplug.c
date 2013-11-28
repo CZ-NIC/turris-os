@@ -90,6 +90,7 @@ static struct bh_map button_map[] = {
 	BH_MAP(BTN_7,		"BTN_7"),
 	BH_MAP(BTN_8,		"BTN_8"),
 	BH_MAP(BTN_9,		"BTN_9"),
+	BH_MAP(KEY_POWER,	"power"),
 	BH_MAP(KEY_RESTART,	"reset"),
 	BH_MAP(KEY_RFKILL,	"rfkill"),
 	BH_MAP(KEY_WPS_BUTTON,	"wps"),
@@ -128,6 +129,7 @@ static int bh_event_add_var(struct bh_event *event, int argv,
 
 static int button_hotplug_fill_event(struct bh_event *event)
 {
+	char *s;
 	int ret;
 
 	ret = bh_event_add_var(event, 0, "HOME=%s", "/");
@@ -139,20 +141,7 @@ static int button_hotplug_fill_event(struct bh_event *event)
 	if (ret)
 		return ret;
 
-	char *s;
-	switch (event->type) {
-		case EV_KEY:
-			s = "button";
-			break;
-		case EV_SW:
-			s = "switch";
-			break;
-		default:
-			s = "button";
-			break;
-	}
-
-	ret = bh_event_add_var(event, 0, "SUBSYSTEM=%s", s);
+	ret = bh_event_add_var(event, 0, "SUBSYSTEM=%s", "button");
 	if (ret)
 		return ret;
 
@@ -163,6 +152,12 @@ static int button_hotplug_fill_event(struct bh_event *event)
 	ret = bh_event_add_var(event, 0, "BUTTON=%s", event->name);
 	if (ret)
 		return ret;
+
+	if (event->type == EV_SW) {
+		ret = bh_event_add_var(event, 0, "TYPE=%s", "switch");
+		if (ret)
+			return ret;
+	}
 
 	ret = bh_event_add_var(event, 0, "SEEN=%ld", event->seen);
 	if (ret)
@@ -274,17 +269,24 @@ struct gpio_keys_polled_dev {
 	struct gpio_keys_button_data data[0];
 };
 
+static int gpio_button_get_value(struct gpio_keys_button *button,
+				 struct gpio_keys_button_data *bdata)
+{
+	int val;
+
+	if (bdata->can_sleep)
+		val = !!gpio_get_value_cansleep(button->gpio);
+	else
+		val = !!gpio_get_value(button->gpio);
+
+	return val ^ button->active_low;
+}
+
 static void gpio_keys_polled_check_state(struct gpio_keys_button *button,
 					 struct gpio_keys_button_data *bdata)
 {
-	int state;
+	int state = gpio_button_get_value(button, bdata);
 
-	if (bdata->can_sleep)
-		state = !!gpio_get_value_cansleep(button->gpio);
-	else
-		state = !!gpio_get_value(button->gpio);
-
-	state = !!(state ^ button->active_low);
 	if (state != bdata->last_state) {
 		unsigned int type = button->type ?: EV_KEY;
 
@@ -293,7 +295,9 @@ static void gpio_keys_polled_check_state(struct gpio_keys_button *button,
 			return;
 		}
 
-		button_hotplug_event(bdata, type, button->code, state);
+		if ((bdata->last_state != -1) || (type == EV_SW))
+			button_hotplug_event(bdata, type, button->code, state);
+
 		bdata->last_state = state;
 	}
 
@@ -503,7 +507,7 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
 		}
 
 		bdata->can_sleep = gpio_cansleep(gpio);
-		bdata->last_state = 0;
+		bdata->last_state = -1;
 		bdata->threshold = DIV_ROUND_UP(button->debounce_interval,
 						pdata->poll_interval);
 	}

@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=uhttpd
-PKG_VERSION:=2013-06-01
+PKG_VERSION:=2013-11-21
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git://nbd.name/uhttpd2.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=87c52f8461fa74733572f4efc53bc30a64ca8575
+PKG_SOURCE_VERSION:=cd66639800ee2882a0867ec54868502eb9b893d8
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_MAINTAINER:=Felix Fietkau <nbd@openwrt.org>
 
@@ -51,7 +51,10 @@ endef
 define Package/uhttpd-mod-tls
   $(Package/uhttpd/default)
   TITLE+= (TLS plugin)
-  DEPENDS:=uhttpd +PACKAGE_uhttpd-mod-tls_cyassl:libustream-cyassl +PACKAGE_uhttpd-mod-tls_openssl:libustream-openssl
+  DEPENDS:=uhttpd \
+	+PACKAGE_uhttpd-mod-tls_polarssl:libustream-polarssl \
+	+PACKAGE_uhttpd-mod-tls_cyassl:libustream-cyassl \
+	+PACKAGE_uhttpd-mod-tls_openssl:libustream-openssl
 endef
 
 define Package/uhttpd-mod-tls/description
@@ -62,7 +65,10 @@ define Package/uhttpd-mod-tls/config
   choice
     depends on PACKAGE_uhttpd-mod-tls
     prompt "TLS Provider"
-    default PACKAGE_uhttpd-mod-tls_cyassl
+    default PACKAGE_uhttpd-mod-tls_polarssl
+
+    config PACKAGE_uhttpd-mod-tls_polarssl
+      bool "PolarSSL"
 
     config PACKAGE_uhttpd-mod-tls_cyassl
       bool "CyaSSL"
@@ -123,8 +129,9 @@ define Package/uhttpd-mod-lua/install
 endef
 
 define Package/uhttpd-mod-ubus/install
-	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_DIR) $(1)/usr/lib $(1)/etc/uci-defaults
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uhttpd_ubus.so $(1)/usr/lib/
+	$(INSTALL_DATA) ./files/ubus.default $(1)/etc/uci-defaults/00_uhttpd_ubus
 endef
 
 

@@ -38,6 +38,7 @@ ARCH:=$(subst i486,i386,$(subst i586,i386,$(subst i686,i386,$(call qstrip,$(CONF
 ARCH_PACKAGES:=$(call qstrip,$(CONFIG_TARGET_ARCH_PACKAGES))
 BOARD:=$(call qstrip,$(CONFIG_TARGET_BOARD))
 TARGET_OPTIMIZATION:=$(call qstrip,$(CONFIG_TARGET_OPTIMIZATION))
+export EXTRA_OPTIMIZATION:=$(call qstrip,$(CONFIG_EXTRA_OPTIMIZATION))
 TARGET_SUFFIX=$(call qstrip,$(CONFIG_TARGET_SUFFIX))
 BUILD_SUFFIX:=$(call qstrip,$(CONFIG_BUILD_SUFFIX))
 SUBDIR:=$(patsubst $(TOPDIR)/%,%,${CURDIR})
@@ -53,28 +54,14 @@ endif
 
 HOST_FPIC:=-fPIC
 
-ARCH_SUFFIX:=
+ARCH_SUFFIX:=$(call qstrip,$(CONFIG_CPU_TYPE))
 GCC_ARCH:=
 
+ifneq ($(ARCH_SUFFIX),)
+  ARCH_SUFFIX:=_$(ARCH_SUFFIX)
+endif
 ifneq ($(filter -march=armv%,$(TARGET_OPTIMIZATION)),)
-  ARCH_SUFFIX:=_$(patsubst -march=arm%,%,$(filter -march=armv%,$(TARGET_OPTIMIZATION)))
   GCC_ARCH:=$(patsubst -march=%,%,$(filter -march=armv%,$(TARGET_OPTIMIZATION)))
-endif
-ifneq ($(filter -mips%r2,$(TARGET_OPTIMIZATION)),)
-  ARCH_SUFFIX:=_r2
-endif
-ifneq ($(filter -mdsp,$(TARGET_OPTIMIZATION)),)
-  ARCH_SUFFIX:=$(ARCH_SUFFIX)_dsp
-endif
-ifneq ($(filter -mdspr2,$(TARGET_OPTIMIZATION)),)
-  ARCH_SUFFIX:=$(ARCH_SUFFIX)_dspr2
-endif
-ifdef CONFIG_USE_MIPS16
-   TARGET_OPTIMIZATION+= -minterlink-mips16 -mips16
-endif
-ifneq ($(findstring -mips16,$(TARGET_OPTIMIZATION)),)
-  TARGET_ASFLAGS_OVERRIDE:=-mno-mips16
-  ARCH_SUFFIX:= $(ARCH_SUFFIX)_m16
 endif
 ifdef CONFIG_HAS_SPE_FPU
   TARGET_SUFFIX:=$(TARGET_SUFFIX)spe
@@ -86,7 +73,7 @@ ifdef CONFIG_MIPS64_ABI
 endif
 
 DL_DIR:=$(if $(call qstrip,$(CONFIG_DOWNLOAD_FOLDER)),$(call qstrip,$(CONFIG_DOWNLOAD_FOLDER)),$(TOPDIR)/dl)
-BIN_DIR:=$(TOPDIR)/bin/$(BOARD)
+BIN_DIR:=$(if $(call qstrip,$(CONFIG_BINARY_FOLDER)),$(call qstrip,$(CONFIG_BINARY_FOLDER)),$(TOPDIR)/bin/$(BOARD))
 INCLUDE_DIR:=$(TOPDIR)/include
 SCRIPT_DIR:=$(TOPDIR)/scripts
 BUILD_DIR_BASE:=$(TOPDIR)/build_dir
@@ -127,9 +114,10 @@ BUILD_LOG_DIR:=$(TOPDIR)/logs
 PKG_INFO_DIR := $(STAGING_DIR)/pkginfo
 
 TARGET_PATH:=$(STAGING_DIR_HOST)/bin:$(subst $(space),:,$(filter-out .,$(filter-out ./,$(subst :,$(space),$(PATH)))))
-TARGET_CFLAGS:=$(TARGET_OPTIMIZATION)$(if $(CONFIG_DEBUG), -g3)
+TARGET_CFLAGS:=$(TARGET_OPTIMIZATION)$(if $(CONFIG_DEBUG), -g3) $(EXTRA_OPTIMIZATION)
 TARGET_CXXFLAGS = $(TARGET_CFLAGS)
-TARGET_ASFLAGS = $(TARGET_CFLAGS) $(TARGET_ASFLAGS_OVERRIDE)
+TARGET_ASFLAGS_DEFAULT = $(TARGET_CFLAGS)
+TARGET_ASFLAGS = $(TARGET_ASFLAGS_DEFAULT)
 TARGET_CPPFLAGS:=-I$(STAGING_DIR)/usr/include -I$(STAGING_DIR)/include
 TARGET_LDFLAGS:=-L$(STAGING_DIR)/usr/lib -L$(STAGING_DIR)/lib
 ifneq ($(CONFIG_EXTERNAL_TOOLCHAIN),)

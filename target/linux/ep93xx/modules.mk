@@ -24,7 +24,7 @@ $(eval $(call KernelPackage,fb-ep93xx))
 define KernelPackage/input-keyboard-ep93xx
   SUBMENU:=$(OTHER_MENU)
   TITLE:=EP93xx Matrix Keypad support
-  DEPENDS:=@TARGET_ep93xx +(LINUX_3_6||LINUX_3_7):kmod-input-matrixkmap
+  DEPENDS:=@TARGET_ep93xx +!LINUX_3_3:kmod-input-matrixkmap
   KCONFIG:= \
 	CONFIG_KEYBOARD_EP93XX \
 	CONFIG_INPUT_KEYBOARD=y
@@ -48,7 +48,7 @@ endif
 define KernelPackage/sound-soc-ep93xx
   SUBMENU:=$(SOUND_MENU)
   TITLE:=EP93xx SoC sound support
-  DEPENDS:=@TARGET_ep93xx +kmod-sound-soc-ac97
+  DEPENDS:=@TARGET_ep93xx +kmod-sound-core +kmod-sound-soc-core
   KCONFIG:=CONFIG_SND_EP93XX_SOC
   FILES:=$(LINUX_DIR)/sound/soc/$(SND_EP93XX_SOC_DIR)/snd-soc-ep93xx.ko
   AUTOLOAD:=$(call AutoLoad,57,snd-soc-ep93xx)
@@ -65,7 +65,7 @@ $(eval $(call KernelPackage,sound-soc-ep93xx))
 define KernelPackage/sound-soc-ep93xx-ac97
   SUBMENU:=$(SOUND_MENU)
   TITLE:=EP93xx SoC AC97 support
-  DEPENDS:=@TARGET_ep93xx +kmod-sound-soc-ep93xx
+  DEPENDS:=@TARGET_ep93xx +kmod-sound-soc-core
   KCONFIG:=CONFIG_SND_EP93XX_SOC_AC97
   FILES:=$(LINUX_DIR)/sound/soc/$(SND_EP93XX_SOC_DIR)/snd-soc-ep93xx-ac97.ko
   AUTOLOAD:=$(call AutoLoad,56,snd-soc-ep93xx-ac97)
@@ -80,7 +80,7 @@ $(eval $(call KernelPackage,sound-soc-ep93xx-ac97))
 define KernelPackage/sound-soc-ep93xx-simone
   SUBMENU:=$(SOUND_MENU)
   TITLE:=Sim.One EP93xx Soc sound support
-  DEPENDS:=@TARGET_ep93xx +kmod-sound-soc-ep93xx +kmod-sound-soc-ep93xx-ac97
+  DEPENDS:=@TARGET_ep93xx +kmod-sound-soc-core
   KCONFIG:=CONFIG_SND_EP93XX_SOC_SIMONE
   FILES:=$(LINUX_DIR)/sound/soc/$(SND_EP93XX_SOC_DIR)/snd-soc-simone.ko
   AUTOLOAD:=$(call AutoLoad,59,snd-soc-ep93xx)
