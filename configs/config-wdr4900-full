@@ -2772,11 +2772,11 @@ CONFIG_PACKAGE_openssh-client-utils=m
 CONFIG_PACKAGE_openssh-keygen=m
 CONFIG_PACKAGE_openssh-moduli=m
 CONFIG_PACKAGE_openssh-server=m
-# CONFIG_PACKAGE_openssh_server_nuci_support is not set
+CONFIG_PACKAGE_openssh_server_nuci_support=m
 CONFIG_PACKAGE_openssh-sftp-client=m
 CONFIG_PACKAGE_openssh-sftp-server=m
-# CONFIG_PACKAGE_rssh is not set
-# CONFIG_PACKAGE_sshtunnel is not set
+CONFIG_PACKAGE_rssh=m
+CONFIG_PACKAGE_sshtunnel=m
 
 #
 # THC-IPv6 attack and analyzing toolkit
