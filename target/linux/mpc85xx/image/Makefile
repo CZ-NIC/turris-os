@@ -110,13 +110,13 @@ define Image/Build/Profile/TURRISNAND
 	
 	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
 	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
-	truncate -s 1M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
-	truncate -s 1M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin 
+	truncate -s 2M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
+	truncate -s 2M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin 
 	
 	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
 	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
-	truncate -s 5M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
-	truncate -s 5M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
+	truncate -s 7M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
+	truncate -s 7M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
 	
 	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
 	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin

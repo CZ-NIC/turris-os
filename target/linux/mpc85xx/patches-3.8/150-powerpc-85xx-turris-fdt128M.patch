@@ -1,6 +1,6 @@
 --- /dev/null
-+++ b/arch/powerpc/boot/dts/turris-nor-128m.dts
-@@ -0,0 +1,237 @@
++++ b/arch/powerpc/boot/dts/turris-nor-128m.dts	
+@@ -0,0 +1,230 @@
 +/*
 + * Turris RDB Device Tree Source
 + *
@@ -96,27 +96,20 @@
 +			reg = <0x1 0x0 0x8000000>;
 +
 +			partition@0 {
-+				/* This location must not be altered  */
-+				/* 1MB for u-boot Bootloader Image */
-+				reg = <0x0 0x00100000>;
-+				label = "NAND (RW) U-Boot Image";
-+			};
-+
-+			partition@100000 {
-+				/* 1MB for DTB Image */
-+				reg = <0x00100000 0x00100000>;
++				/* 2MB for DTB Image */
++				reg = <0x00000000 0x00200000>;
 +				label = "NAND (RW) DTB Image";
 +			};
 +
 +			partition@200000 {
-+				/* 4MB for Linux Kernel Image */
-+				reg = <0x00200000 0x00400000>;
++				/* 5MB for Linux Kernel Image */
++				reg = <0x00200000 0x00500000>;
 +				label = "NAND (RW) Linux Kernel Image";
 +			};
 +
-+			partition@600000 {
-+				/* 122MB for JFFS2 based Root file System */
-+				reg = <0x00600000 0x7A00000>;
++			partition@700000 {
++				/* 121MB for JFFS2 based Root file System */
++				reg = <0x00700000 0x7900000>;
 +				label = "NAND (RW) JFFS2 Root File System";
 +			};
 +
@@ -240,7 +233,7 @@
 +/include/ "fsl/p2020si-post.dtsi"
 --- /dev/null
 +++ b/arch/powerpc/boot/dts/turris-nand-128m.dts
-@@ -0,0 +1,246 @@
+@@ -0,0 +1,236 @@
 +/*
 + * Turris RDB Device Tree Source
 + *
@@ -342,30 +335,20 @@
 +			reg = <0x1 0x0 0x8000000>;
 +
 +			partition@0 {
-+				/* This location must not be altered  */
-+				/* 1MB for u-boot Bootloader Image */
-+				reg = <0x0 0x00100000>;
-+				label = "NAND (RO) U-Boot Image";
-+				read-only;
-+			};
-+
-+			partition@100000 {
-+				/* 1MB for DTB Image */
-+				reg = <0x00100000 0x00100000>;
-+				label = "NAND (RO) DTB Image";
-+				read-only;
++				/* 2MB for DTB Image */
++				reg = <0x00000000 0x00200000>;
++				label = "NAND (RW) DTB Image";
 +			};
 +
 +			partition@200000 {
-+				/* 4MB for Linux Kernel Image */
-+				reg = <0x00200000 0x00400000>;
-+				label = "NAND (RO) Linux Kernel Image";
-+				read-only;
++				/* 5MB for Linux Kernel Image */
++				reg = <0x00200000 0x00500000>;
++				label = "NAND (RW) Linux Kernel Image";
 +			};
 +
-+			partition@600000 {
++			partition@700000 {
 +				/* 122MB for JFFS2 based Root file System */
-+				reg = <0x00600000 0x7A00000>;
++				reg = <0x00700000 0x7900000>;
 +				label = "NAND (RW) JFFS2 Root File System";
 +			};
 +

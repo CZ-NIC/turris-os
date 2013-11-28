@@ -1,6 +1,6 @@
 --- /dev/null
-+++ b/arch/powerpc/boot/dts/turris-nor-256m.dts
-@@ -0,0 +1,237 @@
++++ b/arch/powerpc/boot/dts/turris-nor-256m.dts	
+@@ -0,0 +1,229 @@
 +/*
 + * Turris RDB Device Tree Source
 + *
@@ -88,40 +88,32 @@
 +                        };
 +                };
 +
-+		nand@1,0 {
-+			#address-cells = <1>;
-+			#size-cells = <1>;
-+			compatible = "fsl,p2020-fcm-nand",
-+				     "fsl,elbc-fcm-nand";
-+			reg = <0x1 0x0 0x10000000>;
++		 nand@1,0 {
++                        #address-cells = <1>;
++                        #size-cells = <1>;
++                        compatible = "fsl,p2020-fcm-nand",
++                                     "fsl,elbc-fcm-nand";
++                        reg = <0x1 0x0 0x10000000>;
 +
-+			partition@0 {
-+				/* This location must not be altered  */
-+				/* 1MB for u-boot Bootloader Image */
-+				reg = <0x0 0x00100000>;
-+				label = "NAND (RW) U-Boot Image";
-+			};
++                        partition@0 {
++                                /* 2MB for DTB Image */
++                                reg = <0x00000000 0x00200000>;
++                                label = "NAND (RW) DTB Image";
++                        };
 +
-+			partition@100000 {
-+				/* 1MB for DTB Image */
-+				reg = <0x00100000 0x00100000>;
-+				label = "NAND (RW) DTB Image";
-+			};
++                        partition@200000 {
++                                /* 5MB for Linux Kernel Image */
++                                reg = <0x00200000 0x00500000>;
++                                label = "NAND (RW) Linux Kernel Image";
++                        };
 +
-+			partition@200000 {
-+				/* 4MB for Linux Kernel Image */
-+				reg = <0x00200000 0x00400000>;
-+				label = "NAND (RW) Linux Kernel Image";
-+			};
++                        partition@700000 {
++                                /* 249MB for JFFS2 based Root file System */
++                                reg = <0x00700000 0xF900000>;
++                                label = "NAND (RW) JFFS2 Root File System";
++                        };
 +
-+			partition@600000 {
-+				/* 250MB for JFFS2 based Root file System */
-+				reg = <0x00600000 0xFA00000>;
-+				label = "NAND (RW) JFFS2 Root File System";
-+			};
-+
-+		};
-+
++                };
 +	};
 +
 +	soc: soc@ffe00000 {
@@ -240,7 +232,7 @@
 +/include/ "fsl/p2020si-post.dtsi"
 --- /dev/null
 +++ b/arch/powerpc/boot/dts/turris-nand-256m.dts
-@@ -0,0 +1,245 @@
+@@ -0,0 +1,235 @@
 +/*
 + * Turris RDB Device Tree Source
 + *
@@ -341,30 +333,20 @@
 +			reg = <0x1 0x0 0x10000000>;
 +
 +			partition@0 {
-+				/* This location must not be altered  */
-+				/* 1MB for u-boot Bootloader Image */
-+				reg = <0x0 0x00100000>;
-+				label = "NAND (RO) U-Boot Image";
-+				read-only;
-+			};
-+
-+			partition@100000 {
-+				/* 1MB for DTB Image */
-+				reg = <0x00100000 0x00100000>;
-+				label = "NAND (RO) DTB Image";
-+				read-only;
++				/* 2MB for DTB Image */
++				reg = <0x00000000 0x00200000>;
++				label = "NAND (RW) DTB Image";
 +			};
 +
 +			partition@200000 {
-+				/* 4MB for Linux Kernel Image */
-+				reg = <0x00200000 0x00400000>;
-+				label = "NAND (RO) Linux Kernel Image";
-+				read-only;
++				/* 5MB for Linux Kernel Image */
++				reg = <0x00200000 0x00500000>;
++				label = "NAND (RW) Linux Kernel Image";
 +			};
 +
-+			partition@600000 {
-+				/* 250MB for JFFS2 based Root file System */
-+				reg = <0x00600000 0xFA00000>;
++			partition@700000 {
++				/* 249MB for JFFS2 based Root file System */
++				reg = <0x00700000 0xF900000>;
 +				label = "NAND (RW) JFFS2 Root File System";
 +			};
 +
