@@ -20,7 +20,7 @@ include $(INCLUDE_DIR)/target.mk
 
 DEFAULT_PACKAGES += \
 	kmod-input-core kmod-input-gpio-keys kmod-button-hotplug \
-	kmod-leds-gpio \
+	kmod-leds-gpio kmod-booke-wdt \
 	swconfig 
 
 define Target/Description
