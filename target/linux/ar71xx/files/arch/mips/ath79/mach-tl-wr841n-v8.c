@@ -132,8 +132,14 @@ static void __init tl_ap123_setup(void)
 	u8 *mac = (u8 *) KSEG1ADDR(0x1f01fc00);
 	u8 *ee = (u8 *) KSEG1ADDR(0x1fff1000);
 
-	/* Disable JTAG, enabling GPIOs 0-4 */
-	ath79_gpio_function_enable(AR934X_GPIO_FUNC_JTAG_DISABLE);
+	/* Disable JTAG, enabling GPIOs 0-3 */
+	/* Configure OBS4 line, for GPIO 4*/
+	ath79_gpio_function_setup(AR934X_GPIO_FUNC_JTAG_DISABLE,
+				 AR934X_GPIO_FUNC_CLK_OBS4_EN);
+
+	/* config gpio4 as normal gpio function */
+	ath79_gpio_output_select(TL_MR3420V2_GPIO_USB_POWER,
+				 AR934X_GPIO_OUT_GPIO);
 
 	ath79_register_m25p80(&tl_wr841n_v8_flash_data);
 
@@ -173,6 +179,28 @@ static void __init tl_wr841n_v8_setup(void)
 
 MIPS_MACHINE(ATH79_MACH_TL_WR841N_V8, "TL-WR841N-v8", "TP-LINK TL-WR841N/ND v8",
 	     tl_wr841n_v8_setup);
+
+
+static void __init tl_wr842n_v2_setup(void)
+{
+	tl_ap123_setup();
+
+	ath79_register_leds_gpio(-1, ARRAY_SIZE(tl_wr841n_v8_leds_gpio) - 1,
+				 tl_wr841n_v8_leds_gpio);
+
+	ath79_register_gpio_keys_polled(1, TL_WR841NV8_KEYS_POLL_INTERVAL,
+					ARRAY_SIZE(tl_wr841n_v8_gpio_keys),
+					tl_wr841n_v8_gpio_keys);
+
+	gpio_request_one(TL_MR3420V2_GPIO_USB_POWER,
+			 GPIOF_OUT_INIT_HIGH | GPIOF_EXPORT_DIR_FIXED,
+			 "USB power");
+
+	ath79_register_usb();
+}
+
+MIPS_MACHINE(ATH79_MACH_TL_WR842N_V2, "TL-WR842N-v2", "TP-LINK TL-WR842N/ND v2",
+	     tl_wr842n_v2_setup);
 
 static void __init tl_mr3420v2_setup(void)
 {

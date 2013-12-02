@@ -41,14 +41,17 @@ ramips_setup_interfaces()
 	all0256n | \
 	all5002 | \
 	all5003 | \
+	awm002-evb | \
 	broadway | \
+	dcs-930| \
 	wnce2001)
 		ucidef_add_switch "switch0" "1" "0"
 		ucidef_set_interface_lan "eth0"
 		;;
 
 	3g-6200nl | \
-	wl-330n)
+	wl-330n | \
+	wmr300)
 		ucidef_set_interface_lan "eth0.1"
 		;;
 
@@ -76,6 +79,9 @@ ramips_setup_interfaces()
 		ucidef_add_switch_vlan "switch0" "2" "0 6t"
 		;;
 
+	dir-610-a1 | \
+	dir-300-b7 | \
+	dir-320-b1 | \
 	dir-615-h1 | \
 	mzk-w300nh2)
 		ucidef_set_interfaces_lan_wan "eth0.1" "eth0.2"
@@ -86,6 +92,7 @@ ramips_setup_interfaces()
 
 	f5d8235-v1 | \
 	f5d8235-v2 | \
+	hg255d | \
 	ur-326n4g)
 		ucidef_set_interfaces_lan_wan "eth0.1" "eth0.2"
 		ucidef_add_switch "switch0" "1" "1"
@@ -143,7 +150,7 @@ ramips_setup_interfaces()
 		if [ -n "${RT3X5X}" ]; then
 			ramips_setup_rt3x5x_vlans
 		else
-			ucidef_set_interfaces_lan_wan "eth0" "eth1"
+			ucidef_set_interfaces_lan_wan "eth0.1" "eth0.2"
 		fi
 		;;
 	esac
@@ -171,12 +178,17 @@ ramips_setup_macs()
 	broadway | \
 	dir-620-d1 | \
 	f5d8235-v1 | \
+	ip2202 | \
+	mpr-a1 | \
 	mpr-a2 | \
+	dir-300-b7 | \
+	dir-320-b1 | \
 	mzk-w300nh2 | \
 	nw718 | \
 	psr-680w | \
 	rt-n15 | \
 	sl-r7205 | \
+	wmr300 | \
 	wl-351)
 		lan_mac=$(mtd_get_mac_binary factory 4)
 		wan_mac=$(macaddr_add "$lan_mac" 1)
@@ -192,14 +204,17 @@ ramips_setup_macs()
 		;;
 
 	rt-n13u | \
-	fonera20n)
+	hg255d	| \
+	fonera20n | \
+	dir-810l)
 		lan_mac=$(mtd_get_mac_binary factory 40)
 		wan_mac=$(macaddr_add "$lan_mac" 1)
 		;;
 
 	dir-300-b1 |\
 	dir-300-b2 |\
-	dir-600-b1)
+	dir-600-b1 |\
+	dir-610-a1)
 		lan_mac=$(mtd_get_mac_binary devdata 16388)
 		wan_mac=$(macaddr_add "$lan_mac" 1)
 		;;
@@ -220,6 +235,14 @@ ramips_setup_macs()
 	ur-336un)
 		lan_mac=$(mtd_get_mac_binary devdata 16388)
 		wan_mac=$(macaddr_add "$lan_mac" 1)
+		;;
+
+	m3 |\
+	m4 |\
+	x5 |\
+	x8)
+		lan_mac=$(mtd_get_mac_binary factory 4)
+		lan_mac=$(macaddr_add "$lan_mac" -1)
 		;;
 
 	nbg-419n | \

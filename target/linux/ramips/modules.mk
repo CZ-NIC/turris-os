@@ -7,7 +7,7 @@
 
 define KernelPackage/usb-rt305x-dwc_otg
   TITLE:=RT305X USB controller driver
-  DEPENDS:=@TARGET_ramips_rt305x @LINUX_3_9
+  DEPENDS:=@TARGET_ramips_rt305x
   KCONFIG:= \
 	CONFIG_DWC_OTG \
 	CONFIG_DWC_OTG_HOST_ONLY=y \
@@ -19,11 +19,25 @@ define KernelPackage/usb-rt305x-dwc_otg
 endef
 
 define KernelPackage/usb-rt305x-dwc_otg/description
-  This driver provides USB Device Controller support for the
-  Synopsys DesignWare USB OTG Core used in the Ralink RT305X SoCs.
+ This driver provides USB Device Controller support for the
+ Synopsys DesignWare USB OTG Core used in the Ralink RT305X SoCs.
 endef
 
 $(eval $(call KernelPackage,usb-rt305x-dwc_otg))
+
+OTHER_MENU:=Other modules
+define KernelPackage/sdhci-mt7620
+  SUBMENU:=Other modules
+  TITLE:=MT7620 SDCI
+  DEPENDS:=@TARGET_ramips_mt7620a +kmod-sdhci
+  KCONFIG:= \
+	CONFIG_MMC_SDHCI_MT7620
+  FILES:= \
+	$(LINUX_DIR)/drivers/mmc/host/sdhci-mt7620.ko
+  AUTOLOAD:=$(call AutoProbe,sdhci-mt7620,1)
+endef
+
+$(eval $(call KernelPackage,sdhci-mt7620))
 
 I2C_RALINK_MODULES:= \
   CONFIG_I2C_RALINK:drivers/i2c/busses/i2c-ralink

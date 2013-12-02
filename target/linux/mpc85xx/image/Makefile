@@ -110,13 +110,13 @@ define Image/Build/Profile/TURRISNAND
 	
 	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
 	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
-	truncate -s 1M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
-	truncate -s 1M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin 
+	truncate -s 2M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
+	truncate -s 2M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin 
 	
 	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
 	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
-	truncate -s 5M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
-	truncate -s 5M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
+	truncate -s 7M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
+	truncate -s 7M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
 	
 	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
 	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
@@ -125,7 +125,7 @@ define Image/Build/Profile/TURRISNAND
 	mkdir $(BIN_DIR)/medkit-128
 	if [ -d $(BIN_DIR)/medkit-256 ]; then rm -rf $(BIN_DIR)/medkit-256; fi
 	mkdir $(BIN_DIR)/medkit-256
-	gunzip -c $(BIN_DIR)/openwrt-mpc85xx-p2020-nand-rootfs.tar.gz > $(BIN_DIR)/openwrt-mpc85xx-p2020-nand-rootfs.tar
+	gunzip -c $(BIN_DIR)/openwrt-mpc85xx-p2020-nand-TURRISNAND-rootfs.tar.gz > $(BIN_DIR)/openwrt-mpc85xx-p2020-nand-rootfs.tar
 	tar cf $(BIN_DIR)/medkit-128/medkit-128m.tar -C $(BIN_DIR) $(IMG_PREFIX)-turris-nand-128m.fdt $(IMG_PREFIX)-zImage openwrt-mpc85xx-p2020-nand-rootfs.tar
 	tar cf $(BIN_DIR)/medkit-256/medkit-256m.tar -C $(BIN_DIR) $(IMG_PREFIX)-turris-nand-256m.fdt $(IMG_PREFIX)-zImage openwrt-mpc85xx-p2020-nand-rootfs.tar
 	xz -9 $(BIN_DIR)/medkit-128/medkit-128m.tar

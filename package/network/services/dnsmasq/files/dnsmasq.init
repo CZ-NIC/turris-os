@@ -3,7 +3,8 @@
 
 START=60
 
-SERVICE_USE_PID=1
+USE_PROCD=1
+PROG=/usr/sbin/dnsmasq
 
 DNS_SERVERS=""
 DOMAIN=""
@@ -74,7 +75,7 @@ append_addnhosts() {
 }
 
 append_bogusnxdomain() {
-    xappend "--bogus-nxdomain=$1"
+	xappend "--bogus-nxdomain=$1"
 }
 
 dnsmasq() {
@@ -161,6 +162,8 @@ dnsmasq() {
 	}
 
 	dhcp_option_add "$cfg" "" 0
+
+	xappend "--dhcp-broadcast=tag:needs-broadcast"
 
 	echo >> $CONFIGFILE
 }
@@ -269,7 +272,10 @@ dhcp_host_add() {
 
 	config_get tag "$cfg" tag
 
-	xappend "--dhcp-host=$macs${networkid:+,net:$networkid}${tag:+,set:$tag}${ip:+,$ip}${name:+,$name}"
+	config_get_bool broadcast "$cfg" broadcast 0
+	[ "$broadcast" = "0" ] && broadcast=
+
+	xappend "--dhcp-host=$macs${networkid:+,net:$networkid}${broadcast:+,set:needs-broadcast}${tag:+,set:$tag}${ip:+,$ip}${name:+,$name}"
 }
 
 dhcp_tag_add() {
@@ -402,6 +408,9 @@ dhcp_domain_add() {
 	[ -n "$ip" ] || return 0
 
 	for name in $names; do
+		[ "${name%.*}" == "$name" ] && \
+			name="$name${DOMAIN:+.$DOMAIN}"
+
 		record="${record:+$record/}$name"
 	done
 
@@ -479,7 +488,12 @@ dhcp_hostrecord_add() {
 	xappend "--host-record=$record"
 }
 
-start() {
+service_triggers()
+{
+	procd_add_reload_trigger "dhcp"
+}
+
+start_service() {
 	include /lib/network
 	scan_interfaces
 
@@ -487,6 +501,10 @@ start() {
 	config_get lanaddr "lan" ipaddr
 
 	config_load dhcp
+
+	procd_open_instance
+	procd_set_param command $PROG -C $CONFIGFILE -k
+	procd_close_instance
 
 	# before we can call xappend
 	mkdir -p $(dirname $CONFIGFILE)
@@ -516,7 +534,7 @@ start() {
 	# add own hostname
 	[ $ADD_LOCAL_HOSTNAME -eq 1 ] && [ -n "$lanaddr" ] && {
 		local hostname="$(uci_get system @system[0] hostname OpenWrt)"
-		dhcp_hostrecord_add "" "$hostname${DOMAIN:+.$DOMAIN $hostname}" "$lanaddr"
+		dhcp_hostrecord_add "" "${hostname%.$DOMAIN}${DOMAIN:+.$DOMAIN ${hostname%.$DOMAIN}}" "$lanaddr"
 	}
 
 	echo >> $CONFIGFILE
@@ -528,23 +546,19 @@ start() {
 	config_foreach dhcp_cname_add cname
 	echo >> $CONFIGFILE
 
-	service_start /usr/sbin/dnsmasq -C $CONFIGFILE && {
-		rm -f /tmp/resolv.conf
-		[ $ADD_LOCAL_DOMAIN -eq 1 ] && [ -n "$DOMAIN" ] && {
-			echo "search $DOMAIN" >> /tmp/resolv.conf
-		}
-		DNS_SERVERS="$DNS_SERVERS 127.0.0.1"
-		for DNS_SERVER in $DNS_SERVERS ; do
-			echo "nameserver $DNS_SERVER" >> /tmp/resolv.conf
-		done
+	rm -f /tmp/resolv.conf
+	[ $ADD_LOCAL_DOMAIN -eq 1 ] && [ -n "$DOMAIN" ] && {
+		echo "search $DOMAIN" >> /tmp/resolv.conf
 	}
+	DNS_SERVERS="$DNS_SERVERS 127.0.0.1"
+	for DNS_SERVER in $DNS_SERVERS ; do
+		echo "nameserver $DNS_SERVER" >> /tmp/resolv.conf
+	done
 }
 
-stop() {
-	service_stop /usr/sbin/dnsmasq && {
-		[ -f /tmp/resolv.conf ] && {
-			rm -f /tmp/resolv.conf
-			ln -s /tmp/resolv.conf.auto /tmp/resolv.conf
-		}
+stop_service() {
+	[ -f /tmp/resolv.conf ] && {
+		rm -f /tmp/resolv.conf
+		ln -s /tmp/resolv.conf.auto /tmp/resolv.conf
 	}
 }

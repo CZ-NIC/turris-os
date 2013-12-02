@@ -20,7 +20,7 @@ XARGS="${XARGS:-xargs -r}"
 
 find $TARGETS -type f -a -exec file {} \; | \
   sed -n -e 's/^\(.*\):.*ELF.*\(executable\|shared object\).*,.* stripped/\1/p' | \
-  $XARGS -n1 readelf -d | \
+  $XARGS -n1 $READELF -d | \
   awk '$2 ~ /NEEDED/ && $NF !~ /interpreter/ && $NF ~ /^\[?lib.*\.so/ { gsub(/[\[\]]/, "", $NF); print $NF }' | \
   sort -u
 
@@ -31,5 +31,5 @@ for kmod in `find $TARGETS -type f -name \*.ko`; do
 		egrep -a '^depends=' | \
 		sed -e 's,^depends=,,' -e 's/,/\n/g' | \
 		awk '{ print $1 ".ko" }'
-	rm -f $tmp
 done | sort -u
+rm -f $tmp

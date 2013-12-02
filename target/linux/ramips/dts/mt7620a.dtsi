@@ -9,6 +9,10 @@
 		};
 	};
 
+	chosen {
+		bootargs = "console=ttyS0,57600";
+	};
+
 	cpuintc: cpuintc@0 {
 		#address-cells = <0>;
 		#interrupt-cells = <1>;
@@ -106,8 +110,6 @@
 			ralink,register-map = [ 00 04 08 0c
 						20 24 28 2c
 						30 34 ];
-
-			status = "disabled";
 		};
 
 		gpio1: gpio@638 {
@@ -159,6 +161,22 @@
 			#size-cells = <0>;
 
 			status = "disabled";
+
+			pinctrl-names = "default";
+			pinctrl-0 = <&i2c_pins>;
+		};
+
+		i2s@a00 {
+			compatible = "ralink,mt7620a-i2s";
+			reg = <0xa00 0x100>;
+
+			resets = <&rstctrl 17>;
+			reset-names = "i2s";
+
+			interrupt-parent = <&intc>;
+			interrupts = <10>;
+
+			status = "disabled";
 		};
 
 		spi@b00 {
@@ -172,6 +190,9 @@
 			#size-cells = <1>;
 
 			status = "disabled";
+
+			pinctrl-names = "default";
+			pinctrl-0 = <&spi_pins>;
 		};
 
 		uartlite@c00 {
@@ -185,6 +206,9 @@
 			interrupts = <12>;
 
 			reg-shift = <2>;
+
+			pinctrl-names = "default";
+			pinctrl-0 = <&uartlite_pins>;
 		};
 
 		systick@d00 {
@@ -198,6 +222,19 @@
 			interrupts = <7>;
 		};
 
+		pcm@2000 {
+			compatible = "ralink,mt7620a-pcm";
+			reg = <0x2000 0x800>;
+
+			resets = <&rstctrl 11>;
+			reset-names = "pcm";
+
+			interrupt-parent = <&intc>;
+			interrupts = <4>;
+
+			status = "disabled";
+		};
+
 		gdma@2800 {
 			compatible = "ralink,mt7620a-gdma", "ralink,rt2880-gdma";
 			reg = <0x2800 0x800>;
@@ -207,6 +244,70 @@
 
 			interrupt-parent = <&intc>;
 			interrupts = <7>;
+
+			status = "disabled";
+		};
+	};
+
+	pinctrl {
+		compatible = "ralink,rt2880-pinmux";
+		pinctrl-names = "default";
+		pinctrl-0 = <&state_default>;
+		state_default: pinctrl0 {
+		};
+		pcm_i2s_pins: pcm_i2s {
+			pcm_i2s {
+				ralink,group = "uartf";
+				ralink,function = "pcm i2s";
+			};
+		};
+		spi_pins: spi {
+			spi {
+				ralink,group = "spi";
+				ralink,function = "spi";
+			};
+		};
+		i2c_pins: i2c {
+			i2c {
+				lantiq,group = "i2c";
+				lantiq,function = "i2c";
+			};
+		};
+		uartlite_pins: uartlite {
+			uart {
+				ralink,group = "uartlite";
+				ralink,function = "uartlite";
+			};
+		};
+		mdio_pins: mdio {
+			mdio {
+				ralink,group = "mdio";
+				ralink,function = "mdio";
+			};
+		};
+		ephy_pins: ephy {
+			ephy {
+				ralink,group = "ephy";
+				ralink,function = "ephy";
+			};
+		};
+		wled_pins: wled {
+			wled {
+				ralink,group = "wled";
+				ralink,function = "wled";
+			};
+		};
+		rgmii1_pins: rgmii1 {
+			rgmii1 {
+				ralink,group = "rgmii1";
+				ralink,function = "rgmii1";
+			};
+		};
+		rgmii2_pins: rgmii2 {
+			rgmii2 {
+				ralink,group = "rgmii2";
+				ralink,function = "rgmii2";
+			};
 		};
 	};
 
@@ -232,8 +333,23 @@
 		interrupt-parent = <&cpuintc>;
 		interrupts = <5>;
 
-		status = "disabled";
-	
+		resets = <&rstctrl 21 &rstctrl 23>;
+		reset-names = "fe", "esw";
+
+		port@4 {
+			compatible = "ralink,mt7620a-gsw-port", "ralink,eth-port";
+			reg = <4>;
+
+			status = "disabled";
+		};
+
+		port@5 {
+			compatible = "ralink,mt7620a-gsw-port", "ralink,eth-port";
+			reg = <5>;
+
+			status = "disabled";
+		};
+
 		mdio-bus {
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -248,8 +364,6 @@
 
 		interrupt-parent = <&intc>;
 		interrupts = <17>;
-
-		status = "disabled";
 	};
 
 	sdhci@10130000 {
@@ -268,6 +382,8 @@
 
 		interrupt-parent = <&intc>;
 		interrupts = <18>;
+
+		status = "disabled";
 	};
 
 	ohci@101c1000 {
@@ -276,6 +392,8 @@
 
 		interrupt-parent = <&intc>;
 		interrupts = <18>;
+
+		status = "disabled";
 	};
 
 	pcie@10140000 {

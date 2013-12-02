@@ -1,0 +1,21 @@
+bcm53xx: register bcma bus
+
+Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+---
+ arch/arm/boot/dts/bcm5301.dtsi |    5 +++++
+ 1 file changed, 5 insertions(+)
+
+--- a/arch/arm/boot/dts/bcm5301.dtsi
++++ b/arch/arm/boot/dts/bcm5301.dtsi
+@@ -67,6 +67,11 @@
+ 		      <0x19020100 0x100>;
+ 	};
+ 
++	bus@18000000 {
++		compatible = "brcm,bus-aix";
++		reg = <0x18000000 0x1000>;
++	};
++
+ 	timer@19020200 {
+ 		compatible = "arm,cortex-a9-global-timer";
+ 		reg = <0x19020200 0x100>;

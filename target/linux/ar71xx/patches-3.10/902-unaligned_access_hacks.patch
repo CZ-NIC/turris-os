@@ -229,7 +229,7 @@
  #include <asm/uaccess.h>
  
  #include <linux/proc_fs.h>
-@@ -763,10 +764,10 @@ static void tcp_v6_send_response(struct 
+@@ -763,10 +764,10 @@ static void tcp_v6_send_response(struct
  	topt = (__be32 *)(t1 + 1);
  
  	if (tsecr) {
@@ -342,7 +342,7 @@
  
 --- a/net/ipv6/exthdrs.c
 +++ b/net/ipv6/exthdrs.c
-@@ -579,7 +579,7 @@ static bool ipv6_hop_jumbo(struct sk_buf
+@@ -573,7 +573,7 @@ static bool ipv6_hop_jumbo(struct sk_buf
  		goto drop;
  	}
  
@@ -367,7 +367,7 @@
  #endif /* _LINUX_TYPES_H */
 --- a/net/ipv4/af_inet.c
 +++ b/net/ipv4/af_inet.c
-@@ -1383,8 +1383,8 @@ static struct sk_buff **inet_gro_receive
+@@ -1381,8 +1381,8 @@ static struct sk_buff **inet_gro_receive
  	if (unlikely(ip_fast_csum((u8 *)iph, 5)))
  		goto out_unlock;
  
@@ -558,8 +558,8 @@
 --- a/net/core/flow_dissector.c
 +++ b/net/core/flow_dissector.c
 @@ -152,7 +152,7 @@ ipv6:
- 		nhoff += poff;
- 		ports = skb_header_pointer(skb, nhoff, sizeof(_ports), &_ports);
+ 		ports = skb_header_pointer(skb, nhoff + poff,
+ 					   sizeof(_ports), &_ports);
  		if (ports)
 -			flow->ports = *ports;
 +			flow->ports = net_hdr_word(ports);
@@ -662,7 +662,7 @@
  #include <linux/netdevice.h>
 --- a/include/net/inet_ecn.h
 +++ b/include/net/inet_ecn.h
-@@ -115,13 +115,13 @@ static inline int IP6_ECN_set_ce(struct 
+@@ -115,13 +115,13 @@ static inline int IP6_ECN_set_ce(struct
  {
  	if (INET_ECN_is_not_ect(ipv6_get_dsfield(iph)))
  		return 0;
@@ -760,8 +760,8 @@
  #include <linux/types.h>
 +#include <linux/in6.h>
  
- extern void net_secret_init(void);
  extern __u32 secure_ip_id(__be32 daddr);
+ extern __u32 secure_ipv6_id(const __be32 daddr[4]);
 --- a/include/uapi/linux/in.h
 +++ b/include/uapi/linux/in.h
 @@ -55,7 +55,7 @@ enum {
@@ -775,12 +775,13 @@
  #define IP_TTL		2
 --- a/net/core/secure_seq.c
 +++ b/net/core/secure_seq.c
-@@ -41,10 +41,11 @@ __u32 secure_tcpv6_sequence_number(const
+@@ -56,11 +56,12 @@ __u32 secure_tcpv6_sequence_number(const
  	u32 secret[MD5_MESSAGE_BYTES / 4];
  	u32 hash[MD5_DIGEST_WORDS];
  	u32 i;
 +	const struct in6_addr *daddr6 = (struct in6_addr *) daddr;
  
+ 	net_secret_init();
  	memcpy(hash, saddr, 16);
  	for (i = 0; i < 4; i++)
 -		secret[i] = net_secret[i] + (__force u32)daddr[i];
@@ -788,12 +789,13 @@
  	secret[4] = net_secret[4] +
  		(((__force u16)sport << 16) + (__force u16)dport);
  	for (i = 5; i < MD5_MESSAGE_BYTES / 4; i++)
-@@ -62,10 +63,11 @@ u32 secure_ipv6_port_ephemeral(const __b
+@@ -78,11 +79,12 @@ u32 secure_ipv6_port_ephemeral(const __b
  	u32 secret[MD5_MESSAGE_BYTES / 4];
  	u32 hash[MD5_DIGEST_WORDS];
  	u32 i;
 +	const struct in6_addr *daddr6 = (struct in6_addr *) daddr;
  
+ 	net_secret_init();
  	memcpy(hash, saddr, 16);
  	for (i = 0; i < 4; i++)
 -		secret[i] = net_secret[i] + (__force u32) daddr[i];
@@ -801,12 +803,13 @@
  	secret[4] = net_secret[4] + (__force u32)dport;
  	for (i = 5; i < MD5_MESSAGE_BYTES / 4; i++)
  		secret[i] = net_secret[i];
-@@ -163,10 +165,11 @@ u64 secure_dccpv6_sequence_number(__be32
+@@ -185,11 +187,12 @@ u64 secure_dccpv6_sequence_number(__be32
  	u32 hash[MD5_DIGEST_WORDS];
  	u64 seq;
  	u32 i;
 +	const struct in6_addr *daddr6 = (struct in6_addr *) daddr;
  
+ 	net_secret_init();
  	memcpy(hash, saddr, 16);
  	for (i = 0; i < 4; i++)
 -		secret[i] = net_secret[i] + daddr[i];
@@ -852,7 +855,7 @@
  	ptr = ip6hoff + sizeof(struct ipv6hdr);
 --- a/net/xfrm/xfrm_input.c
 +++ b/net/xfrm/xfrm_input.c
-@@ -77,8 +77,8 @@ int xfrm_parse_spi(struct sk_buff *skb, 
+@@ -77,8 +77,8 @@ int xfrm_parse_spi(struct sk_buff *skb,
  	if (!pskb_may_pull(skb, hlen))
  		return -EINVAL;
  
@@ -883,7 +886,7 @@
  		tpi->seq = 0;
 --- a/net/ipv4/tcp_input.c
 +++ b/net/ipv4/tcp_input.c
-@@ -3592,13 +3592,14 @@ static bool tcp_parse_aligned_timestamp(
+@@ -3625,14 +3625,16 @@ static bool tcp_parse_aligned_timestamp(
  {
  	const __be32 *ptr = (const __be32 *)(th + 1);
  
@@ -897,11 +900,13 @@
 -		tp->rx_opt.rcv_tsval = ntohl(*ptr);
 +		tp->rx_opt.rcv_tsval = get_unaligned_be32(ptr);
  		++ptr;
--		tp->rx_opt.rcv_tsecr = ntohl(*ptr) - tp->tsoffset;
-+		tp->rx_opt.rcv_tsecr = get_unaligned_be32(ptr) - tp->tsoffset;
+ 		if (*ptr)
+-			tp->rx_opt.rcv_tsecr = ntohl(*ptr) - tp->tsoffset;
++			tp->rx_opt.rcv_tsecr = get_unaligned_be32(ptr) -
++					       tp->tsoffset;
+ 		else
+ 			tp->rx_opt.rcv_tsecr = 0;
  		return true;
- 	}
- 	return false;
 --- a/include/uapi/linux/if_pppox.h
 +++ b/include/uapi/linux/if_pppox.h
 @@ -47,6 +47,7 @@ struct pppoe_addr {

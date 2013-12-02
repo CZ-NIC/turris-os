@@ -141,6 +141,10 @@ ifeq ($(CONFIG_TARGET),subtarget)
   LINUX_RECONFIG_LIST = $(wildcard $(GENERIC_LINUX_CONFIG) $(LINUX_TARGET_CONFIG) $(LINUX_SUBTARGET_CONFIG))
   LINUX_RECONFIG_TARGET = $(LINUX_SUBTARGET_CONFIG)
 endif
+ifeq ($(CONFIG_TARGET),subtarget_platform)
+  LINUX_RECONFIG_LIST = $(wildcard $(GENERIC_LINUX_CONFIG) $(LINUX_SUBTARGET_CONFIG) $(LINUX_TARGET_CONFIG))
+  LINUX_RECONFIG_TARGET = $(LINUX_TARGET_CONFIG)
+endif
 ifeq ($(CONFIG_TARGET),env)
   LINUX_RECONFIG_LIST = $(LINUX_KCONFIG_LIST)
   LINUX_RECONFIG_TARGET = $(TOPDIR)/env/kernel-config
@@ -191,17 +195,54 @@ ifeq ($(DUMP),1)
     # remove duplicates
     FEATURES:=$(sort $(FEATURES))
   endif
-  DEFAULT_CFLAGS_i386=-O2 -pipe -march=i486 -fno-caller-saves
-  DEFAULT_CFLAGS_x86_64=-O2 -pipe -march=athlon64 -fno-caller-saves
-  DEFAULT_CFLAGS_m68k=-Os -pipe -mcfv4e -fno-caller-saves
-  DEFAULT_CFLAGS_mips=-Os -pipe -mips32 -mtune=mips32 -fno-caller-saves -mno-branch-likely
-  DEFAULT_CFLAGS_mipsel=$(DEFAULT_CFLAGS_mips)
-  DEFAULT_CFLAGS_mips64=-Os -pipe -mips64 -mtune=mips64 -mabi=64 -fno-caller-saves
-  DEFAULT_CFLAGS_mips64el=$(DEFAULT_CFLAGS_mips64)
-  DEFAULT_CFLAGS_sparc=-Os -pipe -mcpu=ultrasparc -fno-caller-saves
-  DEFAULT_CFLAGS_arm=-Os -pipe -march=armv5te -mtune=xscale -fno-caller-saves
-  DEFAULT_CFLAGS_armeb=$(DEFAULT_CFLAGS_arm)
-  DEFAULT_CFLAGS=$(if $(DEFAULT_CFLAGS_$(ARCH)),$(DEFAULT_CFLAGS_$(ARCH)),-Os -pipe -fno-caller-saves)
+  CPU_CFLAGS = -Os -pipe
+  ifneq ($(findstring mips,$(ARCH)),)
+    ifneq ($(findstring mips64,$(ARCH)),)
+      CPU_TYPE ?= mips64
+    else
+      CPU_TYPE ?= mips32
+    endif
+    CPU_CFLAGS += -mno-branch-likely
+    CPU_CFLAGS_mips32 = -mips32 -mtune=mips32
+    CPU_CFLAGS_mips32r2 = -mips32r2 -mtune=mips32r2
+    CPU_CFLAGS_mips64 = -mips64 -mtune=mips64 -mabi=64
+    CPU_CFLAGS_24kec = -mips32r2 -mtune=24kec
+    CPU_CFLAGS_34kc = -mips32r2 -mtune=34kc
+    CPU_CFLAGS_dsp = -mdsp
+    CPU_CFLAGS_dsp2 = -mdspr2
+  endif
+  ifeq ($(ARCH),i386)
+    CPU_TYPE ?= i486
+    CPU_CFLAGS_i486 = -march=i486
+    CPU_CFLAGS_geode = -march=geode -mmmx -m3dnow
+  endif
+  ifneq ($(findstring arm,$(ARCH)),)
+    CPU_TYPE ?= xscale
+    CPU_CFLAGS_arm920t = -march=armv4t -mtune=arm920t
+    CPU_CFLAGS_arm926ej-s = -march=armv5te -mtune=arm926ej-s
+    CPU_CFLAGS_arm1136j-s = -march=armv6 -mtune=arm1136j-s
+    CPU_CFLAGS_arm1176jzf-s = -march=armv6 -mtune=arm1176jzf-s
+    CPU_CFLAGS_cortex-a7 = -march=armv7-a -mtune=cortex-a7
+    CPU_CFLAGS_cortex-a8 = -march=armv7-a -mtune=cortex-a8
+    CPU_CFLAGS_cortex-a9 = -march=armv7-a -mtune=cortex-a9
+    CPU_CFLAGS_fa526 = -march=armv4 -mtune=fa526
+    CPU_CFLAGS_mpcore = -march=armv6k -mtune=mpcore
+    CPU_CFLAGS_xscale = -march=armv5te -mtune=xscale
+    CPU_CFLAGS_vfp = -mfpu=vfp -mfloat-abi=softfp
+    CPU_CFLAGS_vfpv3 = -mfpu=vfpv3-d16 -mfloat-abi=softfp
+    CPU_CFLAGS_soft = -mfloat-abi=softfp
+  endif
+  ifeq ($(ARCH),powerpc)
+    CPU_CFLAGS_603e:=-mcpu=603e
+    CPU_CFLAGS_8540:=-mcpu=8540
+    CPU_CFLAGS_405:=-mcpu=405
+    CPU_CFLAGS_440:=-mcpu=440
+  endif
+  ifeq ($(ARCH),sparc)
+    CPU_TYPE = sparc
+    CPU_CFLAGS_ultrasparc = -mcpu=ultrasparc
+  endif
+  DEFAULT_CFLAGS=$(strip $(CPU_CFLAGS) $(CPU_CFLAGS_$(CPU_TYPE)) $(CPU_CFLAGS_$(CPU_SUBTYPE)))
 endif
 
 define BuildTargets/DumpCurrent
@@ -216,6 +257,7 @@ define BuildTargets/DumpCurrent
 	 echo 'Target-Features: $(FEATURES)'; \
 	 echo 'Target-Depends: $(DEPENDS)'; \
 	 echo 'Target-Optimization: $(if $(CFLAGS),$(CFLAGS),$(DEFAULT_CFLAGS))'; \
+	 echo 'CPU-Type: $(CPU_TYPE)$(if $(CPU_SUBTYPE),+$(CPU_SUBTYPE))'; \
 	 echo 'Linux-Version: $(LINUX_VERSION)'; \
 	 echo 'Linux-Release: $(LINUX_RELEASE)'; \
 	 echo 'Linux-Kernel-Arch: $(LINUX_KARCH)'; \

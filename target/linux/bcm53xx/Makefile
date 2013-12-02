@@ -11,8 +11,10 @@ BOARD:=bcm53xx
 BOARDNAME:=Broadcom BCM47xx/53xx with ARM CPU
 FEATURES:=squashfs usb pci pcie gpio
 MAINTAINER:=Hauke Mehrtens <hauke@hauke-m.de>
+CPU_TYPE:=cortex-a9
+CPU_SUBTYPE:=soft
 
-LINUX_VERSION:=3.10.1
+LINUX_VERSION:=3.10.18
 
 include $(INCLUDE_DIR)/target.mk
 
@@ -20,10 +22,8 @@ define Target/Description
 	Build firmware images for Broadcom based BCM47xx/53xx routers with ARM CPU, *not* MIPS.
 endef
 
-CFLAGS:=-Os -pipe -mtune=cortex-a9 -march=armv7-a -mfpu=vfp -mfloat-abi=softfp
-
 KERNELNAME:="zImage dtbs"
 
-DEFAULT_PACKAGES +=
+DEFAULT_PACKAGES += swconfig
 
 $(eval $(call BuildTarget))

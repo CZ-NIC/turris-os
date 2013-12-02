@@ -40,6 +40,14 @@ SOUNDCORE_FILES += \
 	$(LINUX_DIR)/sound/core/snd-compress.ko
 endif
 
+ifeq ($(strip $(call CompareKernelPatchVer,$(KERNEL_PATCHVER),ge,3.12.0)),1)
+SOUNDCORE_LOAD += \
+	snd-pcm-dmaengine
+
+SOUNDCORE_FILES += \
+	$(LINUX_DIR)/sound/core/snd-pcm-dmaengine.ko
+endif
+
 define KernelPackage/sound-core
   SUBMENU:=$(SOUND_MENU)
   TITLE:=Sound support
@@ -147,7 +155,7 @@ define KernelPackage/sound-cs5535audio
 endef
 
 define KernelPackage/sound-cs5535audio/description
- support for the integrated AC97 sound device on olpc
+ Support for the integrated AC97 sound device on olpc
 endef
 
 $(eval $(call KernelPackage,sound-cs5535audio))
@@ -155,7 +163,7 @@ $(eval $(call KernelPackage,sound-cs5535audio))
 
 define KernelPackage/sound-soc-core
   TITLE:=SoC sound support
-  DEPENDS:=+kmod-regmap
+  DEPENDS:=+kmod-regmap +kmod-ac97
   KCONFIG:= \
 	CONFIG_SND_SOC \
 	CONFIG_SND_SOC_DMAENGINE_PCM=y \
@@ -173,7 +181,7 @@ define KernelPackage/sound-soc-ac97
   KCONFIG:=CONFIG_SND_SOC_AC97_CODEC
   FILES:=$(LINUX_DIR)/sound/soc/codecs/snd-soc-ac97.ko
   AUTOLOAD:=$(call AutoLoad,57,snd-soc-ac97)
-  DEPENDS:=+kmod-ac97 +kmod-sound-soc-core
+  DEPENDS:=+kmod-ac97 +kmod-sound-soc-core +TARGET_ep93xx:kmod-sound-soc-ep93xx-ac97
   $(call AddDepends/sound)
 endef
 
@@ -183,19 +191,21 @@ $(eval $(call KernelPackage,sound-soc-ac97))
 define KernelPackage/sound-soc-imx
   TITLE:=IMX SoC support
   KCONFIG:=\
-		CONFIG_SND_IMX_SOC \
-		CONFIG_SND_SOC_IMX_AUDMUX \
-		CONFIG_SND_SOC_IMX_PCM
+	CONFIG_SND_IMX_SOC \
+	CONFIG_SND_SOC_IMX_AUDMUX \
+	CONFIG_SND_SOC_FSL_SSI \
+	CONFIG_SND_SOC_IMX_PCM
   FILES:= \
 	$(LINUX_DIR)/sound/soc/fsl/snd-soc-imx-audmux.ko \
+	$(LINUX_DIR)/sound/soc/fsl/snd-soc-fsl-ssi.ko \
 	$(LINUX_DIR)/sound/soc/fsl/snd-soc-imx-pcm.ko
-  AUTOLOAD:=$(call AutoLoad,56,snd-soc-imx)
+  AUTOLOAD:=$(call AutoLoad,56,snd-soc-imx-audmux snd-soc-fsl-ssi snd-soc-imx-pcm)
   DEPENDS:=@TARGET_imx6 +kmod-sound-soc-core
   $(call AddDepends/sound)
 endef
 
 define KernelPackage/sound-soc-imx/description
- support for i.MX6 Platform sound (ssi/audmux/pcm)
+ Support for i.MX6 Platform sound (ssi/audmux/pcm)
 endef
 
 $(eval $(call KernelPackage,sound-soc-imx))
@@ -204,14 +214,16 @@ $(eval $(call KernelPackage,sound-soc-imx))
 define KernelPackage/sound-soc-imx-sgtl5000
   TITLE:=IMX SoC support for SGTL5000
   KCONFIG:=CONFIG_SND_SOC_IMX_SGTL5000
-  FILES:=$(LINUX_DIR)/sound/soc/codecs/snd-soc-sgtl5000.ko
-  AUTOLOAD:=$(call AutoLoad,57,snd-soc-sgtl5000)
+  FILES:=\
+	$(LINUX_DIR)/sound/soc/codecs/snd-soc-sgtl5000.ko \
+	$(LINUX_DIR)/sound/soc/fsl/snd-soc-imx-sgtl5000.ko
+  AUTOLOAD:=$(call AutoLoad,57,snd-soc-sgtl5000 snd-soc-imx-sgtl5000)
   DEPENDS:=@TARGET_imx6 +kmod-sound-soc-imx
   $(call AddDepends/sound)
 endef
 
 define KernelPackage/sound-soc-imx-sgtl5000/description
- support for i.MX6 Platform sound SGTL5000 codec
+ Support for i.MX6 Platform sound SGTL5000 codec
 endef
 
 $(eval $(call KernelPackage,sound-soc-imx-sgtl5000))

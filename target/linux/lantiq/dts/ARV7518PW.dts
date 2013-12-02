@@ -40,7 +40,7 @@
 				};
 
 				partition@20000 {
-					label = "linux";
+					label = "firmware";
 					reg = <0x20000 0x7d0000>;
 				};
 
@@ -118,7 +118,7 @@
 		};
 
 		etop@E180000 {
-			phy-mode = "rmii";
+			phy-mode = "mii";
 		};
 
 		ifxhcd@E101000 {

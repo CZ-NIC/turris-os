@@ -9,16 +9,15 @@ include $(TOPDIR)/rules.mk
 ARCH:=arm
 BOARD:=imx6
 BOARDNAME:=Freescale i.MX 6 Series
-FEATURES:=audio display gpio pcie usb usbgadget squashfs targz
-CFLAGS:=-Os -pipe -mtune=cortex-a9 -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp
+FEATURES:=audio display gpio pcie usb usbgadget squashfs targz ubifs
+CPU_TYPE:=cortex-a9
+CPU_SUBTYPE:=vfpv3
 MAINTAINER:=Luka Perkov <luka@openwrt.org>
 
-LINUX_VERSION:=3.10.1
+LINUX_VERSION:=3.10.18
 
 include $(INCLUDE_DIR)/target.mk
 
 KERNELNAME:="zImage dtbs"
-
-DEFAULT_PACKAGES +=
 
 $(eval $(call BuildTarget))

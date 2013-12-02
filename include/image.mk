@@ -17,23 +17,25 @@ KDIR=$(KERNEL_BUILD_DIR)
 
 IMG_PREFIX:=openwrt-$(BOARD)$(if $(SUBTARGET),-$(SUBTARGET))
 
+MKFS_DEVTABLE_OPT := -D $(INCLUDE_DIR)/device_table.txt
+
 ifneq ($(CONFIG_BIG_ENDIAN),)
-  JFFS2OPTS     :=  --pad --big-endian --squash-uids -v
+  JFFS2OPTS     :=  --big-endian --squash-uids -v
 else
-  JFFS2OPTS     :=  --pad --little-endian --squash-uids -v
+  JFFS2OPTS     :=  --little-endian --squash-uids -v
 endif
 
 ifeq ($(CONFIG_JFFS2_RTIME),y)
   JFFS2OPTS += -X rtime
 endif
-ifeq ($(CONFIG_JFFS2_ZLIB),y) 
+ifeq ($(CONFIG_JFFS2_ZLIB),y)
   JFFS2OPTS += -X zlib
 endif
 ifeq ($(CONFIG_JFFS2_LZMA),y)
   JFFS2OPTS += -X lzma --compression-mode=size
 endif
 ifneq ($(CONFIG_JFFS2_RTIME),y)
-  JFFS2OPTS +=  -x rtime
+  JFFS2OPTS += -x rtime
 endif
 ifneq ($(CONFIG_JFFS2_ZLIB),y)
   JFFS2OPTS += -x zlib
@@ -42,8 +44,11 @@ ifneq ($(CONFIG_JFFS2_LZMA),y)
   JFFS2OPTS += -x lzma
 endif
 
+JFFS2OPTS += $(MKFS_DEVTABLE_OPT)
+
 SQUASHFS_BLOCKSIZE := 256k
 SQUASHFSOPT := -b $(SQUASHFS_BLOCKSIZE)
+SQUASHFSOPT += -p '/dev d 755 0 0' -p '/dev/console c 600 0 0 5 1'
 SQUASHFSCOMP := gzip
 LZMA_XZ_OPTIONS := -Xpreset 9 -Xe -Xlc 0 -Xlp 2 -Xpb 2
 ifeq ($(CONFIG_SQUASHFS_LZMA),y)
@@ -62,6 +67,10 @@ define add_jffs2_mark
 	echo -ne '\xde\xad\xc0\xde' >> $(1)
 endef
 
+define toupper
+$(shell echo $(1) | tr '[:lower:]' '[:upper:]')
+endef
+
 # pad to 4k, 8k, 64k, 128k 256k and add jffs2 end-of-filesystem mark
 define prepare_generic_squashfs
 	$(STAGING_DIR_HOST)/bin/padjffs2 $(1) 4 8 64 128 256
@@ -77,9 +86,22 @@ else
   endef
 endif
 
+define Image/BuildKernel/MkuImage
+	mkimage -A $(ARCH) -O linux -T kernel -C $(1) -a $(2) -e $(3) \
+		-n '$(call toupper,$(ARCH)) OpenWrt Linux-$(LINUX_VERSION)' -d $(4) $(5)
+endef
+
+define Image/BuildKernel/MkFIT
+	$(TOPDIR)/scripts/mkits.sh \
+		-D $(1) -o $(KDIR)/fit-$(1).its -k $(2) -d $(3) -C $(4) -a $(5) -e $(6) \
+		-A $(ARCH) -v $(LINUX_VERSION)
+	PATH=$(LINUX_DIR)/scripts/dtc:$(PATH) mkimage -f $(KDIR)/fit-$(1).its $(KDIR)/fit-$(1)$(7).itb
+endef
+
 define Image/mkfs/jffs2/sub
 		# FIXME: removing this line will cause strange behaviour in the foreach loop below
-		$(STAGING_DIR_HOST)/bin/mkfs.jffs2 $(3) -e $(patsubst %k,%KiB,$(1)) -o $(KDIR)/root.jffs2-$(2) -d $(TARGET_DIR) -v 2>&1 1>/dev/null | awk '/^.+$$$$/'
+		$(STAGING_DIR_HOST)/bin/mkfs.jffs2 $(3) --pad -e $(patsubst %k,%KiB,$(1)) -o $(KDIR)/root.jffs2-$(2) -d $(TARGET_DIR) -v 2>&1 1>/dev/null | awk '/^.+$$$$/'
+		$(STAGING_DIR_HOST)/bin/mkfs.jffs2 $(3) -e $(patsubst %k,%KiB,$(1)) -o $(KDIR)/root.jffs2-$(2)-raw -d $(TARGET_DIR) -v 2>&1 1>/dev/null | awk '/^.+$$$$/'
 		$(call add_jffs2_mark,$(KDIR)/root.jffs2-$(2))
 		$(call Image/Build,jffs2-$(2))
 endef
@@ -109,12 +131,37 @@ endif
 
 ifneq ($(CONFIG_TARGET_ROOTFS_UBIFS),)
     define Image/mkfs/ubifs
+
+        ifneq ($($(PROFILE)_UBIFS_OPTS)$(UBIFS_OPTS),)
+		$(STAGING_DIR_HOST)/bin/mkfs.ubifs \
+			$(if $($(PROFILE)_UBIFS_OPTS), \
+				$(shell echo $($(PROFILE)_UBIFS_OPTS)), \
+				$(shell echo $(UBIFS_OPTS)) \
+			) \
+			$(if $(CONFIG_TARGET_UBIFS_FREE_SPACE_FIXUP),--space-fixup) \
+			$(if $(CONFIG_TARGET_UBIFS_COMPRESSION_NONE),--force-compr=none) \
+			$(if $(CONFIG_TARGET_UBIFS_COMPRESSION_LZO),--force-compr=lzo) \
+			$(if $(CONFIG_TARGET_UBIFS_COMPRESSION_ZLIB),--force-compr=zlib) \
+			$(if $(shell echo $(CONFIG_TARGET_UBIFS_JOURNAL_SIZE)),--jrn-size=$(CONFIG_TARGET_UBIFS_JOURNAL_SIZE)) \
+			--squash-uids \
+			-o $(KDIR)/root.ubifs \
+			-d $(TARGET_DIR)
+        endif
+	$(call Image/Build,ubifs)
+
+        ifneq ($($(PROFILE)_UBI_OPTS)$(UBI_OPTS),)
 		$(CP) ./ubinize.cfg $(KDIR)
-		$(STAGING_DIR_HOST)/bin/mkfs.ubifs $(UBIFS_OPTS) -o $(KDIR)/root.ubifs -d $(TARGET_DIR)
-		$(call Image/Build,ubifs)
-		(cd $(KDIR); \
-		$(STAGING_DIR_HOST)/bin/ubinize $(UBINIZE_OPTS) -o $(KDIR)/root.ubi ubinize.cfg)
-		$(call Image/Build,ubi)
+		( cd $(KDIR); \
+		$(STAGING_DIR_HOST)/bin/ubinize \
+			$(if $($(PROFILE)_UBI_OPTS), \
+				$(shell echo $($(PROFILE)_UBI_OPTS)), \
+				$(shell echo $(UBI_OPTS)) \
+			) \
+			-o $(KDIR)/root.ubi \
+			ubinize.cfg \
+		)
+        endif
+	$(call Image/Build,ubi)
     endef
 endif
 
@@ -127,7 +174,7 @@ endif
 ifneq ($(CONFIG_TARGET_ROOTFS_TARGZ),)
   define Image/mkfs/targz
 		# Preserve permissions (-p) when building as non-root user
-		$(TAR) -czpf $(BIN_DIR)/$(IMG_PREFIX)-rootfs.tar.gz --numeric-owner --owner=0 --group=0 -C $(TARGET_DIR)/ .
+		$(TAR) -czpf $(BIN_DIR)/$(IMG_PREFIX)$(if $(PROFILE),-$(PROFILE))-rootfs.tar.gz --numeric-owner --owner=0 --group=0 -C $(TARGET_DIR)/ .
   endef
 endif
 
@@ -136,7 +183,7 @@ ifneq ($(CONFIG_TARGET_ROOTFS_EXT4FS),)
 
   define Image/mkfs/ext4
 # generate an ext2 fs
-	$(STAGING_DIR_HOST)/bin/genext2fs -U -b $(E2SIZE) -N $(CONFIG_TARGET_ROOTFS_MAXINODE) -d $(TARGET_DIR)/ $(KDIR)/root.ext4 -m $(CONFIG_TARGET_ROOTFS_RESERVED_PCT)
+	$(STAGING_DIR_HOST)/bin/genext2fs -U -b $(E2SIZE) -N $(CONFIG_TARGET_ROOTFS_MAXINODE) -d $(TARGET_DIR)/ $(KDIR)/root.ext4 -m $(CONFIG_TARGET_ROOTFS_RESERVED_PCT) $(MKFS_DEVTABLE_OPT)
 # convert it to ext4
 	$(STAGING_DIR_HOST)/bin/tune2fs -O extents,uninit_bg,dir_index $(KDIR)/root.ext4
 # fix it up
@@ -192,6 +239,7 @@ define BuildImage
 		$(call Image/mkfs/prepare)
 		$(call Image/BuildKernel)
 		$(call Image/BuildKernel/Initramfs)
+		$(call Image/InstallKernel)
 		$(call Image/mkfs/cpiogz)
 		$(call Image/mkfs/targz)
 		$(call Image/mkfs/ext4)
@@ -205,6 +253,7 @@ define BuildImage
     install: compile install-targets
 		$(call Image/BuildKernel)
 		$(call Image/BuildKernel/Initramfs)
+		$(call Image/InstallKernel)
 		$(call Image/mkfs/cpiogz)
 		$(call Image/mkfs/targz)
 		$(call Image/mkfs/ext4)

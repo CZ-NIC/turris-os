@@ -1,13 +1,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libubox
-PKG_VERSION:=2013-07-04
+PKG_VERSION:=2013-11-19-3
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git://nbd.name/luci2/libubox.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=11e8afea0f7eb34f8c23a8e589ee659c46f3f8aa
+PKG_SOURCE_VERSION:=f100acef37bd562218b25d1a9fbe1ece1ef57438
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_MIRROR_MD5SUM:=
 CMAKE_INSTALL:=1
@@ -54,6 +54,13 @@ define Package/libjson-script
   TITLE:=Minimalistic JSON based scripting engine
 endef
 
+define Package/libubox-lua
+  SECTION:=libs
+  CATEGORY:=Libraries
+  DEPENDS:=+libubox +liblua
+  TITLE:=Lua binding for the OpenWrt Basic utility library
+endef
+
 TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include
 CMAKE_OPTIONS = \
 	-DLUAPATH=/usr/lib/lua
@@ -79,7 +86,13 @@ define Package/libjson-script/install
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libjson_script.so $(1)/lib/
 endef
 
+define Package/libubox-lua/install
+	$(INSTALL_DIR) $(1)/usr/lib/lua
+	$(CP) $(PKG_BUILD_DIR)/lua/uloop.so $(1)/usr/lib/lua/
+endef
+
 $(eval $(call BuildPackage,libubox))
 $(eval $(call BuildPackage,libblobmsg-json))
 $(eval $(call BuildPackage,jshn))
 $(eval $(call BuildPackage,libjson-script))
+$(eval $(call BuildPackage,libubox-lua))

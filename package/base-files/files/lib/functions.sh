@@ -248,17 +248,16 @@ mtd_get_mac_ascii()
 	local part
 	local mac_dirty
 
-	. /lib/functions.sh
-
 	part=$(find_mtd_part "$mtdname")
 	if [ -z "$part" ]; then
 		echo "mtd_get_mac_ascii: partition $mtdname not found!" >&2
 		return
 	fi
 
-	mac_dirty=$(strings "$part" | sed -n 's/'"$key"'=//p')
+	mac_dirty=$(strings "$part" | sed -n 's/^'"$key"'=//p')
+
 	# "canonicalize" mac
-	printf "%02x:%02x:%02x:%02x:%02x:%02x" 0x${mac_dirty//:/ 0x}
+	[ -n "$mac_dirty" ] && macaddr_canonicalize "$mac_dirty"
 }
 
 mtd_get_mac_binary() {
@@ -273,6 +272,18 @@ mtd_get_mac_binary() {
 	fi
 
 	dd bs=1 skip=$offset count=6 if=$part 2>/dev/null | hexdump -v -n 6 -e '5/1 "%02x:" 1/1 "%02x"'
+}
+
+mtd_get_part_size() {
+	local part_name=$1
+	local first dev size erasesize name
+	while read dev size erasesize name; do
+		name=${name#'"'}; name=${name%'"'}
+		if [ "$name" = "$part_name" ]; then
+			echo $((0x$size))
+			break
+		fi
+	done < /proc/mtd
 }
 
 macaddr_add() {
@@ -297,6 +308,39 @@ macaddr_2bin()
 	local mac=$1
 
 	echo -ne \\x${mac//:/\\x}
+}
+
+macaddr_canonicalize()
+{
+	local mac="$1"
+	local canon=""
+
+	[ ${#mac} -gt 17 ] && return
+	[ -n "${mac//[a-fA-F0-9\.: -]/}" ] && return
+
+	for octet in ${mac//[\.:-]/ }; do
+		case "${#octet}" in
+		1)
+			octet="0${octet}"
+			;;
+		2)
+			;;
+		4)
+			octet="${octet:0:2} ${octet:2:2}"
+			;;
+		12)
+			octet="${octet:0:2} ${octet:2:2} ${octet:4:2} ${octet:6:2} ${octet:8:2} ${octet:10:2}"
+			;;
+		*)
+			return
+			;;
+		esac
+		canon=${canon}${canon:+ }${octet}
+	done
+
+	[ ${#canon} -ne 17 ] && return
+
+	printf "%02x:%02x:%02x:%02x:%02x:%02x" 0x${canon// / 0x} 2>/dev/null
 }
 
 strtok() { # <string> { <variable> [<separator>] ... }
