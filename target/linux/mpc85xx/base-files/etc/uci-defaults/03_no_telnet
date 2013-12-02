@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# Copyright 2013, CZ.NIC z.s.p.o. (http://www.nic.cz/)
+
+. /lib/functions/uci-defaults.sh
+. /lib/mpc85xx.sh
+
+board=$(mpc85xx_board_name)
+
+case "$board" in
+turris)
+	# For security reasons, disable telnet on turris. It has the web interface,
+	# so having telnet in addition is not needed.
+	/etc/init.d/telnet disable
+	# It probably is not yet running, so don't fail if nothing to stop
+	/etc/init.d/telnet stop || true
+esac
+
+exit 0
