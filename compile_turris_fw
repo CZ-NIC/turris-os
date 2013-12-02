@@ -8,8 +8,9 @@
 ./compile_u-boot
 
 # Install luci feed
-./scripts/feeds update luci
+./scripts/feeds update lucics
 ./scripts/feeds install luci
+./scripts/feeds install luci-i18n-czech
 
 # Build NAND FW
 cp configs/config-turris-nand .config
