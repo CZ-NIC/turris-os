@@ -480,7 +480,7 @@ define KernelPackage/max63xx-wdt
   SUBMENU:=$(OTHER_MENU)
   TITLE:=MAX63xx Watchdog Timer
   DEPENDS:=@(TARGET_mpc85xx||TARGET_ppc40x||TARGET_ppc44x)
-  KCONFIG:=CONFIG_MAX63XX_WDT
+  KCONFIG:=CONFIG_MAX63XX_WATCHDOG
   FILES:=$(LINUX_DIR)/drivers/$(WATCHDOG_DIR)/max63xx_wdt.ko
   AUTOLOAD:=$(call AutoLoad,50,max63xx_wdt)
 endef
