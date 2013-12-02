@@ -25,7 +25,8 @@ define Profile/TURRISNAND
 		mtd-utils mtd-utils-nandwrite mtd-utils-nandtest mtd-utils-nanddump \
 		mtd-utils-flash-erase mtd-utils-flash-eraseall mtd-utils-flash-info \
 		luci luci-i18n-czech zlib curl cert-backup foris update_mac kmod-rtc-mcp7940 wget \
-		userspace_time_sync kmod-max63xx-wdt openssh-moduli
+		userspace_time_sync kmod-max63xx-wdt openssh-moduli openssh-client \
+		openssh-sftp-client openssh-sftp-server openssh-client-utils
 endef
 
 define Profile/TURRISNAND/Description
