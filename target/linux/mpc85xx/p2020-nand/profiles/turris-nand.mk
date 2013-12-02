@@ -24,7 +24,7 @@ define Profile/TURRISNAND
 		nuci updater logsend unbound oneshot logrotate \
 		mtd-utils mtd-utils-nandwrite mtd-utils-nandtest mtd-utils-nanddump \
 		mtd-utils-flash-erase mtd-utils-flash-eraseall mtd-utils-flash-info \
-		luci zlib curl cert-backup foris update_mac kmod-rtc-mcp7940 wget \
+		luci luci-i18n-czech zlib curl cert-backup foris update_mac kmod-rtc-mcp7940 wget \
 		userspace_time_sync kmod-max63xx-wdt openssh-moduli
 endef
 
