@@ -24,7 +24,6 @@ make "$@"
 # Clean
 [ -d ./bin-nand ] && rm -rf ./bin-nand
 mv ./bin ./bin-nand
-make clean
 [ -d ./tmp ] && rm -rf ./tmp
 
 # Build NOR FW
