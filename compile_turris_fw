@@ -18,6 +18,9 @@ cp configs/config-turris-nand .config
 make defconfig
 export TARGET_BOARD=turris
 ./set_opkg_url
+if [ -d .git ] ; then
+	git log -n1 --format='%H' >etc/git-version
+fi
 make clean
 make "$@"
 
