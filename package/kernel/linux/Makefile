@@ -66,11 +66,13 @@ define Package/kernel/postinst
 #!/bin/sh
 if [ -z "$${IPKG_INSTROOT}" ]; then
 	echo "Erasing and flashing FDT partition."
-	flash_erase /dev/mtd6 0 0 && nandwrite -p /dev/mtd6 /tmp/fdt && rm -f /tmp/fdt
+	flash_erase /dev/mtd6 0 0 && nandwrite -p /dev/mtd6 /tmp/fdt
 
 	echo "Erasing and flashing kernel partition."
-	flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /tmp/zImage && rm -f /tmp/zImage
+	flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /tmp/zImage
 fi
+rm $${IPKG_INSTROOT}/tmp/fdt
+rm $${IPKG_INSTROOT}/tmp/zImage
 endef
 
 define Package/kernel/extra_provides
