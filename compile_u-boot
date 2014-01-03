@@ -9,7 +9,7 @@ source /opt/eldk-5.2.1/powerpc-e500v2/environment-setup-*
 make -C ./u-boot CROSS_COMPILE=powerpc-linux-gnuspe- clean
 make -C ./u-boot  CROSS_COMPILE=powerpc-linux-gnuspe- TURRIS1_SDCARD_config
 make -C ./u-boot CROSS_COMPILE=powerpc-linux-gnuspe-
-mv ./u-boot/u-boot.bin ./u-boot/u-boot.sdcard.bin
+./boot-format/boot_format ./boot-format/config_sram_p2020ds.dat ./u-boot/u-boot.bin -spi ./u-boot/u-boot.sdcard.bin
 
 make -C ./u-boot CROSS_COMPILE=powerpc-linux-gnuspe- clean
 make -C ./u-boot CROSS_COMPILE=powerpc-linux-gnuspe- TURRIS1_config
