@@ -32,6 +32,7 @@ define Build/Configure
 endef
 
 define Build/Compile
+	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/powerpc/boot/dts/turris-nand-256m.dts > $(PKG_BUILD_DIR)/fdt
 endef
 
 define KernelPackage/depends
@@ -48,7 +49,30 @@ define Package/kernel
 endef
 
 define Package/kernel/install
-  # nothing to do
+	$(INSTALL_DIR) $(1)/tmp
+	$(CP) $(LINUX_DIR)/arch/powerpc/boot/zImage $(1)/tmp/zImage
+	$(CP) $(PKG_BUILD_DIR)/fdt $(1)/tmp/fdt	
+endef
+
+define Package/kernel/preinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+	if [ -f /tmp/zImage ]; then rm -f /tmp/zImage; fi
+	if [ -f /tmp/fdt ]; then rm -f /tmp/fdt; fi
+fi
+endef
+
+define Package/kernel/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+	echo "Erasing and flashing FDT partition."
+	flash_erase /dev/mtd6 0 0 && nandwrite -p /dev/mtd6 /tmp/fdt
+
+	echo "Erasing and flashing kernel partition."
+	flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /tmp/zImage
+fi
+rm $${IPKG_INSTROOT}/tmp/fdt
+rm $${IPKG_INSTROOT}/tmp/zImage
 endef
 
 define Package/kernel/extra_provides

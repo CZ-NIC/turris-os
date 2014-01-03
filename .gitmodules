@@ -4,3 +4,6 @@
 [submodule "u-boot"]
 	path = u-boot
 	url = git@gitlab.labs.nic.cz:router/u-boot-turris.git
+[submodule "boot-format"]
+	path = boot-format
+	url = http://git.freescale.com/git/cgit.cgi/ppc/sdk/boot-format.git/

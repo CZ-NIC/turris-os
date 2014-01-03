@@ -36,6 +36,7 @@ define Image/Prepare
 endef
 
 define Image/BuildKernel
+	[ -d $(BIN_DIR) ] || mkdir -p $(BIN_DIR);
 	if [ $(PROFILE) == TURRIS ] || [ $(PROFILE) == TURRISNAND ]; then \
 		dd if=$(KDIR)/zImage of=$(zImage) bs=128k conv=sync; \
 	else \
