@@ -1,12 +1,19 @@
 #!/bin/bash
 
+#Build boot-format
+./compile_boot-format
+
 cd ./u-boot
 
 # set up environment
 source /opt/eldk-5.2.1/powerpc-e500v2/environment-setup-*
 
-
+make CROSS_COMPILE=powerpc-linux-gnuspe- clean
+make CROSS_COMPILE=powerpc-linux-gnuspe- TURRIS1_SDCARD_config
+make CROSS_COMPILE=powerpc-linux-gnuspe-
+mv u-boot.bin u-boot.sdcard.bin
 
 make CROSS_COMPILE=powerpc-linux-gnuspe- clean
 make CROSS_COMPILE=powerpc-linux-gnuspe- TURRIS1_config
 make CROSS_COMPILE=powerpc-linux-gnuspe-
+
