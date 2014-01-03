@@ -1,5 +1,4 @@
 #!/bin/sh
 
-cd ./boot-format
-make clean
-make
+make -C ./boot-format clean
+make -C ./boot-format
