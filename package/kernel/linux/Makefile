@@ -15,6 +15,7 @@ SCAN_DEPS=modules/*.mk $(TOPDIR)/target/linux/*/modules.mk
 
 PKG_LICENSE:=GPLv2
 PKG_LICENSE_FILES:=
+PKG_VERSION:=2
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -43,7 +44,7 @@ define Package/kernel
   SECTION:=sys
   CATEGORY:=Kernel
   DEFAULT:=y
-  TITLE:=Virtual kernel package
+  TITLE:=Kernel package
   VERSION:=$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
   URL:=http://www.kernel.org/
 endef
