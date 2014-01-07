@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=broadcom-diag
-PKG_RELEASE:=11
+PKG_RELEASE:=11-$(LINUX_VERMAGIC)
 
 include $(INCLUDE_DIR)/package.mk
 

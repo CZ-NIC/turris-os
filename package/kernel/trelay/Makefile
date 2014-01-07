@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=trelay
 PKG_VERSION:=0.1
-PKG_RELEASE:=1
+PKG_RELEASE:=1-$(LINUX_VERMAGIC)
 
 include $(INCLUDE_DIR)/package.mk
 

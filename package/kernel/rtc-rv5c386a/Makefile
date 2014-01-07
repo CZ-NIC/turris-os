@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=rtc-rv5c386a
-PKG_RELEASE:=1
+PKG_RELEASE:=1-$(LINUX_VERMAGIC)
 
 include $(INCLUDE_DIR)/package.mk
 
