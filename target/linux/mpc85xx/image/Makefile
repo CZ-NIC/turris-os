@@ -102,6 +102,20 @@ define Image/Build/Profile/TURRISNOR
 		dd if=$(TOPDIR)/bin-nand/mpc85xx/medkit-256/medkit-256m.tar.xz bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin; \
 	fi
 
+	echo "Creating bootable sd-card image."
+	if [ -d $(TOPDIR)/bin-sdcard ]; then rm -rf $(TOPDIR)/bin-sdcard; fi
+	mkdir $(TOPDIR)/bin-sdcard	
+
+	if [ -f $(TOPDIR)/u-boot/u-boot.sdcard.bin ]; then \
+		cp $(TOPDIR)/u-boot/u-boot.sdcard.bin $(TOPDIR)/bin-sdcard/sdcard-256m.img; \
+		truncate -s 1M $(TOPDIR)/bin-sdcard/sdcard-256m.img; \
+		cat $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin >> $(TOPDIR)/bin-sdcard/sdcard-256m.img; \
+		$(SCRIPT_DIR)/pad_with_ff $(TOPDIR)/bin-sdcard/sdcard-256m.img 17301504; \
+		cat $(TOPDIR)/u-boot/u-boot.bin >> $(TOPDIR)/bin-sdcard/sdcard-256m.img; \
+	else \
+		echo "ERROR: There is no sdcard uboot."; \
+	fi
+
 endef
 
 define Image/Build/Profile/TURRISNAND

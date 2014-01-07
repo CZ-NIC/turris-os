@@ -1,0 +1,4 @@
+#!/bin/sh
+
+FILE_SIZE=`stat -c%s $1`;
+tr '\000' '\377' < /dev/zero | dd of=$1 bs=1 count=$(( $2 - $FILE_SIZE )) seek=$FILE_SIZE
