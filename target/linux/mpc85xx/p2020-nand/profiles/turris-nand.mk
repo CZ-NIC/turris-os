@@ -27,7 +27,7 @@ define Profile/TURRISNAND
 		luci luci-i18n-czech zlib curl cert-backup foris update_mac kmod-rtc-mcp7940 wget \
 		userspace_time_sync kmod-max63xx-wdt openssh-moduli openssh-client \
 		openssh-sftp-client openssh-sftp-server openssh-client-utils watchdog_adjust \
-		ucollect-config init-thermometer rainbow
+		ucollect-config init-thermometer rainbow wpa-supplicant
 endef
 
 define Profile/TURRISNAND/Description
