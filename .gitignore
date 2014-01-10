@@ -21,3 +21,4 @@
 .emacs.desktop*
 TAGS*~
 .config
+/files/etc/git-version
