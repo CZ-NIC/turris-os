@@ -9,9 +9,9 @@ include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/version.mk
 
 PKG_NAME:=opkg
-PKG_REV:=618
+PKG_REV:=746
 PKG_VERSION:=$(PKG_REV)
-PKG_RELEASE:=6
+PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=svn
 PKG_SOURCE_VERSION:=$(PKG_REV)
@@ -87,7 +87,9 @@ CONFIGURE_ARGS += \
 	--disable-curl \
 	--disable-gpg \
 	--with-opkgetcdir=/etc \
-	--with-opkglockfile=/var/lock/opkg.lock
+	--with-opkglockfile=/var/lock/opkg.lock \
+	--enable-static \
+	--disable-shared
 
 ifeq ($(BUILD_VARIANT),smime)
 	CONFIGURE_ARGS += --enable-openssl --enable-sha256
