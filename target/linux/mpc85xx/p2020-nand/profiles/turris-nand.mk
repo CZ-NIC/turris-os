@@ -25,7 +25,7 @@ define Profile/TURRISNAND
 		mtd-utils mtd-utils-nandwrite mtd-utils-nandtest mtd-utils-nanddump \
 		mtd-utils-flash-erase mtd-utils-flash-eraseall mtd-utils-flash-info \
 		luci luci-i18n-czech zlib curl cert-backup foris update_mac wget \
-		userspace_time_sync kmod-max63xx-wdt openssh-moduli openssh-client \
+		userspace_time_sync openssh-moduli openssh-client \
 		openssh-sftp-client openssh-sftp-server openssh-client-utils watchdog_adjust \
 		ucollect-config init-thermometer rainbow wpa-supplicant
 endef
