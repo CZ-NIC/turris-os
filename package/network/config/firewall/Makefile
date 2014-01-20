@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=firewall
-PKG_VERSION:=2014-01-07
+PKG_VERSION:=2014-01-20
 PKG_RELEASE:=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE_PROTO:=git
@@ -16,7 +16,7 @@ PKG_SOURCE_URL:=git@gitlab.labs.nic.cz:router/firewall3.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_VERSION:=85a8658d1580455194964b418baf326c5bb7b66b
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
-PKG_MAINTAINER:=Jo-Philipp Wich <jow@openwrt.org>
+PKG_MAINTAINER:=Stepan Henek <stepan.henek@nic.cz>
 
 
 include $(INCLUDE_DIR)/package.mk
@@ -31,6 +31,7 @@ endef
 
 define Package/firewall/description
  This package provides a config-compatible C implementation of the UCI firewall.
+ It is a modified version of the original project (git://nbd.name/firewall3.git) enriched with custom logging rules.
 endef
 
 define Package/firewall/conffiles
