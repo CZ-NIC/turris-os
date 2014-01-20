@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=firewall
-PKG_VERSION:=2014-01-20
+PKG_VERSION:=2014-01-21
 PKG_RELEASE:=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git@gitlab.labs.nic.cz:router/firewall3.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=85a8658d1580455194964b418baf326c5bb7b66b
+PKG_SOURCE_VERSION:=c37ed8e7f60e0595958660242e5d7540e4de6a09
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_MAINTAINER:=Stepan Henek <stepan.henek@nic.cz>
 
@@ -59,6 +59,16 @@ define Package/firewall/install
 	$(INSTALL_DATA) ./files/firewall.config $(1)/etc/config/firewall
 	$(INSTALL_DIR) $(1)/etc/
 	$(INSTALL_DATA) ./files/firewall.user $(1)/etc/firewall.user
+endef
+
+define Package/firewall/postinst
+#!/bin/sh
+# check if we are on real system
+if [ -z "$${IPKG_INSTROOT}" ]; then
+	echo "Reloading the firewall"
+	/etc/init.d/firewall reload
+fi
+exit 0
 endef
 
 $(eval $(call BuildPackage,firewall))

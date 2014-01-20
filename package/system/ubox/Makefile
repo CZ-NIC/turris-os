@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ubox
-PKG_VERSION:=2013-11-19
+PKG_VERSION:=2014-01-20
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE_PROTO:=git
@@ -38,7 +38,7 @@ endef
 define Package/ubox/install
 	$(INSTALL_DIR) $(1)/sbin $(1)/usr/sbin $(1)/lib/ $(1)/etc/init.d/
 
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/{mount_root,kmodloader,logd,logread,validate_data} $(1)/sbin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/{mount_root,kmodloader,logread,validate_data} $(1)/sbin/
 	$(INSTALL_BIN) ./files/log.init $(1)/etc/init.d/log
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libvalidate.so $(1)/lib
 	ln -s /sbin/mount_root $(1)/sbin/switch2jffs
