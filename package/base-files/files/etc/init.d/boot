@@ -30,6 +30,16 @@ apply_uci_config() {
 	sh -c '. /lib/functions.sh; include /lib/config; uci_apply_defaults'
 }
 
+# Cover boot entropy hole - feed 512 bytes into /dev/urandom's entropy pool.
+# Prevents generating predictable bytes due to lack of post-boot entropy.
+feed_urandom() {
+	if [ -x /usr/bin/atsha204cmd ]; then
+		for I in $(seq 1 16); do
+			/usr/bin/atsha204cmd random > /dev/urandom
+		done
+	fi
+}
+
 start() {
 	config_load system
 	config_foreach system_config system
@@ -65,6 +75,8 @@ boot() {
 	rm -f /tmp/wireless.tmp
 
 	apply_uci_config
+
+	feed_urandom
 	
 	# temporary hack until configd exists
 	/sbin/reload_config
