@@ -1,0 +1,20 @@
+#!/bin/sh
+
+SUBMODULES=`git submodule status | awk '{print $2;}'`
+
+git config remote.origin.pushurl git@gitlab.labs.nic.cz:turris/openwrt.git
+
+for i in $SUBMODULES; do
+    (
+    cd $i; 
+    REMOTE=`git config remote.origin.url`;
+    if  `echo $REMOTE | grep -Eq '^https:\/\/gitlab\.labs\.nic\.cz\/turris.*'` ; then
+       echo -n "Set push url for $i from: $REMOTE to: "
+       NEWURL=`echo $REMOTE | sed 's/^https\:\/\/gitlab.labs.nic.cz\/turris/git@gitlab.labs.nic.cz:turris/g'` 
+       echo $NEWURL
+       git config remote.origin.pushurl $NEWURL
+    fi;
+    )
+done
+
+

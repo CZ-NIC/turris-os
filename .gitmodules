@@ -1,9 +1,9 @@
 [submodule "package/packages"]
 	path = package/packages
-	url = git@gitlab.labs.nic.cz:router/openwrt-packages.git
+	url = https://gitlab.labs.nic.cz/turris/openwrt-packages.git
 [submodule "u-boot"]
 	path = u-boot
-	url = git@gitlab.labs.nic.cz:router/u-boot-turris.git
+	url = https://gitlab.labs.nic.cz/turris/u-boot-turris.git
 [submodule "boot-format"]
 	path = boot-format
-	url = git@gitlab.labs.nic.cz:router/boot-format.git
+	url = https://gitlab.labs.nic.cz/turris/boot-format.git
