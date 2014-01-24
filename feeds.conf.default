@@ -1,7 +1,7 @@
 src-git packages git://git.openwrt.org/packages.git
 src-svn xwrt http://x-wrt.googlecode.com/svn/trunk/package
 src-git luci git://nbd.name/luci.git
-src-git lucics ssh+git://git@gitlab.labs.nic.cz/turris/luci-cs.git
+src-git lucics https://gitlab.labs.nic.cz/turris/luci-cs.git
 src-git routing git://github.com/openwrt-routing/packages.git
 src-git telephony http://feeds.openwrt.nanl.de/openwrt/telephony.git
 #src-svn phone svn://svn.openwrt.org/openwrt/feeds/phone
