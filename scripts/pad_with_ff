@@ -1,4 +1,38 @@
 #!/bin/sh
 
+#
+# Script which pads file provided in first parameter to size provided as a second parameter with FF pattern
+#
+
+help() {
+	echo "$0 pads file provided in first parameter to size provided as a second parameter with the FF pattern."
+	echo "Usage:"
+	echo "\t$0 <path to file> <size -/K/M/G>"
+}
+
+if [ $# -ne 2 ]; then
+	help
+	return 1
+fi
+
+if `echo $2 | grep -Eoq '^[0-9]+$'`; then
+	WANT_SIZE=$2
+elif `echo $2 | grep -Eoq '^[0-9]+[KMG]{1}$'`; then
+	MULTIPLIER=`echo $2 | grep -Eo '[KMG]{1}$'`
+	NUMBER=`echo $2 | grep -Eo '^[0-9]+'`
+	case $MULTIPLIER in
+		"K") WANT_SIZE=$(($NUMBER*1024));;
+		"M") WANT_SIZE=$(($NUMBER*1048576));;
+		"G") WANT_SIZE=$(($NUMBER*1073741824));;
+	esac	
+else
+	help
+	return 1
+fi
+
+echo "Pading file $1 to size $2"
+
 FILE_SIZE=`stat -c%s $1`;
-tr '\000' '\377' < /dev/zero | dd of=$1 bs=1 count=$(( $2 - $FILE_SIZE )) seek=$FILE_SIZE
+echo "That means from $FILE_SIZE bytes to $WANT_SIZE bytes"
+
+tr '\000' '\377' < /dev/zero | dd of=$1 bs=1 count=$(( $WANT_SIZE - $FILE_SIZE )) seek=$FILE_SIZE
