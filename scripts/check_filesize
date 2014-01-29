@@ -1,0 +1,45 @@
+#!/bin/sh
+
+#
+# Script which checks size of file provided in first parameter if it does not exceed size provided as a second parameter
+#
+
+help() {
+	echo "$0 check size of file provided in first parameter if it does not exceed size provided as a second parameter."
+	echo "Usage:"
+	echo "\t$0 <path to file> <size -/K/M/G>"
+}
+
+if [ $# -ne 2 ]; then
+	help
+	return 1
+fi
+
+if `echo $2 | grep -Eoq '^0x[0-9]+$'`; then
+	WANT_SIZE=`printf "%d\n" $2`
+elif `echo $2 | grep -Eoq '^[0-9]+$'`; then
+	WANT_SIZE=$2
+elif `echo $2 | grep -Eoq '^[0-9]+[KMG]{1}$'`; then
+	MULTIPLIER=`echo $2 | grep -Eo '[KMG]{1}$'`
+	NUMBER=`echo $2 | grep -Eo '^[0-9]+'`
+	case $MULTIPLIER in
+		"K") WANT_SIZE=$(($NUMBER*1024));;
+		"M") WANT_SIZE=$(($NUMBER*1048576));;
+		"G") WANT_SIZE=$(($NUMBER*1073741824));;
+	esac	
+else
+	help
+	return 1
+fi
+
+echo "Checking size of file $1 max size is $2"
+
+FILE_SIZE=`stat -c%s $1`;
+echo "File size is $FILE_SIZE bytes. Max allowed size is $WANT_SIZE bytes"
+
+if [ $FILE_SIZE -le $WANT_SIZE ]; then
+	echo "Size is OK"
+else
+	echo "ERROR: File is bigger!!!"
+	return 1
+fi
