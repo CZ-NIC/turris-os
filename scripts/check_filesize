@@ -1,11 +1,11 @@
 #!/bin/sh
 
 #
-# Script which pads file provided in first parameter to size provided as a second parameter with FF pattern
+# Script which checks size of file provided in first parameter if it does not exceed size provided as a second parameter
 #
 
 help() {
-	echo "$0 pads file provided in first parameter to size provided as a second parameter with the FF pattern."
+	echo "$0 check size of file provided in first parameter if it does not exceed size provided as a second parameter."
 	echo "Usage:"
 	echo "\t$0 <path to file> <size -/K/M/G>"
 }
@@ -16,7 +16,7 @@ if [ $# -ne 2 ]; then
 fi
 
 if `echo $2 | grep -Eoq '^0x[0-9]+$'`; then
-        WANT_SIZE=`printf "%d\n" $2`
+	WANT_SIZE=`printf "%d\n" $2`
 elif `echo $2 | grep -Eoq '^[0-9]+$'`; then
 	WANT_SIZE=$2
 elif `echo $2 | grep -Eoq '^[0-9]+[KMG]{1}$'`; then
@@ -32,9 +32,14 @@ else
 	return 1
 fi
 
-echo "Pading file $1 to size $2"
+echo "Checking size of file $1 max size is $2"
 
 FILE_SIZE=`stat -c%s $1`;
-echo "That means from $FILE_SIZE bytes to $WANT_SIZE bytes"
+echo "File size is $FILE_SIZE bytes. Max allowed size is $WANT_SIZE bytes"
 
-tr '\000' '\377' < /dev/zero | dd of=$1 bs=1 count=$(( $WANT_SIZE - $FILE_SIZE )) seek=$FILE_SIZE
+if [ $FILE_SIZE -le $WANT_SIZE ]; then
+	echo "Size is OK"
+else
+	echo "ERROR: File is bigger!!!"
+	return 1
+fi
