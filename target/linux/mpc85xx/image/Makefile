@@ -37,19 +37,11 @@ endef
 
 define Image/BuildKernel
 	[ -d $(BIN_DIR) ] || mkdir -p $(BIN_DIR);
-	if [ $(PROFILE) == TURRIS ] || [ $(PROFILE) == TURRISNAND ]; then \
-		dd if=$(KDIR)/zImage of=$(zImage) bs=128k conv=sync; \
-	else \
-		cp $(KDIR)/zImage $(zImage); \
-	fi
+	cp $(KDIR)/zImage $(zImage); 
 endef
 
 define Image/makeDTS
-	if [ $(PROFILE) == TURRIS ] || [ $(PROFILE) == TURRISNAND ]; then \
-		$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/powerpc/boot/dts/$(1).dts | dd of=$(BIN_DIR)/$(IMG_PREFIX)-$(1).fdt bs=128k conv=sync; \
-	else \
-		$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/powerpc/boot/dts/$(1).dts > $(BIN_DIR)/$(IMG_PREFIX)-$(1).fdt; \
-	fi
+	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/powerpc/boot/dts/$(1).dts > $(BIN_DIR)/$(IMG_PREFIX)-$(1).fdt; 
 endef
 
 define Image/Build/TPLINK
