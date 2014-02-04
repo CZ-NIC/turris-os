@@ -70,7 +70,7 @@ endef
 define Image/Build/Profile/TURRISNOR
 	echo "Building for Turris NOR!!!!!!!!!!!!!!!"
 	$(call Image/makeDTS,turris-nor-128m)
-	$(call Image/makeDTS,turris-nor-256m)	
+	$(call Image/makeDTS,turris-nor-256m)
 
 	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
 	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
@@ -78,18 +78,18 @@ define Image/Build/Profile/TURRISNOR
 	$(SCRIPTS)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin 0x20000
 	truncate -s 128K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
 	truncate -s 128K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
-	
+
 	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
 	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
 	$(SCRIPTS)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin 0x1C0000
-        $(SCRIPTS)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin 0x1C0000
+	$(SCRIPTS)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin 0x1C0000
 	truncate -s 1792K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
 	truncate -s 1792K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
-	
+
 	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
 	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
 	$(SCRIPTS)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin 0x340000
-        $(SCRIPTS)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin 0x340000
+	$(SCRIPTS)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin 0x340000
 	truncate -s 3328K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
 	truncate -s 3328K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
 	
@@ -100,7 +100,7 @@ define Image/Build/Profile/TURRISNOR
 		dd if=$(TOPDIR)/bin-nand/mpc85xx/medkit-256/medkit-256m.tar.xz bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin; \
 	fi
 	$(SCRIPTS)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin 0xE40000
-        $(SCRIPTS)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin 0xE40000
+	$(SCRIPTS)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin 0xE40000
 
 	echo "Creating bootable sd-card image."
 	if [ -d $(TOPDIR)/bin-sdcard ]; then rm -rf $(TOPDIR)/bin-sdcard; fi
@@ -122,17 +122,17 @@ define Image/Build/Profile/TURRISNAND
 	echo "Building for Turris NAND!!!!!!!!!!!!!!!"
 	$(call Image/makeDTS,turris-nand-128m)
 	$(call Image/makeDTS,turris-nand-256m)
-	
+
 	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
 	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
 	truncate -s 2M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
 	truncate -s 2M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin 
-	
+
 	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
 	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
 	truncate -s 7M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
 	truncate -s 7M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
-	
+
 	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
 	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
 
