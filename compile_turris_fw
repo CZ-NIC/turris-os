@@ -23,6 +23,7 @@ make defconfig
 # Build NAND FW
 cp configs/config-turris-nand .config
 [ -n "$BUILD_ALL" ] && echo "CONFIG_ALL=y" >> .config
+[ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
 make defconfig
 export TARGET_BOARD=turris
 ./set_opkg_url
@@ -39,6 +40,7 @@ mv ./bin ./bin-nand
 
 # Build NOR FW
 cp configs/config-turris-nor .config
+[ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
 make defconfig
 make clean
 make "$@"
