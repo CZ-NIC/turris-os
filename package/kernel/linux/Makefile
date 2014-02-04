@@ -33,7 +33,7 @@ define Build/Configure
 endef
 
 define Build/Compile
-	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/powerpc/boot/dts/turris-nand-256m.dts > $(PKG_BUILD_DIR)/fdt
+	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/powerpc/boot/dts/turris-nand-256m.dts -o $(PKG_BUILD_DIR)/fdt
 endef
 
 define KernelPackage/depends
