@@ -41,7 +41,7 @@ define Image/BuildKernel
 endef
 
 define Image/makeDTS
-	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/powerpc/boot/dts/$(1).dts > $(BIN_DIR)/$(IMG_PREFIX)-$(1).fdt; 
+	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/powerpc/boot/dts/$(1).dts -o $(BIN_DIR)/$(IMG_PREFIX)-$(1).fdt; 
 endef
 
 define Image/Build/TPLINK
