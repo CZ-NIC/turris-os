@@ -15,7 +15,7 @@ if [ $# -ne 2 ]; then
 	return 1
 fi
 
-if `echo $2 | grep -Eoq '^0x[0-9]+$'`; then
+if `echo $2 | grep -Eoq '^0x[0-9a-fA-F]+$'`; then
 	WANT_SIZE=`printf "%d\n" $2`
 elif `echo $2 | grep -Eoq '^[0-9]+$'`; then
 	WANT_SIZE=$2
