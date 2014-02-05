@@ -26,7 +26,7 @@ endif
 
 zImage:=$(BIN_DIR)/$(IMG_PREFIX)-zImage$(IMAGE_SUFFIX)
 
-DTS_TARGETS = mpc8548cds_32b p1010rdb tl-wdr4900-v1 p1020rdb p2020rdb turris-nor-128m turris-nand-128m turris-nor-256m turris-nand-256m
+DTS_TARGETS = mpc8548cds_32b p1010rdb tl-wdr4900-v1 p1020rdb p2020rdb turris-nor-256m turris-nand-256m
 BOOT_IMAGES:=zImage cuImage.tl-wdr4900-v1
 
 define Image/Prepare
@@ -69,37 +69,23 @@ endef
 
 define Image/Build/Profile/TURRISNOR
 	echo "Building for Turris NOR!!!!!!!!!!!!!!!"
-	$(call Image/makeDTS,turris-nor-128m)
 	$(call Image/makeDTS,turris-nor-256m)
 
-	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
 	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
-	$(SCRIPT_DIR)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin 0x20000
 	$(SCRIPT_DIR)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin 0x20000
-	truncate -s 128K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
 	truncate -s 128K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
 
-	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
 	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
-	$(SCRIPT_DIR)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin 0x1C0000
 	$(SCRIPT_DIR)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin 0x1C0000
-	truncate -s 1792K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
 	truncate -s 1792K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
 
-	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
 	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
-	$(SCRIPT_DIR)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin 0x340000
 	$(SCRIPT_DIR)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin 0x340000
-	truncate -s 3328K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin
 	truncate -s 3328K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin
 	
-	if [ -f $(TOPDIR)/bin-nand/mpc85xx/medkit-128/medkit-128m.tar.xz ]; then \
-		dd if=$(TOPDIR)/bin-nand/mpc85xx/medkit-128/medkit-128m.tar.xz bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin; \
-	fi
 	if [ -f $(TOPDIR)/bin-nand/mpc85xx/medkit-256/medkit-256m.tar.xz ]; then \
 		dd if=$(TOPDIR)/bin-nand/mpc85xx/medkit-256/medkit-256m.tar.xz bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin; \
 	fi
-	$(SCRIPT_DIR)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-128m.bin 0xE40000
 	$(SCRIPT_DIR)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-256m.bin 0xE40000
 
 	echo "Creating bootable sd-card image."
@@ -120,30 +106,20 @@ endef
 
 define Image/Build/Profile/TURRISNAND
 	echo "Building for Turris NAND!!!!!!!!!!!!!!!"
-	$(call Image/makeDTS,turris-nand-128m)
 	$(call Image/makeDTS,turris-nand-256m)
 
-	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
 	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
-	truncate -s 2M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
 	truncate -s 2M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin 
 
-	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
 	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
-	truncate -s 7M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
 	truncate -s 7M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
 
-	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-128m.bin
 	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nand-256m.bin
 
-	if [ -d $(BIN_DIR)/medkit-128 ]; then rm -rf $(BIN_DIR)/medkit-128; fi
-	mkdir $(BIN_DIR)/medkit-128
 	if [ -d $(BIN_DIR)/medkit-256 ]; then rm -rf $(BIN_DIR)/medkit-256; fi
 	mkdir $(BIN_DIR)/medkit-256
 	gunzip -c $(BIN_DIR)/openwrt-mpc85xx-p2020-nand-TURRISNAND-rootfs.tar.gz > $(BIN_DIR)/openwrt-mpc85xx-p2020-nand-rootfs.tar
-	tar cf $(BIN_DIR)/medkit-128/medkit-128m.tar -C $(BIN_DIR) $(IMG_PREFIX)-turris-nand-128m.fdt $(IMG_PREFIX)-zImage openwrt-mpc85xx-p2020-nand-rootfs.tar
 	tar cf $(BIN_DIR)/medkit-256/medkit-256m.tar -C $(BIN_DIR) $(IMG_PREFIX)-turris-nand-256m.fdt $(IMG_PREFIX)-zImage openwrt-mpc85xx-p2020-nand-rootfs.tar
-	xz -9 $(BIN_DIR)/medkit-128/medkit-128m.tar
 	xz -9 $(BIN_DIR)/medkit-256/medkit-256m.tar
 endef
 
