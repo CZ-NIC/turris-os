@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/arch/powerpc/boot/dts/turris-nor-256m.dts	
-@@ -0,0 +1,229 @@
+@@ -0,0 +1,224 @@
 +/*
 + * Turris RDB Device Tree Source
 + *
@@ -150,10 +150,6 @@
 +                                        0x00094 0x0000007e /* PORT6 STATUS */
 +                                >;
 +	                };
-+                        phy6: ethernet-phy@6 {
-+                                interrupts = <2 1 0 0>;
-+                                reg = <0x6>;
-+                        };
 +                        phy7: ethernet-phy@7 {
 +                                interrupts = <3 1 0 0>;
 +                                reg = <0x7>;
@@ -179,13 +175,12 @@
 +		};
 +
 +	        enet0: ethernet@24000 {
-+                        phy-handle = <&phy6>;
++                        phy-handle = <&phy0>;
 +	                phy-connection-type = "rgmii-id";
 +        	};
 +
 +	        enet1: ethernet@25000 {
-+                	phy-handle = <&phy0>;
-+	                phy-connection-type = "rgmii-id";
++	                fixed-link = <6 1 1000 1 0>;
 +        	};
 +
 +	        enet2: ethernet@26000 {
@@ -232,7 +227,7 @@
 +/include/ "fsl/p2020si-post.dtsi"
 --- /dev/null
 +++ b/arch/powerpc/boot/dts/turris-nand-256m.dts
-@@ -0,0 +1,235 @@
+@@ -0,0 +1,230 @@
 +/*
 + * Turris RDB Device Tree Source
 + *
@@ -388,10 +383,6 @@
 +                                        0x00094 0x0000007e /* PORT6 STATUS */
 +                                >;
 +	                };
-+                        phy6: ethernet-phy@6 {
-+                                interrupts = <2 1 0 0>;
-+                                reg = <0x6>;
-+                        };
 +                        phy7: ethernet-phy@7 {
 +                                interrupts = <3 1 0 0>;
 +                                reg = <0x7>;
@@ -417,13 +408,12 @@
 +		};
 +
 +	        enet0: ethernet@24000 {
-+                        phy-handle = <&phy6>;
++                        phy-handle = <&phy0>;
 +	                phy-connection-type = "rgmii-id";
 +        	};
 +
 +	        enet1: ethernet@25000 {
-+                	phy-handle = <&phy0>;
-+	                phy-connection-type = "rgmii-id";
++	                fixed-link = <6 1 1000 1 0>;
 +        	};
 +
 +	        enet2: ethernet@26000 {
