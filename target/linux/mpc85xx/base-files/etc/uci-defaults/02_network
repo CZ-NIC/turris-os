@@ -39,11 +39,10 @@ tl-wdr4900-v1)
 	tplink_set_mac wan 1
 	;;
 turris)
-	#ucidef_set_interfaces_lan_wan "eth0 eth1" "eth2"
-	# ETH0 is temporarily turned off 
-	ucidef_set_interfaces_lan_wan "eth1" "eth2"
+	ucidef_set_interfaces_lan_wan "eth0 eth1" "eth2"
 	ucidef_add_switch "switch0" "1" "1"
-	ucidef_add_switch_vlan "switch0" "1" "0 1 2 3 4 5"
+	ucidef_add_switch_vlan "switch0" "1" "0 1 2 3 4 "
+	ucidef_add_switch_vlan "switch0" "2" "5 6"
 	;;
 *)
 	ucidef_set_interfaces_lan_wan "eth0" "eth1"
