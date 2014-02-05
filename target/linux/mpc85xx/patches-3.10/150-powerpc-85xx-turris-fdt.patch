@@ -1,5 +1,5 @@
 --- /dev/null
-+++ b/arch/powerpc/boot/dts/turris-nor-256m.dts	
++++ b/arch/powerpc/boot/dts/turris-nor.dts	
 @@ -0,0 +1,224 @@
 +/*
 + * Turris RDB Device Tree Source
@@ -226,7 +226,7 @@
 +
 +/include/ "fsl/p2020si-post.dtsi"
 --- /dev/null
-+++ b/arch/powerpc/boot/dts/turris-nand-256m.dts
++++ b/arch/powerpc/boot/dts/turris-nand.dts
 @@ -0,0 +1,230 @@
 +/*
 + * Turris RDB Device Tree Source
