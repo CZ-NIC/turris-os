@@ -26,7 +26,6 @@ cp configs/config-turris-nand .config
 [ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
 make defconfig
 export TARGET_BOARD=turris
-./set_opkg_url
 if [ -d .git ] ; then
 	git log -n1 --format='%H' >files/etc/git-version
 fi
