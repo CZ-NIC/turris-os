@@ -1120,7 +1120,7 @@ CONFIG_PACKAGE_python-libatsha204=y
 # CONFIG_PACKAGE_rainbow is not set
 # CONFIG_PACKAGE_rescue-mode is not set
 CONFIG_PACKAGE_thermometer=y
-# CONFIG_PACKAGE_turris-firewall-rules is not set
+CONFIG_PACKAGE_turris-firewall-rules=m
 # CONFIG_PACKAGE_update_mac is not set
 CONFIG_PACKAGE_updater=y
 # CONFIG_PACKAGE_updater-consolidator is not set
