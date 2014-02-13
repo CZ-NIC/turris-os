@@ -28,7 +28,7 @@ fi
 make clean
 make "$@"
 # Preserve the uncompressed image too
-mv build_dir/target-powerpc_*/root-mpc85xx bin/root
+mv build_dir/target-powerpc_*/root-mpc85xx bin/mpc85xx/root
 
 # Clean
 [ -d ./bin-nand ] && rm -rf ./bin-nand
