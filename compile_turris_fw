@@ -1,10 +1,6 @@
 #!/bin/bash -xe
 
-# Prevent the auto-appearence of menuconfig
-cp configs/config-turris-nand .config
-make defconfig
-
-[ -f ./Makefile ] && make clean || true
+# Cleaning 
 [ -d ./tmp ] && rm -rf ./tmp
 [ -d ./bin ] && rm -rf ./bin
 
