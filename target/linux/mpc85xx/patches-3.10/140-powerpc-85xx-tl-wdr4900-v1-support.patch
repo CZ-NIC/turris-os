@@ -229,7 +229,7 @@ Signed-off-by: Gabor Juhos <juhosg@openwrt.org>
 +	compatible = "tp-link,TL-WDR4900v1";
 +
 +	chosen {
-+		bootargs = "console=ttyS0,115200";
++		bootargs = "console=ttyS0,115200 rootfstype=jffs2";
 +/*
 +		linux,stdout-path = "/soc@ffe00000/serial@4500";
 +*/
