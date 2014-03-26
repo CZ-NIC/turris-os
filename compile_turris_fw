@@ -8,7 +8,7 @@
 ./compile_u-boot
 
 # Install luci feed
-./scripts/feeds update lucics
+./scripts/feeds update -i lucics
 ./scripts/feeds install luci
 ./scripts/feeds install luci-i18n-czech
 
