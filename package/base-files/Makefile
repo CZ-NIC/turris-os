@@ -11,7 +11,7 @@ include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/version.mk
 
 PKG_NAME:=base-files
-PKG_RELEASE:=150
+PKG_RELEASE:=151
 
 PKG_FILE_DEPENDS:=$(PLATFORM_DIR)/ $(GENERIC_PLATFORM_DIR)/base-files/
 PKG_BUILD_DEPENDS:=opkg/host
@@ -117,7 +117,6 @@ define Package/base-files/install
 	mkdir -p $(1)/dev
 	mkdir -p $(1)/etc/crontabs
 	mkdir -p $(1)/etc/rc.d
-	mkdir -p $(1)/overlay
 	mkdir -p $(1)/lib/firmware
 	$(if $(LIB_SUFFIX),-ln -s lib $(1)/lib$(LIB_SUFFIX))
 	mkdir -p $(1)/mnt
@@ -146,6 +145,8 @@ define Package/base-files/install
 				echo "$$$${conffile##$(1)}" >> $(1)/CONTROL/conffiles; \
 		fi \
 	done
+
+	echo -e "#!/bin/sh\n[ -z "\$$$$IPKG_INSTROOT" ] && rm -f `ls $(1)/etc/uci-defaults | awk '{ printf "/etc/uci-defaults/%s ", $$$$0 }'` " > $(1)/CONTROL/postinst
 endef
 
 ifneq ($(DUMP),1)
