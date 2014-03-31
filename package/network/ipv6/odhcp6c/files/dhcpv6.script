@@ -67,6 +67,10 @@ setup_interface () {
 		proto_add_ipv6_route "$addr" "$mask" "$gw" "$metric" "$valid"
 	done
 
+	proto_add_data
+	[ -n "$CER" ] && json_add_string cer "$CER"
+	proto_close_data
+
 	proto_send_update "$INTERFACE"
 
 	if [ -n "$AFTR_IP " -a -n "$IFACE_DSLITE" ]; then
