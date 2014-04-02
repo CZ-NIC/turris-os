@@ -52,9 +52,19 @@ ifeq ($(findstring s,$(OPENWRT_VERBOSE)),)
     ))
     SUBMAKE=$(MAKE)
   else
-    SILENT:=>/dev/null $(if $(findstring w,$(OPENWRT_VERBOSE)),,2>&1)
+    ifeq ($(LOGFILE),1)
+        _LOGFILE:=build.log
+        BUILD_LOG_DIR:=$(TOPDIR)/logs
+        $(shell [ -d $(BUILD_LOG_DIR) ] || mkdir -p $(BUILD_LOG_DIR))
+        $(shell [ -f $(BUILD_LOG_DIR)/$(_LOGFILE) ] && rm -f $(BUILD_LOG_DIR)/$(_LOGFILE))
+        SILENT:=>>$(BUILD_LOG_DIR)/$(_LOGFILE) $(if $(findstring w,$(OPENWRT_VERBOSE)),,2>&1)
+	CRASH_MESSAGE:="Please check $(BUILD_LOG_DIR)/$(_LOGFILE)"
+    else
+        SILENT:=>/dev/null $(if $(findstring w,$(OPENWRT_VERBOSE)),,2>&1)
+	CRASH_MESSAGE:="Please re-run make with V=s to see what's going on"
+    endif
     export QUIET:=1
-    SUBMAKE=cmd() { $(SILENT) $(MAKE) -s $$* < /dev/null || { echo "make $$*: build failed. Please re-run make with V=s to see what's going on"; false; } } 8>&1 9>&2; cmd
+    SUBMAKE=cmd() { $(SILENT) $(MAKE) -s $$* < /dev/null || { echo "make $$*: build failed. "$(CRASH_MESSAGE); false; } } 8>&1 9>&2; cmd
   endif
 
   .SILENT: $(MAKECMDGOALS)
