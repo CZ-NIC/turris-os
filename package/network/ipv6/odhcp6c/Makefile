@@ -36,6 +36,14 @@ define Package/odhcp6c
   DEPENDS:=+kmod-ipv6
 endef
 
+define Package/odhcp6c/postinst
+#!/bin/sh
+set -ex
+[ -n "$$IPKG_INSTROOT" ] || {
+killall odhcp6c
+}
+endef
+
 define Package/odhcp6c/config
   config PACKAGE_odhcp6c_ext_prefix_class
     int "Prefix Class Extension ID (0 = disabled)"
