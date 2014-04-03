@@ -42,6 +42,7 @@ set -ex
 [ -n "$$IPKG_INSTROOT" ] || {
 killall odhcp6c
 }
+endef
 
 define Package/odhcp6c/config
   config PACKAGE_odhcp6c_ext_prefix_class
