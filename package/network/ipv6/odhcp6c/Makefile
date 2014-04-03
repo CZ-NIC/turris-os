@@ -28,6 +28,14 @@ define Package/odhcp6c
   DEPENDS:=+kmod-ipv6
 endef
 
+define Package/odhcp6c/postinst
+#!/bin/sh
+set -ex
+[ -n "$$IPKG_INSTROOT" ] || {
+killall odhcp6c
+}
+endef
+
 define Package/odhcp6c/install
 	$(INSTALL_DIR) $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/odhcp6c $(1)/usr/sbin/
