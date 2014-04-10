@@ -1,0 +1,29 @@
+Index: libopkg/opkg_download.c
+===================================================================
+--- libopkg/opkg_download.c	(revision 747)
++++ libopkg/opkg_download.c	(working copy)
+@@ -157,16 +157,16 @@
+ #else
+     {
+       int res;
+-      const char *argv[8];
++      const char *argv[12];
+       int i = 0;
+ 
+-      argv[i++] = "wget";
+-      argv[i++] = "-q";
+-      if (opkg_config->http_proxy || opkg_config->ftp_proxy) {
+-	argv[i++] = "-Y";
+-	argv[i++] = "on";
+-      }
+-      argv[i++] = "-O";
++      argv[i++] = "curl";
++      argv[i++] = "--compress";
++      argv[i++] = "--cacert";
++      argv[i++] = "/etc/ssl/startcom.pem";
++      argv[i++] = "--crlfile";
++      argv[i++] = "/etc/ssl/crl.pem";
++      argv[i++] = "-o";
+       argv[i++] = tmp_file_location;
+       argv[i++] = src;
+       argv[i++] = NULL;
