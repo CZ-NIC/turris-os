@@ -1,7 +1,5 @@
-Index: libopkg/opkg_download.c
-===================================================================
---- libopkg/opkg_download.c	(revision 747)
-+++ libopkg/opkg_download.c	(working copy)
+--- a/libopkg/opkg_download.c
++++ b/libopkg/opkg_download.c
 @@ -157,16 +157,16 @@
  #else
      {
