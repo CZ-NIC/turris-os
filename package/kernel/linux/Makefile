@@ -71,6 +71,8 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
 
 	echo "Erasing and flashing kernel partition."
 	flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /tmp/zImage
+
+	create_notification -s restart "Jádro systému bylo aktualizováno na verzi $(VERSION). Prosím restartujte své zařízení."
 fi
 rm $${IPKG_INSTROOT}/tmp/fdt
 rm $${IPKG_INSTROOT}/tmp/zImage
