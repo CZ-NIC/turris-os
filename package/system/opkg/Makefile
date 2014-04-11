@@ -53,6 +53,7 @@ endef
 define Package/opkg
   $(call Package/opkg/Default)
   VARIANT:=unsigned
+  DEPENDS+=curl cznic-cacert-bundle
 endef
 
 define Package/opkg/description
