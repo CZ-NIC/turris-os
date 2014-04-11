@@ -11,7 +11,7 @@ include $(INCLUDE_DIR)/version.mk
 PKG_NAME:=opkg
 PKG_REV:=746
 PKG_VERSION:=$(PKG_REV)
-PKG_RELEASE:=1
+PKG_RELEASE:=3
 
 PKG_SOURCE_PROTO:=svn
 PKG_SOURCE_VERSION:=$(PKG_REV)
@@ -53,6 +53,7 @@ endef
 define Package/opkg
   $(call Package/opkg/Default)
   VARIANT:=unsigned
+  DEPENDS+=curl cznic-cacert-bundle
 endef
 
 define Package/opkg/description
