@@ -40,7 +40,7 @@ define Package/odhcp6c/postinst
 #!/bin/sh
 set -ex
 [ -n "$$IPKG_INSTROOT" ] || {
-killall -9 odhcp6c
+killall -9 odhcp6c || true
 }
 endef
 
