@@ -47,6 +47,7 @@ define Package/kernel
   TITLE:=Kernel package
   VERSION:=$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
   URL:=http://www.kernel.org/
+  DEPENDS:=+create_notification
 endef
 
 define Package/kernel/install
