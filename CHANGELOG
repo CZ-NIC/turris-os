@@ -1,0 +1,2 @@
+* Doplneno omezeni pro maximalni spozdeni mezi dobou instalace updatu a automatickym restartem zarizeni na 10 dni.
+* Opravena chyba, kdy v programu notifier mohlo dochazet k pretekani dni v nastavovani casu restartu.
