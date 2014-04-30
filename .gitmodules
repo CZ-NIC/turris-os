@@ -9,4 +9,4 @@
 	url = https://gitlab.labs.nic.cz/turris/boot-format.git
 [submodule "feeds/lucics"]
 	path = feeds/lucics
-	url = git@gitlab.labs.nic.cz:turris/luci-cs.git
+	url = https://gitlab.labs.nic.cz/turris/luci-cs.git
