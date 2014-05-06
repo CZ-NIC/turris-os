@@ -1,5 +1,5 @@
 * Podepsana firewallova pravidla jsou stahovana ze serveru. Nyni obsahuji logovani IP adress botnetu ZEUS.
-* Doplneno omezeni pro maximalni spozdeni mezi dobou instalace updatu a automatickym restartem zarizeni na 10 dni.
+* Doplneno omezeni pro maximalni zpozdeni mezi dobou instalace updatu a automatickym restartem zarizeni na 10 dni.
 * Opravena chyba, kdy v programu notifier mohlo dochazet k pretekani dni v nastavovani casu restartu.
 * Zabráněno spuštění druhé kopie programu updater.
 * Plugin pro ucollect (ucollect-sniff), aktuálně umí pingat.
