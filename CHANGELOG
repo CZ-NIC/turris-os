@@ -1,3 +1,7 @@
+* Foris (v38): drobné změny v textech a uživatelské přívětivosti.
+* Foris (v38): pokud nebyly uloženy změny nastavení notifikací, před otestováním nastavení je zobrazena hláška.
+* Foris (v38): maximální prodleva před restartem nastavena na 10 dní.
+* Foris (v38): pole pro nastavení prodlevy před restartem se zobrazuje i bez zapnutých notifikací.
 * Podepsana firewallova pravidla jsou stahovana ze serveru. Nyni obsahuji logovani IP adress botnetu ZEUS.
 * Doplneno omezeni pro maximalni zpozdeni mezi dobou instalace updatu a automatickym restartem zarizeni na 10 dni.
 * Opravena chyba, kdy v programu notifier mohlo dochazet k pretekani dni v nastavovani casu restartu.
