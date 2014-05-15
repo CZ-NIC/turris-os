@@ -1,0 +1,17 @@
+#!/bin/sh
+
+#This will include all files matching *.fw in the directory this script is
+#located and run then if they are marked executable.
+
+#Note that every rule file in there should take care of preventing rules 
+#being duplicated if script is run twice, e.g. by using separate chain and
+#flushing, deleting, creating and populating chain each time it is run.
+
+#The directory this script is in (symlinks are not resolved)
+BASEDIR="${0%/*}"
+
+for I in "$BASEDIR"/*.fw; do
+	[ -x "$I" ] && "$I"
+done
+
+exit 0
