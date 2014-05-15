@@ -1,3 +1,5 @@
+* Opraven balicek usbip
+* Git aktualizovan na verzi 1.9.3
 * Foris (v38): drobné změny v textech a uživatelské přívětivosti.
 * Foris (v38): pokud nebyly uloženy změny nastavení notifikací, před otestováním nastavení je zobrazena hláška.
 * Foris (v38): maximální prodleva před restartem nastavena na 10 dní.
