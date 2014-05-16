@@ -1,3 +1,4 @@
+* Ucollect by se už neměl pouštět vícekrát
 * Pokus o eliminaci problému s porty při restartu unboundu.
 * Watchdog pro unbound.
 * Aktualizované překlady LuCI.
