@@ -1,3 +1,5 @@
+* Pokus o eliminaci problému s porty při restartu unboundu.
+* Watchdog pro unbound.
 * Aktualizované překlady LuCI.
 * Opraven balicek usbip
 * Git aktualizovan na verzi 1.9.3
