@@ -1,3 +1,5 @@
+* Doplnena definice konfiguracnich souboru pro luci.
+* Aktualizovano libopenssl na verzi 1.0.1h.
 * Get-api-crl si poradí se zbylým lockdirem.
 * Unbound používá forward-first.
 * Libnetconf aktualizován z upstreamu.
