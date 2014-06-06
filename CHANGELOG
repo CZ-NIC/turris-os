@@ -1,3 +1,5 @@
+* Foris (v39) kompatibilita s novou verzí frameworku Bottle.
+* Aktualizace python-bottle (v0.12.7) a python-bottle-i18n (v0.1.5).
 * Doplnena definice konfiguracnich souboru pro luci.
 * Aktualizovano libopenssl na verzi 1.0.1h.
 * Get-api-crl si poradí se zbylým lockdirem.
