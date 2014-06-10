@@ -1,3 +1,4 @@
+* Nepřepisujeme port dnsmasq pokud to není 53
 * Foris (v39) kompatibilita s novou verzí frameworku Bottle.
 * Aktualizace python-bottle (v0.12.7) a python-bottle-i18n (v0.1.5).
 * Doplnena definice konfiguracnich souboru pro luci.
