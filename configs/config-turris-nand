@@ -25,6 +25,7 @@ CONFIG_PACKAGE_ucollect-buckets=m
 CONFIG_PACKAGE_ucollect-core=m
 CONFIG_PACKAGE_ucollect-count=m
 CONFIG_PACKAGE_ucollect-sniff=m
+CONFIG_PACKAGE_ucollect-bandwidth=m
 CONFIG_PACKAGE_daemon-watchdog=m
 CONFIG_PACKAGE_updater-testkey=m
 CONFIG_PACKAGE_updater-consolidator=m
