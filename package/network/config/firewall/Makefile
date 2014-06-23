@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=firewall
-PKG_VERSION:=2014-01-21
+PKG_VERSION:=2014-06-20
 PKG_RELEASE:=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE_PROTO:=git
@@ -59,6 +59,10 @@ define Package/firewall/install
 	$(INSTALL_DATA) ./files/firewall.config $(1)/etc/config/firewall
 	$(INSTALL_DIR) $(1)/etc/
 	$(INSTALL_DATA) ./files/firewall.user $(1)/etc/firewall.user
+	$(INSTALL_DIR) $(1)/etc/firewall.d/with_reload
+	$(INSTALL_BIN) ./files/firewall.includedir $(1)/etc/firewall.d/with_reload/firewall.include.sh
+	$(INSTALL_DIR) $(1)/etc/firewall.d/without_reload
+	$(INSTALL_BIN) ./files/firewall.includedir $(1)/etc/firewall.d/without_reload/firewall.include.sh
 endef
 
 define Package/firewall/postinst

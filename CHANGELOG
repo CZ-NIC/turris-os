@@ -1,3 +1,21 @@
+* Ucollect: nový plugin pro pasivní meření rychlosti připojení k internetu
+* Ucollect: nový plugin umožňující kontrolu SSL certifikátů stanovených serverů
+* Ucollect: nový plugin pro testování odezvy (ping) na stanovené servery
+* Nepřepisujeme port dnsmasq pokud to není 53
+* Foris (v39) kompatibilita s novou verzí frameworku Bottle.
+* Aktualizace python-bottle (v0.12.7) a python-bottle-i18n (v0.1.5).
+* Doplnena definice konfiguracnich souboru pro luci.
+* Aktualizovano libopenssl na verzi 1.0.1h.
+* Get-api-crl si poradí se zbylým lockdirem.
+* Unbound používá forward-first.
+* Libnetconf aktualizován z upstreamu.
+* Ucollect podporuje anomálie z odchozích packetů
+* Ucollect by se už neměl pouštět vícekrát
+* Pokus o eliminaci problému s porty při restartu unboundu.
+* Watchdog pro unbound.
+* Aktualizované překlady LuCI.
+* Opraven balicek usbip
+* Git aktualizovan na verzi 1.9.3
 * Foris (v38): drobné změny v textech a uživatelské přívětivosti.
 * Foris (v38): pokud nebyly uloženy změny nastavení notifikací, před otestováním nastavení je zobrazena hláška.
 * Foris (v38): maximální prodleva před restartem nastavena na 10 dní.
