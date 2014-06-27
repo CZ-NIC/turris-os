@@ -13,6 +13,9 @@ ramips_board_detect() {
 	machine=$(awk 'BEGIN{FS="[ \t]+:[ \t]"} /machine/ {print $2}' /proc/cpuinfo)
 
 	case "$machine" in
+	*"7Links PX-4885")
+		name="px4885"
+		;;
 	*"8devices Carambola")
 		name="carambola"
 		;;
@@ -21,6 +24,9 @@ ramips_board_detect() {
 		;;
 	*"Edimax 3g-6200nl")
 		name="3g-6200nl"
+		;;
+	*"Airlink101 AR725W")
+		name="ar725w"
 		;;
 	*"AirLive Air3GII")
 		name="air3gii"
@@ -49,6 +55,9 @@ ramips_board_detect() {
 	*"AsiaRF AWM002 EVB")
 		name="awm002-evb"
 		;;
+	*"AsiaRF AWAPN2403")
+		name="awapn2403"
+		;;
 	*"BR6524N")
 		name="br6524n"
 		;;
@@ -63,6 +72,9 @@ ramips_board_detect() {
 		;;
 	*"Aztech HW550-3G")
 		name="hw550-3g"
+		;;
+	*"CY-SWR1100")
+		name="cy-swr1100"
 		;;
 	*"DCS-930")
 		name="dcs-930"
@@ -109,6 +121,9 @@ ramips_board_detect() {
 	*"ESR-9753")
 		name="esr-9753"
 		;;
+	*"Edimax BR-6475nD")
+		name="br-6475nd"
+		;;
 	*"F7C027")
 		name="f7c027"
 		;;
@@ -127,11 +142,17 @@ ramips_board_detect() {
 	*"La Fonera 2.0N")
 		name="fonera20n"
 		;;
+	*"Asus RT-N14U")
+		name="rt-n14u"
+		;;
 	*"Asus RT-N13U")
 		name="rt-n13u"
 		;;
 	*"MoFi Network MOFI3500-3GN")
 		name="mofi3500-3gn"
+		;;
+	*"HILINK HLK-RM04")
+		name="hlk-rm04"
 		;;
 	*"HAME MPR-A1")
  		name="mpr-a1"
@@ -195,6 +216,9 @@ ramips_board_detect() {
 		;;
 	*"RT-N56U")
 		name="rt-n56u"
+		;;
+	*"RUT5XX")
+		name="rut5xx"
 		;;
 	*"Skyline SL-R7205"*)
 		name="sl-r7205"
@@ -270,6 +294,12 @@ ramips_board_detect() {
 		;;
 	*"V22SG")
 		name="v22sg"
+		;;
+	*"WRTNODE")
+		name="wrtnode"
+		;;
+	*"Sercomm NA930")
+		name="na930"
 		;;
 	*)
 		name="generic"

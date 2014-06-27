@@ -24,10 +24,24 @@ ifneq (,$(KERNEL_CC))
   KERNEL_MAKEOPTS += CC="$(KERNEL_CC)"
 endif
 
+ifdef CONFIG_USE_SPARSE
+  KERNEL_MAKEOPTS += C=1 CHECK=$(STAGING_DIR_HOST)/bin/sparse
+endif
+
 export HOST_EXTRACFLAGS=-I$(STAGING_DIR_HOST)/include
 
 # defined in quilt.mk
 Kernel/Patch:=$(Kernel/Patch/Default)
+
+KERNEL_GIT_OPTS:=
+ifneq ($(strip $(CONFIG_KERNEL_GIT_LOCAL_REPOSITORY)),"")
+  KERNEL_GIT_OPTS+=--reference $(CONFIG_KERNEL_GIT_LOCAL_REPOSITORY)
+endif
+
+ifneq ($(strip $(CONFIG_KERNEL_GIT_BRANCH)),"")
+  KERNEL_GIT_OPTS+=--branch $(CONFIG_KERNEL_GIT_BRANCH)
+endif
+
 ifeq ($(strip $(CONFIG_EXTERNAL_KERNEL_TREE)),"")
   ifeq ($(strip $(CONFIG_KERNEL_GIT_CLONE_URI)),"")
     define Kernel/Prepare/Default
@@ -36,15 +50,9 @@ ifeq ($(strip $(CONFIG_EXTERNAL_KERNEL_TREE)),"")
 	touch $(LINUX_DIR)/.quilt_used
     endef
   else
-    ifeq ($(strip $(CONFIG_KERNEL_GIT_LOCAL_REPOSITORY)),"")
-      define Kernel/Prepare/Default
-	git clone $(CONFIG_KERNEL_GIT_CLONE_URI) $(LINUX_DIR)
-      endef
-    else
-      define Kernel/Prepare/Default
-	git clone --reference $(CONFIG_KERNEL_GIT_LOCAL_REPOSITORY) $(CONFIG_KERNEL_GIT_CLONE_URI) $(LINUX_DIR)
-      endef
-    endif
+    define Kernel/Prepare/Default
+	git clone $(KERNEL_GIT_OPTS) $(CONFIG_KERNEL_GIT_CLONE_URI) $(LINUX_DIR)
+    endef
   endif
 else
   define Kernel/Prepare/Default
@@ -104,7 +112,7 @@ define Kernel/Configure/Default
 	$(SCRIPT_DIR)/kconfig.pl 'm+' '+' $(LINUX_DIR)/.config.target /dev/null $(LINUX_DIR)/.config.override > $(LINUX_DIR)/.config
 	$(call Kernel/SetNoInitramfs)
 	rm -rf $(KERNEL_BUILD_DIR)/modules
-	[ -d $(LINUX_DIR)/user_headers ] || $(MAKE) $(KERNEL_MAKEOPTS) INSTALL_HDR_PATH=$(LINUX_DIR)/user_headers headers_install
+	$(_SINGLE) [ -d $(LINUX_DIR)/user_headers ] || $(MAKE) $(KERNEL_MAKEOPTS) INSTALL_HDR_PATH=$(LINUX_DIR)/user_headers headers_install
 	$(SH_FUNC) grep '=[ym]' $(LINUX_DIR)/.config | LC_ALL=C sort | md5s > $(LINUX_DIR)/.vermagic
 	sed 's/CONFIG_LOCALVERSION=.*//g' $(LINUX_DIR)/.config
 	echo CONFIG_LOCALVERSION=\""-`cat $(LINUX_DIR)/.vermagic`"\"  >> $(LINUX_DIR)/.config;
@@ -124,6 +132,11 @@ OBJCOPY_STRIP = -R .reginfo -R .notes -R .note -R .comment -R .mdebug -R .note.g
 # AVR32 uses a non-standard location
 ifeq ($(LINUX_KARCH),avr32)
 IMAGES_DIR:=images
+endif
+
+# AMD64 shares the location with x86
+ifeq ($(LINUX_KARCH),x86_64)
+IMAGES_DIR:=../../x86/boot
 endif
 
 define Kernel/CopyImage

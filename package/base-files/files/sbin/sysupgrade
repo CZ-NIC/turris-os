@@ -1,5 +1,6 @@
 #!/bin/sh
 . /lib/functions.sh
+. /lib/functions/system.sh
 
 # initialize defaults
 RAMFS_COPY_BIN=""	# extra programs for temporary ramfs root
@@ -20,7 +21,7 @@ export FORCE=0
 export TEST=0
 
 # parse options
-while [ -n "$1" ]; do 
+while [ -n "$1" ]; do
 	case "$1" in
 		-i) export INTERACTIVE=1;;
 		-d) export DELAY="$2"; shift;;
@@ -125,6 +126,8 @@ sysupgrade_image_check="platform_check_image"
 
 include /lib/upgrade
 
+[ "$1" = "nand" ] && nand_upgrade_stage2 $@
+
 do_save_conffiles() {
 	local conf_tar="${1:-$CONF_TAR}"
 
@@ -210,9 +213,11 @@ run_hooks "" $sysupgrade_pre_upgrade
 ubus call system upgrade
 touch /tmp/sysupgrade
 
-kill_remaining TERM
-sleep 3
-kill_remaining KILL
+if [ ! -f /tmp/failsafe ] ; then
+	kill_remaining TERM
+	sleep 3
+	kill_remaining KILL
+fi
 
 if [ -n "$(rootfs_type)" ]; then
 	v "Switching to ramdisk..."

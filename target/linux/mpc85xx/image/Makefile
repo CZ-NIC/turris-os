@@ -20,11 +20,7 @@ define factoryname
 $(call imgname,$(1),$(2))-factory.bin
 endef
 
-ifeq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),y)
-	IMAGE_SUFFIX=-initramfs
-endif
-
-zImage:=$(BIN_DIR)/$(IMG_PREFIX)-zImage$(IMAGE_SUFFIX)
+zImage:=$(BIN_DIR)/$(IMG_PREFIX)-zImage
 
 DTS_TARGETS = mpc8548cds_32b p1010rdb tl-wdr4900-v1 p1020rdb p2020rdb turris-nor turris-nand
 BOOT_IMAGES:=zImage cuImage.tl-wdr4900-v1

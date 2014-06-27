@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2012 OpenWrt.org
+# Copyright (C) 2014 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -15,4 +15,13 @@ define Profile/AWM002EVB/Description
 	Package set for AsiaRF AWM002 Evaluation Board
 endef
 
+define Profile/AWAPN2403
+	NAME:=AsiaRF AWAPN2403
+endef
+
+define Profile/AWAPN2403/Description
+	Package set for AsiaRF AWAPN2403 Pocket Router
+endef
+
 $(eval $(call Profile,AWM002EVB))
+$(eval $(call Profile,AWAPN2403))

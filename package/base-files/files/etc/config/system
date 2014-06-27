@@ -6,12 +6,13 @@ config system
 	option conloglevel '7'
 
 config timeserver ntp
-	list server	'ntp.nic.cz'
+	# When resolution doesn't work because of wrong time (ntp.nic.cz)
+        list server     '217.31.205.226'
+        list server	'ntp.nic.cz'
         list server     '0.openwrt.pool.ntp.org'
         list server     '1.openwrt.pool.ntp.org'
         list server     '2.openwrt.pool.ntp.org'
         list server     '3.openwrt.pool.ntp.org'
-        # When resolution doesn't work because of wrong time (ntp.nic.cz)
 	list server	'2001:1488:cde0::1'
-        list server     '217.31.205.226'
+        option enabled 1
         option enable_server '0'

@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/drivers/watchdog/ar2315-wtd.c
-@@ -0,0 +1,199 @@
+@@ -0,0 +1,198 @@
 +/*
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
@@ -32,20 +32,19 @@
 +#include <linux/reboot.h>
 +#include <linux/init.h>
 +#include <linux/platform_device.h>
++#include <linux/io.h>
++#include <linux/uaccess.h>
 +
-+#include <asm/io.h>
-+#include <asm/uaccess.h>
-+#include <asm/addrspace.h>
 +#include <ar231x_platform.h>
 +#include <ar2315_regs.h>
 +#include <ar231x.h>
 +
 +#define CLOCK_RATE 40000000
-+#define HEARTBEAT(x) (x < 1 || x > 90)?(20):(x)
++#define HEARTBEAT(x) (x < 1 || x > 90 ? 20 : x)
 +
 +static int wdt_timeout = 20;
-+static int started = 0;
-+static int in_use = 0;
++static int started;
++static int in_use;
 +
 +static void
 +ar2315_wdt_enable(void)
@@ -55,9 +54,10 @@
 +}
 +
 +static ssize_t
-+ar2315_wdt_write(struct file *file, const char __user *data, size_t len, loff_t *ppos)
++ar2315_wdt_write(struct file *file, const char __user *data, size_t len,
++		 loff_t *ppos)
 +{
-+	if(len)
++	if (len)
 +		ar2315_wdt_enable();
 +	return len;
 +}
@@ -65,7 +65,7 @@
 +static int
 +ar2315_wdt_open(struct inode *inode, struct file *file)
 +{
-+	if(in_use)
++	if (in_use)
 +		return -EBUSY;
 +	ar2315_wdt_enable();
 +	in_use = started = 1;
@@ -80,11 +80,12 @@
 +}
 +
 +static irqreturn_t
-+ar2315_wdt_interrupt(int irq, void *dev_id)
++ar2315_wdt_interrupt(int irq, void *dev)
 +{
-+	if(started)
-+	{
-+		printk(KERN_CRIT "watchdog expired, rebooting system\n");
++	struct platform_device *pdev = (struct platform_device *)dev;
++
++	if (started) {
++		dev_crit(&pdev->dev, "watchdog expired, rebooting system\n");
 +		emergency_restart();
 +	} else {
 +		ar231x_write_reg(AR2315_WDC, 0);
@@ -105,32 +106,30 @@
 +	int new_wdt_timeout;
 +	int ret = -ENOIOCTLCMD;
 +
-+	switch(cmd)
-+	{
-+		case WDIOC_GETSUPPORT:
-+			ret = copy_to_user((struct watchdog_info __user *)arg, &ident, sizeof(ident)) ? -EFAULT : 0;
++	switch (cmd) {
++	case WDIOC_GETSUPPORT:
++		ret = copy_to_user((void __user *)arg, &ident, sizeof(ident)) ?
++		      -EFAULT : 0;
++		break;
++	case WDIOC_KEEPALIVE:
++		ar2315_wdt_enable();
++		ret = 0;
++		break;
++	case WDIOC_SETTIMEOUT:
++		ret = get_user(new_wdt_timeout, (int __user *)arg);
++		if (ret)
 +			break;
-+
-+		case WDIOC_KEEPALIVE:
-+			ar2315_wdt_enable();
-+			ret = 0;
-+			break;
-+
-+		case WDIOC_SETTIMEOUT:
-+			if((ret = get_user(new_wdt_timeout, (int __user *)arg)))
-+				break;
-+			wdt_timeout = HEARTBEAT(new_wdt_timeout);
-+			ar2315_wdt_enable();
-+			break;
-+
-+		case WDIOC_GETTIMEOUT:
-+			ret = put_user(wdt_timeout, (int __user *)arg);
-+			break;
++		wdt_timeout = HEARTBEAT(new_wdt_timeout);
++		ar2315_wdt_enable();
++		break;
++	case WDIOC_GETTIMEOUT:
++		ret = put_user(wdt_timeout, (int __user *)arg);
++		break;
 +	}
 +	return ret;
 +}
 +
-+static struct file_operations ar2315_wdt_fops = {
++static const struct file_operations ar2315_wdt_fops = {
 +	.owner		= THIS_MODULE,
 +	.llseek		= no_llseek,
 +	.write		= ar2315_wdt_write,
@@ -151,16 +150,16 @@
 +	int ret = 0;
 +
 +	ar2315_wdt_enable();
-+	ret = request_irq(AR531X_MISC_IRQ_WATCHDOG, ar2315_wdt_interrupt, IRQF_DISABLED, "ar2315_wdt", NULL);
-+	if(ret)
-+	{
-+		printk(KERN_ERR "ar2315wdt: failed to register inetrrupt\n");
++	ret = request_irq(AR531X_MISC_IRQ_WATCHDOG, ar2315_wdt_interrupt,
++			  IRQF_DISABLED, "ar2315_wdt", dev);
++	if (ret) {
++		dev_err(&dev->dev, "failed to register inetrrupt\n");
 +		goto out;
 +	}
 +
 +	ret = misc_register(&ar2315_wdt_miscdev);
-+	if(ret)
-+		printk(KERN_ERR "ar2315wdt: failed to register miscdev\n");
++	if (ret)
++		dev_err(&dev->dev, "failed to register miscdev\n");
 +
 +out:
 +	return ret;
@@ -187,8 +186,8 @@
 +init_ar2315_wdt(void)
 +{
 +	int ret = platform_driver_register(&ar2315_wdt_driver);
-+	if(ret)
-+		printk(KERN_INFO "ar2315_wdt: error registering platfom driver!");
++	if (ret)
++		pr_err("ar2315_wdt: error registering platfom driver!\n");
 +	return ret;
 +}
 +

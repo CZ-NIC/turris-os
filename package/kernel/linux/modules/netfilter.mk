@@ -318,7 +318,7 @@ define KernelPackage/ipt-tproxy
   	CONFIG_NETFILTER_XT_MATCH_SOCKET \
   	CONFIG_NETFILTER_XT_TARGET_TPROXY
   FILES:= \
-  	$(LINUX_DIR)/net/netfilter/nf_tproxy_core.ko \
+	$(if $(call kernel_patchver_lt,3.12),$(LINUX_DIR)/net/netfilter/nf_tproxy_core.ko) \
   	$(foreach mod,$(IPT_TPROXY-m),$(LINUX_DIR)/net/$(mod).ko)
   AUTOLOAD:=$(call AutoProbe,$(notdir nf_tproxy_core $(IPT_TPROXY-m)))
   $(call AddDepends/ipt)
@@ -419,6 +419,21 @@ define KernelPackage/ip6tables/description
 endef
 
 $(eval $(call KernelPackage,ip6tables))
+
+define KernelPackage/ip6tables-extra
+  SUBMENU:=$(NF_MENU)
+  TITLE:=Extra IPv6 modules
+  DEPENDS:=+kmod-ip6tables
+  KCONFIG:=$(KCONFIG_IPT_IPV6_EXTRA)
+  FILES:=$(foreach mod,$(IPT_IPV6_EXTRA-m),$(LINUX_DIR)/net/$(mod).ko)
+  AUTOLOAD:=$(call AutoLoad,43,$(notdir $(IPT_IPV6_EXTRA-m)))
+endef
+
+define KernelPackage/ip6tables-extra/description
+ Netfilter IPv6 extra header matching modules
+endef
+
+$(eval $(call KernelPackage,ip6tables-extra))
 
 ARP_MODULES = arp_tables arpt_mangle arptable_filter
 define KernelPackage/arptables

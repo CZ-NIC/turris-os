@@ -229,7 +229,7 @@
  #include <asm/uaccess.h>
  
  #include <linux/proc_fs.h>
-@@ -763,10 +764,10 @@ static void tcp_v6_send_response(struct
+@@ -763,10 +764,10 @@ static void tcp_v6_send_response(struct 
  	topt = (__be32 *)(t1 + 1);
  
  	if (tsecr) {
@@ -265,7 +265,7 @@
  					       &sin->sin6_addr);
  			sin->sin6_scope_id = 0;
  		}
-@@ -687,12 +687,12 @@ int ip6_datagram_send_ctl(struct net *ne
+@@ -691,12 +691,12 @@ int ip6_datagram_send_ctl(struct net *ne
  			}
  
  			if (fl6->flowlabel&IPV6_FLOWINFO_MASK) {
@@ -328,7 +328,7 @@
  
 --- a/net/ipv6/ip6_tunnel.c
 +++ b/net/ipv6/ip6_tunnel.c
-@@ -1122,9 +1122,9 @@ ip6ip6_tnl_xmit(struct sk_buff *skb, str
+@@ -1272,9 +1272,9 @@ ip6ip6_tnl_xmit(struct sk_buff *skb, str
  
  	dsfield = ipv6_get_dsfield(ipv6h);
  	if (t->parms.flags & IP6_TNL_F_USE_ORIG_TCLASS)
@@ -557,7 +557,7 @@
  #define IGMP_HOST_MEMBERSHIP_REPORT	0x12	/* Ditto */
 --- a/net/core/flow_dissector.c
 +++ b/net/core/flow_dissector.c
-@@ -152,7 +152,7 @@ ipv6:
+@@ -157,7 +157,7 @@ ipv6:
  		ports = skb_header_pointer(skb, nhoff + poff,
  					   sizeof(_ports), &_ports);
  		if (ports)
@@ -662,7 +662,7 @@
  #include <linux/netdevice.h>
 --- a/include/net/inet_ecn.h
 +++ b/include/net/inet_ecn.h
-@@ -115,13 +115,13 @@ static inline int IP6_ECN_set_ce(struct
+@@ -115,13 +115,13 @@ static inline int IP6_ECN_set_ce(struct 
  {
  	if (INET_ECN_is_not_ect(ipv6_get_dsfield(iph)))
  		return 0;
@@ -855,7 +855,7 @@
  	ptr = ip6hoff + sizeof(struct ipv6hdr);
 --- a/net/xfrm/xfrm_input.c
 +++ b/net/xfrm/xfrm_input.c
-@@ -77,8 +77,8 @@ int xfrm_parse_spi(struct sk_buff *skb,
+@@ -77,8 +77,8 @@ int xfrm_parse_spi(struct sk_buff *skb, 
  	if (!pskb_may_pull(skb, hlen))
  		return -EINVAL;
  
@@ -900,8 +900,9 @@
 -		tp->rx_opt.rcv_tsval = ntohl(*ptr);
 +		tp->rx_opt.rcv_tsval = get_unaligned_be32(ptr);
  		++ptr;
- 		if (*ptr)
+-		if (*ptr)
 -			tp->rx_opt.rcv_tsecr = ntohl(*ptr) - tp->tsoffset;
++		if (net_hdr_word(ptr))
 +			tp->rx_opt.rcv_tsecr = get_unaligned_be32(ptr) -
 +					       tp->tsoffset;
  		else

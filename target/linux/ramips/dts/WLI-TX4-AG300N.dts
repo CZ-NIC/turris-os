@@ -39,8 +39,8 @@
 			reg = <0x30000 0x10000>;
 			read-only;
 		};
-		partition@40000 {
-			label = "calibration";
+		factory: partition@40000 {
+			label = "factory";
 			reg = <0x40000 0x10000>;
 			read-only;
 		};
@@ -52,6 +52,7 @@
 
 	ethernet@400000 {
 		status = "okay";
+		mtd-mac-address = <&factory 0x4>;
 
                 port@0 {
 			ralink,fixed-link = <1000 1 1 1>;

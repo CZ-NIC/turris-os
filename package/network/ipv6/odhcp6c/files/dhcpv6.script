@@ -64,11 +64,20 @@ setup_interface () {
 		entry="${entry#*,}"
 		local metric="${entry%%,*}"
 
-		proto_add_ipv6_route "$addr" "$mask" "$gw" "$metric" "$valid"
+		if [ -z "$SOURCE_ROUTING" -o -z "$gw" ]; then
+			proto_add_ipv6_route "$addr" "$mask" "$gw" "$metric" "$valid"
+		else
+			proto_add_ipv6_route "$addr" "$mask" "$gw" "$metric" "$valid" "::/128"
+			for prefix in $PREFIXES $ADDRESSES; do
+				local paddr="${prefix%%,*}"
+				proto_add_ipv6_route "$addr" "$mask" "$gw" "$metric" "$valid" "$paddr"
+			done
+		fi
 	done
 
 	proto_add_data
 	[ -n "$CER" ] && json_add_string cer "$CER"
+	[ -n "$PASSTHRU" ] && json_add_string passthru "$PASSTHRU"
 	proto_close_data
 
 	proto_send_update "$INTERFACE"
@@ -82,6 +91,34 @@ setup_interface () {
 		json_add_string tunlink "$INTERFACE"
 		[ -n "$ZONE_DSLITE" ] && json_add_string zone "$ZONE_DSLITE"
 		[ -n "$IFACE_DSLITE_DELEGATE" ] && json_add_boolean delegate "$IFACE_DSLITE_DELEGATE"
+		json_close_object
+		ubus call network add_dynamic "$(json_dump)"
+	fi
+
+	MAPTYPE=""
+	MAPRULE=""
+
+	if [ -n "$MAPE" ]; then
+		MAPTYPE="map-e"
+		MAPRULE="$MAPE"
+	elif [ -n "$MAPT" ]; then
+		MAPTYPE="map-t"
+		MAPRULE="$MAPT"
+	elif [ -n "$LW4O6" ]; then
+		MAPTYPE="lw4o6"
+		MAPRULE="$LW4O6"
+	fi
+
+	if [ -n "$IFACE_MAP" -a -n "$MAPTYPE" -a -n "$MAPRULE" ]; then
+		json_init
+		json_add_string name "$IFACE_MAP"
+		json_add_string ifname "@$INTERFACE"
+		json_add_string proto map
+		json_add_string type "$MAPTYPE"
+		json_add_string rule "$MAPRULE"
+		json_add_string tunlink "$INTERFACE"
+		[ -n "$ZONE_MAP" ] && json_add_string zone "$ZONE_MAP"
+		[ -n "$IFACE_MAP_DELEGATE" ] && json_add_boolean delegate "$IFACE_MAP_DELEGATE"
 		json_close_object
 		ubus call network add_dynamic "$(json_dump)"
 	fi

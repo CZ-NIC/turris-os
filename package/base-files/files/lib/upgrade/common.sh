@@ -34,45 +34,61 @@ install_bin() { # <file> [ <symlink> ... ]
 }
 
 supivot() { # <new_root> <old_root>
-	mount | grep "on $1 type" 2>&- 1>&- || mount -o bind $1 $1
+	/bin/mount | grep "on $1 type" 2>&- 1>&- || /bin/mount -o bind $1 $1
 	mkdir -p $1$2 $1/proc $1/sys $1/dev $1/tmp $1/overlay && \
-	mount -o noatime,move /proc $1/proc && \
+	/bin/mount -o noatime,move /proc $1/proc && \
 	pivot_root $1 $1$2 || {
-        umount -l $1 $1
+		/bin/umount -l $1 $1
 		return 1
 	}
 
-	mount -o noatime,move $2/sys /sys
-	mount -o noatime,move $2/dev /dev
-	mount -o noatime,move $2/tmp /tmp
-	mount -o noatime,move $2/overlay /overlay 2>&-
+	/bin/mount -o noatime,move $2/sys /sys
+	/bin/mount -o noatime,move $2/dev /dev
+	/bin/mount -o noatime,move $2/tmp /tmp
+	/bin/mount -o noatime,move $2/overlay /overlay 2>&-
 	return 0
 }
 
 run_ramfs() { # <command> [...]
-	install_bin /bin/busybox /bin/ash /bin/sh /bin/mount /bin/umount        \
-		/sbin/pivot_root /usr/bin/wget /sbin/reboot /bin/sync /bin/dd   \
-		/bin/grep /bin/cp /bin/mv /bin/tar /usr/bin/md5sum "/usr/bin/[" \
-		/bin/vi /bin/ls /bin/cat /usr/bin/awk /usr/bin/hexdump          \
-		/bin/sleep /bin/zcat /usr/bin/bzcat /usr/bin/printf /usr/bin/wc
+	install_bin /bin/busybox /bin/ash /bin/sh /bin/mount /bin/umount	\
+		/sbin/pivot_root /usr/bin/wget /sbin/reboot /bin/sync /bin/dd	\
+		/bin/grep /bin/cp /bin/mv /bin/tar /usr/bin/md5sum "/usr/bin/["	\
+		/bin/dd /bin/vi /bin/ls /bin/cat /usr/bin/awk /usr/bin/hexdump	\
+		/bin/sleep /bin/zcat /usr/bin/bzcat /usr/bin/printf /usr/bin/wc \
+		/bin/cut /usr/bin/printf /bin/sync /bin/mkdir /bin/rmdir	\
+		/bin/rm /usr/bin/basename /bin/kill /bin/chmod
 
 	install_bin /sbin/mtd
+	install_bin /sbin/ubi
+	install_bin /sbin/mount_root
+	install_bin /sbin/snapshot
+	install_bin /sbin/snapshot_tool
+	install_bin /usr/sbin/ubiupdatevol
+	install_bin /usr/sbin/ubiattach
+	install_bin /usr/sbin/ubiblock
+	install_bin /usr/sbin/ubiformat
+	install_bin /usr/sbin/ubidetach
+	install_bin /usr/sbin/ubirsvol
+	install_bin /usr/sbin/ubirmvol
+	install_bin /usr/sbin/ubimkvol
 	for file in $RAMFS_COPY_BIN; do
-		install_bin $file
+		install_bin ${file//:/ }
 	done
-	install_file /etc/resolv.conf /lib/functions.sh /lib/functions.sh /lib/upgrade/*.sh $RAMFS_COPY_DATA
+	install_file /etc/resolv.conf /lib/functions.sh /lib/functions/*.sh /lib/upgrade/*.sh $RAMFS_COPY_DATA
+
+	[ -L "/lib64" ] && ln -s /lib $RAM_ROOT/lib64
 
 	supivot $RAM_ROOT /mnt || {
 		echo "Failed to switch over to ramfs. Please reboot."
 		exit 1
 	}
 
-	mount -o remount,ro /mnt
-	umount -l /mnt
+	/bin/mount -o remount,ro /mnt
+	/bin/umount -l /mnt
 
 	grep /overlay /proc/mounts > /dev/null && {
-		mount -o noatime,remount,ro /overlay
-		umount -l /overlay
+		/bin/mount -o noatime,remount,ro /overlay
+		/bin/umount -l /overlay
 	}
 
 	# spawn a new shell from ramdisk to reduce the probability of cache issues
@@ -94,12 +110,12 @@ kill_remaining() { # [ <signal> ]
 		local cmdline
 		read cmdline < /proc/$pid/cmdline
 
-		# Skip kernel threads 
+		# Skip kernel threads
 		[ -n "$cmdline" ] || continue
 
 		case "$name" in
 			# Skip essential services
-			*procd*|*ash*|*init*|*watchdog*|*ssh*|*dropbear*|*telnet*|*login*|*hostapd*|*wpa_supplicant*|*nas*) : ;;
+			*procd*|*upgraded*|*ash*|*init*|*watchdog*|*ssh*|*dropbear*|*telnet*|*login*|*hostapd*|*wpa_supplicant*|*nas*) : ;;
 
 			# Killable process
 			*)
@@ -144,7 +160,7 @@ v() {
 }
 
 rootfs_type() {
-	mount | awk '($3 ~ /^\/$/) && ($5 !~ /rootfs/) { print $5 }'
+	/bin/mount | awk '($3 ~ /^\/$/) && ($5 !~ /rootfs/) { print $5 }'
 }
 
 get_image() { # <source> [ <command> ]
@@ -168,11 +184,11 @@ get_image() { # <source> [ <command> ]
 }
 
 get_magic_word() {
-	get_image "$@" | dd bs=2 count=1 2>/dev/null | hexdump -v -n 2 -e '1/1 "%02x"'
+	(get_image "$@" | dd bs=2 count=1 | hexdump -v -n 2 -e '1/1 "%02x"') 2>/dev/null
 }
 
 get_magic_long() {
-	get_image "$@" | dd bs=4 count=1 2>/dev/null | hexdump -v -n 4 -e '1/1 "%02x"'
+	(get_image "$@" | dd bs=4 count=1 | hexdump -v -n 4 -e '1/1 "%02x"') 2>/dev/null
 }
 
 jffs2_copy_config() {

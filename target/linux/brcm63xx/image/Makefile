@@ -190,6 +190,8 @@ define Image/Build
 	$(call Image/Build/CFE,$(1),96368MVNgr,6368,96368MVNgr-generic)
 	$(call Image/Build/CFE,$(1),96368MVWG,6368,96368MVWG-generic)
 
+	# Asmax AR 1004g
+	$(call Image/Build/CFEFIXUP,$(1),96348GW-10,AR1004G,6348,AR1004G)
 	# BT Voyager V210_BTR
 	$(call Image/Build/CFE,$(1),V210_BB,6348,BTV210_BTR,,--layoutver 5)
 	# BT Voyager V210_ROI, V210_WB
@@ -217,6 +219,9 @@ define Image/Build
 
 	# Neufbox6
 	$(call Image/Build/CFE,$(1),NB6-SER-r0,6362,NEUFBOX6,OpenWRT-$(REVISION))
+
+	# Sagem F@ST2504n
+	$(call Image/Build/CFE,$(1),F@ST2504n,6362,F@ST2504n,OpenWRT-$(REVISION))
 
 	# Comtrend 6373
 	$(call Image/Build/CFE,$(1),CT6373-1,6358,CT6373)
@@ -255,6 +260,9 @@ define Image/Build
 	# Sagem F@ST2604
 	$(call Image/Build/CFE,$(1),F@ST2604,6348,F@ST2604-cfe)
 	$(call Image/Build/CFE,$(1),F@ST2604,6348,F@ST2604,OpenWRT-$(REVISION))
+	# Sagem F@ST2704V2
+	$(call Image/Build/CFE,$(1),F@ST2704V2,6328,F@ST2704V2-cfe)
+	$(call Image/Build/CFE,$(1),F@ST2704V2,6328,F@ST2704V2,OpenWRT-$(REVISION))
 	# Inventel Livebox
 	$(call Image/Build/RedBoot,livebox)
 	# Pirelli Alice Gate VoIP 2 Plus Wi-Fi AGPF-S0

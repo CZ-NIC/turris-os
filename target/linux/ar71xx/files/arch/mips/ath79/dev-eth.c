@@ -20,6 +20,7 @@
 #include <linux/platform_device.h>
 #include <linux/serial_8250.h>
 #include <linux/clk.h>
+#include <linux/sizes.h>
 
 #include <asm/mach-ath79/ath79.h>
 #include <asm/mach-ath79/ar71xx_regs.h>
@@ -39,7 +40,7 @@ static struct resource ath79_mdio0_resources[] = {
 	}
 };
 
-static struct ag71xx_mdio_platform_data ath79_mdio0_data;
+struct ag71xx_mdio_platform_data ath79_mdio0_data;
 
 struct platform_device ath79_mdio0_device = {
 	.name		= "ag71xx-mdio",
@@ -60,7 +61,7 @@ static struct resource ath79_mdio1_resources[] = {
 	}
 };
 
-static struct ag71xx_mdio_platform_data ath79_mdio1_data;
+struct ag71xx_mdio_platform_data ath79_mdio1_data;
 
 struct platform_device ath79_mdio1_device = {
 	.name		= "ag71xx-mdio",
@@ -196,6 +197,7 @@ void __init ath79_register_mdio(unsigned int id, u32 phy_mask)
 	case ATH79_SOC_AR7241:
 	case ATH79_SOC_AR9330:
 	case ATH79_SOC_AR9331:
+	case ATH79_SOC_QCA9533:
 		mdio_dev = &ath79_mdio1_device;
 		mdio_data = &ath79_mdio1_data;
 		break;
@@ -253,13 +255,12 @@ void __init ath79_register_mdio(unsigned int id, u32 phy_mask)
 		mdio_data->is_ar934x = 1;
 		break;
 
-	case ATH79_SOC_QCA9558:
-		if (id == 1)
-			mdio_data->builtin_switch = 1;
-		mdio_data->is_ar934x = 1;
+	case ATH79_SOC_QCA9533:
+		mdio_data->builtin_switch = 1;
 		break;
 
 	case ATH79_SOC_QCA9556:
+	case ATH79_SOC_QCA9558:
 		mdio_data->is_ar934x = 1;
 		break;
 
@@ -567,6 +568,7 @@ static void __init ath79_init_eth_pll_data(unsigned int id)
 	case ATH79_SOC_AR9341:
 	case ATH79_SOC_AR9342:
 	case ATH79_SOC_AR9344:
+	case ATH79_SOC_QCA9533:
 	case ATH79_SOC_QCA9556:
 	case ATH79_SOC_QCA9558:
 		pll_10 = AR934X_PLL_VAL_10;
@@ -624,6 +626,7 @@ static int __init ath79_setup_phy_if_mode(unsigned int id,
 		case ATH79_SOC_AR7241:
 		case ATH79_SOC_AR9330:
 		case ATH79_SOC_AR9331:
+		case ATH79_SOC_QCA9533:
 			pdata->phy_if_mode = PHY_INTERFACE_MODE_MII;
 			break;
 
@@ -684,6 +687,7 @@ static int __init ath79_setup_phy_if_mode(unsigned int id,
 		case ATH79_SOC_AR7241:
 		case ATH79_SOC_AR9330:
 		case ATH79_SOC_AR9331:
+		case ATH79_SOC_QCA9533:
 			pdata->phy_if_mode = PHY_INTERFACE_MODE_GMII;
 			break;
 
@@ -785,6 +789,9 @@ void __init ath79_register_eth(unsigned int id)
 		pdev = &ath79_eth1_device;
 
 	pdata = pdev->dev.platform_data;
+
+	pdata->max_frame_len = 1540;
+	pdata->desc_pktlen_mask = 0xfff;
 
 	err = ath79_setup_phy_if_mode(id, pdata);
 	if (err) {
@@ -955,6 +962,40 @@ void __init ath79_register_eth(unsigned int id)
 		pdata->has_gbit = 1;
 		pdata->is_ar724x = 1;
 
+		pdata->max_frame_len = SZ_16K - 1;
+		pdata->desc_pktlen_mask = SZ_16K - 1;
+
+		if (!pdata->fifo_cfg1)
+			pdata->fifo_cfg1 = 0x0010ffff;
+		if (!pdata->fifo_cfg2)
+			pdata->fifo_cfg2 = 0x015500aa;
+		if (!pdata->fifo_cfg3)
+			pdata->fifo_cfg3 = 0x01f00140;
+		break;
+
+	case ATH79_SOC_QCA9533:
+		if (id == 0) {
+			pdata->reset_bit = AR933X_RESET_GE0_MAC |
+					   AR933X_RESET_GE0_MDIO;
+			pdata->set_speed = ath79_set_speed_dummy;
+
+			pdata->phy_mask = BIT(4);
+		} else {
+			pdata->reset_bit = AR933X_RESET_GE1_MAC |
+					   AR933X_RESET_GE1_MDIO;
+			pdata->set_speed = ath79_set_speed_dummy;
+
+			pdata->speed = SPEED_1000;
+			pdata->duplex = DUPLEX_FULL;
+			pdata->switch_data = &ath79_switch_data;
+
+			ath79_switch_data.phy_poll_mask |= BIT(4);
+		}
+
+		pdata->ddr_flush = ath79_ddr_no_flush;
+		pdata->has_gbit = 1;
+		pdata->is_ar724x = 1;
+
 		if (!pdata->fifo_cfg1)
 			pdata->fifo_cfg1 = 0x0010ffff;
 		if (!pdata->fifo_cfg2)
@@ -978,6 +1019,17 @@ void __init ath79_register_eth(unsigned int id)
 		pdata->ddr_flush = ath79_ddr_no_flush;
 		pdata->has_gbit = 1;
 		pdata->is_ar724x = 1;
+
+		/*
+		 * Limit the maximum frame length to 4095 bytes.
+		 * Although the documentation says that the hardware
+		 * limit is 16383 bytes but that does not work in
+		 * practice. It seems that the hardware only updates
+		 * the lowest 12 bits of the packet length field
+		 * in the RX descriptor.
+		 */
+		pdata->max_frame_len = SZ_4K - 1;
+		pdata->desc_pktlen_mask = SZ_16K - 1;
 
 		if (!pdata->fifo_cfg1)
 			pdata->fifo_cfg1 = 0x0010ffff;
@@ -1026,6 +1078,7 @@ void __init ath79_register_eth(unsigned int id)
 		case ATH79_SOC_AR7241:
 		case ATH79_SOC_AR9330:
 		case ATH79_SOC_AR9331:
+		case ATH79_SOC_QCA9533:
 			pdata->mii_bus_dev = &ath79_mdio1_device.dev;
 			break;
 

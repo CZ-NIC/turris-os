@@ -8,25 +8,47 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=odhcpd
-PKG_VERSION:=2013-10-23
+PKG_VERSION:=2014-06-18
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_URL:=git://github.com/sbyx/odhcpd.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=16cee36ff3cf1895f87368709dabd3ffd5f24e4f
+PKG_SOURCE_VERSION:=82f3096351911d8c4f3b38e7a5bbeaf75938b6b8
 
 PKG_MAINTAINER:=Steven Barth <steven@midlink.org>
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
+CMAKE_OPTIONS += -DUBUS=1
+
+ifneq ($(CONFIG_PACKAGE_odhcpd_ext_prefix_class),0)
+  CMAKE_OPTIONS += -DEXT_PREFIX_CLASS=$(CONFIG_PACKAGE_odhcpd_ext_prefix_class)
+endif
+
+ifneq ($(CONFIG_PACKAGE_odhcpd_ext_cer_id),0)
+  CMAKE_OPTIONS += -DEXT_CER_ID=$(CONFIG_PACKAGE_odhcpd_ext_cer_id)
+endif
+
+
 define Package/odhcpd
   SECTION:=net
   CATEGORY:=Network
   TITLE:=OpenWrt DHCP/DHCPv6(-PD)/RA Server & Relay
   DEPENDS:=+libubox +libuci +libubus
+endef
+
+define Package/odhcpd/config
+  config PACKAGE_odhcpd_ext_prefix_class
+    int "Prefix Class Extension ID (0 = disabled)"
+    depends on PACKAGE_odhcpd
+    default 0
+  config PACKAGE_odhcpd_ext_cer_id
+    int "CER-ID Extension ID (0 = disabled)"
+    depends on PACKAGE_odhcpd
+    default 0
 endef
 
 define Package/odhcpd/description
@@ -45,6 +67,8 @@ define Package/odhcpd/install
 	$(INSTALL_BIN) ./files/odhcpd-update $(1)/usr/sbin/
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/odhcpd.init $(1)/etc/init.d/odhcpd
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_BIN) ./files/odhcpd.defaults $(1)/etc/uci-defaults
 endef
 
 $(eval $(call BuildPackage,odhcpd))

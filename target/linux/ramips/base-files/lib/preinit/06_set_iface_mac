@@ -27,6 +27,7 @@ preinit_set_mac_address() {
 	dir-620-a1 |\
 	esr-9753 |\
 	freestation5 |\
+	hlk-rm04 | \
 	mpr-a1 | \
 	mpr-a2 | \
 	dir-300-b7 | \
@@ -38,6 +39,10 @@ preinit_set_mac_address() {
 		mac=$(macaddr_setbit_la "$mac")
 		ifconfig eth0 hw ether $mac 2>/dev/null
 		;;
+	br-6475nd)
+		mac=$(mtd_get_mac_binary devdata 13)
+		ifconfig eth0 hw ether $mac 2>/dev/null
+		;;
 	asl26555 |\
 	dir-300-b1 |\
 	dir-300-b2 |\
@@ -46,6 +51,7 @@ preinit_set_mac_address() {
                 mac=$(mtd_get_mac_binary devdata 16388)
                 ifconfig eth0 hw ether $mac 2>/dev/null
                 ;;
+	cy-swr1100 |\
 	dir-645)
 		mac=$(mtd_get_mac_ascii nvram lanmac)
 		mac=$(macaddr_setbit_la "$mac")
@@ -69,6 +75,7 @@ preinit_set_mac_address() {
 	nbg-419n |\
 	omni-emb |\
 	omni-emb-hpm |\
+	px4885 |\
 	tew-691gr |\
 	tew-692gr |\
 	w306r-v20 |\

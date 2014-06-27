@@ -11,7 +11,7 @@ platform_check_image() {
 	local board=$(ramips_board_name)
 	local magic="$(get_magic_long "$1")"
 
-	[ "$ARGC" -gt 1 ] && return 1
+	[ "$#" -gt 1 ] && return 1
 
 	case "$board" in
 	3g-6200n | \
@@ -23,8 +23,10 @@ platform_check_image() {
 	all0256n | \
 	all5002 | \
 	all5003 | \
+	ar725w | \
 	asl26555 | \
 	awm002-evb | \
+	awapn2403 | \
 	bc2 | \
 	broadway | \
 	carambola | \
@@ -48,6 +50,7 @@ platform_check_image() {
 	freestation5 | \
 	hw550-3g | \
 	hg255d | \
+	hlk-rm04 | \
 	ip2202 | \
 	m3 | \
 	m4 | \
@@ -60,11 +63,14 @@ platform_check_image() {
 	omni-emb | \
 	omni-emb-hpm | \
 	psr-680w | \
+	px4885 | \
 	rp-n53 | \
 	rt-g32-b1 | \
 	rt-n10-plus | \
+	rt-n14u | \
 	rt-n15 | \
 	rt-n56u | \
+	rut5xx | \
 	sl-r7205 | \
 	tew-691gr | \
 	tew-692gr | \
@@ -82,6 +88,8 @@ platform_check_image() {
 	ur-326n4g |\
 	ur-336un |\
 	wr512-3gn |\
+	wmr300 |\
+	wrtnode |\
 	x5 |\
 	x8)
 		[ "$magic" != "27051956" ] && {
@@ -90,9 +98,17 @@ platform_check_image() {
 		}
 		return 0
 		;;
+	cy-swr1100 |\
 	dir-610-a1 |\
 	dir-645)
 		[ "$magic" != "5ea3a417" ] && {
+			echo "Invalid image type."
+			return 1
+		}
+		return 0
+		;;
+	br-6475nd)
+		[ "$magic" != "43535953" ] && {
 			echo "Invalid image type."
 			return 1
 		}

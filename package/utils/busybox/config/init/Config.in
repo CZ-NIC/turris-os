@@ -8,7 +8,7 @@ menu "Init Utilities"
 
 config BUSYBOX_CONFIG_BOOTCHARTD
 	bool "bootchartd"
-	default n
+	default BUSYBOX_DEFAULT_BOOTCHARTD
 	help
 	  bootchartd is commonly used to profile the boot process
 	  for the purpose of speeding it up. In this case, it is started
@@ -22,7 +22,7 @@ config BUSYBOX_CONFIG_BOOTCHARTD
 
 config BUSYBOX_CONFIG_FEATURE_BOOTCHARTD_BLOATED_HEADER
 	bool "Compatible, bloated header"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_BOOTCHARTD_BLOATED_HEADER
 	depends on BUSYBOX_CONFIG_BOOTCHARTD
 	help
 	  Create extended header file compatible with "big" bootchartd.
@@ -39,20 +39,20 @@ config BUSYBOX_CONFIG_FEATURE_BOOTCHARTD_BLOATED_HEADER
 
 config BUSYBOX_CONFIG_FEATURE_BOOTCHARTD_CONFIG_FILE
 	bool "Support bootchartd.conf"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_BOOTCHARTD_CONFIG_FILE
 	depends on BUSYBOX_CONFIG_BOOTCHARTD
 	help
 	  Enable reading and parsing of $PWD/bootchartd.conf
 	  and /etc/bootchartd.conf files.
 config BUSYBOX_CONFIG_HALT
 	bool "poweroff, halt, and reboot"
-	default y
+	default BUSYBOX_DEFAULT_HALT
 	help
 	  Stop all processes and either halt, reboot, or power off the system.
 
 config BUSYBOX_CONFIG_FEATURE_CALL_TELINIT
 	bool "Call telinit on shutdown and reboot"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_CALL_TELINIT
 	depends on BUSYBOX_CONFIG_HALT && !BUSYBOX_CONFIG_INIT
 	help
 	  Call an external program (normally telinit) to facilitate
@@ -63,7 +63,7 @@ config BUSYBOX_CONFIG_FEATURE_CALL_TELINIT
 
 config BUSYBOX_CONFIG_TELINIT_PATH
 	string "Path to telinit executable"
-	default "/sbin/telinit"
+	default BUSYBOX_DEFAULT_TELINIT_PATH
 	depends on BUSYBOX_CONFIG_FEATURE_CALL_TELINIT
 	help
 	  When busybox halt and friends have to call external telinit
@@ -71,22 +71,21 @@ config BUSYBOX_CONFIG_TELINIT_PATH
 	  locating telinit executable.
 config BUSYBOX_CONFIG_INIT
 	bool "init"
-	default n
+	default BUSYBOX_DEFAULT_INIT
 	select BUSYBOX_CONFIG_FEATURE_SYSLOG
-	depends on BROKEN
 	help
 	  init is the first program run when the system boots.
 
 config BUSYBOX_CONFIG_FEATURE_USE_INITTAB
 	bool "Support reading an inittab file"
-	default y
+	default BUSYBOX_DEFAULT_FEATURE_USE_INITTAB
 	depends on BUSYBOX_CONFIG_INIT
 	help
 	  Allow init to read an inittab file when the system boot.
 
 config BUSYBOX_CONFIG_FEATURE_KILL_REMOVED
 	bool "Support killing processes that have been removed from inittab"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_KILL_REMOVED
 	depends on BUSYBOX_CONFIG_FEATURE_USE_INITTAB
 	help
 	  When respawn entries are removed from inittab and a SIGHUP is
@@ -96,7 +95,7 @@ config BUSYBOX_CONFIG_FEATURE_KILL_REMOVED
 config BUSYBOX_CONFIG_FEATURE_KILL_DELAY
 	int "How long to wait between TERM and KILL (0 - send TERM only)" if FEATURE_KILL_REMOVED
 	range 0 1024
-	default 0
+	default BUSYBOX_DEFAULT_FEATURE_KILL_DELAY
 	depends on BUSYBOX_CONFIG_FEATURE_KILL_REMOVED
 	help
 	  With nonzero setting, init sends TERM, forks, child waits N
@@ -106,7 +105,7 @@ config BUSYBOX_CONFIG_FEATURE_KILL_DELAY
 
 config BUSYBOX_CONFIG_FEATURE_INIT_SCTTY
 	bool "Run commands with leading dash with controlling tty"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_INIT_SCTTY
 	depends on BUSYBOX_CONFIG_INIT
 	help
 	  If this option is enabled, init will try to give a controlling
@@ -121,19 +120,19 @@ config BUSYBOX_CONFIG_FEATURE_INIT_SCTTY
 
 config BUSYBOX_CONFIG_FEATURE_INIT_SYSLOG
 	bool "Enable init to write to syslog"
-	default y
+	default BUSYBOX_DEFAULT_FEATURE_INIT_SYSLOG
 	depends on BUSYBOX_CONFIG_INIT
 
 config BUSYBOX_CONFIG_FEATURE_EXTRA_QUIET
 	bool "Be _extra_ quiet on boot"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_EXTRA_QUIET
 	depends on BUSYBOX_CONFIG_INIT
 	help
 	  Prevent init from logging some messages to the console during boot.
 
 config BUSYBOX_CONFIG_FEATURE_INIT_COREDUMPS
 	bool "Support dumping core for child processes (debugging only)"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_INIT_COREDUMPS
 	depends on BUSYBOX_CONFIG_INIT
 	help
 	  If this option is enabled and the file /.init_enable_core
@@ -143,7 +142,7 @@ config BUSYBOX_CONFIG_FEATURE_INIT_COREDUMPS
 
 config BUSYBOX_CONFIG_FEATURE_INITRD
 	bool "Support running init from within an initrd (not initramfs)"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_INITRD
 	depends on BUSYBOX_CONFIG_INIT
 	help
 	  Legacy support for running init under the old-style initrd. Allows
@@ -154,7 +153,7 @@ config BUSYBOX_CONFIG_FEATURE_INITRD
 
 config BUSYBOX_CONFIG_INIT_TERMINAL_TYPE
 	string "Initial terminal type"
-	default "linux"
+	default BUSYBOX_DEFAULT_INIT_TERMINAL_TYPE
 	depends on BUSYBOX_CONFIG_INIT
 	help
 	  This is the initial value set by init for the TERM environment
@@ -165,14 +164,14 @@ config BUSYBOX_CONFIG_INIT_TERMINAL_TYPE
 	  sets TERM to "vt102" if one is found.
 config BUSYBOX_CONFIG_MESG
 	bool "mesg"
-	default n
+	default BUSYBOX_DEFAULT_MESG
 	help
 	  Mesg controls access to your terminal by others. It is typically
 	  used to allow or disallow other users to write to your terminal
 
 config BUSYBOX_CONFIG_FEATURE_MESG_ENABLE_ONLY_GROUP
 	bool "Enable writing to tty only by group, not by everybody"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_MESG_ENABLE_ONLY_GROUP
 	depends on BUSYBOX_CONFIG_MESG
 	help
 	  Usually, ttys are owned by group "tty", and "write" tool is

@@ -43,12 +43,13 @@ endef
 $(eval $(call Profile,ARV4518PWR01A))
 
 define Profile/ARV4510PW
-  NAME:=Wippies Homebox - ARV4510PW
-  PACKAGES:=kmod-ledtrig-usbdev kmod-usb2 kmod-usb-uhci \
+  NAME:=Wippies, Elisa - ARV4510PW
+  PACKAGES:=kmod-ledtrig-usbdev kmod-usb2-pci kmod-usb-uhci \
 	kmod-ltq-adsl-danube-mei kmod-ltq-adsl-danube \
-	kmod-ltq-adsl-danube-fw-b kmod-ltq-atm-danube \
+	kmod-ltq-adsl-danube-fw-a kmod-ltq-atm-danube \
 	ltq-adsl-app ppp-mod-pppoa \
-	kmod-rt61 wpad-mini \
+	kmod-ltq-tapi kmod-ltq-vmmc \
+	kmod-rt2800-pci kmod-ath5k wpad-mini \
 	swconfig
 endef
 
@@ -65,6 +66,20 @@ endef
 
 $(eval $(call Profile,ARV4519PW))
 
+define Profile/ARV7510PW22
+  NAME:=Astoria - ARV7510PW22
+  PACKAGES:=kmod-ltq-hcd-danube kmod-ledtrig-usbdev \
+	kmod-ltq-adsl-danube-mei kmod-ltq-adsl-danube \
+	kmod-ltq-adsl-danube-fw-a kmod-ltq-atm-danube \
+	ltq-adsl-app ppp-mod-pppoa \
+	kmod-ltq-tapi kmod-ltq-vmmc \
+	kmod-rt2800-pci wpad-mini \
+	kmod-uhci kmod-usb2 kmod-usb2-pci \
+	swconfig
+endef
+
+$(eval $(call Profile,ARV7510PW22))
+
 define Profile/ARV7518PW
   NAME:=Astoria - ARV7518PW
   PACKAGES:=kmod-ltq-hcd-danube kmod-ledtrig-usbdev \
@@ -76,6 +91,18 @@ define Profile/ARV7518PW
 endef
 
 $(eval $(call Profile,ARV7518PW))
+
+define Profile/ARV7519PW
+  NAME:=Astoria - ARV7519PW
+  PACKAGES:=kmod-ltq-hcd-danube kmod-ledtrig-usbdev \
+	kmod-ltq-adsl-danube-mei kmod-ltq-adsl-danube \
+	kmod-ltq-adsl-danube-fw-a kmod-ltq-atm-danube \
+	ltq-adsl-app ppp-mod-pppoa \
+  	kmod-rt2800-pci wpad-mini \
+	swconfig
+endef
+
+$(eval $(call Profile,ARV7519PW))
 
 define Profile/ARV4520PW
   NAME:=Easybox 800, WAV-281 - ARV4520PW

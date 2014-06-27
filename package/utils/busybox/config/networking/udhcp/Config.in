@@ -4,11 +4,16 @@
 # see scripts/kbuild/config-language.txt.
 #
 
-
+config BUSYBOX_CONFIG_UDHCPC6
+	bool "udhcp client for DHCPv6 (udhcpc6)"
+	default BUSYBOX_DEFAULT_UDHCPC6  # not yet ready
+	depends on BUSYBOX_CONFIG_FEATURE_IPV6
+	help
+	  udhcpc6 is a DHCPv6 client
 
 config BUSYBOX_CONFIG_UDHCPD
 	bool "udhcp server (udhcpd)"
-	default n
+	default BUSYBOX_DEFAULT_UDHCPD
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  udhcpd is a DHCP server geared primarily toward embedded systems,
@@ -16,7 +21,7 @@ config BUSYBOX_CONFIG_UDHCPD
 
 config BUSYBOX_CONFIG_DHCPRELAY
 	bool "dhcprelay"
-	default n
+	default BUSYBOX_DEFAULT_DHCPRELAY
 	depends on BUSYBOX_CONFIG_UDHCPD
 	help
 	  dhcprelay listens for dhcp requests on one or more interfaces
@@ -25,7 +30,7 @@ config BUSYBOX_CONFIG_DHCPRELAY
 
 config BUSYBOX_CONFIG_DUMPLEASES
 	bool "Lease display utility (dumpleases)"
-	default n
+	default BUSYBOX_DEFAULT_DUMPLEASES
 	depends on BUSYBOX_CONFIG_UDHCPD
 	help
 	  dumpleases displays the leases written out by the udhcpd server.
@@ -34,7 +39,7 @@ config BUSYBOX_CONFIG_DUMPLEASES
 
 config BUSYBOX_CONFIG_FEATURE_UDHCPD_WRITE_LEASES_EARLY
 	bool "Rewrite the lease file at every new acknowledge"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_UDHCPD_WRITE_LEASES_EARLY
 	depends on BUSYBOX_CONFIG_UDHCPD
 	help
 	  If selected, udhcpd will write a new file with leases every
@@ -44,7 +49,7 @@ config BUSYBOX_CONFIG_FEATURE_UDHCPD_WRITE_LEASES_EARLY
 
 config BUSYBOX_CONFIG_FEATURE_UDHCPD_BASE_IP_ON_MAC
 	bool "Select IP address based on client MAC"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_UDHCPD_BASE_IP_ON_MAC
 	depends on BUSYBOX_CONFIG_UDHCPD
 	help
 	  If selected, udhcpd will base its selection of IP address to offer
@@ -58,7 +63,7 @@ config BUSYBOX_CONFIG_FEATURE_UDHCPD_BASE_IP_ON_MAC
 
 config BUSYBOX_CONFIG_DHCPD_LEASES_FILE
 	string "Absolute path to lease file"
-	default "/var/run/udhcpd.leases"
+	default BUSYBOX_DEFAULT_DHCPD_LEASES_FILE
 	depends on BUSYBOX_CONFIG_UDHCPD
 	help
 	  udhcpd stores addresses in a lease file. This is the absolute path
@@ -66,7 +71,7 @@ config BUSYBOX_CONFIG_DHCPD_LEASES_FILE
 
 config BUSYBOX_CONFIG_UDHCPC
 	bool "udhcp client (udhcpc)"
-	default y
+	default BUSYBOX_DEFAULT_UDHCPC
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  udhcpc is a DHCP client geared primarily toward embedded systems,
@@ -77,7 +82,7 @@ config BUSYBOX_CONFIG_UDHCPC
 
 config BUSYBOX_CONFIG_FEATURE_UDHCPC_ARPING
 	bool "Verify that the offered address is free, using ARP ping"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_UDHCPC_ARPING
 	depends on BUSYBOX_CONFIG_UDHCPC
 	help
 	  If selected, udhcpc will send ARP probes and make sure
@@ -87,7 +92,7 @@ config BUSYBOX_CONFIG_FEATURE_UDHCPC_ARPING
 
 config BUSYBOX_CONFIG_FEATURE_UDHCP_PORT
 	bool "Enable '-P port' option for udhcpd and udhcpc"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_UDHCP_PORT
 	depends on BUSYBOX_CONFIG_UDHCPD || BUSYBOX_CONFIG_UDHCPC
 	help
 	  At the cost of ~300 bytes, enables -P port option.
@@ -95,7 +100,7 @@ config BUSYBOX_CONFIG_FEATURE_UDHCP_PORT
 
 config BUSYBOX_CONFIG_UDHCP_DEBUG
 	int "Maximum verbosity level for udhcp applets (0..9)"
-	default 0
+	default BUSYBOX_DEFAULT_UDHCP_DEBUG
 	range 0 9
 	depends on BUSYBOX_CONFIG_UDHCPD || BUSYBOX_CONFIG_UDHCPC || BUSYBOX_CONFIG_DHCPRELAY
 	help
@@ -107,7 +112,7 @@ config BUSYBOX_CONFIG_UDHCP_DEBUG
 
 config BUSYBOX_CONFIG_FEATURE_UDHCP_RFC3397
 	bool "Support for RFC3397 domain search (experimental)"
-	default y
+	default BUSYBOX_DEFAULT_FEATURE_UDHCP_RFC3397
 	depends on BUSYBOX_CONFIG_UDHCPD || BUSYBOX_CONFIG_UDHCPC
 	help
 	  If selected, both client and server will support passing of domain
@@ -116,7 +121,7 @@ config BUSYBOX_CONFIG_FEATURE_UDHCP_RFC3397
 
 config BUSYBOX_CONFIG_FEATURE_UDHCP_8021Q
 	bool "Support for 802.1Q VLAN parameters"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_UDHCP_8021Q
 	depends on BUSYBOX_CONFIG_UDHCPD || BUSYBOX_CONFIG_UDHCPC
 	help
 	  If selected, both client and server will support passing of VLAN
@@ -124,7 +129,7 @@ config BUSYBOX_CONFIG_FEATURE_UDHCP_8021Q
 
 config BUSYBOX_CONFIG_UDHCPC_DEFAULT_SCRIPT
 	string "Absolute path to config script"
-	default "/usr/share/udhcpc/default.script"
+	default BUSYBOX_DEFAULT_UDHCPC_DEFAULT_SCRIPT
 	depends on BUSYBOX_CONFIG_UDHCPC
 	help
 	  This script is called after udhcpc receives an answer. See
@@ -133,7 +138,7 @@ config BUSYBOX_CONFIG_UDHCPC_DEFAULT_SCRIPT
 
 config BUSYBOX_CONFIG_UDHCPC_SLACK_FOR_BUGGY_SERVERS
 	int "DHCP options slack buffer size"
-	default 80
+	default BUSYBOX_DEFAULT_UDHCPC_SLACK_FOR_BUGGY_SERVERS
 	range 0 924
 	depends on BUSYBOX_CONFIG_UDHCPD || BUSYBOX_CONFIG_UDHCPC
 	help

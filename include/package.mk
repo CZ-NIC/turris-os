@@ -39,6 +39,15 @@ include $(INCLUDE_DIR)/host.mk
 include $(INCLUDE_DIR)/unpack.mk
 include $(INCLUDE_DIR)/depends.mk
 
+find_library_dependencies = $(wildcard $(patsubst %,$(STAGING_DIR)/pkginfo/%.version, \
+	$(filter-out $(BUILD_PACKAGES),$(foreach dep, \
+		$(filter-out @%, $(patsubst +%,%,$(1))), \
+		$(if $(findstring :,$(dep)), \
+			$(word 2,$(subst :,$(space),$(dep))), \
+			$(dep) \
+		) \
+	))))
+
 STAMP_NO_AUTOREBUILD=$(wildcard $(PKG_BUILD_DIR)/.no_autorebuild)
 PREV_STAMP_PREPARED:=$(if $(STAMP_NO_AUTOREBUILD),$(wildcard $(PKG_BUILD_DIR)/.prepared*))
 ifneq ($(PREV_STAMP_PREPARED),)
@@ -57,6 +66,12 @@ ifneq ($(if $(CONFIG_SRC_TREE_OVERRIDE),$(wildcard ./git-src)),)
   USE_GIT_TREE:=1
   QUILT:=1
 endif
+ifdef USE_SOURCE_DIR
+  QUILT:=1
+endif
+ifneq ($(wildcard $(PKG_BUILD_DIR)/.source_dir),)
+  QUILT:=1
+endif
 
 PKG_DIR_NAME:=$(lastword $(subst /,$(space),$(CURDIR)))
 PKG_INSTALL_STAMP:=$(PKG_INFO_DIR)/$(PKG_DIR_NAME).$(if $(BUILD_VARIANT),$(BUILD_VARIANT),default).install
@@ -73,7 +88,7 @@ override MAKEFLAGS=
 CONFIG_SITE:=$(INCLUDE_DIR)/site/$(REAL_GNU_TARGET_NAME)
 CUR_MAKEFILE:=$(filter-out Makefile,$(firstword $(MAKEFILE_LIST)))
 SUBMAKE:=$(NO_TRACE_MAKE) $(if $(CUR_MAKEFILE),-f $(CUR_MAKEFILE))
-PKG_CONFIG_PATH=$(STAGING_DIR)/usr/lib/pkgconfig
+PKG_CONFIG_PATH=$(STAGING_DIR)/usr/lib/pkgconfig:$(STAGING_DIR)/usr/share/pkgconfig
 unexport QUIET
 
 ifeq ($(DUMP)$(filter prereq clean refresh update,$(MAKECMDGOALS)),)
@@ -84,20 +99,6 @@ ifeq ($(DUMP)$(filter prereq clean refresh update,$(MAKECMDGOALS)),)
       $(if $(filter prepare,$(MAKECMDGOALS)),,$(call rdep,$(PKG_BUILD_DIR),$(STAMP_BUILT),,-x "*/.dep_*" -x "*/ipkg*"))
     endef
   endif
-endif
-
-ifeq ($(CONFIG_$(PKG_NAME)_USE_CUSTOM_SOURCE_DIR),y)
-# disable load stage
-PKG_SOURCE_URL:=
-# add hook to install a link to customer source path of dedicated package
-Hooks/Prepare/Pre += prepare_custom_source_directory
-ifeq ($(filter autoreconf,$(Hooks/Configure/Pre)),)
-  Hooks/Configure/Pre += autoreconf_target
-endif
-# define empty default action
-define Build/Prepare/Default
-	@: 
-endef
 endif
 
 define Download/default
@@ -118,6 +119,14 @@ ifdef USE_GIT_TREE
 	( cd $(PKG_BUILD_DIR); git checkout .)
   endef
 endif
+ifdef USE_SOURCE_DIR
+  define Build/Prepare/Default
+	rm -rf $(PKG_BUILD_DIR)
+	$(if $(wildcard $(USE_SOURCE_DIR)/*),,@echo "Error: USE_SOURCE_DIR=$(USE_SOURCE_DIR) path not found"; false)
+	ln -snf $(USE_SOURCE_DIR) $(PKG_BUILD_DIR)
+	touch $(PKG_BUILD_DIR)/.source_dir
+  endef
+endif
 
 define Build/Exports/Default
   $(1) : export ACLOCAL_INCLUDE=$$(foreach p,$$(wildcard $$(STAGING_DIR)/usr/share/aclocal $$(STAGING_DIR)/usr/share/aclocal-* $$(STAGING_DIR)/host/share/aclocal $$(STAGING_DIR)/host/share/aclocal-*),-I $$(p))
@@ -132,7 +141,7 @@ Build/Exports=$(Build/Exports/Default)
 
 define Build/DefaultTargets
   $(if $(QUILT),$(Build/Quilt))
-  $(if $(USE_GIT_TREE),,$(if $(strip $(PKG_SOURCE_URL)),$(call Download,default)))
+  $(if $(USE_SOURCE_DIR)$(USE_GIT_TREE),,$(if $(strip $(PKG_SOURCE_URL)),$(call Download,default)))
   $(call Build/Autoclean)
 
   download:
@@ -226,6 +235,9 @@ define Package/$(1)/description
 	$(TITLE)
 endef
 endif
+
+  BUILD_PACKAGES += $(1)
+  $(STAMP_PREPARED): $$(if $(QUILT)$(DUMP),,$(call find_library_dependencies,$(DEPENDS)))
 
   $(foreach FIELD, TITLE CATEGORY SECTION VERSION,
     ifeq ($($(FIELD)),)

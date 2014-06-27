@@ -89,7 +89,7 @@
  		}
  	}
 +	if (token[2] && (strlen(token[2]) + 1 > 80))
-+		parse_err("mtd device name too long");
++		pr_err("mtd device name too long\n");
  
 -	add_device(name, erase_size);
 +	add_device(name, erase_size, token[2]);
@@ -104,14 +104,4 @@
 +MODULE_PARM_DESC(block2mtd, "Device to use. \"block2mtd=<dev>[,<erasesize>[,<name>]]\"");
  
  static int __init block2mtd_init(void)
- {
---- a/block/partition-generic.c
-+++ b/block/partition-generic.c
-@@ -548,6 +548,7 @@ int invalidate_partitions(struct gendisk
- 
- 	return 0;
- }
-+EXPORT_SYMBOL(rescan_partitions);
- 
- unsigned char *read_dev_sector(struct block_device *bdev, sector_t n, Sector *p)
  {

@@ -1,7 +1,7 @@
 DEVICE_TYPE:=terminal
 BOARDNAME:=Artec ThinCan
-
 CPU_TYPE := geode
+FEATURES += broken
 
 DEFAULT_PACKAGES:=\
 	base-files \

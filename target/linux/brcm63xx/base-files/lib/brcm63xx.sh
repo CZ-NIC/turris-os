@@ -57,6 +57,10 @@ brcm63xx_detect() {
 		brcm63xx_has_reset_button="true"
 		ifname=eth1
 		;;
+	AR1004G)
+		status_led="AR1004G:green:power"
+		brcm63xx_has_reset_button="true"
+		;;
 	CVG834G_E15R3921)
 		status_led="CVG834G:green:power"
 		ifname=eth0
@@ -118,6 +122,16 @@ brcm63xx_detect() {
 		ifname=eth0
 		;;
 	NB6)
+		brcm63xx_has_reset_button="true"
+		ifname=eth0
+		;;
+	"F@ST2504n")
+		status_led="fast2504n:green:ok"
+		brcm63xx_has_reset_button="true"
+		ifname=eth0
+		;;
+	'F@ST2704V2')
+		status_led="F@ST2704V2:green:power"
 		brcm63xx_has_reset_button="true"
 		ifname=eth0
 		;;

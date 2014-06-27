@@ -43,11 +43,14 @@ $(BIN_DIR)/$(IB_NAME).tar.bz2: clean
 		$(PKG_BUILD_DIR)/target/linux/*/patches{,-*}
 	-cp $(KERNEL_BUILD_DIR)/* $(IB_KDIR)/ # don't copy subdirectories here
 	-cp $(LINUX_DIR)/.config $(IB_LDIR)/
+	-$(SCRIPT_DIR)/bundle-libraries.sh $(IB_LDIR)/scripts/dtc \
+	  $(LINUX_DIR)/scripts/dtc/dtc
 	$(SED) 's,^# REVISION:=.*,REVISION:=$(REVISION),g' $(PKG_BUILD_DIR)/include/version.mk
 	find $(PKG_BUILD_DIR) -name CVS -o -name .git -o -name .svn \
 	  | $(XARGS) rm -rf
 	find $(STAGING_DIR_HOST)/bin -maxdepth 1 -type f -perm -u=x \
 	  | $(XARGS) $(SCRIPT_DIR)/bundle-libraries.sh $(PKG_BUILD_DIR)/staging_dir/host/bin
+	$(MAKE) -C $(PKG_BUILD_DIR) package_index
 	$(TAR) c -C $(BUILD_DIR) $(IB_NAME) | bzip2 -c > $@
 
 download:

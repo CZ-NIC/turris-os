@@ -9,9 +9,15 @@ include $(INCLUDE_DIR)/image.mk
 
 BOARDS:= \
 	sun4i-a10-cubieboard \
+	sun4i-a10-olinuxino-lime \
+	sun4i-a10-pcduino \
 	sun5i-a13-olinuxino \
+	sun6i-a31-colombus \
+	sun7i-a20-bananapi \
+	sun7i-a20-cubieboard2 \
+	sun7i-a20-cubietruck \
 	sun7i-a20-olinuxino-micro \
-	sun7i-a20-cubieboard2
+	sun7i-a20-pcduino3
 
 define Image/BuildKernel
 	mkimage -A arm -O linux -T kernel -C none \
@@ -36,6 +42,7 @@ endef
 
 define Image/Build
 	$(call Image/Build/$(1),$(1))
+	dd if=$(KDIR)/root.$(1) of=$(BIN_DIR)/openwrt-$(BOARD)-root.$(1) bs=128k conv=sync
 endef
 
 $(eval $(call BuildImage))
