@@ -1,0 +1,34 @@
+#!/bin/bash -xe
+
+# Build u-boot
+./compile_u-boot
+
+# Install luci feed
+./scripts/feeds update -i lucics
+./scripts/feeds install luci
+./scripts/feeds install luci-i18n-czech
+
+# Install routing feed and bird package
+./scripts/feeds update routing
+./scripts/feeds install bird4 birdc4 bird6 birdc6
+
+# Build NAND FW
+cp configs/config-turris-nand .config
+[ -n "$BUILD_ALL" ] && echo "CONFIG_ALL=y" >> .config
+[ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
+make defconfig
+export TARGET_BOARD=turris
+git log -n1 --format='%H' >files/etc/git-version
+git clone git@git.nic.cz:turris/misc-internal
+# If the revision is marked, it is propagation of deploy into current stable. In that case, we clean up. Otherwise, just try to recompile it as fast as possible, as it is just some small fix.
+if grep -qFf files/etc/git-version misc-internal/updater/deploy ; then
+	make clean
+fi
+rm -rf misc-internal
+make "$@"
+# Preserve the uncompressed image too
+cp -pr build_dir/target-powerpc_*/root-mpc85xx bin/mpc85xx/root
+cd bin/mpc85xx/root
+rm -f var
+find -type l ! -exec test -r {} \; -delete
+cd ../../..
