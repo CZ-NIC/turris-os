@@ -3426,6 +3426,7 @@ CONFIG_PACKAGE_ucollect-core=y
 CONFIG_PACKAGE_ucollect-count=y
 CONFIG_PACKAGE_ucollect-sniff=y
 CONFIG_PACKAGE_ucollect-bandwidth=y
+CONFIG_PACKAGE_ucollect-flow=y
 # CONFIG_PACKAGE_ucspi-tcp is not set
 # CONFIG_PACKAGE_udpcast is not set
 # CONFIG_PACKAGE_udpxy is not set
