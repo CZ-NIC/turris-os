@@ -31,7 +31,7 @@ config LIBCURL_COOKIES
 
 config LIBCURL_CRYPTO_AUTH
 	bool "Enable cryptographic authentication"
-	default n
+	default y
 
 config LIBCURL_DICT
 	bool "Enable DICT support"
