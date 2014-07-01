@@ -107,6 +107,6 @@ config LIBCURL_TLS-SRP
 
 config LIBCURL_ZLIB
 	bool "Use zlib"
-	default n
+	default y
 
 endmenu
