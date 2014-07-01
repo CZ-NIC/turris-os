@@ -11,7 +11,7 @@ include $(INCLUDE_DIR)/version.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=base-files
-PKG_RELEASE:=155
+PKG_RELEASE:=156
 
 PKG_FILE_DEPENDS:=$(PLATFORM_DIR)/ $(GENERIC_PLATFORM_DIR)/base-files/
 PKG_BUILD_DEPENDS:=opkg/host
@@ -147,7 +147,9 @@ define Package/base-files/install
 		fi \
 	done
 
-	echo -e "#!/bin/sh\n[ -z "\$$$$IPKG_INSTROOT" ] && rm -f `ls $(1)/etc/uci-defaults | awk '{ printf "/etc/uci-defaults/%s ", $$$$0 }'` " > $(1)/CONTROL/postinst
+	echo "#!/bin/sh" > $(1)/CONTROL/postinst	
+	echo -e "[ -z "\$$$$IPKG_INSTROOT" ] && rm -f `ls $(1)/etc/uci-defaults | awk '{ printf "/etc/uci-defaults/%s ", $$$$0 }'` " >> $(1)/CONTROL/postinst
+	echo -e "[ -z "\$$$$IPKG_INSTROOT" ] && for i in /etc/uci-defaults/*; "\$$$$i" enable || true; done" >> $(1)/CONTROL/postinst
 endef
 
 ifneq ($(DUMP),1)
