@@ -1,3 +1,4 @@
+* Updater: Avoid process restarts at ucollect dependencies
 * Firewall je schopný zpracovat ipv6 pravidla od serveru
 * Firewall využívá ipset pro nastavování pravidel
 * Ucollect: nový plugin pro pasivní meření rychlosti připojení k internetu
