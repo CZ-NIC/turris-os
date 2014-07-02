@@ -1,3 +1,5 @@
+* Firewall je schopný zpracovat ipv6 pravidla od serveru
+* Firewall využívá ipset pro nastavování pravidel
 * Ucollect: nový plugin pro pasivní meření rychlosti připojení k internetu
 * Ucollect: nový plugin umožňující kontrolu SSL certifikátů stanovených serverů
 * Ucollect: nový plugin pro testování odezvy (ping) na stanovené servery
