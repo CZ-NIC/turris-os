@@ -1,8 +1,8 @@
+* Updater: Avoid process restarts at ucollect dependencies
 * Firewall je schopný zpracovat ipv6 pravidla od serveru
 * Firewall využívá ipset pro nastavování pravidel
 * Ucollect: nový plugin pro pasivní meření rychlosti připojení k internetu
-* Ucollect: nový plugin umožňující kontrolu SSL certifikátů stanovených serverů
-* Ucollect: nový plugin pro testování odezvy (ping) na stanovené servery
+* Ucollect: ucollect-sniff umí i stahovat SSL certifikáty
 * Nepřepisujeme port dnsmasq pokud to není 53
 * Foris (v39) kompatibilita s novou verzí frameworku Bottle.
 * Aktualizace python-bottle (v0.12.7) a python-bottle-i18n (v0.1.5).
