@@ -1,3 +1,4 @@
+===================== 1.3 =======================
 * Updater: Avoid process restarts at ucollect dependencies
 * Firewall je schopný zpracovat ipv6 pravidla od serveru
 * Firewall využívá ipset pro nastavování pravidel
