@@ -1,3 +1,4 @@
+* Ucollect: flow plugin for testing & possibly release
 * aiccu & tayga: Merged from upstream. Resolved few issues.
 * Transmission: Version bumped
 * Ucollect: use trie in buckets and flow (flow is yet unreleased)
