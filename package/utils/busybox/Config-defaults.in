@@ -1704,7 +1704,7 @@ config BUSYBOX_DEFAULT_CHRT
 	default n
 config BUSYBOX_DEFAULT_CROND
 	bool
-	default y
+	default n
 config BUSYBOX_DEFAULT_FEATURE_CROND_D
 	bool
 	default n
@@ -1716,7 +1716,7 @@ config BUSYBOX_DEFAULT_FEATURE_CROND_DIR
 	default "/etc"
 config BUSYBOX_DEFAULT_CRONTAB
 	bool
-	default y
+	default n
 config BUSYBOX_DEFAULT_DC
 	bool
 	default n
