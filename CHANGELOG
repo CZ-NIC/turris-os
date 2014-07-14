@@ -1,3 +1,4 @@
+* Ucollect compresses connection
 * user_notify: Added support for smtp.turris.cz server.
 * Ucollect: flow plugin for testing & possibly release
 * aiccu & tayga: Merged from upstream. Resolved few issues.
