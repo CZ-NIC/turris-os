@@ -141,11 +141,15 @@ ifneq ($(CONFIG_NAND_SUPPORT),)
 	(cd "$(KDIR_TMP)"; $(TAR) cvf \
 		"$(BIN_DIR)/$(IMG_PREFIX)-$(1)-$(2)-sysupgrade.tar" sysupgrade-$(1))
    endef
+# $(1) board name
+# $(2) ubinize-image options (e.g. --uboot-env and/or --kernel kernelimage)
+# $(3) rootfstype (e.g. squashfs or ubifs)
+# $(4) options to pass-through to ubinize (i.e. $($(PROFILE)_UBI_OPTS)))
    define Image/Build/UbinizeImage
 	sh $(TOPDIR)/scripts/ubinize-image.sh $(2) \
-		"$(KDIR)/root.$(3)" "$(4)" \
+		"$(KDIR)/root.$(3)" \
 		"$(BIN_DIR)/$(IMG_PREFIX)-$(1)-$(3)-ubinized.bin" \
-		$(5)
+		$(4)
    endef
 
 endif

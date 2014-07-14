@@ -104,12 +104,12 @@ Generic IEEE 802.11 Networking Stack (mac80211)
 endef
 
 PKG_LINUX_FIRMWARE_NAME:=linux-firmware
-PKG_LINUX_FIRMWARE_VERSION:=f8c22c692bdee57a20b092e647464ff6176df3ed
-PKG_LINUX_FIRMWARE_SOURCE:=$(PKG_LINUX_FIRMWARE_NAME)-$(PKG_LINUX_FIRMWARE_VERSION).tar.bz2
+PKG_LINUX_FIRMWARE_VERSION:=7f388b4885cf64d6b7833612052d20d4197af96f
+PKG_LINUX_FIRMWARE_SOURCE:=$(PKG_LINUX_FIRMWARE_NAME)-2014-06-04-$(PKG_LINUX_FIRMWARE_VERSION).tar.bz2
 PKG_LINUX_FIRMWARE_PROTO:=git
-PKG_LINUX_FIRMWARE_SOURCE_URL:=git://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
+PKG_LINUX_FIRMWARE_SOURCE_URL:=https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
 PKG_LINUX_FIRMWARE_SUBDIR:=$(PKG_LINUX_FIRMWARE_NAME)-$(PKG_LINUX_FIRMWARE_VERSION)
-PKG_LINUX_FIRMWARE_MIRROR_MD5SUM:=e219333f01835c6e556875a9e0deb3f9
+#PKG_LINUX_FIRMWARE_MIRROR_MD5SUM:=e219333f01835c6e556875a9e0deb3f9
 
 define Download/linux-firmware
   FILE:=$(PKG_LINUX_FIRMWARE_SOURCE)
@@ -322,7 +322,7 @@ endef
 
 define KernelPackage/rt2800-soc
 $(call KernelPackage/rt2x00/Default)
-  DEPENDS += @(TARGET_ramips_rt288x||TARGET_ramips_rt305x||TARGET_ramips_rt3883) +kmod-rt2800-mmio +kmod-rt2800-lib
+  DEPENDS += @(TARGET_ramips_rt288x||TARGET_ramips_rt305x||TARGET_ramips_rt3883||TARGET_ramips_mt7620n||TARGET_ramips_mt7620a) +kmod-rt2800-mmio +kmod-rt2800-lib
   TITLE += (RT28xx/RT3xxx SoC)
   FILES := \
 	$(PKG_BUILD_DIR)/drivers/net/wireless/rt2x00/rt2x00soc.ko \
@@ -423,6 +423,8 @@ endef
 define KernelPackage/rtl8192ce/install
 	$(INSTALL_DIR) $(1)/lib/firmware/rtlwifi
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/$(PKG_LINUX_FIRMWARE_SUBDIR)/rtlwifi/rtl8192cfw.bin $(1)/lib/firmware/rtlwifi
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/$(PKG_LINUX_FIRMWARE_SUBDIR)/rtlwifi/rtl8192cfwU.bin $(1)/lib/firmware/rtlwifi
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/$(PKG_LINUX_FIRMWARE_SUBDIR)/rtlwifi/rtl8192cfwU_B.bin $(1)/lib/firmware/rtlwifi
 endef
 
 define KernelPackage/rtl8192se
@@ -462,6 +464,8 @@ endef
 define KernelPackage/rtl8192cu/install
 	$(INSTALL_DIR) $(1)/lib/firmware/rtlwifi
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/$(PKG_LINUX_FIRMWARE_SUBDIR)/rtlwifi/rtl8192cufw.bin $(1)/lib/firmware/rtlwifi
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/$(PKG_LINUX_FIRMWARE_SUBDIR)/rtlwifi/rtl8192cufw_A.bin $(1)/lib/firmware/rtlwifi
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/$(PKG_LINUX_FIRMWARE_SUBDIR)/rtlwifi/rtl8192cufw_B.bin $(1)/lib/firmware/rtlwifi
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/$(PKG_LINUX_FIRMWARE_SUBDIR)/rtlwifi/rtl8192cufw_TMSC.bin $(1)/lib/firmware/rtlwifi
 endef
 
@@ -870,6 +874,13 @@ define KernelPackage/iwlagn/config
 		  Download and install firmware for:
 		    Intel Dual Band Wireless-N 7260 and Intel Dual Band Wireless-AC 7260
 
+	config IWL7265_FW
+		bool "Intel 7265 Firmware"
+		default y
+		help
+		  Download and install firmware for:
+		    Intel Wireless 7265
+
 	config IWL100_FW
 		bool "Intel 100 Firmware"
 		default y
@@ -904,6 +915,13 @@ define KernelPackage/iwlagn/config
 		help
 		  Download and install firmware for:
 		    Intel Centrino Wireless-N 135
+
+	config IWL3160_FW
+		bool "Intel 3160 Firmware"
+		default y
+		help
+		  Download and install firmware for:
+		    Intel Wireless 3160
   endif
 endef
 
@@ -1000,6 +1018,14 @@ endef
 
 
 #Broadcom firmware
+ifneq ($(CONFIG_B43_FW_6_30),)
+  PKG_B43_FWV4_NAME:=broadcom-wl
+  PKG_B43_FWV4_VERSION:=6.30.163.46
+  PKG_B43_FWV4_OBJECT:=$(PKG_B43_FWV4_NAME)-$(PKG_B43_FWV4_VERSION).wl_apsta.o
+  PKG_B43_FWV4_SOURCE:=$(PKG_B43_FWV4_NAME)-$(PKG_B43_FWV4_VERSION).tar.bz2
+  PKG_B43_FWV4_SOURCE_URL:=http://www.lwfinger.com/b43-firmware/
+  PKG_B43_FWV4_MD5SUM:=6fe97e9368d25342a1ab943d3cf3496d
+else
 ifneq ($(CONFIG_B43_FW_5_10),)
   PKG_B43_FWV4_NAME:=broadcom-wl
   PKG_B43_FWV4_VERSION:=5.10.56.27.3
@@ -1030,6 +1056,7 @@ else
   PKG_B43_FWV4_SOURCE:=$(PKG_B43_FWV4_NAME)-$(PKG_B43_FWV4_VERSION).tar.bz2
   PKG_B43_FWV4_SOURCE_URL:=http://mirror2.openwrt.org/sources/
   PKG_B43_FWV4_MD5SUM:=0c6ba9687114c6b598e8019e262d9a60
+endif
 endif
 endif
 endif
@@ -1107,34 +1134,39 @@ config PACKAGE_B43_USE_BCMA
 	config B43_FW_4_150
 		bool "Firmware 410.2160 from driver 4.150.10.5 (old stable)"
 		help
-		  Stable firmware for BCM43xx devices.
+		  Old stable firmware for BCM43xx devices.
 
 		  If unsure, select this.
 
 	config B43_FW_4_178
 		bool "Firmware 478.104 from driver 4.178.10.4"
 		help
-		  Experimental firmware for BCM43xx devices.
-
-		  This firmware is not tested as much as the "stable" firmware.
+		  Older firmware for BCM43xx devices.
 
 		  If unsure, select the "stable" firmware.
 
 	config B43_FW_5_10
 		bool "Firmware 508.1084 from driver 5.10.56.27"
 		help
-		  Newer experimental firmware for BCM43xx devices.
-
-		  This firmware is mostly untested. It is needed for some N-PHY devices.
+		  Older firmware for BCM43xx devices.
 
 		  If unsure, select the "stable" firmware.
 
 	config B43_FW_5_100_138
 		bool "Firmware 666.2 from driver 5.100.138 (stable)"
 		help
+		  The currently default firmware for BCM43xx devices.
+
+		  This firmware currently gets most of the testing and is needed for some N-PHY devices.
+
+		  If unsure, select the this firmware.
+
+	config B43_FW_6_30
+		bool "Firmware 784.2 from driver 6.30.163.46 (experimental)"
+		help
 		  Newer experimental firmware for BCM43xx devices.
 
-		  This firmware is mostly untested. It is needed for some N-PHY devices.
+		  This firmware is mostly untested.
 
 		  If unsure, select the "stable" firmware.
 
@@ -1808,7 +1840,10 @@ ifneq ($(CONFIG_IWL6030_FW),)
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/$(PKG_LINUX_FIRMWARE_SUBDIR)/iwlwifi-6000g2b-6.ucode $(1)/lib/firmware
 endif
 ifneq ($(CONFIG_IWL7260_FW),)
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/$(PKG_LINUX_FIRMWARE_SUBDIR)/iwlwifi-7260-7.ucode $(1)/lib/firmware
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/$(PKG_LINUX_FIRMWARE_SUBDIR)/iwlwifi-7260-9.ucode $(1)/lib/firmware
+endif
+ifneq ($(CONFIG_IWL7265_FW),)
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/$(PKG_LINUX_FIRMWARE_SUBDIR)/iwlwifi-7265-9.ucode $(1)/lib/firmware
 endif
 ifneq ($(CONFIG_IWL100_FW),)
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/$(PKG_LINUX_FIRMWARE_SUBDIR)/iwlwifi-100-5.ucode $(1)/lib/firmware
@@ -1824,6 +1859,9 @@ ifneq ($(CONFIG_IWL105_FW),)
 endif
 ifneq ($(CONFIG_IWL135_FW),)
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/$(PKG_LINUX_FIRMWARE_SUBDIR)/iwlwifi-135-6.ucode $(1)/lib/firmware
+endif
+ifneq ($(CONFIG_IWL3160_FW),)
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/$(PKG_LINUX_FIRMWARE_SUBDIR)/iwlwifi-3160-9.ucode $(1)/lib/firmware
 endif
 endef
 
@@ -1884,6 +1922,9 @@ define KernelPackage/brcmfmac/install
 	$(INSTALL_DIR) $(1)/lib/firmware/brcm
 	$(INSTALL_DATA) \
 		$(PKG_BUILD_DIR)/$(PKG_LINUX_FIRMWARE_SUBDIR)/brcm/brcmfmac43236b.bin \
+		$(1)/lib/firmware/brcm/
+	$(INSTALL_DATA) \
+		$(PKG_BUILD_DIR)/$(PKG_LINUX_FIRMWARE_SUBDIR)/brcm/brcmfmac43143.bin \
 		$(1)/lib/firmware/brcm/
 endef
 

@@ -176,9 +176,15 @@ case $board in
 		set_wifi_led "asus:blue:wifi"
 		;;
 	whr-300hp2 |\
-	whr-600d)
+	whr-600d |\
+	whr-1166d)
 		ucidef_set_led_default "power" "power" "buffalo:green:power" "1"
 		ucidef_set_led_default "router" "router" "buffalo:green:router" "1"
+		;;
+	zbt-wa05)
+		ucidef_set_led_default "power" "power" "zbtlink:blue:power" "1"
+		set_wifi_led "zbtlink:blue:air"
+		set_usb_led "zbtlink:blue:usb"
 		;;
 esac
 

@@ -264,14 +264,38 @@ _procd_kill() {
 	_procd_ubus_call delete
 }
 
+procd_open_data() {
+	local name="$1"
+	json_set_namespace procd __procd_old_cb
+	json_add_object data
+}
+
+procd_close_data() {
+	json_close_object
+	json_set_namespace $__procd_old_cb
+}
+
+_procd_set_config_changed() {
+	local package="$1"
+
+	json_init
+	json_add_string type config.change
+	json_add_object data
+	json_add_string package "$package"
+	json_close_object
+
+	ubus call service event "$(json_dump)"
+}
+
 uci_validate_section()
 {
 	local _package="$1"
 	local _type="$2"
 	local _name="$3"
+	local _result
 	local _error
 	shift; shift; shift
-	local _result=`/sbin/validate_data "$_package" "$_type" "$_name" "$@" 2> /dev/null`
+	_result=`/sbin/validate_data "$_package" "$_type" "$_name" "$@" 2> /dev/null`
 	_error=$?
 	eval "$_result"
 	[ "$_error" = "0" ] || `/sbin/validate_data "$_package" "$_type" "$_name" "$@" 1> /dev/null`
@@ -296,4 +320,5 @@ _procd_wrapper \
 	procd_set_param \
 	procd_append_param \
 	procd_add_validation \
+	procd_set_config_changed \
 	procd_kill

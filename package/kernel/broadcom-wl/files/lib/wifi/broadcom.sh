@@ -120,6 +120,7 @@ disable_broadcom() {
 
 		wlc ifname "$device" stdin <<EOF
 $ifdown
+leddc 0xffff
 EOF
 	)
 	true
@@ -205,6 +206,11 @@ enable_broadcom() {
 			HT20)	chanspec=$(printf 0x%x%x%02x $band 0xb $channel); channel=;;
 			*) ;;
 		esac
+	}
+
+	local leddc=$(wlc ifname "$device" leddc)
+	[ "$leddc" -eq 0xffff ] || {
+		leddc=0x005a000a;
 	}
 
 	local _c=0
@@ -384,6 +390,7 @@ band ${band:-0}
 ${nmode:+nmode $nmode}
 ${nmode:+${nreqd:+nreqd $nreqd}}
 ${gmode:+gmode $gmode}
+leddc $leddc
 apsta $apsta
 ap $ap
 ${mssid:+mssid $mssid}

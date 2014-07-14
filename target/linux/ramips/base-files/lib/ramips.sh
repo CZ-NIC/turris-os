@@ -241,6 +241,9 @@ ramips_board_detect() {
 	*"WHR-600D")
 		name="whr-600d"
 		;;
+	*"WHR-1166D")
+		name="whr-1166d"
+		;;
 	*"WHR-G300N")
 		name="whr-g300n"
 		;;
@@ -298,8 +301,14 @@ ramips_board_detect() {
 	*"WRTNODE")
 		name="wrtnode"
 		;;
+	*"Wansview NCS601W")
+		name="ncs601w"
+		;;
 	*"Sercomm NA930")
 		name="na930"
+		;;
+	*"Zbtlink ZBT-WA05")
+		name="zbt-wa05"
 		;;
 	*)
 		name="generic"
