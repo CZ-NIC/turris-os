@@ -1,3 +1,4 @@
+* Foris (v40): přidán frontend pro nastavení SMTP serveru Turris.
 * Ucollect compresses connection
 * user_notify: Added support for smtp.turris.cz server.
 * Ucollect: flow plugin for testing & possibly release
