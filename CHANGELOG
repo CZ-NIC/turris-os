@@ -1,9 +1,9 @@
 * Foris (v40): přidán frontend pro nastavení SMTP serveru Turris.
 * Ucollect compresses connection
-* user_notify: Added support for smtp.turris.cz server.
+* user_notify: Přidána podpora pro zasílaní emailů přes smtp.turris.cz.
 * Ucollect: flow plugin for testing & possibly release
-* aiccu & tayga: Merged from upstream. Resolved few issues.
-* Transmission: Version bumped
+* aiccu & tayga: Nove verze, řešící několik chyb (např ping na BE strojích).
+* Transmission: Povýšena verze.
 * Ucollect: use trie in buckets and flow (flow is yet unreleased)
 ===================== 1.3 =======================
 * Updater: Avoid process restarts at ucollect dependencies
