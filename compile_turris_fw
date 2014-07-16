@@ -15,6 +15,7 @@
 # Install routing feed and bird package
 ./scripts/feeds update routing
 ./scripts/feeds install bird4 birdc4 bird6 birdc6
+./scripts/feeds install ohybridproxy hnetd
 
 # Build NAND FW
 cp configs/config-turris-nand .config
