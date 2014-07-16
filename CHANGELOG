@@ -1,6 +1,17 @@
+* Autoritativní DNS server Knot povýšen na verzi 1.5.0
+* Foris (v40): přidán frontend pro nastavení SMTP serveru Turris.
+* Ucollect compresses connection
+* user_notify: Přidána podpora pro zasílaní emailů přes smtp.turris.cz.
+* Ucollect: flow plugin for testing & possibly release
+* aiccu & tayga: Nove verze, řešící několik chyb (např ping na BE strojích).
+* Transmission: Povýšena verze.
+* Ucollect: use trie in buckets and flow (flow is yet unreleased)
+===================== 1.3 =======================
+* Updater: Avoid process restarts at ucollect dependencies
+* Firewall je schopný zpracovat ipv6 pravidla od serveru
+* Firewall využívá ipset pro nastavování pravidel
 * Ucollect: nový plugin pro pasivní meření rychlosti připojení k internetu
-* Ucollect: nový plugin umožňující kontrolu SSL certifikátů stanovených serverů
-* Ucollect: nový plugin pro testování odezvy (ping) na stanovené servery
+* Ucollect: ucollect-sniff umí i stahovat SSL certifikáty
 * Nepřepisujeme port dnsmasq pokud to není 53
 * Foris (v39) kompatibilita s novou verzí frameworku Bottle.
 * Aktualizace python-bottle (v0.12.7) a python-bottle-i18n (v0.1.5).
