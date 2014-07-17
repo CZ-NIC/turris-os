@@ -1,3 +1,4 @@
+===================== 1.4 =======================
 * Autoritativní DNS server Knot povýšen na verzi 1.5.0
 * Foris (v40): přidán frontend pro nastavení SMTP serveru Turris.
 * Ucollect komprimuje spojení na server
