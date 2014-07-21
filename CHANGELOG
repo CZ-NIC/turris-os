@@ -1,4 +1,5 @@
-• Logsend: přidán parametr -n pro spuštění bez náhodného čekání
+* Updater: podpora offline updatů
+* Logsend: přidán parametr -n pro spuštění bez náhodného čekání
 * Nikola: přidán timeout po spuštění programu pro lepší vytížení serveru
 * Nikola: preference logů netýkajících se pravidla 000000 (platí, že klient posílá maximálně 1000 záznamů)
 * Nikola: server pošle klientům informace, které IP může vynechat
