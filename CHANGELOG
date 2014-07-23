@@ -1,3 +1,4 @@
+* Foris (v41): úpravy ve formuláři pro nastavení SMTP serveru, Turris SMTP je nyní výchozí.
 * Unbound: Povolen prefetch v naději rychlejších odpovědí.
 * Kernel: Přidána podpora pro SATA port multiplikatory.
 * Updater: Podpora generací
