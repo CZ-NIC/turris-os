@@ -26,7 +26,8 @@ define KernelPackage/ata-core
   SUBMENU:=$(BLOCK_MENU)
   TITLE:=Serial and Parallel ATA support
   DEPENDS:=@PCI_SUPPORT +kmod-scsi-core
-  KCONFIG:=CONFIG_ATA
+  KCONFIG:=CONFIG_ATA \
+	CONFIG_SATA_PMP=y
   FILES:=$(LINUX_DIR)/drivers/ata/libata.ko
 endef
 
