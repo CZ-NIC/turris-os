@@ -1,3 +1,4 @@
+===================== 1.4 =======================
 * Foris (v41): úpravy ve formuláři pro nastavení SMTP serveru, Turris SMTP je nyní výchozí.
 * Unbound: Povolen prefetch v naději rychlejších odpovědí.
 * Kernel: Přidána podpora pro SATA port multiplikatory.
@@ -7,7 +8,6 @@
 * Nikola: přidán timeout po spuštění programu pro lepší vytížení serveru
 * Nikola: preference logů netýkajících se pravidla 000000 (platí, že klient posílá maximálně 1000 záznamů)
 * Nikola: server pošle klientům informace, které IP může vynechat
-===================== 1.4 =======================
 * Autoritativní DNS server Knot povýšen na verzi 1.5.0
 * Foris (v40): přidán frontend pro nastavení SMTP serveru Turris.
 * Ucollect komprimuje spojení na server
