@@ -1,4 +1,5 @@
-p910nd: Přidána volba "bind" do init skriptu.
+* Ucollect: Přidán detektor NATu
+* p910nd: Přidána volba "bind" do init skriptu.
 ===================== 1.4 =======================
 * Foris (v41): úpravy ve formuláři pro nastavení SMTP serveru, Turris SMTP je nyní výchozí.
 * Unbound: Povolen prefetch v naději rychlejších odpovědí.
