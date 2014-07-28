@@ -1,0 +1,167 @@
+--- a/bin/autoheader.in
++++ b/bin/autoheader.in
+@@ -29,7 +29,8 @@ eval 'case $# in 0) exec @PERL@ -S "$0";
+ 
+ BEGIN
+ {
+-  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || '@pkgdatadir@';
++  my $pkgdatadir = $ENV{'autom4te_perllibdir'} ||
++	($ENV{'STAGING_DIR'} ? $ENV{'STAGING_DIR'} . '/../host/share/autoconf' : '@pkgdatadir@');
+   unshift @INC, "$pkgdatadir";
+ 
+   # Override SHELL.  On DJGPP SHELL may not be set to a shell
+@@ -51,7 +52,7 @@ use strict;
+ use vars qw ($config_h %verbatim %symbol);
+ 
+ # Lib files.
+-my $autom4te = $ENV{'AUTOM4TE'} || '@bindir@/@autom4te-name@';
++my $autom4te = $ENV{'AUTOM4TE'} || ($ENV{'STAGING_DIR'} ? $ENV{'STAGING_DIR'} . '/../host/bin/@autom4te-name@' : '@bindir@/@autom4te-name@');
+ local $config_h;
+ my $config_h_in;
+ my @prepend_include;
+--- a/bin/autom4te.in
++++ b/bin/autom4te.in
+@@ -25,7 +25,8 @@ eval 'case $# in 0) exec @PERL@ -S "$0";
+ 
+ BEGIN
+ {
+-  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || '@pkgdatadir@';
++  my $pkgdatadir = $ENV{'autom4te_perllibdir'} ||
++	($ENV{'STAGING_DIR'} ? $ENV{'STAGING_DIR'} . '/../host/share/autoconf' : '@pkgdatadir@');
+   unshift @INC, $pkgdatadir;
+ 
+   # Override SHELL.  On DJGPP SHELL may not be set to a shell
+@@ -45,7 +46,8 @@ use File::Basename;
+ use strict;
+ 
+ # Data directory.
+-my $pkgdatadir = $ENV{'AC_MACRODIR'} || '@pkgdatadir@';
++my $pkgdatadir = $ENV{'AC_MACRODIR'} ||
++	($ENV{'STAGING_DIR'} ? $ENV{'STAGING_DIR'} . '/../host/share/autoconf' : '@pkgdatadir@');
+ 
+ # $LANGUAGE{LANGUAGE} -- Automatic options for LANGUAGE.
+ my %language;
+@@ -88,7 +90,7 @@ my @include;
+ my $freeze = 0;
+ 
+ # $M4.
+-my $m4 = $ENV{"M4"} || '@M4@';
++my $m4 = $ENV{"M4"} || ($ENV{'STAGING_DIR'} ? $ENV{'STAGING_DIR'} . '/../host/bin/m4' : '@M4@');
+ # Some non-GNU m4's don't reject the --help option, so give them /dev/null.
+ fatal "need GNU m4 1.4 or later: $m4"
+   if system "$m4 --help </dev/null 2>&1 | grep reload-state >/dev/null";
+@@ -270,6 +272,12 @@ sub load_configuration ($)
+ 
+       my @words = shellwords ($_);
+       my $type = shift @words;
++
++      if ($ENV{'STAGING_DIR'})
++      {
++        @words = map { s!^@pkgdatadir@!$ENV{'STAGING_DIR'}/../host/share/autoconf!; $_ } @words;
++      }
++
+       if ($type eq 'begin-language:')
+ 	{
+ 	  fatal "$file:$.: end-language missing for: $lang"
+--- a/bin/autoreconf.in
++++ b/bin/autoreconf.in
+@@ -27,7 +27,8 @@ eval 'case $# in 0) exec @PERL@ -S "$0";
+ 
+ BEGIN
+ {
+-  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || '@pkgdatadir@';
++  my $pkgdatadir = $ENV{'autom4te_perllibdir'} ||
++	($ENV{'STAGING_DIR'} ? $ENV{'STAGING_DIR'} . '/../host/share/autoconf' : '@pkgdatadir@');
+   unshift @INC, $pkgdatadir;
+ 
+   # Override SHELL.  On DJGPP SHELL may not be set to a shell
+@@ -107,9 +108,9 @@ Written by David J. MacKenzie and Akim D
+ ";
+ 
+ # Lib files.
+-my $autoconf   = $ENV{'AUTOCONF'}   || '@bindir@/@autoconf-name@';
+-my $autoheader = $ENV{'AUTOHEADER'} || '@bindir@/@autoheader-name@';
+-my $autom4te   = $ENV{'AUTOM4TE'}   || '@bindir@/@autom4te-name@';
++my $autoconf   = $ENV{'AUTOCONF'}   || ($ENV{'STAGING_DIR'} ? $ENV{'STAGING_DIR'} . '/../host/bin/@autoconf-name@' : '@bindir@/@autoconf-name@');
++my $autoheader = $ENV{'AUTOHEADER'} || ($ENV{'STAGING_DIR'} ? $ENV{'STAGING_DIR'} . '/../host/bin/@autoheader-name@' : '@bindir@/@autoheader-name@');
++my $autom4te   = $ENV{'AUTOM4TE'}   || ($ENV{'STAGING_DIR'} ? $ENV{'STAGING_DIR'} . '/../host/bin/@autom4te-name@' : '@bindir@/@autom4te-name@');
+ my $automake   = $ENV{'AUTOMAKE'}   || 'automake';
+ my $aclocal    = $ENV{'ACLOCAL'}    || 'aclocal';
+ my $libtoolize = $ENV{'LIBTOOLIZE'} || 'libtoolize';
+--- a/bin/autoscan.in
++++ b/bin/autoscan.in
+@@ -26,7 +26,8 @@ eval 'case $# in 0) exec @PERL@ -S "$0";
+ 
+ BEGIN
+ {
+-  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || '@pkgdatadir@';
++  my $pkgdatadir = $ENV{'autom4te_perllibdir'} ||
++	($ENV{'STAGING_DIR'} ? $ENV{'STAGING_DIR'} . '/../host/share/autoconf' : '@pkgdatadir@');
+   unshift @INC, $pkgdatadir;
+ 
+   # Override SHELL.  On DJGPP SHELL may not be set to a shell
+@@ -92,10 +93,10 @@ my $configure_scan = 'configure.scan';
+ my $log;
+ 
+ # Autoconf and lib files.
+-my $autom4te = $ENV{'AUTOM4TE'} || '@bindir@/@autom4te-name@';
++my $autom4te = $ENV{'AUTOM4TE'} || ($ENV{'STAGING_DIR'} ? $ENV{'STAGING_DIR'} . '/../host/bin/@autom4te-name@' : '@bindir@/@autom4te-name@');
+ my $autoconf = "$autom4te --language=autoconf";
+ my @prepend_include;
+-my @include = ('@pkgdatadir@');
++my @include = ($ENV{'STAGING_DIR'} ? $ENV{'STAGING_DIR'} . '/../host/share/autoconf' : '@pkgdatadir@');
+ 
+ # $help
+ # -----
+--- a/bin/autoupdate.in
++++ b/bin/autoupdate.in
+@@ -27,7 +27,8 @@ eval 'case $# in 0) exec @PERL@ -S "$0";
+ 
+ BEGIN
+ {
+-  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || '@pkgdatadir@';
++  my $pkgdatadir = $ENV{'autom4te_perllibdir'} ||
++	($ENV{'STAGING_DIR'} ? $ENV{'STAGING_DIR'} . '/../host/share/autoconf' : '@pkgdatadir@');
+   unshift @INC, $pkgdatadir;
+ 
+   # Override SHELL.  On DJGPP SHELL may not be set to a shell
+@@ -51,10 +52,10 @@ my $autom4te = $ENV{'AUTOM4TE'} || '@bin
+ my $autoconf = "$autom4te --language=autoconf";
+ # We need to find m4sugar.
+ my @prepend_include;
+-my @include = ('@pkgdatadir@');
++my @include = ($ENV{'STAGING_DIR'} ? $ENV{'STAGING_DIR'} . '/../host/share/autoconf' : '@pkgdatadir@');
+ my $force = 0;
+ # m4.
+-my $m4 = $ENV{"M4"} || '@M4@';
++my $m4 = $ENV{"M4"} || ($ENV{'STAGING_DIR'} ? $ENV{'STAGING_DIR'} . '/../host/bin/m4' : '@M4@');
+ 
+ 
+ # $HELP
+--- a/bin/ifnames.in
++++ b/bin/ifnames.in
+@@ -31,7 +31,8 @@ eval 'case $# in 0) exec @PERL@ -S "$0";
+ 
+ BEGIN
+ {
+-  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || '@pkgdatadir@';
++  my $pkgdatadir = $ENV{'autom4te_perllibdir'} ||
++	($ENV{'STAGING_DIR'} ? $ENV{'STAGING_DIR'} . '/../host/share/autoconf' : '@pkgdatadir@');
+   unshift @INC, $pkgdatadir;
+ 
+   # Override SHELL.  On DJGPP SHELL may not be set to a shell
+--- a/bin/autoconf.as
++++ b/bin/autoconf.as
+@@ -85,7 +85,11 @@ exit_missing_arg='
+ # restore font-lock: '
+ 
+ # Variables.
+-: ${AUTOM4TE='@bindir@/@autom4te-name@'}
++if test -n "$STAGING_DIR"; then
++	: ${AUTOM4TE="$STAGING_DIR/../host/bin/@autom4te-name@"}
++else
++	: ${AUTOM4TE='@bindir@/@autom4te-name@'}
++fi
+ autom4te_options=
+ outfile=
+ verbose=false

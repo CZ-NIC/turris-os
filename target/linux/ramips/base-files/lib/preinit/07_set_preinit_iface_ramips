@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# Copyright (C) 2013 OpenWrt.org
+#
+
+. /lib/ramips.sh
+
+ramips_set_preinit_iface() {
+	RT3X5X=`cat /proc/cpuinfo | egrep "(RT3.5|RT5350)"`
+	if [ -n "${RT3X5X}" ]; then
+		swconfig dev rt305x set reset 1
+	fi
+
+	ifname=eth0
+}
+
+boot_hook_add preinit_main ramips_set_preinit_iface

@@ -1,0 +1,46 @@
+--- a/aclocal.in
++++ b/aclocal.in
+@@ -27,7 +27,8 @@
+ 
+ BEGIN
+ {
+-  my $perllibdir = $ENV{'perllibdir'} || '@datadir@/@PACKAGE@-@APIVERSION@';
++  my $perllibdir = $ENV{'perllibdir'} ||
++	($ENV{'STAGING_DIR'} ? $ENV{'STAGING_DIR'} . '/../host/share/@PACKAGE@-@APIVERSION@' : '@datadir@/@PACKAGE@-@APIVERSION@');
+   unshift @INC, (split '@PATH_SEPARATOR@', $perllibdir);
+ }
+ 
+@@ -58,8 +59,8 @@
+ # ACLOCAL_PATH environment variable, and reset with the `--system-acdir'
+ # option.
+ my @user_includes = ();
+-my @automake_includes = ("@datadir@/aclocal-$APIVERSION");
+-my @system_includes = ('@datadir@/aclocal');
++my @automake_includes = ($ENV{'STAGING_DIR'} ? $ENV{'STAGING_DIR'} . "/../host/share/aclocal-$APIVERSION" : "@datadir@/aclocal-$APIVERSION");
++my @system_includes = ($ENV{'STAGING_DIR'} ? $ENV{'STAGING_DIR'} . '/../host/share/aclocal' : '@datadir@/aclocal');
+ 
+ # Whether we should copy M4 file in $user_includes[0].
+ my $install = 0;
+--- a/automake.in
++++ b/automake.in
+@@ -31,7 +31,8 @@
+ 
+ BEGIN
+ {
+-  my $perllibdir = $ENV{'perllibdir'} || '@datadir@/@PACKAGE@-@APIVERSION@';
++  my $perllibdir = $ENV{'perllibdir'} || 
++		($ENV{'STAGING_DIR'} ? $ENV{'STAGING_DIR'} . '/../host/share/@PACKAGE@-@APIVERSION@' : '@datadir@/@PACKAGE@-@APIVERSION@');
+   unshift @INC, (split '@PATH_SEPARATOR@', $perllibdir);
+ 
+   # Override SHELL.  This is required on DJGPP so that system() uses
+--- a/lib/Automake/Config.in
++++ b/lib/Automake/Config.in
+@@ -31,7 +31,7 @@
+ our $PACKAGE = '@PACKAGE@';
+ our $PACKAGE_BUGREPORT = '@PACKAGE_BUGREPORT@';
+ our $VERSION = '@VERSION@';
+-our $libdir = '@datadir@/@PACKAGE@-@APIVERSION@';
++our $libdir = $ENV{'STAGING_DIR'} ? $ENV{'STAGING_DIR'} . '/../host/share/@PACKAGE@-@APIVERSION@' : '@datadir@/@PACKAGE@-@APIVERSION@';
+ our $perl_threads = @PERL_THREADS@;
+ 
+ 1;
