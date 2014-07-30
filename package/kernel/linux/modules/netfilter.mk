@@ -534,6 +534,27 @@ define AddDepends/nfnetlink
 endef
 
 
+define KernelPackage/nfnetlink-nfacct
+  TITLE:=Netfilter Accouting over NFNETLINK interface
+  FILES:= \
+   $(LINUX_DIR)/net/netfilter/nfnetlink_acct.ko \
+   $(LINUX_DIR)/net/netfilter/xt_nfacct.ko
+  KCONFIG:= \
+   CONFIG_NETFILTER_NETLINK_ACCT \
+   CONFIG_NETFILTER_XT_MATCH_NFACCT
+  AUTOLOAD:=$(call AutoProbe,nfnetlink_acct xt_nfacct)
+  $(call AddDepends/nfnetlink)
+endef
+
+define KernelPackage/nfnetlink-nfacct/description
+ Kernel modules support for matching and managing accounting objects
+ Includes:
+ - nfacct
+endef
+
+$(eval $(call KernelPackage,nfnetlink-nfacct))
+
+
 define KernelPackage/nfnetlink-log
   TITLE:=Netfilter LOG over NFNETLINK interface
   FILES:=$(LINUX_DIR)/net/netfilter/nfnetlink_log.ko
