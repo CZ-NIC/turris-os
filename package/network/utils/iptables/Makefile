@@ -292,6 +292,20 @@ U32 iptables extensions.
 
 endef
 
+define Package/iptables-mod-nfacct
+$(call Package/iptables/Module, +kmod-nfnetlink-nfacct)
+  TITLE:=Netfilter accounting (nfacct)
+endef
+
+define Package/iptables-mod-nfacct/description
+iptables extensions for matching accounting objects.
+Includes support for:
+
+ Matches:
+  - nfacct
+
+endef
+
 define Package/ip6tables
 $(call Package/iptables/Default)
   DEPENDS:=@IPV6 +kmod-ip6tables +iptables
@@ -457,6 +471,7 @@ $(eval $(call BuildPlugin,iptables-mod-led,$(IPT_LED-m)))
 $(eval $(call BuildPlugin,iptables-mod-tproxy,$(IPT_TPROXY-m)))
 $(eval $(call BuildPlugin,iptables-mod-tee,$(IPT_TEE-m)))
 $(eval $(call BuildPlugin,iptables-mod-u32,$(IPT_U32-m)))
+$(eval $(call BuildPlugin,iptables-mod-nfacct,xt_nfacct))
 $(eval $(call BuildPackage,ip6tables))
 $(eval $(call BuildPlugin,ip6tables-mod-nat,$(IPT_NAT6-m)))
 $(eval $(call BuildPackage,libiptc))
