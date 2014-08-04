@@ -1,6 +1,6 @@
 --- a/libopkg/opkg_download.c
 +++ b/libopkg/opkg_download.c
-@@ -157,16 +157,28 @@
+@@ -157,16 +157,29 @@
  #else
      {
        int res;
