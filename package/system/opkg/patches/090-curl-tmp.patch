@@ -1,11 +1,11 @@
 --- a/libopkg/opkg_download.c
 +++ b/libopkg/opkg_download.c
-@@ -157,16 +157,28 @@
+@@ -157,16 +157,29 @@
  #else
      {
        int res;
 -      const char *argv[8];
-+      const char *argv[12];
++      const char *argv[13];
        int i = 0;
  
 -      argv[i++] = "wget";
@@ -32,6 +32,7 @@
 +      argv[i++] = "/etc/ssl/startcom.pem";
 +      argv[i++] = "--crlfile";
 +      argv[i++] = "/etc/ssl/crl.pem";
++      argv[i++] = "-f";
 +      argv[i++] = "-o";
        argv[i++] = tmp_file_location;
        argv[i++] = src;
