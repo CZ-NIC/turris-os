@@ -123,6 +123,11 @@ CONFIGURE_ARGS += \
 
 MAKE_FLAGS += DYNEXP= PICFLAG= MODULES=
 
+define Package/samba35-server/conffiles
+/etc/config/samba
+/etc/samba/smb.conf.template
+endef
+
 define Package/samba36-server/install
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DATA) ./files/samba.config $(1)/etc/config/samba
