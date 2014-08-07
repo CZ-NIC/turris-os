@@ -123,7 +123,17 @@ CONFIGURE_ARGS += \
 
 MAKE_FLAGS += DYNEXP= PICFLAG= MODULES=
 
-define Package/samba35-server/conffiles
+define Package/samba36-server/postinst
+#!/bin/sh
+# check if we are on real system
+if [ -z "$${IPKG_INSTROOT}" ]; then
+        echo "Reloading samba"
+        /etc/init.d/samba restart
+fi
+exit 0
+endef
+
+define Package/samba36-server/conffiles
 /etc/config/samba
 /etc/samba/smb.conf.template
 endef
