@@ -1,3 +1,5 @@
+* Firewall je schopen pomocí ulogd a NFLOG vytvářet pcap soubory zahozených paketů pro další analýzu.
+* ulogd: updatován do verze 2.0 a ucifikován.
 * majordomo: Plugin pro ucollect, na sledování, co kam leze.
 * lcollect: Lokální ucollect, bez připojení na server.
 * Samba: Povýšena verze. Řeší CVE-2013-4475.
