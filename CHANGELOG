@@ -2,6 +2,7 @@
 * ulogd: updatován do verze 2.0 a ucifikován.
 * majordomo: Plugin pro ucollect, na sledování, co kam leze.
 * lcollect: Lokální ucollect, bez připojení na server.
+* ucollect-core: Rozdělen na ucollect-lib a ucollect-prog.
 * Samba: Povýšena verze. Řeší CVE-2013-4475.
 * Ucollect: Přidán detektor NATu
 * p910nd: Přidána volba "bind" do init skriptu.
