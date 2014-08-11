@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=e2fsprogs
 PKG_VERSION:=1.42.4
 PKG_MD5SUM:=b6e296f210d642361b7394437ff0f318
-PKG_RELEASE:=1
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@SF/e2fsprogs
@@ -35,7 +35,7 @@ endef
 
 define Package/e2fsprogs/description
  This package contains essential ext2 filesystem utilities which consists of
- e2fsck, mke2fs, tune2fs, and most of the other core ext2
+ e2fsck, mke2fs, and most of the other core ext2
  filesystem utilities.
 endef
 
@@ -107,6 +107,10 @@ define Package/e2fsprogs/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/e2fsck $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/mke2fs $(1)/usr/sbin/
+	ln -sf e2fsck $(1)/usr/sbin/fsck.ext2
+	ln -sf e2fsck $(1)/usr/sbin/fsck.ext3
+	ln -sf e2fsck $(1)/usr/sbin/fsck.ext4
+
 	ln -sf mke2fs $(1)/usr/sbin/mkfs.ext2
 	ln -sf mke2fs $(1)/usr/sbin/mkfs.ext3
 	ln -sf mke2fs $(1)/usr/sbin/mkfs.ext4

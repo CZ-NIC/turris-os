@@ -169,7 +169,7 @@
  	ctags $(SRC)
 --- a/test/Makefile
 +++ b/test/Makefile
-@@ -124,7 +124,7 @@ install:
+@@ -127,7 +127,7 @@ install:
  tags:
  	ctags $(SRC)
  
@@ -178,7 +178,7 @@
  
  apps:
  	@(cd ..; $(MAKE) DIRS=apps all)
-@@ -365,109 +365,109 @@ FIPS_BUILD_CMD=shlib_target=; if [ -n "$
+@@ -378,109 +378,109 @@ BUILD_CMD_STATIC=shlib_target=; 
  		link_app.$${shlib_target}
  
  $(RSATEST)$(EXE_EXT): $(RSATEST).o $(DLIBCRYPTO)
@@ -323,7 +323,7 @@
  
  #$(AESTEST).o: $(AESTEST).c
  #	$(CC) -c $(CFLAGS) -DINTERMEDIATE_VALUE_KAT -DTRACE_KAT_MCT $(AESTEST).c
-@@ -480,7 +480,7 @@ $(SRPTEST)$(EXE_EXT): $(SRPTEST).o $(DLI
+@@ -496,7 +496,7 @@ $(SRPTEST)$(EXE_EXT): $(SRPTEST).o $(DLI
  #	fi
  
  dummytest$(EXE_EXT): dummytest.o $(DLIBCRYPTO)

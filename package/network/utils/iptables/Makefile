@@ -194,6 +194,32 @@ iptables extensions for user-space packet logging.
 
 endef
 
+define Package/iptables-mod-nflog
+$(call Package/iptables/Module, +kmod-nfnetlink-log)
+  TITLE:=Netfilter NFLOG target
+endef
+
+define Package/iptables-mod-nflog/description
+ iptables extension for user-space logging via NFNETLINK.
+
+ Includes:
+  - libxt_NFLOG
+
+endef
+
+define Package/iptables-mod-nfqueue
+$(call Package/iptables/Module, +kmod-nfnetlink-queue)
+  TITLE:=Netfilter NFQUEUE target
+endef
+
+define Package/iptables-mod-nfqueue/description
+ iptables extension for user-space queuing via NFNETLINK.
+
+ Includes:
+  - libxt_NFQUEUE
+
+endef
+
 define Package/iptables-mod-hashlimit
 $(call Package/iptables/Module, +kmod-ipt-hashlimit)
   TITLE:=hashlimit matching
@@ -290,6 +316,20 @@ U32 iptables extensions.
 
  Matches:
   - u32
+
+endef
+
+define Package/iptables-mod-nfacct
+$(call Package/iptables/Module, +kmod-nfnetlink-nfacct)
+  TITLE:=Netfilter accounting (nfacct)
+endef
+
+define Package/iptables-mod-nfacct/description
+iptables extensions for matching accounting objects.
+Includes support for:
+
+ Matches:
+  - nfacct
 
 endef
 
@@ -469,6 +509,9 @@ $(eval $(call BuildPlugin,iptables-mod-led,$(IPT_LED-m)))
 $(eval $(call BuildPlugin,iptables-mod-tproxy,$(IPT_TPROXY-m)))
 $(eval $(call BuildPlugin,iptables-mod-tee,$(IPT_TEE-m)))
 $(eval $(call BuildPlugin,iptables-mod-u32,$(IPT_U32-m)))
+$(eval $(call BuildPlugin,iptables-mod-nflog,$(NFNETLINK_LOG-m)))
+$(eval $(call BuildPlugin,iptables-mod-nfqueue,$(NFNETLINK_QUEUE-m)))
+$(eval $(call BuildPlugin,iptables-mod-nfacct,xt_nfacct))
 $(eval $(call BuildPackage,ip6tables))
 $(eval $(call BuildPlugin,ip6tables-extra,$(IPT_IPV6_EXTRA-m)))
 $(eval $(call BuildPlugin,ip6tables-mod-nat,$(IPT_NAT6-m)))

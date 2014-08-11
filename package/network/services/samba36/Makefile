@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=samba
 PKG_VERSION:=3.6.24
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_URL:=http://ftp.samba.org/pub/samba \
 	http://ftp.samba.org/pub/samba/stable
@@ -122,6 +122,21 @@ CONFIGURE_ARGS += \
 	--with-shared-modules=pdb_tdbsam,pdb_wbc_sam,idmap_nss,nss_info_template,auth_winbind,auth_wbc,auth_domain
 
 MAKE_FLAGS += DYNEXP= PICFLAG= MODULES=
+
+define Package/samba36-server/postinst
+#!/bin/sh
+# check if we are on real system
+if [ -z "$${IPKG_INSTROOT}" ]; then
+        echo "Reloading samba"
+        /etc/init.d/samba restart
+fi
+exit 0
+endef
+
+define Package/samba36-server/conffiles
+/etc/config/samba
+/etc/samba/smb.conf.template
+endef
 
 define Package/samba36-server/install
 	$(INSTALL_DIR) $(1)/etc/config

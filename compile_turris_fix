@@ -1,9 +1,5 @@
 #!/bin/bash -xe
 
-# Cleaning 
-[ -d ./tmp ] && rm -rf ./tmp
-[ -d ./bin ] && rm -rf ./bin
-
 # Build u-boot
 ./compile_u-boot
 
@@ -23,31 +19,17 @@ cp configs/config-turris-nand .config
 [ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
 make defconfig
 export TARGET_BOARD=turris
-if [ -d .git ] ; then
-	git log -n1 --format='%H' >files/etc/git-version
+git log -n1 --format='%H' >files/etc/git-version
+git clone git@git.nic.cz:turris/misc-internal
+# If the revision is marked, it is propagation of deploy into current stable. In that case, we clean up. Otherwise, just try to recompile it as fast as possible, as it is just some small fix.
+if grep -qFf files/etc/git-version misc-internal/updater/deploy ; then
+	make clean
 fi
-make clean
+rm -rf misc-internal
 make "$@"
 # Preserve the uncompressed image too
-mv build_dir/target-powerpc_*/root-mpc85xx bin/mpc85xx/root
+cp -pr build_dir/target-powerpc_*/root-mpc85xx bin/mpc85xx/root
 cd bin/mpc85xx/root
-rm var
+rm -f var
 find -type l ! -exec test -r {} \; -delete
 cd ../../..
-
-# Clean
-[ -d ./bin-nand ] && rm -rf ./bin-nand
-mv ./bin ./bin-nand
-[ -d ./tmp ] && rm -rf ./tmp
-
-# Build NOR FW
-cp configs/config-turris-nor .config
-[ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
-make defconfig
-make clean
-make "$@"
-[ -d ./bin/mpc85xx/packages ] && rm -rf ./bin/mpc85xx/packages
-[ -d ./bin-nor ] && rm -rf ./bin-nor
-mv ./bin ./bin-nor
-
-
