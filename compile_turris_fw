@@ -7,14 +7,16 @@
 # Build u-boot
 ./compile_u-boot
 
+# Clean feeds
+./scripts/feeds uninstall -a
+
 # Install luci feed
 ./scripts/feeds update -i lucics
 ./scripts/feeds install luci
 ./scripts/feeds install luci-i18n-czech
 
-# Install routing feed and bird package
+# Install routing feed
 ./scripts/feeds update routing
-#./scripts/feeds install bird4 birdc4 bird6 birdc6
 ./scripts/feeds install ohybridproxy hnetd
 
 # Build NAND FW
@@ -22,6 +24,7 @@ cp configs/config-turris-nand .config
 [ -n "$BUILD_ALL" ] && echo "CONFIG_ALL=y" >> .config
 [ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
 make defconfig
+make tools/install
 export TARGET_BOARD=turris
 if [ -d .git ] ; then
 	git log -n1 --format='%H' >files/etc/git-version

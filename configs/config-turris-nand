@@ -22,7 +22,7 @@ CONFIG_BUSYBOX_CONFIG_STTY=y
 # These are needed as packages for updater
 CONFIG_PACKAGE_ucollect-badconf=m
 CONFIG_PACKAGE_ucollect-buckets=m
-CONFIG_PACKAGE_ucollect-core=m
+CONFIG_PACKAGE_ucollect-prog=m
 CONFIG_PACKAGE_ucollect-count=m
 CONFIG_PACKAGE_ucollect-sniff=m
 CONFIG_PACKAGE_ucollect-bandwidth=m
