@@ -71,22 +71,23 @@ define Build/Compile
 		CROSS_COMPILE=$(TARGET_CROSS) 
 endef
 
-
-define Package/uboot/install/default
-	dd if=$(PKG_BUILD_DIR)/u-boot.bin of=$(BIN_DIR)/uboot-$(BOARD)-$(1) 
+define Build/Clean
+	$(RM) -rf $(BIN_DIR)/uboot-$(BOARD)
 endef
 
-define Package/uboot/install/sdcard
-	$(STAGING_DIR_HOST)/bin/boot-format $(STAGING_DIR_HOST)/lib/boot-format/config_sram_p2020ds.dat \
-		$(PKG_BUILD_DIR)/u-boot.bin -spi $(BIN_DIR)/uboot-$(BOARD)-$(1)
+define Package/uboot/install/default
+	$(INSTALL_DIR) $(BIN_DIR)/uboot-$(BOARD)
+	if [ $(1) = "TURRIS1_SDCARD" ]; then \
+		$(STAGING_DIR_HOST)/bin/boot-format $(STAGING_DIR_HOST)/lib/boot-format/config_sram_p2020ds.dat \
+			$(PKG_BUILD_DIR)/u-boot.bin -spi $(BIN_DIR)/uboot-$(BOARD)/uboot-$(BOARD)-$(1); \
+	else \
+		$(CP) $(PKG_BUILD_DIR)/u-boot.bin $(BIN_DIR)/uboot-$(BOARD)/uboot-$(BOARD)-$(1); \
+	fi
 endef
 
 define Package/uboot/install/template
-define Package/uboot-TURRIS1/install
+define Package/uboot-$(1)/install
 	$(call Package/uboot/install/default,$(2))
-endef
-define Package/uboot-TURRIS1_SDCARD/install
-	$(call Package/uboot/install/sdcard,$(2))
 endef
 endef
 
