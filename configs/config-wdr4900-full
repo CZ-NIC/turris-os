@@ -3422,6 +3422,7 @@ CONFIG_PACKAGE_socat=y
 CONFIG_PACKAGE_ucollect-badconf=y
 CONFIG_PACKAGE_ucollect-buckets=y
 CONFIG_PACKAGE_ucollect-config=y
+CONFIG_PACKAGE_ucollect-lib=y
 CONFIG_PACKAGE_ucollect-prog=y
 CONFIG_PACKAGE_ucollect-count=y
 CONFIG_PACKAGE_ucollect-sniff=y
