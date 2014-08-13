@@ -1,12 +1,6 @@
 [submodule "package/packages"]
 	path = package/packages
 	url = https://gitlab.labs.nic.cz/turris/openwrt-packages.git
-[submodule "u-boot"]
-	path = u-boot
-	url = https://gitlab.labs.nic.cz/turris/u-boot-turris.git
-[submodule "boot-format"]
-	path = boot-format
-	url = https://gitlab.labs.nic.cz/turris/boot-format.git
 [submodule "feeds/lucics"]
 	path = feeds/lucics
 	url = https://gitlab.labs.nic.cz/turris/luci-cs.git

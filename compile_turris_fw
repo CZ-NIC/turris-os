@@ -4,9 +4,6 @@
 [ -d ./tmp ] && rm -rf ./tmp
 [ -d ./bin ] && rm -rf ./bin
 
-# Build u-boot
-./compile_u-boot
-
 # Clean feeds
 ./scripts/feeds uninstall -a
 
