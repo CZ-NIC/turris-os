@@ -18,7 +18,6 @@ PKG_SOURCE_VERSION:=d237c8d44edd955aaa27a320268c39f6adea064e
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_MAINTAINER:=Stepan Henek <stepan.henek@nic.cz>
 
-
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 

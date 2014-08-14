@@ -5,6 +5,7 @@
 /dl
 /.config.old
 /bin*
+/.config
 /build_dir
 /staging_dir
 /tmp
@@ -21,6 +22,5 @@
 *#
 .emacs.desktop*
 TAGS*~
-.config
 /files/etc/git-version
 git-src

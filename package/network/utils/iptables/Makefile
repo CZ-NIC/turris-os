@@ -195,7 +195,7 @@ iptables extensions for user-space packet logging.
 endef
 
 define Package/iptables-mod-nflog
-$(call Package/iptables/Module, +kmod-nfnetlink-log)
+$(call Package/iptables/Module, +kmod-nfnetlink-log +kmod-ipt-nflog)
   TITLE:=Netfilter NFLOG target
 endef
 
@@ -208,7 +208,7 @@ define Package/iptables-mod-nflog/description
 endef
 
 define Package/iptables-mod-nfqueue
-$(call Package/iptables/Module, +kmod-nfnetlink-queue)
+$(call Package/iptables/Module, +kmod-nfnetlink-queue +kmod-ipt-nfqueue)
   TITLE:=Netfilter NFQUEUE target
 endef
 
@@ -509,9 +509,9 @@ $(eval $(call BuildPlugin,iptables-mod-led,$(IPT_LED-m)))
 $(eval $(call BuildPlugin,iptables-mod-tproxy,$(IPT_TPROXY-m)))
 $(eval $(call BuildPlugin,iptables-mod-tee,$(IPT_TEE-m)))
 $(eval $(call BuildPlugin,iptables-mod-u32,$(IPT_U32-m)))
-$(eval $(call BuildPlugin,iptables-mod-nflog,$(NFNETLINK_LOG-m)))
-$(eval $(call BuildPlugin,iptables-mod-nfqueue,$(NFNETLINK_QUEUE-m)))
 $(eval $(call BuildPlugin,iptables-mod-nfacct,xt_nfacct))
+$(eval $(call BuildPlugin,iptables-mod-nflog,$(IPT_NFLOG-m)))
+$(eval $(call BuildPlugin,iptables-mod-nfqueue,$(IPT_NFQUEUE-m)))
 $(eval $(call BuildPackage,ip6tables))
 $(eval $(call BuildPlugin,ip6tables-extra,$(IPT_IPV6_EXTRA-m)))
 $(eval $(call BuildPlugin,ip6tables-mod-nat,$(IPT_NAT6-m)))

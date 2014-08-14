@@ -248,7 +248,7 @@ ap96_mtdlayout=mtdparts=spi0.0:192k(u-boot)ro,64k(u-boot-env)ro,6144k(rootfs),17
 ap113_mtd_layout=mtdparts=spi0.0:64k(u-boot),3008k(rootfs),896k(uImage),64k(NVRAM),64k(ART),3904k@0x10000(firmware)
 ap121_mtdlayout_2M=mtdparts=spi0.0:64k(u-boot)ro,1216k(rootfs),704k(kernel),64k(art)ro,1920k@0x10000(firmware)
 ap121_mtdlayout_4M=mtdparts=spi0.0:256k(u-boot)ro,64k(u-boot-env)ro,2752k(rootfs),896k(kernel),64k(nvram),64k(art)ro,3648k@0x50000(firmware)
-carambola2_mtdlayout_16M=mtdparts=spi0.0:256k(u-boot)ro,64k(u-boot-env)ro,15936k(firmware),64k(nvram),64k(art)ro
+carambola2_mtdlayout_16M=mtdparts=spi0.0:256k(u-boot)ro,64k(u-boot-env)ro,16000k(firmware),64k(art)ro
 ap132_mtdlayout=mtdparts=spi0.0:256k(u-boot)ro,64k(u-boot-env)ro,1408k(kernel),6400k(rootfs),64k(art),7808k@0x50000(firmware)
 ap135_mtdlayout=mtdparts=spi0.0:256k(u-boot)ro,64k(u-boot-env)ro,14528k(rootfs),1472k(kernel),64k(art)ro,16000k@0x50000(firmware)
 ap136_mtdlayout=mtdparts=spi0.0:256k(u-boot)ro,64k(u-boot-env)ro,6336k(rootfs),1408k(kernel),64k(mib0),64k(art)ro,7744k@0x50000(firmware)
@@ -1111,6 +1111,7 @@ $(eval $(call SingleProfile,Netgear,64kraw,N150R,n150r,WNR612V2,ttyS0,115200,$$(
 $(eval $(call SingleProfile,Netgear,64kraw,WNDR3700V1,wndr3700,WNDR3700,ttyS0,115200,$$(wndr3700_mtdlayout),0x33373030,WNDR3700,"" NA,,7 864 320))
 $(eval $(call SingleProfile,Netgear,64kraw,WNDR3700V2,wndr3700v2,WNDR3700,ttyS0,115200,$$(wndr3700v2_mtdlayout),0x33373031,WNDR3700v2,"",-H 29763654+16+64))
 $(eval $(call SingleProfile,Netgear,64kraw,WNDR3800,wndr3800,WNDR3700,ttyS0,115200,$$(wndr3700v2_mtdlayout),0x33373031,WNDR3800,"",-H 29763654+16+128))
+$(eval $(call SingleProfile,Netgear,64kraw,WNDR3800CH,wndr3800ch,WNDR3700,ttyS0,115200,$$(wndr3700v2_mtdlayout),0x33373031,WNDR3800CH,"",-H 29763654+16+128))
 $(eval $(call SingleProfile,Netgear,64kraw,WNDRMAC,wndrmac,WNDR3700,ttyS0,115200,$$(wndr3700v2_mtdlayout),0x33373031,WNDRMAC,"",-H 29763654+16+64))
 $(eval $(call SingleProfile,Netgear,64kraw,WNDRMACV2,wndrmacv2,WNDR3700,ttyS0,115200,$$(wndr3700v2_mtdlayout),0x33373031,WNDRMACv2,"",-H 29763654+16+128))
 
@@ -1266,7 +1267,7 @@ $(eval $(call MultiProfile,TLWR1043,TLWR1043V1 TLWR1043V2))
 $(eval $(call MultiProfile,TLWDR4300,TLWDR3500V1 TLWDR3600V1 TLWDR4300V1 TLWDR4300V1IL TLWDR4310V1 MW4530RV1))
 $(eval $(call MultiProfile,TUBE2H,TUBE2H8M TUBE2H16M))
 $(eval $(call MultiProfile,UBNT,UBNTAIRROUTER UBNTRS UBNTRSPRO UBNTLSSR71 UBNTBULLETM UBNTROCKETM UBNTNANOM UBNTNANOMXW UBNTUNIFI UBNTUNIFIOUTDOOR UAPPRO UBNTAIRGW))
-$(eval $(call MultiProfile,WNDR3700,WNDR3700V1 WNDR3700V2 WNDR3800 WNDRMAC WNDRMACV2))
+$(eval $(call MultiProfile,WNDR3700,WNDR3700V1 WNDR3700V2 WNDR3800 WNDR3800CH WNDRMAC WNDRMACV2))
 $(eval $(call MultiProfile,WNR612V2,REALWNR612V2 N150R))
 $(eval $(call MultiProfile,WP543,WP543_2M WP543_4M WP543_8M WP543_16M))
 $(eval $(call MultiProfile,WPE72,WPE72_4M WPE72_8M WPE72_16M))

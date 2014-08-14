@@ -321,7 +321,7 @@ $(eval $(call KernelPackage,usb-uhci,1))
 
 define KernelPackage/usb-ohci
   TITLE:=Support for OHCI controllers
-  DEPENDS:=+@TARGET_brcm47xx:kmod-usb-brcm47xx
+  DEPENDS:=+TARGET_brcm47xx:kmod-usb-brcm47xx
   KCONFIG:= \
 	CONFIG_USB_OHCI \
 	CONFIG_USB_OHCI_HCD \

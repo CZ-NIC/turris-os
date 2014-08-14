@@ -328,7 +328,7 @@ endef
 
 define KernelPackage/rt2800-soc
 $(call KernelPackage/rt2x00/Default)
-  DEPENDS += @(TARGET_ramips_rt288x||TARGET_ramips_rt305x||TARGET_ramips_rt3883||TARGET_ramips_mt7620n||TARGET_ramips_mt7620a) +kmod-rt2800-mmio +kmod-rt2800-lib
+  DEPENDS += @(TARGET_ramips_rt288x||TARGET_ramips_rt305x||TARGET_ramips_rt3883) +kmod-rt2800-mmio +kmod-rt2800-lib
   TITLE += (RT28xx/RT3xxx SoC)
   FILES := \
 	$(PKG_BUILD_DIR)/drivers/net/wireless/rt2x00/rt2x00soc.ko \
@@ -1941,7 +1941,7 @@ else
 	b43-fwcutter -w $(1)/lib/firmware/ $(PKG_BUILD_DIR)/$(PKG_B43_FWV4_OBJECT)
 endif
 ifneq ($(CONFIG_B43_FW_SQUASH),)
-	$(TOPDIR)/tools/b43-tools/files/b43-fwsquash.py "$(CONFIG_B43_FW_SQUASH_PHYTYPES)" "$(CONFIG_B43_FW_SQUASH_COREREVS)" "$(1)/lib/firmware/b43"
+	b43-fwsquash.py "$(CONFIG_B43_FW_SQUASH_PHYTYPES)" "$(CONFIG_B43_FW_SQUASH_COREREVS)" "$(1)/lib/firmware/b43"
 endif
 endef
 
@@ -1949,7 +1949,7 @@ define KernelPackage/b43legacy/install
 	$(INSTALL_DIR) $(1)/lib/firmware/
 	b43-fwcutter --unsupported -w $(1)/lib/firmware/ $(DL_DIR)/$(PKG_B43_FWV3_SOURCE)
 ifneq ($(CONFIG_B43LEGACY_FW_SQUASH),)
-	$(TOPDIR)/tools/b43-tools/files/b43-fwsquash.py "G" "$(CONFIG_B43LEGACY_FW_SQUASH_COREREVS)" "$(1)/lib/firmware/b43legacy"
+	b43-fwsquash.py "G" "$(CONFIG_B43LEGACY_FW_SQUASH_COREREVS)" "$(1)/lib/firmware/b43legacy"
 endif
 endef
 

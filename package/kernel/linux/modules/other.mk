@@ -507,7 +507,6 @@ endef
 
 $(eval $(call KernelPackage,max63xx-wdt))
 
-
 define KernelPackage/pwm
   SUBMENU:=$(OTHER_MENU)
   TITLE:=PWM generic API

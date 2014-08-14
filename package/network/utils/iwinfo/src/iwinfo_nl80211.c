@@ -22,6 +22,7 @@
  * Parts of this code are derived from the Linux iw utility.
  */
 
+#include <limits.h>
 #include "iwinfo_nl80211.h"
 
 #define min(x, y) ((x) < (y)) ? (x) : (y)
@@ -214,6 +215,9 @@ static struct nl80211_msg_conveyor * nl80211_msg(const char *ifname,
 	int ifidx = -1, phyidx = -1;
 	struct nl80211_msg_conveyor *cv;
 
+	if (ifname == NULL)
+		return NULL;
+
 	if (nl80211_init() < 0)
 		return NULL;
 
@@ -226,7 +230,8 @@ static struct nl80211_msg_conveyor * nl80211_msg(const char *ifname,
 	else
 		ifidx = if_nametoindex(ifname);
 
-	if ((ifidx < 0) && (phyidx < 0))
+	/* Valid ifidx must be greater than 0 */
+	if ((ifidx <= 0) && (phyidx < 0))
 		return NULL;
 
 	cv = nl80211_new(nls->nl80211, cmd, flags);
@@ -499,12 +504,15 @@ static char * nl80211_phy2ifname(const char *ifname)
 	DIR *d;
 	struct dirent *e;
 
+	/* Only accept phy name of the form phy%d or radio%d */
 	if (!ifname)
 		return NULL;
 	else if (!strncmp(ifname, "phy", 3))
 		phyidx = atoi(&ifname[3]);
 	else if (!strncmp(ifname, "radio", 5))
 		phyidx = atoi(&ifname[5]);
+	else
+		return NULL;
 
 	memset(nif, 0, sizeof(nif));
 
@@ -1996,6 +2004,7 @@ static int nl80211_get_scanlist(const char *ifname, char *buf, int *len)
 	/* station / ad-hoc / monitor scan */
 	else if (!nl80211_get_mode(ifname, &mode) &&
 	         (mode == IWINFO_OPMODE_ADHOC ||
+	          mode == IWINFO_OPMODE_MASTER ||
 	          mode == IWINFO_OPMODE_CLIENT ||
 	          mode == IWINFO_OPMODE_MONITOR) &&
 	         iwinfo_ifup(ifname))

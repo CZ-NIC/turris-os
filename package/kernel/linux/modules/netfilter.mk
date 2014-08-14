@@ -282,7 +282,7 @@ define KernelPackage/ipt-nflog
   TITLE:=Module for user-space packet logging
   KCONFIG:=$(KCONFIG_IPT_NFLOG)
   FILES:=$(foreach mod,$(IPT_NFLOG-m),$(LINUX_DIR)/net/$(mod).ko)
-  AUTOLOAD:=$(call AutoLoad,45,$(notdir $(IPT_NFLOG-m)))
+  AUTOLOAD:=$(call AutoProbe,$(notdir $(IPT_NFLOG-m)))
   $(call AddDepends/ipt,+kmod-nfnetlink-log)
 endef
 
@@ -299,7 +299,7 @@ define KernelPackage/ipt-nfqueue
   TITLE:=Module for user-space packet queuing
   KCONFIG:=$(KCONFIG_IPT_NFQUEUE)
   FILES:=$(foreach mod,$(IPT_NFQUEUE-m),$(LINUX_DIR)/net/$(mod).ko)
-  AUTOLOAD:=$(call AutoLoad,45,$(notdir $(IPT_NFQUEUE-m)))
+  AUTOLOAD:=$(call AutoProbe,$(notdir $(IPT_NFQUEUE-m)))
   $(call AddDepends/ipt,+kmod-nfnetlink-queue)
 endef
 
@@ -566,7 +566,7 @@ define KernelPackage/nfnetlink
   TITLE:=Netlink-based userspace interface
   FILES:=$(foreach mod,$(NFNETLINK-m),$(LINUX_DIR)/net/$(mod).ko)
   KCONFIG:=$(KCONFIG_NFNETLINK)
-  AUTOLOAD:=$(call AutoProbe,$(NFNETLINK-m))
+  AUTOLOAD:=$(call AutoProbe,$(notdir $(NFNETLINK-m)))
   $(call AddDepends/ipt)
 endef
 
@@ -608,7 +608,7 @@ define KernelPackage/nfnetlink-log
   TITLE:=Netfilter LOG over NFNETLINK interface
   FILES:=$(foreach mod,$(NFNETLINK_LOG-m),$(LINUX_DIR)/net/$(mod).ko)
   KCONFIG:=$(KCONFIG_NFNETLINK_LOG)
-  AUTOLOAD:=$(call AutoLoad,45,$(notdir $(NFNETLINK_LOG-m)))
+  AUTOLOAD:=$(call AutoProbe,$(notdir $(NFNETLINK_LOG-m)))
   $(call AddDepends/nfnetlink)
 endef
 
@@ -625,7 +625,7 @@ define KernelPackage/nfnetlink-queue
   TITLE:=Netfilter QUEUE over NFNETLINK interface
   FILES:=$(foreach mod,$(NFNETLINK_QUEUE-m),$(LINUX_DIR)/net/$(mod).ko)
   KCONFIG:=$(KCONFIG_NFNETLINK_QUEUE)
-  AUTOLOAD:=$(call AutoLoad,45,$(notdir $(NFNETLINK_QUEUE-m)))
+  AUTOLOAD:=$(call AutoProbe,$(notdir $(NFNETLINK_QUEUE-m)))
   $(call AddDepends/nfnetlink)
 endef
 

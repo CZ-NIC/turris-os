@@ -377,8 +377,9 @@ Image/Build/Profile/DIR-620-D1=$(call BuildFirmware/Default8M/$(1),$(1),dir-620-
 
 define BuildFirmware/DIR615H1/squashfs
 	$(call BuildFirmware/Default4M/$(1),$(1),dir-615-h1,DIR-615-H1)
-	-mkdir615h1 -e $(call sysupname,$(1),dir-615-h1) \
-		-o $(call imgname,$(1),dir-615-h1)-factory.bin
+	-mksenaofw -e $(call sysupname,$(1),dir-615-h1) \
+		-o $(call imgname,$(1),dir-615-h1)-factory.bin \
+		-r 0x218 -p 0x30 -t 3
 endef
 BuildFirmware/DIR615H1/initramfs=$(call BuildFirmware/OF/initramfs,$(1),dir-615-h1,DIR-615-H1)
 Image/Build/Profile/DIR615H1=$(call BuildFirmware/DIR615H1/$(1),$(1))
@@ -716,6 +717,8 @@ Image/Build/Profile/DIR-810L=$(call BuildFirmware/CustomFlash/$(1),$(1),dir-810l
 na930_mtd_size=20971520
 Image/Build/Profile/NA930=$(call BuildFirmware/CustomFlash/$(1),$(1),na930,NA930,$(na930_mtd_size))
 Image/Build/Profile/MZK-750DHP=$(call BuildFirmware/Default8M/$(1),$(1),mzk-750dhp,MZK-750DHP)
+Image/Build/Profile/Y1=$(call BuildFirmware/Default16M/$(1),$(1),Lenovo-y1,Y1)
+Image/Build/Profile/Y1S=$(call BuildFirmware/Default16M/$(1),$(1),Lenovo-y1s,Y1S)
 
 ifeq ($(SUBTARGET),mt7620a)
 define Image/Build/Profile/Default
@@ -730,6 +733,8 @@ define Image/Build/Profile/Default
 	$(call Image/Build/Profile/WHR1166D,$(1))
 	$(call Image/Build/Profile/MZK-750DHP,$(1))
 	$(call Image/Build/Profile/NA930,$(1))
+	$(call Image/Build/Profile/Y1,$(1))
+	$(call Image/Build/Profile/Y1S,$(1))
 endef
 endif
 

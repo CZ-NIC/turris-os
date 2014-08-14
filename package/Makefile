@@ -7,6 +7,8 @@
 
 curdir:=package
 
+include $(INCLUDE_DIR)/feeds.mk
+
 -include $(TMP_DIR)/.packagedeps
 $(curdir)/builddirs:=$(sort $(package-) $(package-y) $(package-m))
 $(curdir)/builddirs-install:=.
@@ -92,7 +94,7 @@ $(curdir)/install: $(TMP_DIR)/.build
 	- find $(STAGING_DIR_ROOT) -type d | $(XARGS) chmod 0755
 	rm -rf $(TARGET_DIR)
 	[ -d $(TARGET_DIR)/tmp ] || mkdir -p $(TARGET_DIR)/tmp
-	@$(FIND) `sed -e 's|.*|$(PACKAGE_DIR)/&_*.ipk|' $(PACKAGE_INSTALL_FILES)` | sort -u | $(OPKG) install
+	@$(FIND) `sed -e 's|.*|$(PACKAGE_DIR)$(if $(CONFIG_PER_FEED_REPO),/*)/&_*.ipk|' $(PACKAGE_INSTALL_FILES)` | sort -u | $(OPKG) install
 	@for file in $(PACKAGE_INSTALL_FILES); do \
 		[ -s $$file.flags ] || continue; \
 		for flag in `cat $$file.flags`; do \
@@ -127,11 +129,19 @@ ifndef CONFIG_OPKGSMIME_PASSPHRASE
   endif
 endif
 
+PACKAGE_SUBDIRS=.
+ifneq ($(CONFIG_PER_FEED_REPO),)
+  PACKAGE_SUBDIRS=base $(FEEDS_ENABLED)
+endif
+
 $(curdir)/index: FORCE
 	@echo Generating package index...
-	@(cd $(PACKAGE_DIR); \
+	@for d in $(PACKAGE_SUBDIRS); do ( \
+		[ -d $(PACKAGE_DIR)/$$d ] && \
+			cd $(PACKAGE_DIR)/$$d || continue; \
 		$(SCRIPT_DIR)/ipkg-make-index.sh . 2>&1 > Packages && \
-		gzip -9c Packages > Packages.gz )
+			gzip -9c Packages > Packages.gz; \
+	); done
 ifeq ($(call qstrip,$(CONFIG_OPKGSMIME_KEY)),)
 	@echo Signing key has not been configured
 else
@@ -139,12 +149,15 @@ ifeq ($(call qstrip,$(CONFIG_OPKGSMIME_CERT)),)
 	@echo Certificate has not been configured
 else
 	@echo Signing package index...
-	@(cd $(PACKAGE_DIR); \
+	@for d in $(PACKAGE_SUBDIRS); do ( \
+		[ -d $(PACKAGE_DIR)/$$d ] && \
+			cd $(PACKAGE_DIR)/$$d || continue; \
 		openssl smime -binary -in Packages.gz \
 			-out Packages.sig -outform PEM -sign \
 			-signer $(CONFIG_OPKGSMIME_CERT) \
 			-inkey $(CONFIG_OPKGSMIME_KEY) \
-			$(PASSOPT) $(PASSARG) )
+			$(PASSOPT) $(PASSARG); \
+	); done
 endif
 endif
 

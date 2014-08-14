@@ -57,7 +57,7 @@ ifeq ($(findstring s,$(OPENWRT_VERBOSE)),)
         BUILD_LOG_DIR:=$(TOPDIR)/logs
         $(shell [ -d $(BUILD_LOG_DIR) ] || mkdir -p $(BUILD_LOG_DIR))
         $(shell [ -f $(BUILD_LOG_DIR)/$(_LOGFILE) ] && rm -f $(BUILD_LOG_DIR)/$(_LOGFILE))
-        SILENT:=>>$(BUILD_LOG_DIR)/$(_LOGFILE) $(if $(findstring w,$(OPENWRT_VERBOSE)),,2>&1)
+        SILENT:=>>$(BUILD_LOG_DIR)/$(_LOGFILE) 2>&1
 	CRASH_MESSAGE:="Please check $(BUILD_LOG_DIR)/$(_LOGFILE)"
     else
         SILENT:=>/dev/null $(if $(findstring w,$(OPENWRT_VERBOSE)),,2>&1)
