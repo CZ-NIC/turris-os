@@ -263,18 +263,12 @@ $(eval $(call nf_add,NFNETLINK,CONFIG_NETFILTER_NETLINK, $(P_XT)nfnetlink))
 # nflog
 
 $(eval $(call nf_add,NFNETLINK_LOG,CONFIG_NETFILTER_NETLINK_LOG, $(P_XT)nfnetlink_log))
-<<<<<<< HEAD
 $(eval $(call nf_add,NFNETLINK_LOG,CONFIG_NETFILTER_XT_TARGET_NFLOG, $(P_XT)xt_NFLOG))
-=======
->>>>>>> barrier_breaker
 
 # nfqueue
 
 $(eval $(call nf_add,NFNETLINK_QUEUE,CONFIG_NETFILTER_NETLINK_QUEUE, $(P_XT)nfnetlink_queue))
-<<<<<<< HEAD
 $(eval $(call nf_add,NFNETLINK_QUEUE,CONFIG_NETFILTER_XT_TARGET_NFQUEUE, $(P_XT)xt_NFQUEUE))
-=======
->>>>>>> barrier_breaker
 
 #
 # ebtables
