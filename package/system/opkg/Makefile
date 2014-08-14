@@ -89,7 +89,10 @@ CONFIGURE_ARGS += \
 	--disable-curl \
 	--disable-gpg \
 	--with-opkgetcdir=/etc \
-	--with-opkglockfile=/var/lock/opkg.lock
+	--with-opkglockfile=/var/lock/opkg.lock \
+	--enable-static \
+	--disable-shared
+
 
 ifeq ($(BUILD_VARIANT),smime)
 	CONFIGURE_ARGS += --enable-openssl --enable-sha256
