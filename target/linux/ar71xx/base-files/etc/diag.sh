@@ -34,7 +34,7 @@ get_status_led() {
 	aw-nr580)
 		status_led="aw-nr580:green:ready"
 		;;
-	bullet-m | rocket-m | nano-m | nanostation-m)
+	bullet-m | rocket-m | nano-m | nanostation-m | nanostation-m-xw)
 		status_led="ubnt:green:link4"
 		;;
 	bxu2000n-2-a1)
@@ -62,12 +62,24 @@ get_status_led() {
 	dir-835-a1)
 		status_led="d-link:amber:power"
 		;;
+	eap300v2)
+		status_led="engenius:blue:power"
+		;;
 	eap7660d)
 		status_led="eap7660d:green:ds4"
 		;;
 	el-mini | \
 	el-m150)
 		status_led="EasyLink:green:system"
+		;;
+	gl-inet)
+		status_led="gl-connect:green:lan"
+		;;
+	esr1750)
+		status_led="esr1750:amber:power"
+		;;
+	esr900)
+		status_led="engenius:amber:power"
 		;;
 	hiwifi-hc6361)
 		status_led="hiwifi:blue:system"
@@ -111,6 +123,9 @@ get_status_led() {
 	om2p-hsv2 | \
 	om2p-lc)
 		status_led="om2p:blue:power"
+		;;
+	om5p)
+		status_led="om5p:blue:power"
 		;;
 	pb44)
 		status_led="pb44:amber:jump1"
@@ -167,6 +182,9 @@ get_status_led() {
 	tl-wa850re)
 		status_led="tp-link:blue:re"
 		;;
+	tl-wa860re)
+		status_led="tp-link:green:power"
+		;;
 	tl-mr3220 | \
 	tl-mr3220-v2 | \
 	tl-mr3420 | \
@@ -184,10 +202,12 @@ get_status_led() {
 	tl-wr841n-v1 | \
 	tl-wr841n-v7 | \
 	tl-wr841n-v8 | \
+	tl-wa830re-v2 | \
 	tl-wr842n-v2 | \
 	tl-wr941nd)
 		status_led="tp-link:green:system"
 		;;
+	archer-c5 | \
 	archer-c7 | \
 	tl-wdr4900-v2 | \
 	tl-mr10u | \
@@ -204,11 +224,17 @@ get_status_led() {
 	tl-wr2543n)
 		status_led="tp-link:green:wps"
 		;;
+	tube2h)
+		status_led="alfa:green:signal4"
+		;;
 	unifi)
 		status_led="ubnt:green:dome"
 		;;
 	uap-pro)
 		status_led="ubnt:white:dome"
+		;;
+	airgateway)
+		status_led="ubnt:white:status"
 		;;
 	whr-g301n | \
 	whr-hp-g300n | \
@@ -225,6 +251,7 @@ get_status_led() {
 		;;
 	wndap360 | \
 	wndr3700 | \
+	wndr3700v4 | \
 	wndr4300 | \
 	wnr2000 | \
 	wnr2200 |\

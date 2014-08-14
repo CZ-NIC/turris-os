@@ -3,6 +3,7 @@
 . /lib/functions.sh
 . /lib/ramips.sh
 . /lib/functions/uci-defaults.sh
+. /lib/functions/system.sh
 
 ramips_setup_rt3x5x_vlans()
 {
@@ -50,6 +51,10 @@ ramips_setup_interfaces()
 		;;
 
 	3g-6200nl | \
+	mlw221)
+                ucidef_set_interface_lan "eth0.2"
+                ;;
+
 	wl-330n | \
 	wmr300)
 		ucidef_set_interface_lan "eth0.1"
@@ -97,7 +102,8 @@ ramips_setup_interfaces()
 	dir-320-b1 | \
 	dir-615-h1 | \
 	hlk-rm04 | \
-	mzk-w300nh2)
+	mzk-w300nh2 | \
+	mzk-750dhp)
 		ucidef_set_interfaces_lan_wan "eth0.1" "eth0.2"
 		ucidef_add_switch "switch0" "1" "1"
 		ucidef_add_switch_vlan "switch0" "1" "0 1 2 3 6t"
@@ -105,6 +111,7 @@ ramips_setup_interfaces()
 		;;
 
 	awm002-evb | \
+	awm003-evb | \
 	argus-atp52b | \
 	dir-645 | \
 	f5d8235-v1 | \
@@ -163,6 +170,13 @@ ramips_setup_interfaces()
 		ucidef_add_switch_vlan "switch0" "2" "6t"
 		;;
 
+	wr8305rt)
+		ucidef_set_interfaces_lan_wan "eth0.1" "eth0.2"
+		ucidef_add_switch "switch0" "1" "1"
+		ucidef_add_switch_vlan "switch0" "1" "0 1 2 3 4 6t"
+		ucidef_add_switch_vlan "switch0" "2" "4 6t"
+		;;
+
 	d105 | \
 	na930 | \
 	omni-emb-hpm|\
@@ -189,19 +203,22 @@ ramips_setup_macs()
 
 	case $board in
 	br-6475nd)
-		lan_mac=$(mtd_get_mac_binary devdata 13)
+		lan_mac=$(cat /sys/class/net/eth0/address)
 		wan_mac=$(mtd_get_mac_binary devdata 7)
 		;;
 
 	w306r-v20)
+		lan_mac=$(cat /sys/class/net/eth0/address)
 		wan_mac=$(macaddr_add "$lan_mac" 5)
 		;;
 
 	tew-691gr)
+		lan_mac=$(cat /sys/class/net/eth0/address)
 		wan_mac=$(macaddr_add "$lan_mac" 3)
 		;;
 
 	tew-692gr)
+		lan_mac=$(cat /sys/class/net/eth0/address)
 		wan_mac=$(macaddr_add "$lan_mac" 4)
 		;;
 
@@ -209,10 +226,24 @@ ramips_setup_macs()
 	m4 |\
 	x5 |\
 	x8)
-		lan_mac=$(macaddr_add "$lan_mac" -1)
+		lan_mac=$(cat /sys/class/net/eth0/address)
+		lan_mac=$(macaddr_add "$lan_mac" -2)
 		;;
 
-	dir-620-a1)
+	bc2 |\
+	broadway |\
+	d105 |\
+	dir-620-a1 |\
+	esr-9753 |\
+	freestation5 |\
+	hlk-rm04 | \
+	mpr-a1 | \
+	mpr-a2 | \
+	dir-300-b7 | \
+	dir-320-b1 | \
+	psr-680w |\
+	sl-r7205)
+		lan_mac=$(cat /sys/class/net/eth0/address)
 		lan_mac=$(macaddr_setbit_la "$lan_mac")
 		wan_mac=$(macaddr_add "$lan_mac" 1)
 		;;
@@ -223,12 +254,13 @@ ramips_setup_macs()
 		wan_mac=$(mtd_get_mac_ascii nvram wanmac)
 		;;
 
-	nbg-419n | \
 	wcr-150gn)
                 wan_mac=$(mtd_get_mac_binary factory 40)
 		;;
 
 	rt-n56u)
+		lan_mac=$(cat /sys/class/net/eth0/address)
+		lan_mac=$(macaddr_setbit_la "$lan_mac")
 		wan_mac=$(mtd_get_mac_binary factory 32772)
 		;;
 
@@ -240,12 +272,8 @@ ramips_setup_macs()
 		wan_mac=$(mtd_get_mac_binary factory 46)
 		;;
 
-	wl341v3)
-		lan_mac=$(mtd_get_mac_binary board-nvram 65440)
-		wan_mac=$(macaddr_add "$lan_mac" 1)
-		;;
-
 	*)
+		lan_mac=$(cat /sys/class/net/eth0/address)
 		wan_mac=$(macaddr_add "$lan_mac" 1)
 		;;
 

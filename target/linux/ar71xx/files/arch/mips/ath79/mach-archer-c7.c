@@ -1,8 +1,9 @@
 /*
- * TP-LINK Archer C7/TL-WDR4900 v2 board support
+ * TP-LINK Archer C5/C7/TL-WDR4900 v2 board support
  *
  * Copyright (c) 2013 Gabor Juhos <juhosg@openwrt.org>
  * Copyright (c) 2014 施康成 <tenninjas@tenninjas.ca>
+ * Copyright (c) 2014 Imre Kaloz <kaloz@openwrt.org>
  *
  * Based on the Qualcomm Atheros AP135/AP136 reference board support code
  *   Copyright (c) 2012 Qualcomm Atheros
@@ -182,23 +183,6 @@ static struct mdio_board_info archer_c7_mdio0_info[] = {
 	},
 };
 
-static void __init archer_c7_gmac_setup(void)
-{
-	void __iomem *base;
-	u32 t;
-
-	base = ioremap(QCA955X_GMAC_BASE, QCA955X_GMAC_SIZE);
-
-	t = __raw_readl(base + QCA955X_GMAC_REG_ETH_CFG);
-
-	t &= ~(QCA955X_ETH_CFG_RGMII_EN | QCA955X_ETH_CFG_GE0_SGMII);
-	t |= QCA955X_ETH_CFG_RGMII_EN;
-
-	__raw_writel(t, base + QCA955X_GMAC_REG_ETH_CFG);
-
-	iounmap(base);
-}
-
 static void __init common_setup(bool pcie_slot)
 {
 	u8 *mac = (u8 *) KSEG1ADDR(0x1f01fc00);
@@ -227,7 +211,7 @@ static void __init common_setup(bool pcie_slot)
 				    ARRAY_SIZE(archer_c7_mdio0_info));
 	ath79_register_mdio(0, 0x0);
 
-	archer_c7_gmac_setup();
+	ath79_setup_qca955x_eth_cfg(QCA955X_ETH_CFG_RGMII_EN);
 
 	/* GMAC0 is connected to the RMGII interface */
 	ath79_eth0_data.phy_if_mode = PHY_INTERFACE_MODE_RGMII;
@@ -255,6 +239,14 @@ static void __init common_setup(bool pcie_slot)
 			 "USB2 power");
 	ath79_register_usb();
 }
+
+static void __init archer_c5_setup(void)
+{
+	common_setup(true);
+}
+
+MIPS_MACHINE(ATH79_MACH_ARCHER_C5, "ARCHER-C5", "TP-LINK Archer C5",
+	     archer_c5_setup);
 
 static void __init archer_c7_setup(void)
 {

@@ -66,11 +66,16 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&ephy_pins>;
 
+		mtd-mac-address = <&factory 0x4>;
 		ralink,port-map = "llllw";
 	};
 
 	gsw@10110000 {
 		ralink,port4 = "ephy";
+	};
+
+	wmac@10180000 {
+		ralink,mtd-eeprom = <&factory 0>;
 	};
 
 	pcie@10140000 {

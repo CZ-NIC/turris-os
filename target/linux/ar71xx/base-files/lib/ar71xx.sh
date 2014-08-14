@@ -145,6 +145,9 @@ tplink_board_detect() {
 	"085000"*)
 		model="TP-Link TL-WA850RE"
 		;;
+	"086000"*)
+		model="TP-Link TL-WA860RE"
+		;;
 	"090100"*)
 		model="TP-Link TL-WA901N/ND"
 		;;
@@ -226,6 +229,9 @@ ar71xx_board_detect() {
 	*"Oolite V1.0")
 		name="oolite"
 		;;
+	*"AirGateway")
+		name="airgateway"
+		;;
 	*"AirRouter")
 		name="airrouter"
 		;;
@@ -271,6 +277,9 @@ ar71xx_board_detect() {
 	*AP83)
 		name="ap83"
 		;;
+	*"Archer C5")
+		name="archer-c5"
+		;;
 	*"Archer C7")
 		name="archer-c7"
 		;;
@@ -310,6 +319,9 @@ ar71xx_board_detect() {
 	*"Dragino v2")
 		name="dragino2"
 		;;
+	*"EAP300 v2")
+		name="eap300v2"
+		;;
 	*EAP7660D)
 		name="eap7660d"
 		;;
@@ -318,6 +330,15 @@ ar71xx_board_detect() {
 		;;
 	*EL-MINI)
 		name="el-mini"
+		;;
+	*"GL-CONNECT INET v1")
+		name="gl-inet"
+		;;
+	*"EnGenius ESR1750")
+		name="esr1750"
+		;;
+	*"EnGenius ESR900")
+		name="esr900"
 		;;
 	*JA76PF)
 		name="ja76pf"
@@ -330,6 +351,9 @@ ar71xx_board_detect() {
 		;;
 	*"Nanostation M")
 		name="nanostation-m"
+		;;
+	*"Nanostation M XW")
+		name="nanostation-m-xw"
 		;;
 	*JWAP003)
 		name="jwap003"
@@ -390,6 +414,9 @@ ar71xx_board_detect() {
 		;;
 	*"OM2P LC")
 		name="om2p-lc"
+		;;
+	*OM5P)
+		name="om5p"
 		;;
 	*PB42)
 		name="pb42"
@@ -462,6 +489,9 @@ ar71xx_board_detect() {
 		;;
 	*"RouterBOARD 2011UAS")
 		name="rb-2011uas"
+		;;
+	*"RouterBOARD 2011UiAS")
+		name="rb-2011uias"
 		;;
 	*"RouterBOARD 2011UAS-2HnD")
 		name="rb-2011uas-2hnd"
@@ -541,6 +571,9 @@ ar71xx_board_detect() {
 	*TL-WA850RE)
 		name="tl-wa850re"
 		;;
+	*"TL-WA830RE v2")
+		name="tl-wa830re-v2"
+		;;
 	*"TL-WA801ND v2")
 		name="tl-wa801nd-v2"
 		;;
@@ -604,6 +637,9 @@ ar71xx_board_detect() {
 	*"TL-MR13U")
 		name="tl-mr13u"
 		;;
+	*"Tube2H")
+		name="tube2h"
+		;;
 	*UniFi)
 		name="unifi"
 		;;
@@ -633,6 +669,9 @@ ar71xx_board_detect() {
 		;;
 	*"WNDR3700/WNDR3800/WNDRMAC")
 		wndr3700_board_detect "$machine"
+		;;
+	*"WNDR3700v4")
+		name="wndr3700v4"
 		;;
 	*"WNDR4300")
 		name="wndr4300"

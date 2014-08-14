@@ -1,5 +1,5 @@
---- a/drivers/net/ethernet/ar231x/ar231x.c
-+++ b/drivers/net/ethernet/ar231x/ar231x.c
+--- a/drivers/net/ethernet/atheros/ar231x/ar231x.c
++++ b/drivers/net/ethernet/atheros/ar231x/ar231x.c
 @@ -148,6 +148,7 @@ static int ar231x_mdiobus_write(struct m
  static int ar231x_mdiobus_reset(struct mii_bus *bus);
  static int ar231x_mdiobus_probe(struct net_device *dev);
@@ -38,10 +38,10 @@
 +	return 0;
 +}
 +
- int ar231x_probe(struct platform_device *pdev)
+ static int ar231x_probe(struct platform_device *pdev)
  {
  	struct net_device *dev;
-@@ -293,6 +320,23 @@ int ar231x_probe(struct platform_device
+@@ -286,6 +313,23 @@ static int ar231x_probe(struct platform_
  
  	mdiobus_register(sp->mii_bus);
  
@@ -65,7 +65,7 @@
  	if (ar231x_mdiobus_probe(dev) != 0) {
  		printk(KERN_ERR "%s: mdiobus_probe failed\n", dev->name);
  		rx_tasklet_cleanup(dev);
-@@ -349,8 +393,10 @@ static int ar231x_remove(struct platform
+@@ -342,8 +386,10 @@ static int ar231x_remove(struct platform
  	rx_tasklet_cleanup(dev);
  	ar231x_init_cleanup(dev);
  	unregister_netdev(dev);
@@ -78,7 +78,7 @@
  	kfree(dev);
  	return 0;
  }
-@@ -1108,6 +1154,9 @@ static int ar231x_ioctl(struct net_devic
+@@ -1104,6 +1150,9 @@ static int ar231x_ioctl(struct net_devic
  	struct ar231x_private *sp = netdev_priv(dev);
  	int ret;
  

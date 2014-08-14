@@ -16,10 +16,13 @@ board=$(ar71xx_board_name)
 case "$board" in
 all0258n | \
 cap4200ag | \
+eap300v2 | \
 hornet-ub | \
 hornet-ub-x2 | \
 mr600 | \
 mr600v2 | \
+om5p | \
+tube2h | \
 wndr3700)
 	ubootenv_add_uci_config "/dev/mtd1" "0x0" "0x10000" "0x10000"
 	;;

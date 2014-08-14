@@ -1,38 +1,39 @@
---- a/drivers/net/ethernet/Kconfig
-+++ b/drivers/net/ethernet/Kconfig
-@@ -22,6 +22,7 @@ source "drivers/net/ethernet/adaptec/Kco
- source "drivers/net/ethernet/aeroflex/Kconfig"
- source "drivers/net/ethernet/alteon/Kconfig"
- source "drivers/net/ethernet/amd/Kconfig"
-+source "drivers/net/ethernet/ar231x/Kconfig"
- source "drivers/net/ethernet/apple/Kconfig"
- source "drivers/net/ethernet/atheros/Kconfig"
- source "drivers/net/ethernet/cadence/Kconfig"
---- a/drivers/net/ethernet/Makefile
-+++ b/drivers/net/ethernet/Makefile
-@@ -9,6 +9,7 @@ obj-$(CONFIG_GRETH) += aeroflex/
- obj-$(CONFIG_NET_VENDOR_ALTEON) += alteon/
- obj-$(CONFIG_NET_VENDOR_AMD) += amd/
- obj-$(CONFIG_NET_VENDOR_APPLE) += apple/
-+obj-$(CONFIG_NET_VENDOR_AR231X) += ar231x/
- obj-$(CONFIG_NET_VENDOR_ATHEROS) += atheros/
- obj-$(CONFIG_NET_CADENCE) += cadence/
- obj-$(CONFIG_NET_BFIN) += adi/
---- /dev/null
-+++ b/drivers/net/ethernet/ar231x/Kconfig
-@@ -0,0 +1,5 @@
-+config NET_VENDOR_AR231X
-+	tristate "AR231X Ethernet support"
+--- a/drivers/net/ethernet/atheros/Makefile
++++ b/drivers/net/ethernet/atheros/Makefile
+@@ -7,3 +7,4 @@ obj-$(CONFIG_ATL2) += atlx/
+ obj-$(CONFIG_ATL1E) += atl1e/
+ obj-$(CONFIG_ATL1C) += atl1c/
+ obj-$(CONFIG_ALX) += alx/
++obj-$(CONFIG_NET_AR231X) += ar231x/
+--- a/drivers/net/ethernet/atheros/Kconfig
++++ b/drivers/net/ethernet/atheros/Kconfig
+@@ -5,7 +5,7 @@
+ config NET_VENDOR_ATHEROS
+ 	bool "Atheros devices"
+ 	default y
+-	depends on PCI
++	depends on (PCI || ATHEROS_AR231X)
+ 	---help---
+ 	  If you have a network (Ethernet) card belonging to this class, say Y
+ 	  and read the Ethernet-HOWTO, available from
+@@ -85,4 +85,10 @@ config ALX
+ 	  To compile this driver as a module, choose M here.  The module
+ 	  will be called alx.
+ 
++config NET_AR231X
++	tristate "Atheros AR231X built-in Ethernet support"
 +	depends on ATHEROS_AR231X
 +	help
 +	  Support for the AR231x/531x ethernet controller
++
+ endif # NET_VENDOR_ATHEROS
 --- /dev/null
-+++ b/drivers/net/ethernet/ar231x/Makefile
++++ b/drivers/net/ethernet/atheros/ar231x/Makefile
 @@ -0,0 +1 @@
-+obj-$(CONFIG_NET_VENDOR_AR231X) += ar231x.o
++obj-$(CONFIG_NET_AR231X) += ar231x.o
 --- /dev/null
-+++ b/drivers/net/ethernet/ar231x/ar231x.c
-@@ -0,0 +1,1254 @@
++++ b/drivers/net/ethernet/atheros/ar231x/ar231x.c
+@@ -0,0 +1,1250 @@
 +/*
 + * ar231x.c: Linux driver for the Atheros AR231x Ethernet device.
 + *
@@ -215,7 +216,7 @@
 +#endif
 +};
 +
-+int ar231x_probe(struct platform_device *pdev)
++static int ar231x_probe(struct platform_device *pdev)
 +{
 +	struct net_device *dev;
 +	struct ar231x_private *sp;
@@ -256,8 +257,7 @@
 +	tasklet_init(&sp->rx_tasklet, rx_tasklet_func, (unsigned long) dev);
 +	tasklet_disable(&sp->rx_tasklet);
 +
-+	sp->eth_regs = ioremap_nocache(virt_to_phys(ar_eth_base),
-+				       sizeof(*sp->eth_regs));
++	sp->eth_regs = ioremap_nocache(ar_eth_base, sizeof(*sp->eth_regs));
 +	if (!sp->eth_regs) {
 +		printk("Can't remap eth registers\n");
 +		return -ENXIO;
@@ -266,34 +266,28 @@
 +	/**
 +	 * When there's only one MAC, PHY regs are typically on ENET0,
 +	 * even though the MAC might be on ENET1.
-+	 * Needto remap PHY regs separately in this case
++	 * So remap PHY regs separately.
 +	 */
-+	if (virt_to_phys(ar_eth_base) == virt_to_phys(sp->phy_regs))
-+		sp->phy_regs = sp->eth_regs;
-+	else {
-+		sp->phy_regs =
-+			ioremap_nocache(virt_to_phys(sp->cfg->phy_base),
-+							sizeof(*sp->phy_regs));
-+		if (!sp->phy_regs) {
-+			printk("Can't remap phy registers\n");
-+			return -ENXIO;
-+		}
++	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "eth0_mii");
++	if (!res) {
++		res = platform_get_resource_byname(pdev, IORESOURCE_MEM,
++						   "eth1_mii");
++		if (!res)
++			return -ENODEV;
++	}
++	sp->phy_regs = ioremap_nocache(res->start, resource_size(res));
++	if (!sp->phy_regs) {
++		printk("Can't remap phy registers\n");
++		return -ENXIO;
 +	}
 +
-+	sp->dma_regs =
-+		ioremap_nocache(virt_to_phys(ar_eth_base + 0x1000),
-+						sizeof(*sp->dma_regs));
-+	dev->base_addr = (unsigned int) sp->dma_regs;
++	sp->dma_regs = ioremap_nocache(ar_eth_base + 0x1000,
++				       sizeof(*sp->dma_regs));
 +	if (!sp->dma_regs) {
 +		printk("Can't remap DMA registers\n");
 +		return -ENXIO;
 +	}
-+
-+	sp->int_regs = ioremap_nocache(virt_to_phys(sp->cfg->reset_base), 4);
-+	if (!sp->int_regs) {
-+		printk("Can't remap INTERRUPT registers\n");
-+		return -ENXIO;
-+	}
++	dev->base_addr = ar_eth_base + 0x1000;
 +
 +	strncpy(sp->name, "Atheros AR231x", sizeof(sp->name) - 1);
 +	sp->name[sizeof(sp->name) - 1] = '\0';
@@ -490,6 +484,8 @@
 +		iounmap((void *)sp->eth_regs);
 +	if (sp->dma_regs)
 +		iounmap((void *)sp->dma_regs);
++	if (sp->phy_regs)
++		iounmap((void *)sp->phy_regs);
 +
 +	if (sp->rx_skb) {
 +		for (j = 0; j < AR2313_DESCR_ENTRIES; j++) {
@@ -609,13 +605,13 @@
 +	unsigned int ethsal, ethsah;
 +	unsigned int flags;
 +
-+	*sp->int_regs |= sp->cfg->reset_mac;
++	sp->cfg->reset_set(sp->cfg->reset_mac);
 +	mdelay(10);
-+	*sp->int_regs &= ~sp->cfg->reset_mac;
++	sp->cfg->reset_clear(sp->cfg->reset_mac);
 +	mdelay(10);
-+	*sp->int_regs |= sp->cfg->reset_phy;
++	sp->cfg->reset_set(sp->cfg->reset_phy);
 +	mdelay(10);
-+	*sp->int_regs &= ~sp->cfg->reset_phy;
++	sp->cfg->reset_clear(sp->cfg->reset_phy);
 +	mdelay(10);
 +
 +	sp->dma_regs->bus_mode = (DMA_BUS_MODE_SWR);
@@ -1052,7 +1048,8 @@
 +	sp->dma_regs->bus_mode = DMA_BUS_MODE_SWR;
 +
 +	/* place phy and MAC in reset */
-+	*sp->int_regs |= (sp->cfg->reset_mac | sp->cfg->reset_phy);
++	sp->cfg->reset_set(sp->cfg->reset_mac);
++	sp->cfg->reset_set(sp->cfg->reset_phy);
 +
 +	/* free buffers on tx ring */
 +	for (j = 0; j < AR2313_DESCR_ENTRIES; j++) {
@@ -1076,7 +1073,7 @@
 + * the irq is gone forever ! When bond0 is made 'up' again,
 + * the ar231x_open () does not call request_irq (). Worse,
 + * the call to ar231x_halt() generates a WDOG reset due to
-+ * the write to 'sp->int_regs' and the box reboots.
++ * the write to reset register and the box reboots.
 + * Commenting this out is good since it allows the
 + * system to resume when bond0 is made up again.
 + */
@@ -1202,7 +1199,7 @@
 +{
 +	struct net_device *const dev = bus->priv;
 +	struct ar231x_private *sp = netdev_priv(dev);
-+	volatile ETHERNET_STRUCT *ethernet = sp->phy_regs;
++	volatile MII *ethernet = sp->phy_regs;
 +
 +	ethernet->mii_addr = MII_ADDR(phy_addr, regnum);
 +	while (ethernet->mii_addr & MII_ADDR_BUSY)
@@ -1215,7 +1212,7 @@
 +{
 +	struct net_device *const dev = bus->priv;
 +	struct ar231x_private *sp = netdev_priv(dev);
-+	volatile ETHERNET_STRUCT *ethernet = sp->phy_regs;
++	volatile MII *ethernet = sp->phy_regs;
 +
 +	while (ethernet->mii_addr & MII_ADDR_BUSY)
 +		;
@@ -1288,8 +1285,8 @@
 +}
 +
 --- /dev/null
-+++ b/drivers/net/ethernet/ar231x/ar231x.h
-@@ -0,0 +1,288 @@
++++ b/drivers/net/ethernet/atheros/ar231x/ar231x.h
+@@ -0,0 +1,295 @@
 +/*
 + * ar231x.h: Linux driver for the Atheros AR231x Ethernet device.
 + *
@@ -1451,19 +1448,27 @@
 +
 +/**
 + * New Combo structure for Both Eth0 AND eth1
++ *
++ * Don't directly access MII related regs since phy chip could be actually
++ * connected to another ethernet block.
 + */
 +typedef struct {
 +	volatile unsigned int mac_control;	/* 0x00 */
 +	volatile unsigned int mac_addr[2];	/* 0x04 - 0x08 */
 +	volatile unsigned int mcast_table[2];	/* 0x0c - 0x10 */
-+	volatile unsigned int mii_addr;	/* 0x14 */
-+	volatile unsigned int mii_data;	/* 0x18 */
++	volatile unsigned int __mii_addr;	/* 0x14 */
++	volatile unsigned int __mii_data;	/* 0x18 */
 +	volatile unsigned int flow_control;	/* 0x1c */
 +	volatile unsigned int vlan_tag;	/* 0x20 */
 +	volatile unsigned int pad[7];	/* 0x24 - 0x3c */
 +	volatile unsigned int ucast_table[8];	/* 0x40-0x5c */
 +
 +} ETHERNET_STRUCT;
++
++typedef struct {
++	volatile unsigned int mii_addr;
++	volatile unsigned int mii_data;
++} MII;
 +
 +/********************************************************************
 + * Interrupt controller
@@ -1512,10 +1517,9 @@
 +	int version;
 +	u32 mb[2];
 +
-+	volatile ETHERNET_STRUCT *phy_regs;
++	volatile MII *phy_regs;
 +	volatile ETHERNET_STRUCT *eth_regs;
 +	volatile DMA *dma_regs;
-+	volatile u32 *int_regs;
 +	struct ar231x_eth *cfg;
 +
 +	spinlock_t lock;			/* Serialise access to device */

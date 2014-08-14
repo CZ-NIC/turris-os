@@ -6,12 +6,12 @@
 #
 
 define Profile/ARCHERC7
-	NAME:=TP-LINK Archer C7
+	NAME:=TP-LINK Archer C5/C7
 	PACKAGES:=kmod-usb-core kmod-usb2 kmod-ledtrig-usbdev kmod-ath10k
 endef
 
 define Profile/ARCHERC7/Description
-	Package set optimized for the TP-LINK Archer C7.
+	Package set optimized for the TP-LINK Archer C5/C7.
 endef
 $(eval $(call Profile,ARCHERC7))
 
@@ -200,6 +200,17 @@ define Profile/TLWA850/Description
 	Package set optimized for the TP-LINK TL-WA850RE.
 endef
 $(eval $(call Profile,TLWA850))
+
+
+define Profile/TLWA860
+	NAME:=TP-LINK TL-WA860RE
+	PACKAGES:=
+endef
+
+define Profile/TLWA860/Description
+	Package set optimized for the TP-LINK TL-WA860RE.
+endef
+$(eval $(call Profile,TLWA860))
 
 
 define Profile/TLWA901
