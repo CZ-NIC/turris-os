@@ -1,3 +1,5 @@
+* Foris (v42): opravena chyba při ukládání nastavení automatických restartů bez zapnutých notifikací.
+* Foris (v42): opravy drobných chyb a příprava pro aktualizace vyžadující restart.
 * Firewall je schopen pomocí ulogd a NFLOG vytvářet pcap soubory zahozených paketů pro další analýzu.
 * ulogd: updatován do verze 2.0 a ucifikován.
 * majordomo: Plugin pro ucollect, na sledování, co kam leze.
