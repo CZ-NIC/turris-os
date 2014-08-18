@@ -93,15 +93,11 @@ define Image/Build/Profile/TURRISNOR
 	if [ -d $(TOPDIR)/bin-sdcard ]; then rm -rf $(TOPDIR)/bin-sdcard; fi
 	mkdir $(TOPDIR)/bin-sdcard	
 
-	if [ -f $(TOPDIR)/u-boot/u-boot.sdcard.bin ]; then \
-		cp $(BIN_DIR)/uboot-mpc85xx/uboot-mpc85xx-TURRIS1_SDCARD $(TOPDIR)/bin-sdcard/sdcard.img; \
-		truncate -s 1M $(TOPDIR)/bin-sdcard/sdcard.img; \
-		cat $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin >> $(TOPDIR)/bin-sdcard/sdcard.img; \
-		$(SCRIPT_DIR)/pad_with_ff $(TOPDIR)/bin-sdcard/sdcard.img 17301504; \
-		cat $(TOPDIR)/u-boot/u-boot.bin >> $(TOPDIR)/bin-sdcard/sdcard.img; \
-	else \
-		echo "ERROR: There is no sdcard uboot."; \
-	fi
+	cp $(BIN_DIR)/uboot-mpc85xx/uboot-mpc85xx-TURRIS1_SDCARD $(TOPDIR)/bin-sdcard/sdcard.img
+	truncate -s 1M $(TOPDIR)/bin-sdcard/sdcard.img
+	cat $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin >> $(TOPDIR)/bin-sdcard/sdcard.img
+	$(SCRIPT_DIR)/pad_with_ff $(TOPDIR)/bin-sdcard/sdcard.img 17301504
+	cat $(TOPDIR)/u-boot/u-boot.bin >> $(TOPDIR)/bin-sdcard/sdcard.img
 
 endef
 
