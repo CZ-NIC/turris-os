@@ -97,7 +97,7 @@ define Image/Build/Profile/TURRISNOR
 	truncate -s 1M $(TOPDIR)/bin-sdcard/sdcard.img
 	cat $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin >> $(TOPDIR)/bin-sdcard/sdcard.img
 	$(SCRIPT_DIR)/pad_with_ff $(TOPDIR)/bin-sdcard/sdcard.img 17301504
-	cat $(TOPDIR)/u-boot/u-boot.bin >> $(TOPDIR)/bin-sdcard/sdcard.img
+	cat $(BIN_DIR)/uboot-mpc85xx/uboot-mpc85xx-TURRIS1 >> $(TOPDIR)/bin-sdcard/sdcard.img
 
 endef
 
