@@ -8,6 +8,7 @@
 * Samba: Povýšena verze. Řeší CVE-2013-4475.
 * Ucollect: Přidán detektor NATu
 * p910nd: Přidána volba "bind" do init skriptu.
+* Autoritativní DNS server Knot povýšen na verzi 1.5.1
 ===================== 1.4 =======================
 * Foris (v41): úpravy ve formuláři pro nastavení SMTP serveru, Turris SMTP je nyní výchozí.
 * Unbound: Povolen prefetch v naději rychlejších odpovědí.
