@@ -2,7 +2,7 @@
 * Foris (v42): opravy drobných chyb a příprava pro aktualizace vyžadující restart.
 * Firewall je schopen pomocí ulogd a NFLOG vytvářet pcap soubory zahozených paketů pro další analýzu.
 * ulogd: updatován do verze 2.0 a ucifikován.
-* majordomo: Plugin pro ucollect, na sledování, co kam leze.
+* Majordomo: Plugin pro lcollect, pro sledování činnosti zařízení v lokální síti
 * lcollect: Lokální ucollect, bez připojení na server.
 * ucollect-core: Rozdělen na ucollect-lib a ucollect-prog.
 * Samba: Povýšena verze. Řeší CVE-2013-4475.
