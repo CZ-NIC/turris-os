@@ -1,8 +1,5 @@
 #!/bin/bash -xe
 
-# Build u-boot
-./compile_u-boot
-
 # Install luci feed
 ./scripts/feeds update -i lucics
 ./scripts/feeds install luci
