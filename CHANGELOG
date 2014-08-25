@@ -1,3 +1,4 @@
+* Updater: neponecháváme stovky příkazů sleep běžet po skončení
 ===================== 1.5 =======================
 * Foris (v42): opravena chyba při ukládání nastavení automatických restartů bez zapnutých notifikací.
 * Foris (v42): opravy drobných chyb a příprava pro aktualizace vyžadující restart.
