@@ -26,6 +26,11 @@ DTS_TARGETS = mpc8548cds_32b p1010rdb tl-wdr4900-v1 p1020rdb p2020rdb turris-nor
 BOOT_IMAGES:=zImage cuImage.tl-wdr4900-v1
 
 define Image/Prepare
+	if [ "$(PROFILE)" = "TURRISNOR" ]; then \
+	    $(STAGING_DIR_HOST)/bin/mksquashfs4 $(TOPDIR)/bin-nand/mpc85xx/medkit/medkit.tar.xz $(TOPDIR)/bin-nand/mpc85xx/medkit/medkit.squashfs \
+	    	-nopad -noappend -root-owned -comp $(SQUASHFSCOMP) -b 128k -processors $(if $(CONFIG_PKG_BUILD_JOBS),$(CONFIG_PKG_BUILD_JOBS),1); \
+	fi
+
 	$(foreach image,$(BOOT_IMAGES),
 		cp $(LINUX_DIR)/arch/powerpc/boot/$(image) $(KDIR)/$(image)
 	)
@@ -69,38 +74,33 @@ define Image/Build/Profile/TURRISNOR
 
 	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nor.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin
 	$(SCRIPT_DIR)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin 0x20000
-	truncate -s 128K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin
+	$(SCRIPT_DIR)/pad_with_ff $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin 0x20000
 
 	dd if=$(KDIR)/zImage bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin
 	$(SCRIPT_DIR)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin 0x1C0000
-	truncate -s 1792K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin
+	$(SCRIPT_DIR)/pad_with_ff $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin 0x1C0000
 
 	dd if=$(KDIR)/root.$(1) bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin
-	$(SCRIPT_DIR)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin 0x340000
-	truncate -s 3328K $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin
+	$(SCRIPT_DIR)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin 0x00340000
+	$(SCRIPT_DIR)/pad_with_ff $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin 0x00340000
 	
-	if [ -f $(TOPDIR)/bin-nand/mpc85xx/medkit/medkit.tar.xz ]; then \
-		dd if=$(TOPDIR)/bin-nand/mpc85xx/medkit/medkit.tar.xz bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin; \
-	fi
+	dd if=$(TOPDIR)/bin-nand/mpc85xx/medkit/medkit.squashfs bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin
 	$(SCRIPT_DIR)/check_filesize $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin 0xE40000
 
 	# Build NOR image with uboot
 	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin of=$(BIN_DIR)/$(IMG_PREFIX)-turris-nor-uboot.bin bs=128k
 	$(SCRIPT_DIR)/pad_with_ff $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-uboot.bin 0x00f00000
-	#dd if=$(BIN_DIR)/uboot-mpc85xx/uboot-mpc85xx-TURRIS1 bs=128k >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-uboot.bin  
-	dd if=$(TOPDIR)/uboot-static/uboot-mpc85xx-TURRIS1 bs=128k >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-uboot.bin
+	#dd if=$(BIN_DIR)/uboot-mpc85xx/uboot-mpc85xx-TURRIS1 bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-uboot.bin  
+	dd if=$(TOPDIR)/uboot-static/uboot-mpc85xx-TURRIS1 bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-uboot.bin
 
-	echo "Creating bootable sd-card image."
+	echo "Creating bootable SDCARD image."
 	if [ -d $(TOPDIR)/bin-sdcard ]; then rm -rf $(TOPDIR)/bin-sdcard; fi
 	mkdir $(TOPDIR)/bin-sdcard	
 
 	# cp $(BIN_DIR)/uboot-mpc85xx/uboot-mpc85xx-TURRIS1_SDCARD $(TOPDIR)/bin-sdcard/sdcard.img
 	cp $(TOPDIR)/uboot-static/uboot-mpc85xx-TURRIS1_SDCARD $(TOPDIR)/bin-sdcard/sdcard.img
 	truncate -s 1M $(TOPDIR)/bin-sdcard/sdcard.img
-	cat $(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin >> $(TOPDIR)/bin-sdcard/sdcard.img
-	$(SCRIPT_DIR)/pad_with_ff $(TOPDIR)/bin-sdcard/sdcard.img 17301504
-	# cat $(BIN_DIR)/uboot-mpc85xx/uboot-mpc85xx-TURRIS1 >> $(TOPDIR)/bin-sdcard/sdcard.img
-	cat $(TOPDIR)/uboot-static/uboot-mpc85xx-TURRIS1 >> $(TOPDIR)/bin-sdcard/sdcard.img
+	cat $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-uboot.bin >> $(TOPDIR)/bin-sdcard/sdcard.img
 
 endef
 
