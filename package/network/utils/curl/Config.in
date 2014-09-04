@@ -3,7 +3,7 @@ menu "Configuration"
 
 choice
 	prompt "SSL library"
-	default LIBCURL_POLARSSL
+	default LIBCURL_OPENSSL
 
 config LIBCURL_POLARSSL
 	bool "PolarSSL"
