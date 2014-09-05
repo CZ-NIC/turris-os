@@ -1,13 +1,16 @@
+* Updater: neponecháváme stovky příkazů sleep běžet po skončení
+===================== 1.5 =======================
 * Foris (v42): opravena chyba při ukládání nastavení automatických restartů bez zapnutých notifikací.
 * Foris (v42): opravy drobných chyb a příprava pro aktualizace vyžadující restart.
 * Firewall je schopen pomocí ulogd a NFLOG vytvářet pcap soubory zahozených paketů pro další analýzu.
 * ulogd: updatován do verze 2.0 a ucifikován.
-* majordomo: Plugin pro ucollect, na sledování, co kam leze.
+* Majordomo: Plugin pro lcollect, pro sledování činnosti zařízení v lokální síti
 * lcollect: Lokální ucollect, bez připojení na server.
 * ucollect-core: Rozdělen na ucollect-lib a ucollect-prog.
 * Samba: Povýšena verze. Řeší CVE-2013-4475.
 * Ucollect: Přidán detektor NATu
 * p910nd: Přidána volba "bind" do init skriptu.
+* Autoritativní DNS server Knot povýšen na verzi 1.5.1
 ===================== 1.4 =======================
 * Foris (v41): úpravy ve formuláři pro nastavení SMTP serveru, Turris SMTP je nyní výchozí.
 * Unbound: Povolen prefetch v naději rychlejších odpovědí.

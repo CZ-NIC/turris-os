@@ -47,3 +47,4 @@ CONFIG_PACKAGE_knot-utils=m
 CONFIG_PACKAGE_knot-tests=m
 CONFIG_PACKAGE_oneshot=y
 CONFIG_PACKAGE_luci-app-majordomo=m
+CONFIG_PACKAGE_foris-oldconfig=m
