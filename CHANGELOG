@@ -1,3 +1,4 @@
+* Ucollect-flow: Filtry zasílané jen rozdíly proti minulé verzi
 * Updater: neponecháváme stovky příkazů sleep běžet po skončení
 ===================== 1.5 =======================
 * Foris (v42): opravena chyba při ukládání nastavení automatických restartů bez zapnutých notifikací.
