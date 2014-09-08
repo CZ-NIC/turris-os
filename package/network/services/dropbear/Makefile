@@ -102,6 +102,18 @@ define Build/Compile
 		PROGRAMS="dropbearconvert"
 endef
 
+ifeq ($(CONFIG_TARGET_mpc85xx_p2020_nor_TURRISNOR),y)
+define Package/dropbear/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dropbearmulti $(1)/usr/sbin/dropbear
+	$(INSTALL_DIR) $(1)/usr/bin
+	ln -sf ../sbin/dropbear $(1)/usr/bin/scp
+	ln -sf ../sbin/dropbear $(1)/usr/bin/ssh
+	ln -sf ../sbin/dropbear $(1)/usr/bin/dbclient
+	ln -sf ../sbin/dropbear $(1)/usr/bin/dropbearkey
+	$(INSTALL_DIR) $(1)/etc/dropbear
+endef
+else
 define Package/dropbear/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dropbearmulti $(1)/usr/sbin/dropbear
@@ -119,6 +131,7 @@ define Package/dropbear/install
 	touch $(1)/etc/dropbear/dropbear_rsa_host_key
 	touch $(1)/etc/dropbear/dropbear_dss_host_key
 endef
+endif
 
 define Package/dropbearconvert/install
 	$(INSTALL_DIR) $(1)/usr/bin
