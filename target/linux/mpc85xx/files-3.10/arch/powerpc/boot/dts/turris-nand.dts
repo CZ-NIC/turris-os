@@ -50,28 +50,28 @@
                                 /* 128KB for DTB Image */
                                 reg = <0x0 0x00020000>;
                                 label = "NOR (RO) DTB Image";
-				read-only;
+                                read-only;
                         };
 
                         partition@20000 {
                                 /* 1.7 MB for Linux Kernel Image */
                                 reg = <0x00020000 0x1A0000>;
                                 label = "NOR (RO) Linux Kernel Image";
-				read-only;
+                                read-only;
                         };
 
                         partition@1C0000 {
                                 /* 1.5 MB for JFFS2 based Root file System */
                                 reg = <0x001C0000 0x180000>;
                                 label = "NOR (RO) JFFS2 Root File System";
-				read-only;
+                                read-only;
                         };
 
                         partition@340000 {
                                 /* for nand fw backup */
-                                reg = <0x00340000 0xae0000>;
+                                reg = <0x00340000 0xb00000>;
                                 label = "NOR (RO) NAND FW backup";
-				read-only;
+                                read-only;
                         };
 
                         partition@E40000 {
@@ -86,7 +86,7 @@
                                 /* 512KB for u-boot Environment Variables */
                                 reg = <0x00f00000 0x00100000>;
                                 label = "NOR (RO) U-Boot Image";
-				read-only;
+                                read-only;
                         };
                 };
 	
@@ -191,43 +191,25 @@
 	                phy-connection-type = "rgmii-id";
         	};
 	};
-
-       pci2: pcie@ffe08000 {
-
-         ranges = <0x2000000 0x0 0x80000000 0 0x80000000 0x0 0x10000000
-                   0x1000000 0x0 0x00000000 0 0xffc20000 0x0 0x00010000>;
+        pci2: pcie@ffe08000 {
+                ranges = <0x2000000 0x0 0xc0000000 0 0xc0000000 0x0 0x20000000
+                          0x1000000 0x0 0x00000000 0 0xffc20000 0x0 0x10000>;
                 reg = <0 0xffe08000 0 0x1000>;
                 pcie@0 {
-                        ranges = <0x2000000 0x0 0x80000000
-                                  0x2000000 0x0 0x80000000
-                                  0x0 0x10000000
-
-                                  0x1000000 0x0 0x0
-                                  0x1000000 0x0 0x0
-                                  0x0 0x10000>;
-                };  
-
-        };
-
-        pci1: pcie@ffe09000 {
-                ranges = <0x2000000 0x0 0x90000000 0 0x90000000 0x0 0x10000000
-                          0x1000000 0x0 0x00000000 0 0xffc10000 0x0 0x10000>;
-                reg = <0 0xffe09000 0 0x1000>;
-                pcie@0 {
-                        ranges = <0x2000000 0x0 0x90000000
-                                  0x2000000 0x0 0x90000000
+                        ranges = <0x2000000 0x0 0xc0000000
+                                  0x2000000 0x0 0xc0000000
                                   0x0 0x20000000
 
                                   0x1000000 0x0 0x0
                                   0x1000000 0x0 0x0
                                   0x0 0x10000>;
-                };  
+                };
         };
 
-        pci0: pcie@ffe0a000 {
-                ranges = <0x2000000 0x0 0xa0000000 0 0xa0000000 0x0 0x10000000
-                          0x1000000 0x0 0x00000000 0 0xffc20000 0x0 0x10000>;
-                reg = <0 0xffe0a000 0 0x1000>;
+        pci1: pcie@ffe09000 {
+                ranges = <0x2000000 0x0 0xa0000000 0 0xa0000000 0x0 0x20000000
+                          0x1000000 0x0 0x00000000 0 0xffc10000 0x0 0x10000>;
+                reg = <0 0xffe09000 0 0x1000>;
                 pcie@0 {
                         ranges = <0x2000000 0x0 0xa0000000
                                   0x2000000 0x0 0xa0000000
@@ -236,8 +218,24 @@
                                   0x1000000 0x0 0x0
                                   0x1000000 0x0 0x0
                                   0x0 0x10000>;
-                };  
-        };  
+                };
+        };
+
+        pci0: pcie@ffe0a000 {
+                ranges = <0x2000000 0x0 0x80000000 0 0x80000000 0x0 0x20000000
+                          0x1000000 0x0 0x00000000 0 0xffc00000 0x0 0x10000>;
+                reg = <0 0xffe0a000 0 0x1000>;
+                pcie@0 {
+                        ranges = <0x2000000 0x0 0x80000000
+                                  0x2000000 0x0 0x80000000
+                                  0x0 0x20000000
+
+                                  0x1000000 0x0 0x0
+                                  0x1000000 0x0 0x0
+                                  0x0 0x10000>;
+                };
+        };
+
 };
 
 /include/ "fsl/p2020si-post.dtsi"
