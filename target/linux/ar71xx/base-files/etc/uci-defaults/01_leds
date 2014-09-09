@@ -82,7 +82,8 @@ rb-750)
 rb-2011l|\
 rb-2011uas|\
 rb-2011uias|\
-rb-2011uas-2hnd)
+rb-2011uas-2hnd|\
+rb-2011uias-2hnd)
 	ucidef_set_led_switch "eth6" "ETH6" "rb:green:eth6" "switch1" "0x20"
 	ucidef_set_led_switch "eth7" "ETH7" "rb:green:eth7" "switch1" "0x10"
 	ucidef_set_led_switch "eth8" "ETH8" "rb:green:eth8" "switch1" "0x08"
@@ -188,6 +189,15 @@ om2p-lc)
 om5p)
 	ucidef_set_led_netdev "port1" "port1" "om5p:blue:wan" "eth0"
 	ucidef_set_led_netdev "port2" "port2" "om5p:blue:lan" "eth1"
+	;;
+
+smart-300)
+	ucidef_set_led_netdev "wan" "WAN" "nc-link:green:wan" "eth0"
+	ucidef_set_led_switch "lan1" "LAN1" "nc-link:green:lan1" "switch0" "0x04"
+	ucidef_set_led_switch "lan2" "LAN2" "nc-link:green:lan2" "switch0" "0x08"
+	ucidef_set_led_switch "lan3" "LAN3" "nc-link:green:lan3" "switch0" "0x10"
+	ucidef_set_led_switch "lan4" "LAN4" "nc-link:green:lan4" "switch0" "0x02"
+	ucidef_set_led_wlan "wlan" "WLAN" "nc-link:green:wlan" "phy0tpt"
 	;;
 
 tew-712br)

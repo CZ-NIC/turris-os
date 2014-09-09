@@ -64,6 +64,7 @@ platform_check_image() {
 	nw718 | \
 	omni-emb | \
 	omni-emb-hpm | \
+	omni-plug | \
 	psr-680w | \
 	px4885 | \
 	rp-n53 | \
@@ -80,6 +81,7 @@ platform_check_image() {
 	w502u |\
 	wr6202 |\
 	v22rw-2x2 | \
+	vocore | \
 	wl341v3 | \
 	wl-330n | \
 	wl-330n3g | \

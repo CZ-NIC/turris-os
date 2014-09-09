@@ -176,6 +176,7 @@ platform_check_image() {
 	dir-835-a1 | \
 	dragino2 | \
 	esr1750 | \
+	esr900 | \
 	ew-dorin | \
 	ew-dorin-router | \
 	hiwifi-hc6361 | \
@@ -257,6 +258,7 @@ platform_check_image() {
 	el-mini | \
 	gl-inet | \
 	oolite | \
+	smart-300 | \
 	tl-mr10u | \
 	tl-mr11u | \
 	tl-mr13u | \

@@ -12,7 +12,12 @@ define Build/Clean
 endef
 
 define Image/Prepare
+	# Optimized LZMA compression (with dictionary), handled by lzma-loader.
 	cat $(KDIR)/vmlinux | $(STAGING_DIR_HOST)/bin/lzma e -si -so -eos -lc1 -lp2 -pb2 > $(KDIR)/vmlinux.lzma
+
+	# Less optimal LZMA compression (no dictionary), handled by CFE.
+	$(STAGING_DIR_HOST)/bin/lzma e -so -d16 $(KDIR)/vmlinux > $(KDIR)/vmlinux-nodictionary.lzma
+
 	gzip -nc9 $(KDIR)/vmlinux > $(KDIR)/vmlinux.gz
 ifneq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),)
 	cat $(KDIR)/vmlinux-initramfs | $(STAGING_DIR_HOST)/bin/lzma e -si -so -eos -lc1 -lp2 -pb2 > $(KDIR)/vmlinux-initramfs.lzma
@@ -179,9 +184,13 @@ define Image/Build/mips74k/devices-with-64k-blocks
 	$(call Image/Build/Chk,$(1),wndr3400_v2,U12H187T00_NETGEAR,2,$(patsubst jffs2-%,jffs2,$(1)))
 	$(call Image/Build/Chk,$(1),wndr3700_v3,U12H194T00_NETGEAR,2,$(patsubst jffs2-%,jffs2,$(1)))
 	$(call Image/Build/Chk,$(1),wndr4000,U12H181T00_NETGEAR,2,$(patsubst jffs2-%,jffs2,$(1)))
+	$(call Image/Build/Chk,$(1),wnr1000_v3,U12H139T00_NETGEAR,2,$(patsubst jffs2-%,jffs2,$(1)))
 	$(call Image/Build/Chk,$(1),wnr2000v2,U12H114T00_NETGEAR,2,$(patsubst jffs2-%,jffs2,$(1)))
-	$(call Image/Build/Chk,$(1),wnr3500L,U12H136T99_NETGEAR,2,$(patsubst jffs2-%,jffs2,$(1)))
-	$(call Image/Build/Chk,$(1),wnr3500v2,U12H127T00_NETGEAR,2,$(patsubst jffs2-%,jffs2,$(1)))
+	$(call Image/Build/Chk,$(1),wnr3000rp,U12H163T01_NETGEAR,1,$(patsubst jffs2-%,jffs2,$(1)))
+	$(call Image/Build/Chk,$(1),wnr3500l_v1_north_america,U12H136T99_NETGEAR,2,$(patsubst jffs2-%,jffs2,$(1)))
+	$(call Image/Build/Chk,$(1),wnr3500l_v1_other_regions,U12H136T99_NETGEAR,1,$(patsubst jffs2-%,jffs2,$(1)))
+	$(call Image/Build/Chk,$(1),wnr3500l_v2,U12H172T00_NETGEAR,1,$(patsubst jffs2-%,jffs2,$(1)))
+	$(call Image/Build/Chk,$(1),wnr3500_v2,U12H127T00_NETGEAR,2,$(patsubst jffs2-%,jffs2,$(1)))
 	$(call Image/Build/CyberTAN,$(1),wrt160n_v3,N150,3.0.3,$(patsubst jffs2-%,jffs2,$(1)))
 	$(call Image/Build/CyberTAN,$(1),wrt310n_v2,310N,2.0.1,$(patsubst jffs2-%,jffs2,$(1)))
 	$(call Image/Build/CyberTAN,$(1),wrt320n_v1,320N,1.0.5,$(patsubst jffs2-%,jffs2,$(1)))
@@ -225,6 +234,9 @@ endef
 define Image/Build
 	$(STAGING_DIR_HOST)/bin/trx -o $(BIN_DIR)/$(IMG_PREFIX)-$(1).trx \
 		-f $(KDIR)/loader.gz -f $(KDIR)/vmlinux.lzma \
+		$(call trxalign/$(1),$(1))
+	$(STAGING_DIR_HOST)/bin/trx -o $(BIN_DIR)/$(IMG_PREFIX)-$(1)-noloader-nodictionary.trx \
+		-f $(KDIR)/vmlinux-nodictionary.lzma \
 		$(call trxalign/$(1),$(1))
 	$(STAGING_DIR_HOST)/bin/trx -o $(BIN_DIR)/$(IMG_PREFIX)-$(1)-gz.trx \
 		-f $(KDIR)/vmlinux.gz \

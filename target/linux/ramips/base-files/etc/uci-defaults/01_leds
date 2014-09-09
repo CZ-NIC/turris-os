@@ -121,10 +121,10 @@ case $board in
 		set_usb_led "mofi3500-3gn:green:usb"
 		;;
 	mpr-a1)
-		set_wifi_led "mpr-a1:blue:system"
+		set_wifi_led "hame:blue:system"
 		;;
 	mpr-a2)
-		set_wifi_led "mpr-a2:blue:system"
+		set_wifi_led "hame:blue:system"
 		;;
 	mzk-w300nh2)
 		set_wifi_led "mzkw300nh2:amber:wlan"
@@ -140,6 +140,10 @@ case $board in
 		ucidef_set_led_netdev "eth" "ETH" "emb:green:eth" "eth0"
 		set_wifi_led "emb:green:wifi"
 		;;
+	omni-plug)
+		set_wifi_led "miniplug:green:wlan"
+		set_usb_led "miniplug:green:mobile"
+		;;
 	px4885)
 		set_wifi_led "7links:orange:wifi"
 		set_usb_led "7links:blue:storage"
@@ -149,6 +153,10 @@ case $board in
 		;;
 	v11st-fe)
 		set_wifi_led "rt2800pci-phy0::radio"
+		;;
+	vocore)
+		ucidef_set_led_netdev "eth" "ETH" "vocore:orange:eth" "eth0"
+		set_wifi_led "vocore:green:status"
 		;;
 	w306r-v20)
 		set_wifi_led "rt2800pci-phy0::radio"

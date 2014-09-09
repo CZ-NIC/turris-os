@@ -60,7 +60,6 @@ ramips_setup_interfaces()
 		ucidef_set_interface_lan "eth0.1"
 		;;
 
-	3g-6200n | \
 	b2c | \
 	nw718 | \
 	psr-680w | \
@@ -97,6 +96,7 @@ ramips_setup_interfaces()
 		ucidef_add_switch_vlan "switch0" "2" "4 9t"
 		;;
 
+	3g-6200n | \
 	dir-610-a1 | \
 	dir-300-b7 | \
 	dir-320-b1 | \
@@ -161,6 +161,12 @@ ramips_setup_interfaces()
 		ucidef_add_switch "switch0" "1" "1"
 		ucidef_add_switch_vlan "switch0" "1" "0t 1 2 3 4"
 		ucidef_add_switch_vlan "switch0" "2" "0t 5"
+		;;
+
+	vocore)
+		ucidef_set_interface_lan "eth0.1"
+		ucidef_add_switch "switch0" "1" "1"
+		ucidef_add_switch_vlan "switch0" "1" "0 4 6t"
 		;;
 
 	wcr-150gn)
