@@ -1,3 +1,4 @@
+* nuci/updater: Ukazujeme i stažené balíčky, ne jen instalované a smazané
 * Ucollect-flow: Rozeznává, která strana započala komunikaci
 * Ucollect-flow: Filtry zasílané jen rozdíly proti minulé verzi
 * Updater: neponecháváme stovky příkazů sleep běžet po skončení
