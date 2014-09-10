@@ -1,3 +1,4 @@
+* Majordomo: Finální verze obsahující filter pro packety z lokální sítě a efektivnější implementacrie vnitřních struktur
 * nuci/updater: Ukazujeme i stažené balíčky, ne jen instalované a smazané
 * Ucollect-flow: Rozeznává, která strana započala komunikaci
 * Ucollect-flow: Filtry zasílané jen rozdíly proti minulé verzi
