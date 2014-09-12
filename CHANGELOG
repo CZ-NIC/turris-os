@@ -1,3 +1,4 @@
+* Firewall: pravidla pro turris se nahrávají pouze přes ipsets (iptables měly problémy s načtením většího počtu pravidel)
 * Updater: zbavení se race condition a dlouhého čekání na nic
 * Foris (v45): persistentní připojení k Nuci (cca o 20 % rychlejší načítání konfigurace).
 * Foris (v45): další přípravy pro aktualizace vyžadující restart.
