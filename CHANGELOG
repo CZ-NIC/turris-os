@@ -1,3 +1,10 @@
+* Updater: zbavení se race condition a dlouhého čekání na nic
+* Foris (v45): persistentní připojení k Nuci (cca o 20 % rychlejší načítání konfigurace).
+* Foris (v45): další přípravy pro aktualizace vyžadující restart.
+* Majordomo: Finální verze obsahující filter pro packety z lokální sítě a efektivnější implementacrie vnitřních struktur
+* nuci/updater: Ukazujeme i stažené balíčky, ne jen instalované a smazané
+* Ucollect-flow: Rozeznává, která strana započala komunikaci
+* Ucollect-flow: Filtry zasílané jen rozdíly proti minulé verzi
 * Updater: neponecháváme stovky příkazů sleep běžet po skončení
 ===================== 1.5 =======================
 * Foris (v42): opravena chyba při ukládání nastavení automatických restartů bez zapnutých notifikací.
