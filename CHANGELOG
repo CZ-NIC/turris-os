@@ -1,3 +1,4 @@
+* Firewall: Uživatel může nastavit, která pravidla pro firewall se mají aplikovat a která vynechat (/etc/config/firewall-turris)
 * user_notify: diakritika v zasílaných emailech.
 * Firewall: pravidla pro turris se nahrávají pouze přes ipsets (iptables měly problémy s načtením většího počtu pravidel)
 * Updater: zbavení se race condition a dlouhého čekání na nic
