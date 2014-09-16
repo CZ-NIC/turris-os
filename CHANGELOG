@@ -1,3 +1,5 @@
+===================== 1.6 =======================
+* Updater: opravy chyb způsobujících pády při instalaci aktualizací (zejména lighttpd).
 * user_notify: diakritika v zasílaných emailech.
 * Firewall: pravidla pro turris se nahrávají pouze přes ipsets (iptables měly problémy s načtením většího počtu pravidel)
 * Updater: zbavení se race condition a dlouhého čekání na nic
