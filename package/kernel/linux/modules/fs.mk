@@ -121,6 +121,21 @@ endef
 $(eval $(call KernelPackage,fs-ext4))
 
 
+define KernelPackage/fs-ext2
+  SUBMENU:=$(FS_MENU)
+  TITLE:=EXT2 filesystem support
+  KCONFIG:=CONFIG_EXT2_FS
+  FILES:=$(LINUX_DIR)/fs/ext2/ext2.ko
+  AUTOLOAD:=$(call AutoLoad,32,ext2,1)
+endef
+
+define KernelPackage/fs-ext2/description
+ Kernel module for EXT2 filesystem support
+endef
+
+$(eval $(call KernelPackage,fs-ext2))
+
+
 define KernelPackage/fuse
   SUBMENU:=$(FS_MENU)
   TITLE:=FUSE (Filesystem in Userspace) support
