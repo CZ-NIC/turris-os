@@ -1,3 +1,4 @@
+* Autoritativní DNS server Knot povýšen na verzi 1.5.3
 ===================== 1.6 =======================
 * Updater: opravy chyb způsobujících pády při instalaci aktualizací (zejména lighttpd).
 * user_notify: diakritika v zasílaných emailech.
