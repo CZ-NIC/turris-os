@@ -1,3 +1,18 @@
+* Nový bash, oprava pouštění kódu přes environment
+* Firewall: Uživatel může nastavit, která pravidla pro firewall se mají aplikovat a která vynechat (/etc/config/firewall-turris)
+* Autoritativní DNS server Knot povýšen na verzi 1.5.3
+===================== 1.6 =======================
+* Updater: opravy chyb způsobujících pády při instalaci aktualizací (zejména lighttpd).
+* user_notify: diakritika v zasílaných emailech.
+* Firewall: pravidla pro turris se nahrávají pouze přes ipsets (iptables měly problémy s načtením většího počtu pravidel)
+* Updater: zbavení se race condition a dlouhého čekání na nic
+* Foris (v45): persistentní připojení k Nuci (cca o 20 % rychlejší načítání konfigurace).
+* Foris (v45): další přípravy pro aktualizace vyžadující restart.
+* Majordomo: Finální verze obsahující filter pro packety z lokální sítě a efektivnější implementacrie vnitřních struktur
+* nuci/updater: Ukazujeme i stažené balíčky, ne jen instalované a smazané
+* Ucollect-flow: Rozeznává, která strana započala komunikaci
+* Ucollect-flow: Filtry zasílané jen rozdíly proti minulé verzi
+* Updater: neponecháváme stovky příkazů sleep běžet po skončení
 ===================== 1.5 =======================
 * Foris (v42): opravena chyba při ukládání nastavení automatických restartů bez zapnutých notifikací.
 * Foris (v42): opravy drobných chyb a příprava pro aktualizace vyžadující restart.
