@@ -1,3 +1,4 @@
+* Ucollect-flow: filtry na adresní rozsahy
 * Plugin ucollect-spoof (testování, jestli packet s podvrženou zdrojovou adresou projde)
 * Nový bash, oprava pouštění kódu přes environment
 * Firewall: Uživatel může nastavit, která pravidla pro firewall se mají aplikovat a která vynechat (/etc/config/firewall-turris)
