@@ -1,3 +1,4 @@
+===================== 1.7 =======================
 * Ucollect: Oprava problému s přetékáním času
 * Ucollect-flow: filtry na adresní rozsahy
 * Plugin ucollect-spoof (testování, jestli packet s podvrženou zdrojovou adresou projde)
