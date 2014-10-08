@@ -1,3 +1,4 @@
+* Ucollect-refused: Nový plugin pro sledování nezdařilých připojení (nekompletní implementace)
 ===================== 1.7 =======================
 * Ucollect: Oprava problému s přetékáním času
 * Ucollect-flow: filtry na adresní rozsahy
