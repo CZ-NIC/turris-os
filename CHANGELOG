@@ -1,4 +1,6 @@
 ===================== 1.7 =======================
+* Foris (v46): opravena chyba, ke které mohlo docházet při současném přístupu více uživatelů do rozhraní.
+* Python: aktualizace na verzi 2.7.8.
 * Ucollect: Oprava problému s přetékáním času
 * Ucollect-flow: filtry na adresní rozsahy
 * Plugin ucollect-spoof (testování, jestli packet s podvrženou zdrojovou adresou projde)
