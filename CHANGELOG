@@ -1,3 +1,4 @@
+* Vypnut chroot v unboundu (nefungoval s ním reload, žádnou větší bezpečnost stejně nepřinášel, běží jako root)
 * Ucollect-refused: Nový plugin pro sledování nezdařilých připojení (nekompletní implementace)
 ===================== 1.7 =======================
 * Foris (v46): opravena chyba, ke které mohlo docházet při současném přístupu více uživatelů do rozhraní.
