@@ -1,3 +1,5 @@
+* Ucollect-bandwidth: Nově zpracovává statistiky vytížení linky
+* Autoritativní DNS server Knot povýšen na verzi 1.6.0
 ===================== 1.7 =======================
 * watchdog sleduje lcollect
 * Ucollect-flow si řekne o nastavení i po reloadu
