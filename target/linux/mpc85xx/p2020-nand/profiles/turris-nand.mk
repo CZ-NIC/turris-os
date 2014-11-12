@@ -18,7 +18,7 @@ define Profile/TURRISNAND
 #   it here explicitly.
 	PACKAGES:=\
 		kmod-usb-core kmod-usb2 kmod-usb2-fsl \
-		kmod-ath9k kmod-hostapd hostapd \
+		kmod-ath9k kmod-hostapd hostapd kmod-usb3 \
 		kmod-usb-storage-extras kmod-usb-storage \
 		block-mount kmod-mmc kmod-mmc-fsl-p2020 \
 		nuci updater logsend unbound oneshot logrotate \
