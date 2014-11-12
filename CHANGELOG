@@ -1,3 +1,4 @@
+* Firewall: Drobné opravy načítání pravidel přes ipsets + při downloadu pravidel použítat aktuálnější verzi crl.pem
 * Ucollect-bandwidth: Nově zpracovává statistiky vytížení linky
 * Autoritativní DNS server Knot povýšen na verzi 1.6.0
 ===================== 1.7 =======================
