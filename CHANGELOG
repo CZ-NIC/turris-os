@@ -1,3 +1,4 @@
+* Updaret fix: při běhu na pozadí po obnově to není ještě hotovo, neprohlašuj to za to
 * nuci: přidán majordomo do seznamu user-listů
 ===================== 1.8 =======================
 * ucollect-spoof: Nepřepisuj adresu NATem.
