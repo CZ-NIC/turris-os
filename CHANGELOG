@@ -1,7 +1,8 @@
+* Syslog povoluje větší zprávy
 * Ucollect vypisuje statistiky paměti
+===================== 1.8 =======================
 * Updaret fix: při běhu na pozadí po obnově to není ještě hotovo, neprohlašuj to za to
 * nuci: přidán majordomo do seznamu user-listů
-===================== 1.8 =======================
 * ucollect-spoof: Nepřepisuj adresu NATem.
 * Firewall: Drobné opravy načítání pravidel přes ipsets + při downloadu pravidel použítat aktuálnější verzi crl.pem
 * Ucollect-bandwidth: Nově zpracovává statistiky vytížení linky
