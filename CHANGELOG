@@ -1,3 +1,4 @@
+* Drobné uklízení v kódu v ucollect-buckets
 * Syslog povoluje větší zprávy
 * Ucollect vypisuje statistiky paměti
 ===================== 1.8 =======================
