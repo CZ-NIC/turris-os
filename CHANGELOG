@@ -2,6 +2,7 @@
 * Syslog povoluje větší zprávy
 * Ucollect vypisuje statistiky paměti
 * Oprava chyby v Majordomo, která způsobovala pád po přidání prázdné konfigurace
+* Oprava pořadí zobrazovaných měsíců v Majordomo
 ===================== 1.8 =======================
 * Updaret fix: při běhu na pozadí po obnově to není ještě hotovo, neprohlašuj to za to
 * nuci: přidán majordomo do seznamu user-listů
