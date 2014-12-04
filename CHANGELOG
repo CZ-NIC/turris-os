@@ -1,3 +1,4 @@
+* Oprava memory leaku v ucollect-buckets
 * SMRT daemon and image
 * Drobné uklízení v kódu v ucollect-buckets
 * Syslog povoluje větší zprávy
