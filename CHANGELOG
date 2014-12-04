@@ -1,3 +1,4 @@
+* SMRT daemon and image
 * Drobné uklízení v kódu v ucollect-buckets
 * Syslog povoluje větší zprávy
 * Ucollect vypisuje statistiky paměti
