@@ -461,7 +461,7 @@ define KernelPackage/usb-acm
   TITLE:=Support for modems/isdn controllers
   KCONFIG:=CONFIG_USB_ACM
   FILES:=$(LINUX_DIR)/drivers/usb/class/cdc-acm.ko
-  AUTOLOAD:=$(call AutoProbe,cdc-acm)
+  AUTOLOAD:=$(call AutoLoad,27,cdc-acm)
 $(call AddDepends/usb)
 endef
 
@@ -476,7 +476,7 @@ define KernelPackage/usb-wdm
   TITLE:=USB Wireless Device Management
   KCONFIG:=CONFIG_USB_WDM
   FILES:=$(LINUX_DIR)/drivers/usb/class/cdc-wdm.ko
-  AUTOLOAD:=$(call AutoProbe,cdc-wdm)
+  AUTOLOAD:=$(call AutoLoad,27,cdc-wdm)
 $(call AddDepends/usb)
 $(call AddDepends/usb-net)
 endef
@@ -500,12 +500,12 @@ ifneq ($(wildcard $(LINUX_DIR)/sound/usb/snd-usbmidi-lib.ko),)
   FILES:= \
 	$(LINUX_DIR)/sound/usb/snd-usbmidi-lib.ko \
 	$(LINUX_DIR)/sound/usb/snd-usb-audio.ko
-  AUTOLOAD:=$(call AutoProbe,snd-usbmidi-lib snd-usb-audio)
+  AUTOLOAD:=$(call AutoLoad,27,snd-usbmidi-lib snd-usb-audio)
 else
   FILES:= \
 	$(LINUX_DIR)/sound/usb/snd-usb-lib.ko \
 	$(LINUX_DIR)/sound/usb/snd-usb-audio.ko
-  AUTOLOAD:=$(call AutoProbe,snd-usb-lib snd-usb-audio)
+  AUTOLOAD:=$(call AutoLoad,27,snd-usb-lib snd-usb-audio)
 endif
 endef
 
@@ -520,7 +520,7 @@ define KernelPackage/usb-printer
   TITLE:=Support for printers
   KCONFIG:=CONFIG_USB_PRINTER
   FILES:=$(LINUX_DIR)/drivers/usb/class/usblp.ko
-  AUTOLOAD:=$(call AutoProbe,usblp)
+  AUTOLOAD:=$(call AutoLoad,27,usblp)
   $(call AddDepends/usb)
 endef
 
@@ -535,7 +535,7 @@ define KernelPackage/usb-serial
   TITLE:=Support for USB-to-Serial converters
   KCONFIG:=CONFIG_USB_SERIAL
   FILES:=$(LINUX_DIR)/drivers/usb/serial/usbserial.ko
-  AUTOLOAD:=$(call AutoProbe,usbserial)
+  AUTOLOAD:=$(call AutoLoad,27,usbserial)
   $(call AddDepends/usb)
 endef
 
@@ -556,7 +556,7 @@ define KernelPackage/usb-serial-belkin
   TITLE:=Support for Belkin devices
   KCONFIG:=CONFIG_USB_SERIAL_BELKIN
   FILES:=$(LINUX_DIR)/drivers/usb/serial/belkin_sa.ko
-  AUTOLOAD:=$(call AutoProbe,belkin_sa)
+  AUTOLOAD:=$(call AutoLoad,27,belkin_sa)
   $(call AddDepends/usb-serial)
 endef
 
@@ -571,7 +571,7 @@ define KernelPackage/usb-serial-ch341
   TITLE:=Support for CH341 devices
   KCONFIG:=CONFIG_USB_SERIAL_CH341
   FILES:=$(LINUX_DIR)/drivers/usb/serial/ch341.ko
-  AUTOLOAD:=$(call AutoProbe,ch341)
+  AUTOLOAD:=$(call AutoLoad,27,ch341)
   $(call AddDepends/usb-serial)
 endef
 
@@ -586,7 +586,7 @@ define KernelPackage/usb-serial-ftdi
   TITLE:=Support for FTDI devices
   KCONFIG:=CONFIG_USB_SERIAL_FTDI_SIO
   FILES:=$(LINUX_DIR)/drivers/usb/serial/ftdi_sio.ko
-  AUTOLOAD:=$(call AutoProbe,ftdi_sio)
+  AUTOLOAD:=$(call AutoLoad,27,ftdi_sio)
   $(call AddDepends/usb-serial)
 endef
 
@@ -601,7 +601,7 @@ define KernelPackage/usb-serial-ti-usb
   TITLE:=Support for TI USB 3410/5052
   KCONFIG:=CONFIG_USB_SERIAL_TI
   FILES:=$(LINUX_DIR)/drivers/usb/serial/ti_usb_3410_5052.ko
-  AUTOLOAD:=$(call AutoProbe,ti_usb_3410_5052)
+  AUTOLOAD:=$(call AutoLoad,27,ti_usb_3410_5052)
   $(call AddDepends/usb-serial)
 endef
 
@@ -616,7 +616,7 @@ define KernelPackage/usb-serial-ipw
   TITLE:=Support for IPWireless 3G devices
   KCONFIG:=CONFIG_USB_SERIAL_IPW
   FILES:=$(LINUX_DIR)/drivers/usb/serial/ipw.ko
-  AUTOLOAD:=$(call AutoProbe,ipw)
+  AUTOLOAD:=$(call AutoLoad,27,ipw)
   $(call AddDepends/usb-serial,+kmod-usb-serial-wwan)
 endef
 
@@ -627,7 +627,7 @@ define KernelPackage/usb-serial-mct
   TITLE:=Support for Magic Control Tech. devices
   KCONFIG:=CONFIG_USB_SERIAL_MCT_U232
   FILES:=$(LINUX_DIR)/drivers/usb/serial/mct_u232.ko
-  AUTOLOAD:=$(call AutoProbe,mct_u232)
+  AUTOLOAD:=$(call AutoLoad,27,mct_u232)
   $(call AddDepends/usb-serial)
 endef
 
@@ -642,7 +642,7 @@ define KernelPackage/usb-serial-mos7720
   TITLE:=Support for Moschip MOS7720 devices
   KCONFIG:=CONFIG_USB_SERIAL_MOS7720
   FILES:=$(LINUX_DIR)/drivers/usb/serial/mos7720.ko
-  AUTOLOAD:=$(call AutoProbe,mos7720)
+  AUTOLOAD:=$(call AutoLoad,27,mos7720)
   $(call AddDepends/usb-serial)
 endef
 
@@ -657,7 +657,7 @@ define KernelPackage/usb-serial-pl2303
   TITLE:=Support for Prolific PL2303 devices
   KCONFIG:=CONFIG_USB_SERIAL_PL2303
   FILES:=$(LINUX_DIR)/drivers/usb/serial/pl2303.ko
-  AUTOLOAD:=$(call AutoProbe,pl2303)
+  AUTOLOAD:=$(call AutoLoad,27,pl2303)
   $(call AddDepends/usb-serial)
 endef
 
@@ -672,7 +672,7 @@ define KernelPackage/usb-serial-cp210x
   TITLE:=Support for Silicon Labs cp210x devices
   KCONFIG:=CONFIG_USB_SERIAL_CP210X
   FILES:=$(LINUX_DIR)/drivers/usb/serial/cp210x.ko
-  AUTOLOAD:=$(call AutoProbe,cp210x)
+  AUTOLOAD:=$(call AutoLoad,27,cp210x)
   $(call AddDepends/usb-serial)
 endef
 
@@ -687,7 +687,7 @@ define KernelPackage/usb-serial-ark3116
   TITLE:=Support for ArkMicroChips ARK3116 devices
   KCONFIG:=CONFIG_USB_SERIAL_ARK3116
   FILES:=$(LINUX_DIR)/drivers/usb/serial/ark3116.ko
-  AUTOLOAD:=$(call AutoProbe,ark3116)
+  AUTOLOAD:=$(call AutoLoad,27,ark3116)
   $(call AddDepends/usb-serial)
 endef
 
@@ -702,7 +702,7 @@ define KernelPackage/usb-serial-oti6858
   TITLE:=Support for Ours Technology OTI6858 devices
   KCONFIG:=CONFIG_USB_SERIAL_OTI6858
   FILES:=$(LINUX_DIR)/drivers/usb/serial/oti6858.ko
-  AUTOLOAD:=$(call AutoProbe,oti6858)
+  AUTOLOAD:=$(call AutoLoad,27,oti6858)
   $(call AddDepends/usb-serial)
 endef
 
@@ -717,7 +717,7 @@ define KernelPackage/usb-serial-sierrawireless
   TITLE:=Support for Sierra Wireless devices
   KCONFIG:=CONFIG_USB_SERIAL_SIERRAWIRELESS
   FILES:=$(LINUX_DIR)/drivers/usb/serial/sierra.ko
-  AUTOLOAD:=$(call AutoProbe,sierra)
+  AUTOLOAD:=$(call AutoLoad,27,sierra)
   $(call AddDepends/usb-serial)
 endef
 
@@ -732,7 +732,7 @@ define KernelPackage/usb-serial-motorola-phone
   TITLE:=Support for Motorola usb phone
   KCONFIG:=CONFIG_USB_SERIAL_MOTOROLA
   FILES:=$(LINUX_DIR)/drivers/usb/serial/moto_modem.ko
-  AUTOLOAD:=$(call AutoProbe,moto_modem)
+  AUTOLOAD:=$(call AutoLoad,27,moto_modem)
   $(call AddDepends/usb-serial)
 endef
 
@@ -747,7 +747,7 @@ define KernelPackage/usb-serial-visor
   TITLE:=Support for Handspring Visor devices
   KCONFIG:=CONFIG_USB_SERIAL_VISOR
   FILES:=$(LINUX_DIR)/drivers/usb/serial/visor.ko
-  AUTOLOAD:=$(call AutoProbe,visor)
+  AUTOLOAD:=$(call AutoLoad,27,visor)
   $(call AddDepends/usb-serial)
 endef
 
@@ -762,7 +762,7 @@ define KernelPackage/usb-serial-cypress-m8
   TITLE:=Support for CypressM8 USB-Serial
   KCONFIG:=CONFIG_USB_SERIAL_CYPRESS_M8
   FILES:=$(LINUX_DIR)/drivers/usb/serial/cypress_m8.ko
-  AUTOLOAD:=$(call AutoProbe,cypress_m8)
+  AUTOLOAD:=$(call AutoLoad,27,cypress_m8)
   $(call AddDepends/usb-serial)
 endef
 
@@ -795,7 +795,7 @@ define KernelPackage/usb-serial-keyspan
   FILES:= \
 	$(LINUX_DIR)/drivers/usb/serial/keyspan.ko \
 	$(wildcard $(LINUX_DIR)/drivers/usb/misc/ezusb.ko)
-  AUTOLOAD:=$(call AutoProbe,ezusb keyspan)
+  AUTOLOAD:=$(call AutoLoad,27,ezusb keyspan)
   $(call AddDepends/usb-serial)
 endef
 
@@ -810,7 +810,7 @@ define KernelPackage/usb-serial-wwan
   TITLE:=Support for GSM and CDMA modems
   KCONFIG:=CONFIG_USB_SERIAL_WWAN
   FILES:=$(LINUX_DIR)/drivers/usb/serial/usb_wwan.ko
-  AUTOLOAD:=$(call AutoProbe,usb_wwan)
+  AUTOLOAD:=$(call AutoLoad,27,usb_wwan)
   $(call AddDepends/usb-serial)
 endef
 
@@ -826,7 +826,7 @@ define KernelPackage/usb-serial-option
   DEPENDS:=+kmod-usb-serial-wwan
   KCONFIG:=CONFIG_USB_SERIAL_OPTION
   FILES:=$(LINUX_DIR)/drivers/usb/serial/option.ko
-  AUTOLOAD:=$(call AutoProbe,option)
+  AUTOLOAD:=$(call AutoLoad,27,option)
   $(call AddDepends/usb-serial)
 endef
 
@@ -841,7 +841,7 @@ define KernelPackage/usb-serial-qualcomm
   TITLE:=Support for Qualcomm USB serial
   KCONFIG:=CONFIG_USB_SERIAL_QUALCOMM
   FILES:=$(LINUX_DIR)/drivers/usb/serial/qcserial.ko
-  AUTOLOAD:=$(call AutoProbe,qcserial)
+  AUTOLOAD:=$(call AutoLoad,27,qcserial)
   $(call AddDepends/usb-serial,+kmod-usb-serial-wwan)
 endef
 
@@ -857,7 +857,7 @@ define KernelPackage/usb-storage
   DEPENDS:= +kmod-scsi-core
   KCONFIG:=CONFIG_USB_STORAGE
   FILES:=$(LINUX_DIR)/drivers/usb/storage/usb-storage.ko
-  AUTOLOAD:=$(call AutoProbe,usb-storage,1)
+  AUTOLOAD:=$(call AutoLoad,27,usb-storage,1)
   $(call AddDepends/usb)
 endef
 
@@ -894,7 +894,7 @@ define KernelPackage/usb-storage-extras
 	$(LINUX_DIR)/drivers/usb/storage/ums-sddr09.ko \
 	$(LINUX_DIR)/drivers/usb/storage/ums-sddr55.ko \
 	$(LINUX_DIR)/drivers/usb/storage/ums-usbat.ko
-  AUTOLOAD:=$(call AutoProbe,ums-alauda ums-cypress ums-datafab \
+  AUTOLOAD:=$(call AutoLoad,27,ums-alauda ums-cypress ums-datafab \
 				ums-freecom ums-isd200 ums-jumpshot \
 				ums-karma ums-sddr09 ums-sddr55 ums-usbat)
 endef
@@ -912,7 +912,7 @@ define KernelPackage/usb-atm
   DEPENDS:=+kmod-atm
   KCONFIG:=CONFIG_USB_ATM
   FILES:=$(LINUX_DIR)/drivers/usb/atm/usbatm.ko
-  AUTOLOAD:=$(call AutoProbe,usbatm)
+  AUTOLOAD:=$(call AutoLoad,27,usbatm)
   $(call AddDepends/usb)
 endef
 
@@ -933,7 +933,7 @@ define KernelPackage/usb-atm-speedtouch
   TITLE:=SpeedTouch USB ADSL modems support
   KCONFIG:=CONFIG_USB_SPEEDTOUCH
   FILES:=$(LINUX_DIR)/drivers/usb/atm/speedtch.ko
-  AUTOLOAD:=$(call AutoProbe,speedtch)
+  AUTOLOAD:=$(call AutoLoad,27,speedtch)
   $(call AddDepends/usb-atm)
 endef
 
@@ -948,7 +948,7 @@ define KernelPackage/usb-atm-ueagle
   TITLE:=Eagle 8051 based USB ADSL modems support
   FILES:=$(LINUX_DIR)/drivers/usb/atm/ueagle-atm.ko
   KCONFIG:=CONFIG_USB_UEAGLEATM
-  AUTOLOAD:=$(call AutoProbe,ueagle-atm)
+  AUTOLOAD:=$(call AutoLoad,27,ueagle-atm)
   $(call AddDepends/usb-atm)
 endef
 
@@ -963,7 +963,7 @@ define KernelPackage/usb-atm-cxacru
   TITLE:=cxacru
   FILES:=$(LINUX_DIR)/drivers/usb/atm/cxacru.ko
   KCONFIG:=CONFIG_USB_CXACRU
-  AUTOLOAD:=$(call AutoProbe,cxacru)
+  AUTOLOAD:=$(call AutoLoad,27,cxacru)
   $(call AddDepends/usb-atm)
 endef
 
@@ -978,7 +978,7 @@ define KernelPackage/usb-net
   TITLE:=Kernel modules for USB-to-Ethernet convertors
   DEPENDS:=+kmod-mii
   KCONFIG:=CONFIG_USB_USBNET
-  AUTOLOAD:=$(call AutoProbe,usbnet)
+  AUTOLOAD:=$(call AutoLoad,27,usbnet)
   FILES:=$(LINUX_DIR)/drivers/$(USBNET_DIR)/usbnet.ko
   $(call AddDepends/usb)
 endef
@@ -1001,7 +1001,7 @@ define KernelPackage/usb-net-asix
   DEPENDS:=+!LINUX_3_3:kmod-libphy
   KCONFIG:=CONFIG_USB_NET_AX8817X
   FILES:=$(LINUX_DIR)/drivers/$(USBNET_DIR)/asix.ko
-  AUTOLOAD:=$(call AutoProbe,asix)
+  AUTOLOAD:=$(call AutoLoad,27,asix)
   $(call AddDepends/usb-net)
 endef
 
@@ -1017,7 +1017,7 @@ define KernelPackage/usb-net-hso
   KCONFIG:=CONFIG_USB_HSO
   FILES:= \
 	$(LINUX_DIR)/drivers/$(USBNET_DIR)/hso.ko
-  AUTOLOAD:=$(call AutoProbe,hso)
+  AUTOLOAD:=$(call AutoLoad,27,hso)
   $(call AddDepends/usb-net)
   $(call AddDepends/rfkill)
 endef
@@ -1033,7 +1033,7 @@ define KernelPackage/usb-net-kaweth
   TITLE:=Kernel module for USB-to-Ethernet Kaweth convertors
   KCONFIG:=CONFIG_USB_KAWETH
   FILES:=$(LINUX_DIR)/drivers/$(USBNET_DIR)/kaweth.ko
-  AUTOLOAD:=$(call AutoProbe,kaweth)
+  AUTOLOAD:=$(call AutoLoad,27,kaweth)
   $(call AddDepends/usb-net)
 endef
 
@@ -1048,7 +1048,7 @@ define KernelPackage/usb-net-pegasus
   TITLE:=Kernel module for USB-to-Ethernet Pegasus convertors
   KCONFIG:=CONFIG_USB_PEGASUS
   FILES:=$(LINUX_DIR)/drivers/$(USBNET_DIR)/pegasus.ko
-  AUTOLOAD:=$(call AutoProbe,pegasus)
+  AUTOLOAD:=$(call AutoLoad,27,pegasus)
   $(call AddDepends/usb-net)
 endef
 
@@ -1063,7 +1063,7 @@ define KernelPackage/usb-net-mcs7830
   TITLE:=Kernel module for USB-to-Ethernet MCS7830 convertors
   KCONFIG:=CONFIG_USB_NET_MCS7830
   FILES:=$(LINUX_DIR)/drivers/$(USBNET_DIR)/mcs7830.ko
-  AUTOLOAD:=$(call AutoProbe,mcs7830)
+  AUTOLOAD:=$(call AutoLoad,27,mcs7830)
   $(call AddDepends/usb-net)
 endef
 
@@ -1078,7 +1078,7 @@ define KernelPackage/usb-net-smsc95xx
   TITLE:=SMSC LAN95XX based USB 2.0 10/100 ethernet devices
   KCONFIG:=CONFIG_USB_NET_SMSC95XX
   FILES:=$(LINUX_DIR)/drivers/$(USBNET_DIR)/smsc95xx.ko
-  AUTOLOAD:=$(call AutoProbe,smsc95xx)
+  AUTOLOAD:=$(call AutoLoad,27,smsc95xx)
   $(call AddDepends/usb-net, +(!LINUX_3_3&&!LINUX_3_6):kmod-lib-crc16)
 endef
 
@@ -1093,7 +1093,7 @@ define KernelPackage/usb-net-dm9601-ether
   TITLE:=Support for DM9601 ethernet connections
   KCONFIG:=CONFIG_USB_NET_DM9601
   FILES:=$(LINUX_DIR)/drivers/$(USBNET_DIR)/dm9601.ko
-  AUTOLOAD:=$(call AutoProbe,dm9601)
+  AUTOLOAD:=$(call AutoLoad,27,dm9601)
   $(call AddDepends/usb-net)
 endef
 
@@ -1107,7 +1107,7 @@ define KernelPackage/usb-net-cdc-ether
   TITLE:=Support for cdc ethernet connections
   KCONFIG:=CONFIG_USB_NET_CDCETHER
   FILES:=$(LINUX_DIR)/drivers/$(USBNET_DIR)/cdc_ether.ko
-  AUTOLOAD:=$(call AutoProbe,cdc_ether)
+  AUTOLOAD:=$(call AutoLoad,27,cdc_ether)
   $(call AddDepends/usb-net)
 endef
 
@@ -1122,7 +1122,7 @@ define KernelPackage/usb-net-cdc-eem
   TITLE:=Support for CDC EEM connections
   KCONFIG:=CONFIG_USB_NET_CDC_EEM
   FILES:=$(LINUX_DIR)/drivers/$(USBNET_DIR)/cdc_eem.ko
-  AUTOLOAD:=$(call AutoProbe,cdc_eem)
+  AUTOLOAD:=$(call AutoLoad,27,cdc_eem)
   $(call AddDepends/usb-net)
 endef
 
@@ -1139,7 +1139,7 @@ define KernelPackage/usb-net-cdc-subset
 	CONFIG_USB_NET_CDC_SUBSET \
 	CONFIG_USB_ARMLINUX
   FILES:=$(LINUX_DIR)/drivers/$(USBNET_DIR)/cdc_subset.ko
-  AUTOLOAD:=$(call AutoProbe,cdc_subset)
+  AUTOLOAD:=$(call AutoLoad,27,cdc_subset)
   $(call AddDepends/usb-net)
 endef
 
@@ -1154,7 +1154,7 @@ define KernelPackage/usb-net-qmi-wwan
   TITLE:=QMI WWAN driver
   KCONFIG:=CONFIG_USB_NET_QMI_WWAN
   FILES:= $(LINUX_DIR)/drivers/$(USBNET_DIR)/qmi_wwan.ko
-  AUTOLOAD:=$(call AutoProbe,qmi_wwan)
+  AUTOLOAD:=$(call AutoLoad,27,qmi_wwan)
   $(call AddDepends/usb-net,+kmod-usb-wdm)
 endef
 
@@ -1169,7 +1169,7 @@ define KernelPackage/usb-net-rndis
   TITLE:=Support for RNDIS connections
   KCONFIG:=CONFIG_USB_NET_RNDIS_HOST
   FILES:= $(LINUX_DIR)/drivers/$(USBNET_DIR)/rndis_host.ko
-  AUTOLOAD:=$(call AutoProbe,rndis_host)
+  AUTOLOAD:=$(call AutoLoad,27,rndis_host)
   $(call AddDepends/usb-net,+kmod-usb-net-cdc-ether)
 endef
 
@@ -1186,7 +1186,7 @@ define KernelPackage/usb-net-cdc-mbim
   KCONFIG:=CONFIG_USB_NET_CDC_MBIM
   FILES:= \
    $(LINUX_DIR)/drivers/$(USBNET_DIR)/cdc_mbim.ko
-  AUTOLOAD:=$(call AutoProbe,cdc_mbim)
+  AUTOLOAD:=$(call AutoLoad,27,cdc_mbim)
   $(call AddDepends/usb-net,+kmod-usb-wdm +kmod-usb-net-cdc-ncm)
 endef
 
@@ -1201,7 +1201,7 @@ define KernelPackage/usb-net-cdc-ncm
   TITLE:=Support for CDC NCM connections
   KCONFIG:=CONFIG_USB_NET_CDC_NCM
   FILES:= $(LINUX_DIR)/drivers/$(USBNET_DIR)/cdc_ncm.ko
-  AUTOLOAD:=$(call AutoProbe,cdc_ncm)
+  AUTOLOAD:=$(call AutoLoad,27,cdc_ncm)
   $(call AddDepends/usb-net)
 endef
 
@@ -1216,7 +1216,7 @@ define KernelPackage/usb-net-sierrawireless
   TITLE:=Support for Sierra Wireless devices
   KCONFIG:=CONFIG_USB_SIERRA_NET
   FILES:=$(LINUX_DIR)/drivers/net/usb/sierra_net.ko
-  AUTOLOAD:=$(call AutoProbe,sierra_net)
+  AUTOLOAD:=$(call AutoLoad,27,sierra_net)
   $(call AddDepends/usb-net)
 endef
 
@@ -1231,7 +1231,7 @@ define KernelPackage/usb-net-ipheth
   TITLE:=Apple iPhone USB Ethernet driver
   KCONFIG:=CONFIG_USB_IPHETH
   FILES:=$(LINUX_DIR)/drivers/net/usb/ipheth.ko
-  AUTOLOAD:=$(call AutoProbe,ipheth)
+  AUTOLOAD:=$(call AutoLoad,27,ipheth)
   $(call AddDepends/usb-net)
 endef
 
@@ -1246,7 +1246,7 @@ define KernelPackage/usb-net-kalmia
   TITLE:=Samsung Kalmia based LTE USB modem
   KCONFIG:=CONFIG_USB_NET_KALMIA
   FILES:=$(LINUX_DIR)/drivers/net/usb/kalmia.ko
-  AUTOLOAD:=$(call AutoProbe,kalmia)
+  AUTOLOAD:=$(call AutoLoad,27,kalmia)
   $(call AddDepends/usb-net)
 endef
 
@@ -1261,7 +1261,7 @@ define KernelPackage/usb-hid
   TITLE:=Support for USB Human Input Devices
   KCONFIG:=CONFIG_HID_SUPPORT=y CONFIG_USB_HID CONFIG_USB_HIDDEV=y
   FILES:=$(LINUX_DIR)/drivers/$(USBHID_DIR)/usbhid.ko
-  AUTOLOAD:=$(call AutoProbe,usbhid)
+  AUTOLOAD:=$(call AutoLoad,27,usbhid)
   $(call AddDepends/usb)
   $(call AddDepends/hid,+kmod-hid-generic)
   $(call AddDepends/input,+kmod-input-evdev)
@@ -1278,7 +1278,7 @@ define KernelPackage/usb-yealink
   TITLE:=USB Yealink VOIP phone
   KCONFIG:=CONFIG_USB_YEALINK CONFIG_INPUT_YEALINK CONFIG_INPUT=m CONFIG_INPUT_MISC=y
   FILES:=$(LINUX_DIR)/drivers/$(USBINPUT_DIR)/yealink.ko
-  AUTOLOAD:=$(call AutoProbe,yealink)
+  AUTOLOAD:=$(call AutoLoad,27,yealink)
   $(call AddDepends/usb)
   $(call AddDepends/input,+kmod-input-evdev)
 endef
@@ -1294,7 +1294,7 @@ define KernelPackage/usb-cm109
   TITLE:=Support for CM109 device
   KCONFIG:=CONFIG_USB_CM109 CONFIG_INPUT_CM109 CONFIG_INPUT=m CONFIG_INPUT_MISC=y
   FILES:=$(LINUX_DIR)/drivers/$(USBINPUT_DIR)/cm109.ko
-  AUTOLOAD:=$(call AutoProbe,cm109)
+  AUTOLOAD:=$(call AutoLoad,27,cm109)
   $(call AddDepends/usb)
   $(call AddDepends/input,+kmod-input-evdev)
 endef
@@ -1327,7 +1327,7 @@ define KernelPackage/usbip
 	CONFIG_USBIP_CORE \
 	CONFIG_USBIP_DEBUG=n
   FILES:=$(LINUX_DIR)/drivers/staging/usbip/usbip-core.ko
-  AUTOLOAD:=$(call AutoProbe,usbip-core)
+  AUTOLOAD:=$(call AutoLoad,27,usbip-core)
   $(call AddDepends/usb)
 endef
 
@@ -1339,7 +1339,7 @@ define KernelPackage/usbip-client
   DEPENDS := +kmod-usbip
   KCONFIG := CONFIG_USBIP_VHCI_HCD
   FILES := $(LINUX_DIR)/drivers/staging/usbip/vhci-hcd.$(LINUX_KMOD_SUFFIX)
-  AUTOLOAD := $(call AutoProbe,vhci-hcd)
+  AUTOLOAD := $(call AutoLoad,27,vhci-hcd)
   $(call AddDepends/usb)
 endef
 
@@ -1352,7 +1352,7 @@ $(call KernelPackage/usbip/Default)
   DEPENDS := +kmod-usbip
   KCONFIG := CONFIG_USBIP_HOST
   FILES := $(LINUX_DIR)/drivers/staging/usbip/usbip-host.ko
-  AUTOLOAD := $(call AutoProbe,usbip-host)
+  AUTOLOAD := $(call AutoLoad,27,usbip-host)
   $(call AddDepends/usb)
 endef
 
@@ -1412,7 +1412,7 @@ define KernelPackage/usbmon
   KCONFIG:=CONFIG_USB_MON
   $(call AddDepends/usb)
   FILES:=$(LINUX_DIR)/drivers/usb/mon/usbmon.ko
-  AUTOLOAD:=$(call AutoProbe,usbmon)
+  AUTOLOAD:=$(call AutoLoad,27,usbmon)
 endef
 
 define KernelPackage/usbmon/description

@@ -25,7 +25,7 @@ define KernelPackage/ltq-hcd-template
   VARIANT:=$(1)
   DEPENDS:=@TARGET_lantiq_$(2) +kmod-usb-core
   FILES:=$(PKG_BUILD_DIR)/ltq_hcd_$(1).ko
-  AUTOLOAD:=$(call AutoProbe,ltq_hcd_$(1),1)
+  AUTOLOAD:=$(call AutoLoad,27,ltq_hcd_$(1),1)
 endef
 
 KernelPackage/ltq-hcd-ase=$(call KernelPackage/ltq-hcd-template,ase,ase)

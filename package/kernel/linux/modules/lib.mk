@@ -12,7 +12,7 @@ define KernelPackage/lib-crc-ccitt
   TITLE:=CRC-CCITT support
   KCONFIG:=CONFIG_CRC_CCITT
   FILES:=$(LINUX_DIR)/lib/crc-ccitt.ko
-  AUTOLOAD:=$(call AutoProbe,crc-ccitt)
+  AUTOLOAD:=$(call AutoLoad,27,crc-ccitt)
 endef
 
 define KernelPackage/lib-crc-ccitt/description
@@ -27,7 +27,7 @@ define KernelPackage/lib-crc-itu-t
   TITLE:=CRC ITU-T V.41 support
   KCONFIG:=CONFIG_CRC_ITU_T
   FILES:=$(LINUX_DIR)/lib/crc-itu-t.ko
-  AUTOLOAD:=$(call AutoProbe,crc-itu-t)
+  AUTOLOAD:=$(call AutoLoad,27,crc-itu-t)
 endef
 
 define KernelPackage/lib-crc-itu-t/description
@@ -42,7 +42,7 @@ define KernelPackage/lib-crc7
   TITLE:=CRC7 support
   KCONFIG:=CONFIG_CRC7
   FILES:=$(LINUX_DIR)/lib/crc7.ko
-  AUTOLOAD:=$(call AutoProbe,crc7)
+  AUTOLOAD:=$(call AutoLoad,27,crc7)
 endef
 
 define KernelPackage/lib-crc7/description
@@ -57,7 +57,7 @@ define KernelPackage/lib-crc8
   TITLE:=CRC8 support
   KCONFIG:=CONFIG_CRC8
   FILES:=$(LINUX_DIR)/lib/crc8.ko
-  AUTOLOAD:=$(call AutoProbe,crc8)
+  AUTOLOAD:=$(call AutoLoad,27,crc8)
 endef
 
 define KernelPackage/lib-crc8/description
@@ -72,7 +72,7 @@ define KernelPackage/lib-crc16
   TITLE:=CRC16 support
   KCONFIG:=CONFIG_CRC16
   FILES:=$(LINUX_DIR)/lib/crc16.ko
-  AUTOLOAD:=$(call AutoProbe,crc16)
+  AUTOLOAD:=$(call AutoLoad,27,crc16)
 endef
 
 define KernelPackage/lib-crc16/description
@@ -88,7 +88,7 @@ define KernelPackage/lib-crc32c
   KCONFIG:=CONFIG_LIBCRC32C
   DEPENDS:=+kmod-crypto-crc32c
   FILES:=$(LINUX_DIR)/lib/libcrc32c.ko
-  AUTOLOAD:=$(call AutoProbe,libcrc32c)
+  AUTOLOAD:=$(call AutoLoad,27,libcrc32c)
 endef
 
 define KernelPackage/lib-crc32c/description
@@ -107,7 +107,7 @@ define KernelPackage/lib-lzo
   FILES:= \
 	$(LINUX_DIR)/lib/lzo/lzo_compress.ko \
 	$(LINUX_DIR)/lib/lzo/lzo_decompress.ko
-  AUTOLOAD:=$(call AutoProbe,lzo_compress lzo_decompress)
+  AUTOLOAD:=$(call AutoLoad,27,lzo_compress lzo_decompress)
 endef
 
 define KernelPackage/lib-lzo/description
@@ -123,7 +123,7 @@ define KernelPackage/lib-raid6
   HIDDEN:=1
   KCONFIG:=CONFIG_RAID6_PQ
   FILES:=$(LINUX_DIR)/lib/raid6/raid6_pq.ko
-  AUTOLOAD:=$(call AutoProbe,raid6_pq)
+  AUTOLOAD:=$(call AutoLoad,27,raid6_pq)
 endef
 
 define KernelPackage/lib-raid6/description
@@ -142,10 +142,10 @@ ifneq ($(wildcard $(LINUX_DIR)/arch/arm/lib/xor-neon.ko),)
   FILES:= \
     $(LINUX_DIR)/crypto/xor.ko \
     $(LINUX_DIR)/arch/arm/lib/xor-neon.ko
-  AUTOLOAD:=$(call AutoProbe,xor-neon xor)
+  AUTOLOAD:=$(call AutoLoad,27,xor-neon xor)
 else
   FILES:=$(LINUX_DIR)/crypto/xor.ko
-  AUTOLOAD:=$(call AutoProbe,xor)
+  AUTOLOAD:=$(call AutoLoad,27,xor)
 endif
 endef
 
@@ -168,7 +168,7 @@ SUBMENU:=$(LIB_MENU)
     $(LINUX_DIR)/lib/ts_kmp.ko \
     $(LINUX_DIR)/lib/ts_bm.ko \
     $(LINUX_DIR)/lib/ts_fsm.ko
-  AUTOLOAD:=$(call AutoProbe,ts_kmp ts_bm ts_fsm)
+  AUTOLOAD:=$(call AutoLoad,27,ts_kmp ts_bm ts_fsm)
 endef
 
 $(eval $(call KernelPackage,lib-textsearch))
@@ -183,7 +183,7 @@ define KernelPackage/lib-zlib
   FILES:= \
     $(LINUX_DIR)/lib/zlib_deflate/zlib_deflate.ko \
     $(LINUX_DIR)/lib/zlib_inflate/zlib_inflate.ko
-  AUTOLOAD:=$(call AutoProbe,zlib_deflate zlib_inflate)
+  AUTOLOAD:=$(call AutoLoad,27,zlib_deflate zlib_inflate)
 endef
 
 $(eval $(call KernelPackage,lib-zlib))
@@ -194,7 +194,7 @@ define KernelPackage/lib-cordic
   TITLE:=Cordic function support
   KCONFIG:=CONFIG_CORDIC
   FILES:=$(LINUX_DIR)/lib/cordic.ko
-  AUTOLOAD:=$(call AutoProbe,cordic)
+  AUTOLOAD:=$(call AutoLoad,27,cordic)
 endef
 
 define KernelPackage/lib-cordic/description

@@ -60,7 +60,7 @@ define KernelPackage/bluetooth
 	$(LINUX_DIR)/net/bluetooth/hidp/hidp.ko \
 	$(LINUX_DIR)/drivers/bluetooth/hci_uart.ko \
 	$(LINUX_DIR)/drivers/bluetooth/btusb.ko
-  AUTOLOAD:=$(call AutoProbe,bluetooth rfcomm bnep hidp hci_uart btusb)
+  AUTOLOAD:=$(call AutoLoad,27,bluetooth rfcomm bnep hidp hci_uart btusb)
 endef
 
 define KernelPackage/bluetooth/description
@@ -76,7 +76,7 @@ define KernelPackage/bluetooth-hci-h4p
   DEPENDS:=@TARGET_omap24xx +kmod-bluetooth
   KCONFIG:=CONFIG_BT_HCIH4P
   FILES:=$(LINUX_DIR)/drivers/bluetooth/hci_h4p/hci_h4p.ko
-  AUTOLOAD:=$(call AutoProbe,hci_h4p)
+  AUTOLOAD:=$(call AutoLoad,27,hci_h4p)
 endef
 
 define KernelPackage/bluetooth-hci-h4p/description
@@ -107,7 +107,7 @@ define KernelPackage/eeprom-at24
   KCONFIG:=CONFIG_EEPROM_AT24
   DEPENDS:=+kmod-i2c-core
   FILES:=$(LINUX_DIR)/drivers/misc/eeprom/at24.ko
-  AUTOLOAD:=$(call AutoProbe,at24)
+  AUTOLOAD:=$(call AutoLoad,27,at24)
 endef
 
 define KernelPackage/eeprom-at24/description
@@ -122,7 +122,7 @@ define KernelPackage/eeprom-at25
   TITLE:=EEPROM AT25 support
   KCONFIG:=CONFIG_EEPROM_AT25
   FILES:=$(LINUX_DIR)/drivers/misc/eeprom/at25.ko
-  AUTOLOAD:=$(call AutoProbe,at25)
+  AUTOLOAD:=$(call AutoLoad,27,at25)
 endef
 
 define KernelPackage/eeprom-at25/description
@@ -169,7 +169,7 @@ define KernelPackage/gpio-nxp-74hc164
   TITLE:=NXP 74HC164 GPIO expander support
   KCONFIG:=CONFIG_GPIO_NXP_74HC164
   FILES:=$(LINUX_DIR)/drivers/gpio/nxp_74hc164.ko
-  AUTOLOAD:=$(call AutoProbe,nxp_74hc164)
+  AUTOLOAD:=$(call AutoLoad,27,nxp_74hc164)
 endef
 
 define KernelPackage/gpio-nxp-74hc164/description
@@ -287,7 +287,7 @@ define KernelPackage/mmc
   FILES:= \
 	$(LINUX_DIR)/drivers/mmc/core/mmc_core.ko \
 	$(LINUX_DIR)/drivers/mmc/card/mmc_block.ko
-  AUTOLOAD:=$(call AutoProbe,mmc_core mmc_block,1)
+  AUTOLOAD:=$(call AutoLoad,27,mmc_core mmc_block,1)
 endef
 
 define KernelPackage/mmc/description
@@ -331,7 +331,7 @@ define KernelPackage/sdhci
 	$(LINUX_DIR)/drivers/mmc/host/sdhci.ko \
 	$(LINUX_DIR)/drivers/mmc/host/sdhci-pltfm.ko
 
-  AUTOLOAD:=$(call AutoProbe,sdhci sdhci-pltfm,1)
+  AUTOLOAD:=$(call AutoLoad,27,sdhci sdhci-pltfm,1)
 endef
 
 define KernelPackage/sdhci/description
@@ -527,7 +527,7 @@ define KernelPackage/pwm-gpio
   DEPENDS:=+kmod-pwm
   KCONFIG:=CONFIG_GPIO_PWM
   FILES:=$(LINUX_DIR)/drivers/pwm/gpio-pwm.ko
-  AUTOLOAD:=$(call AutoProbe,gpio-pwm)
+  AUTOLOAD:=$(call AutoLoad,27,gpio-pwm)
 endef
 
 define KernelPackage/pwm-gpio/description
@@ -544,7 +544,7 @@ define KernelPackage/rtc-ds1672
   DEPENDS+=+kmod-i2c-core
   KCONFIG:=CONFIG_RTC_DRV_DS1672
   FILES:=$(LINUX_DIR)/drivers/rtc/rtc-ds1672.ko
-  AUTOLOAD:=$(call AutoProbe,rtc-ds1672)
+  AUTOLOAD:=$(call AutoLoad,27,rtc-ds1672)
 endef
 
 define KernelPackage/rtc-ds1672/description
@@ -561,7 +561,7 @@ define KernelPackage/rtc-isl1208
   DEPENDS+=+kmod-i2c-core
   KCONFIG:=CONFIG_RTC_DRV_ISL1208
   FILES:=$(LINUX_DIR)/drivers/rtc/rtc-isl1208.ko
-  AUTOLOAD:=$(call AutoProbe,rtc-isl1208)
+  AUTOLOAD:=$(call AutoLoad,27,rtc-isl1208)
 endef
 
 define KernelPackage/rtc-isl1208/description
@@ -578,7 +578,7 @@ define KernelPackage/rtc-marvell
   DEPENDS+=@TARGET_kirkwood||TARGET_orion||TARGET_mvebu
   KCONFIG:=CONFIG_RTC_DRV_MV
   FILES:=$(LINUX_DIR)/drivers/rtc/rtc-mv.ko
-  AUTOLOAD:=$(call AutoProbe,rtc-mv)
+  AUTOLOAD:=$(call AutoLoad,27,rtc-mv)
 endef
 
 define KernelPackage/rtc-marvell/description
@@ -624,7 +624,7 @@ define KernelPackage/rtc-pcf8563
   $(call AddDepends/rtc,+kmod-i2c-core)
   KCONFIG:=CONFIG_RTC_DRV_PCF8563
   FILES:=$(LINUX_DIR)/drivers/rtc/rtc-pcf8563.ko
-  AUTOLOAD:=$(call AutoProbe,rtc-pcf8563)
+  AUTOLOAD:=$(call AutoLoad,27,rtc-pcf8563)
 endef
 
 define KernelPackage/rtc-pcf8563/description
@@ -641,7 +641,7 @@ define KernelPackage/rtc-pcf2123
   $(call AddDepends/rtc)
   KCONFIG:=CONFIG_RTC_DRV_PCF2123
   FILES:=$(LINUX_DIR)/drivers/rtc/rtc-pcf2123.ko
-  AUTOLOAD:=$(call AutoProbe,rtc-pcf2123)
+  AUTOLOAD:=$(call AutoLoad,27,rtc-pcf2123)
 endef
 
 define KernelPackage/rtc-pcf2123/description
@@ -656,7 +656,7 @@ define KernelPackage/rtc-pt7c4338
   $(call AddDepends/rtc,+kmod-i2c-core)
   KCONFIG:=CONFIG_RTC_DRV_PT7C4338
   FILES:=$(LINUX_DIR)/drivers/rtc/rtc-pt7c4338.ko
-  AUTOLOAD:=$(call AutoProbe,rtc-pt7c4338)
+  AUTOLOAD:=$(call AutoLoad,27,rtc-pt7c4338)
 endef
 
 define KernelPackage/rtc-pt7c4338/description
@@ -815,7 +815,7 @@ define KernelPackage/mvsdio
   DEPENDS:=@TARGET_orion||TARGET_kirkwood||TARGET_mvebu +kmod-mmc
   KCONFIG:=CONFIG_MMC_MVSDIO
   FILES:=$(LINUX_DIR)/drivers/mmc/host/mvsdio.ko
-  AUTOLOAD:=$(call AutoProbe,mvsdio)
+  AUTOLOAD:=$(call AutoLoad,27,mvsdio)
 endef
 
 define KernelPacakge/mvsdio/description
@@ -883,7 +883,7 @@ define KernelPackage/ptp-gianfar
   DEPENDS:=@TARGET_mpc85xx +kmod-gianfar +kmod-ptp
   KCONFIG:=CONFIG_PTP_1588_CLOCK_GIANFAR
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/freescale/gianfar_ptp.ko
-  AUTOLOAD:=$(call AutoProbe,gianfar_ptp)
+  AUTOLOAD:=$(call AutoLoad,27,gianfar_ptp)
 endef
 
 define KernelPacakge/ptp-gianfar/description
@@ -925,7 +925,7 @@ define KernelPackage/thermal
 	CONFIG_THERMAL_HWMON=y \
 	CONFIG_THERMAL_EMULATION=n
   FILES:=$(LINUX_DIR)/drivers/thermal/thermal_sys.ko
-  AUTOLOAD:=$(call AutoProbe,thermal_sys)
+  AUTOLOAD:=$(call AutoLoad,27,thermal_sys)
 endef
 
 define KernelPackage/thermal/description
@@ -943,7 +943,7 @@ define KernelPackage/thermal-armada
   DEPENDS:=@TARGET_mvebu +kmod-thermal
   KCONFIG:=CONFIG_ARMADA_THERMAL
   FILES:=$(LINUX_DIR)/drivers/thermal/armada_thermal.ko
-  AUTOLOAD:=$(call AutoProbe,armada_thermal)
+  AUTOLOAD:=$(call AutoLoad,27,armada_thermal)
 endef
 
 define KernelPackage/thermal-armada/description
@@ -962,7 +962,7 @@ define KernelPackage/thermal-imx
 	CONFIG_CPU_THERMAL=y \
 	CONFIG_IMX_THERMAL
   FILES:=$(LINUX_DIR)/drivers/thermal/imx_thermal.ko
-  AUTOLOAD:=$(call AutoProbe,imx_thermal)
+  AUTOLOAD:=$(call AutoLoad,27,imx_thermal)
 endef
 
 define KernelPackage/thermal-imx/description
@@ -981,7 +981,7 @@ define KernelPackage/thermal-kirkwood
   DEPENDS:=@TARGET_kirkwood +kmod-thermal
   KCONFIG:=CONFIG_KIRKWOOD_THERMAL
   FILES:=$(LINUX_DIR)/drivers/thermal/kirkwood_thermal.ko
-  AUTOLOAD:=$(call AutoProbe,kirkwood_thermal)
+  AUTOLOAD:=$(call AutoLoad,27,kirkwood_thermal)
 endef
 
 define KernelPackage/thermal-kirkwood/description
