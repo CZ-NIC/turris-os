@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2006-2010 OpenWrt.org
+# Copyright (C) 2006-2014 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -73,7 +73,7 @@ define KernelPackage/hwmon-adt7475
   TITLE:=ADT7473/7475/7476/7490 monitoring support
   KCONFIG:=CONFIG_SENSORS_ADT7475
   FILES:=$(LINUX_DIR)/drivers/hwmon/adt7475.ko
-  AUTOLOAD:=$(call AutoProbe,adt7475)
+  AUTOLOAD:=$(call AutoLoad,27,adt7475)
   $(call AddDepends/hwmon,+kmod-i2c-core +kmod-hwmon-vid)
 endef
 
@@ -88,7 +88,7 @@ define KernelPackage/hwmon-ina2xx
   TITLE:=INA2XX monitoring support
   KCONFIG:=CONFIG_SENSORS_INA2XX
   FILES:=$(LINUX_DIR)/drivers/hwmon/ina2xx.ko
-  AUTOLOAD:=$(call AutoProbe,ina2xx)
+  AUTOLOAD:=$(call AutoLoad,27,ina2xx)
   $(call AddDepends/hwmon,+kmod-i2c-core)
 endef
 
@@ -103,7 +103,7 @@ define KernelPackage/hwmon-lm63
   TITLE:=LM63/64 monitoring support
   KCONFIG:=CONFIG_SENSORS_LM63
   FILES:=$(LINUX_DIR)/drivers/hwmon/lm63.ko
-  AUTOLOAD:=$(call AutoProbe,lm63)
+  AUTOLOAD:=$(call AutoLoad,27,lm63)
   $(call AddDepends/hwmon,+kmod-i2c-core)
 endef
 
@@ -118,7 +118,7 @@ define KernelPackage/hwmon-lm75
   TITLE:=LM75 monitoring support
   KCONFIG:=CONFIG_SENSORS_LM75
   FILES:=$(LINUX_DIR)/drivers/hwmon/lm75.ko
-  AUTOLOAD:=$(call AutoProbe,lm75)
+  AUTOLOAD:=$(call AutoLoad,27,lm75)
   $(call AddDepends/hwmon,+kmod-i2c-core)
 endef
 
@@ -133,7 +133,7 @@ define KernelPackage/hwmon-lm77
   TITLE:=LM77 monitoring support
   KCONFIG:=CONFIG_SENSORS_LM77
   FILES:=$(LINUX_DIR)/drivers/hwmon/lm77.ko
-  AUTOLOAD:=$(call AutoProbe,lm77)
+  AUTOLOAD:=$(call AutoLoad,27,lm77)
   $(call AddDepends/hwmon,+kmod-i2c-core)
 endef
 
@@ -148,7 +148,7 @@ define KernelPackage/hwmon-lm85
   TITLE:=LM85 monitoring support
   KCONFIG:=CONFIG_SENSORS_LM85
   FILES:=$(LINUX_DIR)/drivers/hwmon/lm85.ko
-  AUTOLOAD:=$(call AutoProbe,lm85)
+  AUTOLOAD:=$(call AutoLoad,27,lm85)
   $(call AddDepends/hwmon,+kmod-i2c-core +kmod-hwmon-vid)
 endef
 
@@ -163,7 +163,7 @@ define KernelPackage/hwmon-lm90
   TITLE:=LM90 monitoring support
   KCONFIG:=CONFIG_SENSORS_LM90
   FILES:=$(LINUX_DIR)/drivers/hwmon/lm90.ko
-  AUTOLOAD:=$(call AutoProbe,lm90)
+  AUTOLOAD:=$(call AutoLoad,27,lm90)
   $(call AddDepends/hwmon,+kmod-i2c-core)
 endef
 
@@ -177,7 +177,7 @@ define KernelPackage/hwmon-lm92
   TITLE:=LM92 monitoring support
   KCONFIG:=CONFIG_SENSORS_LM92
   FILES:=$(LINUX_DIR)/drivers/hwmon/lm92.ko
-  AUTOLOAD:=$(call AutoProbe,lm92)
+  AUTOLOAD:=$(call AutoLoad,27,lm92)
   $(call AddDepends/hwmon,+kmod-i2c-core)
 endef
 
@@ -191,7 +191,7 @@ define KernelPackage/hwmon-lm95241
   TITLE:=LM95241 monitoring support
   KCONFIG:=CONFIG_SENSORS_LM95241
   FILES:=$(LINUX_DIR)/drivers/hwmon/lm95241.ko
-  AUTOLOAD:=$(call AutoProbe,lm95241)
+  AUTOLOAD:=$(call AutoLoad,27,lm95241)
   $(call AddDepends/hwmon,+kmod-i2c-core)
 endef
 
@@ -205,7 +205,7 @@ define KernelPackage/hwmon-sht21
   TITLE:=Sensiron SHT21 and compat. monitoring support
   KCONFIG:=CONFIG_SENSORS_SHT21
   FILES:=$(LINUX_DIR)/drivers/hwmon/sht21.ko
-  AUTOLOAD:=$(call AutoProbe,sht21)
+  AUTOLOAD:=$(call AutoLoad,27,sht21)
   $(call AddDepends/hwmon,+kmod-i2c-core)
 endef
 
@@ -219,7 +219,7 @@ define KernelPackage/hwmon-pc87360
   TITLE:=PC87360 monitoring support
   KCONFIG:=CONFIG_SENSORS_PC87360
   FILES:=$(LINUX_DIR)/drivers/hwmon/pc87360.ko
-  AUTOLOAD:=$(call AutoProbe,pc87360)
+  AUTOLOAD:=$(call AutoLoad,27,pc87360)
   $(call AddDepends/hwmon,@TARGET_x86 +kmod-hwmon-vid)
 endef
 
@@ -258,3 +258,33 @@ define KernelPacakge/hwmon-gsc/description
 endef
 
 $(eval $(call KernelPackage,hwmon-gsc))
+
+
+define KernelPackage/hwmon-tmp421
+  TITLE:=TI TMP421 and compatible monitoring support
+  KCONFIG:=CONFIG_SENSORS_TMP421
+  FILES:=$(LINUX_DIR)/drivers/hwmon/tmp421.ko
+  AUTOLOAD:=$(call AutoLoad,60,tmp421)
+  $(call AddDepends/hwmon,+kmod-i2c-core)
+endef
+
+define KernelPacakge/hwmon-tmp421/description
+  Kernel module for the Texas Instruments TMP421 and compatible chips.
+endef
+
+$(eval $(call KernelPackage,hwmon-tmp421))
+
+
+define KernelPackage/hwmon-gpiofan
+  TITLE:=Generic GPIO FAN support
+  KCONFIG:=CONFIG_SENSORS_GPIO_FAN
+  FILES:=$(LINUX_DIR)/drivers/hwmon/gpio-fan.ko
+  AUTOLOAD:=$(call AutoLoad,60,gpio-fan)
+  $(call AddDepends/hwmon,+kmod-i2c-core)
+endef
+
+define KernelPacakge/hwmon-gpiofan/description
+  Kernel module for GPIO controlled FANs
+endef
+
+$(eval $(call KernelPackage,hwmon-gpiofan))

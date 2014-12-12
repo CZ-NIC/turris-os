@@ -24,6 +24,7 @@
 		pci0 = &pci0;
 		pci1 = &pci1;
 		pci2 = &pci2;
+                spi0 = &spi0;
 	};
 
 	memory {
@@ -129,12 +130,33 @@
 			};
 		};
 
+                spi0: spi@7000 {
+                        spidev@0 {
+                                compatible = "spidev";
+                                spi-max-frequency = <40000000>;
+                                reg = <0>;
+                        };
+                        spidev@1 {
+                                compatible = "spidev";
+                                spi-max-frequency = <40000000>;
+                                reg = <1>;
+                        };
+                        spidev@2 {
+                                compatible = "spidev";
+                                spi-max-frequency = <40000000>;
+                                reg = <2>;
+                        };
+                        spidev@3 {
+                                compatible = "spidev";
+                                spi-max-frequency = <40000000>;
+                                reg = <3>;
+                        };
+                };
+
 		usb@22000 {
 			phy_type = "ulpi";
 			dr_mode = "host";
 		};
-
-
 
 	        mdio@24520 {
         	        phy0: ethernet-phy@0 {

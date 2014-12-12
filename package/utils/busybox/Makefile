@@ -1,5 +1,5 @@
 # 
-# Copyright (C) 2006-2013 OpenWrt.org
+# Copyright (C) 2006-2014 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,17 +8,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=busybox
-PKG_VERSION:=1.19.4
-PKG_RELEASE:=8
+PKG_VERSION:=1.22.1
+PKG_RELEASE:=3
 PKG_FLAGS:=essential
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://www.busybox.net/downloads \
 		http://distfiles.gentoo.org/distfiles/
-PKG_MD5SUM:=9c0cae5a0379228e7b55e5b29528df8e
+PKG_MD5SUM:=337d1a15ab1cb1d4ed423168b1eb7d7e
 
-PKG_BUILD_DEPENDS:=BUSYBOX_CONFIG_FEATURE_HAVE_RPC:librpc
+PKG_BUILD_DEPENDS:=BUSYBOX_USE_LIBRPC:librpc BUSYBOX_CONFIG_PAM:libpam
 PKG_BUILD_PARALLEL:=1
+PKG_CHECK_FORMAT_SECURITY:=0
 
 PKG_LICENSE:=GPLv2 BSD-4c
 PKG_LICENSE_FILES:=LICENSE archival/libarchive/bz/LICENSE
@@ -35,18 +36,13 @@ else
   BB_MAKE_VERBOSE :=
 endif
 
-init-y :=
-init-$(CONFIG_BUSYBOX_CONFIG_CROND) += cron
-init-$(CONFIG_BUSYBOX_CONFIG_NTPD) += sysntpd
-init-$(CONFIG_BUSYBOX_CONFIG_TELNETD) += telnet
-
 define Package/busybox
   SECTION:=base
   CATEGORY:=Base system
-  MAINTAINER:=Nicolas Thill <nico@openwrt.org>
+  MAINTAINER:=Felix Fietkau <nbd@openwrt.org>
   TITLE:=Core utilities for embedded Linux
   URL:=http://busybox.net/
-  DEPENDS:=+BUSYBOX_CONFIG_FEATURE_HAVE_RPC:librpc
+  DEPENDS:=+BUSYBOX_USE_LIBRPC:librpc +BUSYBOX_CONFIG_PAM:libpam
   MENU:=1
 endef
 
@@ -59,9 +55,11 @@ define Package/busybox/config
 	source "$(SOURCE)/Config.in"
 endef
 
+BUSYBOX_SYM=$(if $(CONFIG_BUSYBOX_CUSTOM),CONFIG,DEFAULT)
+
 define Build/Configure
 	rm -f $(PKG_BUILD_DIR)/.configured*
-	grep 'CONFIG_BUSYBOX_' $(TOPDIR)/.config | sed -e "s,\\(# \)\\?CONFIG_BUSYBOX_\\(.*\\),\\1\\2,g" > $(PKG_BUILD_DIR)/.config
+	grep 'CONFIG_BUSYBOX_$(BUSYBOX_SYM)' $(TOPDIR)/.config | sed -e "s,\\(# \)\\?CONFIG_BUSYBOX_$(BUSYBOX_SYM)_\\(.*\\),\\1CONFIG_\\2,g" > $(PKG_BUILD_DIR)/.config
 	yes 'n' | $(MAKE) -C $(PKG_BUILD_DIR) \
 		CC="$(TARGET_CC)" \
 		CROSS_COMPILE="$(TARGET_CROSS)" \
@@ -76,10 +74,16 @@ ifdef CONFIG_GCC_VERSION_LLVM
 endif
 
 LDLIBS:=m crypt
-ifdef CONFIG_BUSYBOX_CONFIG_FEATURE_HAVE_RPC
+ifdef CONFIG_BUSYBOX_USE_LIBRPC
   TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include
   export LDFLAGS=$(TARGET_LDFLAGS)
   LDLIBS += rpc
+endif
+
+ifdef CONFIG_BUSYBOX_CONFIG_PAM
+  TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include
+  export LDFLAGS=$(TARGET_LDFLAGS)
+  LDLIBS += pam pam_misc pthread
 endif
 
 define Build/Compile
@@ -109,9 +113,8 @@ endef
 define Package/busybox/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(CP) $(PKG_INSTALL_DIR)/* $(1)/
-	for tmp in $(init-y); do \
-		$(INSTALL_BIN) ./files/$$$$tmp $(1)/etc/init.d/$$$$tmp; \
-	done
+	$(INSTALL_BIN) ./files/telnet $(1)/etc/init.d/telnet
+	$(INSTALL_BIN) ./files/sysntpd $(1)/etc/init.d/sysntpd
 	-rm -rf $(1)/lib64
 endef
 

@@ -9,12 +9,12 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=ppp
-PKG_VERSION:=2.4.5
-PKG_RELEASE:=10
+PKG_VERSION:=2.4.7
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=ftp://ftp.samba.org/pub/ppp/
-PKG_MD5SUM:=4621bc56167b6953ec4071043fe0ec57
+PKG_MD5SUM:=78818f40e6d33a1d1de68a1551f6595a
 PKG_MAINTAINER:=Felix Fietkau <nbd@openwrt.org>
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
@@ -119,7 +119,6 @@ endef
 
 define Package/chat
 $(call Package/ppp/Default)
-  DEPENDS:=@(PACKAGE_ppp||PACKAGE_ppp-multilink)
   TITLE:=Establish conversation with a modem
 endef
 
@@ -172,6 +171,9 @@ else
   MAKE_FLAGS += HAVE_MULTILINK=
 endif
 
+ifdef CONFIG_USE_MUSL
+  MAKE_FLAGS += USE_LIBUTIL=
+endif
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include

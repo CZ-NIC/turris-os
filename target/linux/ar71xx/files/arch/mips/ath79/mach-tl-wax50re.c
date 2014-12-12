@@ -1,7 +1,9 @@
 /*
- *  TP-LINK TL-WA750RE V1 / TP-LINK TL-WA850RE V1 board support
+ *  TP-LINK TL-WA750RE v1/TL-WA801ND v2/TL-WA850RE v1/TL-WA901ND v3
+ *  board support
  *
  *  Copyright (C) 2013 Martijn Zilverschoon <thefriedzombie@gmail.com>
+ *  Copyright (C) 2013 Jiri Pirko <jiri@resnulli.us>
  *
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License version 2 as published
@@ -31,8 +33,21 @@
 #define TL_WAX50RE_GPIO_LED_SIGNAL4	3
 #define TL_WAX50RE_GPIO_LED_SIGNAL5	4
 
+#define TL_WA860RE_GPIO_LED_WLAN_ORANGE	0
+#define TL_WA860RE_GPIO_LED_WLAN_GREEN	2
+#define TL_WA860RE_GPIO_LED_POWER_ORANGE	12
+#define TL_WA860RE_GPIO_LED_POWER_GREEN	14
+#define TL_WA860RE_GPIO_LED_LAN		20
+
+#define TL_WA801ND_V2_GPIO_LED_LAN	18
+#define TL_WA801ND_V2_GPIO_LED_SYSTEM	14
+
 #define TL_WAX50RE_GPIO_BTN_RESET	17
 #define TL_WAX50RE_GPIO_BTN_WPS		16
+
+#define TL_WA860RE_GPIO_BTN_RESET	17
+#define TL_WA860RE_GPIO_BTN_WPS		16
+#define TL_WA860RE_GPIO_BTN_ONOFF	11
 
 #define TL_WAX50RE_KEYS_POLL_INTERVAL	20	/* msecs */
 #define TL_WAX50RE_KEYS_DEBOUNCE_INTERVAL (3 * TL_WAX50RE_KEYS_POLL_INTERVAL)
@@ -118,6 +133,30 @@ static struct gpio_led tl_wa850re_leds_gpio[] __initdata = {
 	},
 };
 
+static struct gpio_led tl_wa860re_leds_gpio[] __initdata = {
+	{
+		.name		= "tp-link:green:lan",
+		.gpio		= TL_WA860RE_GPIO_LED_LAN,
+		.active_low	= 1,
+	}, {
+		.name		= "tp-link:green:power",
+		.gpio		= TL_WA860RE_GPIO_LED_POWER_GREEN,
+		.active_low	= 1,
+	}, {
+		.name		= "tp-link:orange:power",
+		.gpio		= TL_WA860RE_GPIO_LED_POWER_ORANGE,
+		.active_low	= 1,
+	}, {
+		.name		= "tp-link:green:wlan",
+		.gpio		= TL_WA860RE_GPIO_LED_WLAN_GREEN,
+		.active_low	= 1,
+	}, {
+		.name		= "tp-link:orange:wlan",
+		.gpio		= TL_WA860RE_GPIO_LED_WLAN_ORANGE,
+		.active_low	= 1,
+	},
+};
+
 
 static struct gpio_keys_button tl_wax50re_gpio_keys[] __initdata = {
 	{
@@ -134,6 +173,51 @@ static struct gpio_keys_button tl_wax50re_gpio_keys[] __initdata = {
 		.debounce_interval = TL_WAX50RE_KEYS_DEBOUNCE_INTERVAL,
 		.gpio		   = TL_WAX50RE_GPIO_BTN_WPS,
 		.active_low	   = 1,
+	},
+};
+
+static struct gpio_keys_button tl_wa860re_gpio_keys[] __initdata = {
+	{
+		.desc		   = "Reset button",
+		.type		   = EV_KEY,
+		.code		   = KEY_RESTART,
+		.debounce_interval = TL_WAX50RE_KEYS_DEBOUNCE_INTERVAL,
+		.gpio		   = TL_WA860RE_GPIO_BTN_RESET,
+		.active_low	   = 1,
+	}, {
+		.desc		   = "WPS",
+		.type		   = EV_KEY,
+		.code		   = KEY_WPS_BUTTON,
+		.debounce_interval = TL_WAX50RE_KEYS_DEBOUNCE_INTERVAL,
+		.gpio		   = TL_WA860RE_GPIO_BTN_WPS,
+		.active_low	   = 1,
+	}, {
+		.desc		   = "ONOFF",
+		.type		   = EV_KEY,
+		.code		   = BTN_1,
+		.debounce_interval = TL_WAX50RE_KEYS_DEBOUNCE_INTERVAL,
+		.gpio		   = TL_WA860RE_GPIO_BTN_ONOFF,
+		.active_low	   = 1,
+	},
+};
+
+static struct gpio_led tl_wa801nd_v2_leds_gpio[] __initdata = {
+	{
+		.name		= "tp-link:green:lan",
+		.gpio		= TL_WA801ND_V2_GPIO_LED_LAN,
+		.active_low	= 1,
+	}, {
+		.name		= "tp-link:green:wlan",
+		.gpio		= TL_WAX50RE_GPIO_LED_WLAN,
+		.active_low	= 1,
+	}, {
+		.name		= "tp-link:green:qss",
+		.gpio		= TL_WAX50RE_GPIO_LED_RE,
+		.active_low	= 1,
+	}, {
+		.name		= "tp-link:green:system",
+		.gpio		= TL_WA801ND_V2_GPIO_LED_SYSTEM,
+		.active_low	= 1,
 	},
 };
 
@@ -156,10 +240,6 @@ static void __init tl_ap123_setup(void)
 	ath79_register_eth(0);
 
 	ath79_register_wmac(ee, mac);
-
-	ath79_register_gpio_keys_polled(-1, TL_WAX50RE_KEYS_POLL_INTERVAL,
-					ARRAY_SIZE(tl_wax50re_gpio_keys),
-					tl_wax50re_gpio_keys);
 }
 
 static void  __init tl_wa750re_setup(void)
@@ -167,17 +247,67 @@ static void  __init tl_wa750re_setup(void)
 	tl_ap123_setup();
 	ath79_register_leds_gpio(-1, ARRAY_SIZE(tl_wa750re_leds_gpio),
 				 tl_wa750re_leds_gpio);
+
+	ath79_register_gpio_keys_polled(-1, TL_WAX50RE_KEYS_POLL_INTERVAL,
+					ARRAY_SIZE(tl_wax50re_gpio_keys),
+					tl_wax50re_gpio_keys);
 }
 
 MIPS_MACHINE(ATH79_MACH_TL_WA750RE, "TL-WA750RE", "TP-LINK TL-WA750RE",
 	     tl_wa750re_setup);
+
+static void __init tl_wa801nd_v2_setup(void)
+{
+	tl_ap123_setup();
+	ath79_register_leds_gpio(-1, ARRAY_SIZE(tl_wa801nd_v2_leds_gpio),
+			tl_wa801nd_v2_leds_gpio);
+
+	ath79_register_gpio_keys_polled(-1, TL_WAX50RE_KEYS_POLL_INTERVAL,
+					ARRAY_SIZE(tl_wax50re_gpio_keys),
+					tl_wax50re_gpio_keys);
+}
+
+MIPS_MACHINE(ATH79_MACH_TL_WA801ND_V2, "TL-WA801ND-v2", "TP-LINK TL-WA801ND v2",
+	     tl_wa801nd_v2_setup);
 
 static void  __init tl_wa850re_setup(void)
 {
 	tl_ap123_setup();
 	ath79_register_leds_gpio(-1, ARRAY_SIZE(tl_wa850re_leds_gpio),
 				 tl_wa850re_leds_gpio);
+
+	ath79_register_gpio_keys_polled(-1, TL_WAX50RE_KEYS_POLL_INTERVAL,
+					ARRAY_SIZE(tl_wax50re_gpio_keys),
+					tl_wax50re_gpio_keys);
 }
 
 MIPS_MACHINE(ATH79_MACH_TL_WA850RE, "TL-WA850RE", "TP-LINK TL-WA850RE",
 	     tl_wa850re_setup);
+
+static void  __init tl_wa860re_setup(void)
+{
+	tl_ap123_setup();
+	ath79_register_leds_gpio(-1, ARRAY_SIZE(tl_wa860re_leds_gpio),
+				 tl_wa860re_leds_gpio);
+
+	ath79_register_gpio_keys_polled(-1, TL_WAX50RE_KEYS_POLL_INTERVAL,
+					ARRAY_SIZE(tl_wa860re_gpio_keys),
+					tl_wa860re_gpio_keys);
+}
+
+MIPS_MACHINE(ATH79_MACH_TL_WA860RE, "TL-WA860RE", "TP-LINK TL-WA860RE",
+	     tl_wa860re_setup);
+
+static void __init tl_wa901nd_v3_setup(void)
+{
+	tl_ap123_setup();
+	ath79_register_leds_gpio(-1, ARRAY_SIZE(tl_wa801nd_v2_leds_gpio),
+			tl_wa801nd_v2_leds_gpio);
+
+	ath79_register_gpio_keys_polled(-1, TL_WAX50RE_KEYS_POLL_INTERVAL,
+					ARRAY_SIZE(tl_wax50re_gpio_keys) - 1,
+					tl_wax50re_gpio_keys);
+}
+
+MIPS_MACHINE(ATH79_MACH_TL_WA901ND_V3, "TL-WA901ND-v3", "TP-LINK TL-WA901ND v3",
+	     tl_wa901nd_v3_setup);

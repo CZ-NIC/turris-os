@@ -8,7 +8,7 @@ menu "Busybox Library Tuning"
 
 config BUSYBOX_CONFIG_FEATURE_SYSTEMD
 	bool "Enable systemd support"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_SYSTEMD
 	help
 	  If you plan to use busybox daemons on a system where daemons
 	  are controlled by systemd, enable this option.
@@ -16,21 +16,21 @@ config BUSYBOX_CONFIG_FEATURE_SYSTEMD
 	  but the downside is increased code size.
 config BUSYBOX_CONFIG_FEATURE_RTMINMAX
 	bool "Support RTMIN[+n] and RTMAX[-n] signal names"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_RTMINMAX
 	help
 	  Support RTMIN[+n] and RTMAX[-n] signal names
 	  in kill, killall etc. This costs ~250 bytes.
 
 config BUSYBOX_CONFIG_PASSWORD_MINLEN
 	int "Minimum password length"
-	default 6
+	default BUSYBOX_DEFAULT_PASSWORD_MINLEN
 	range 5 32
 	help
 	  Minimum allowable password length.
 
-config BUSYBOX_CONFIG_MD5_SIZE_VS_SPEED
+config BUSYBOX_CONFIG_MD5_SMALL
 	int "MD5: Trade bytes for speed (0:fast, 3:slow)"
-	default 2
+	default BUSYBOX_DEFAULT_MD5_SMALL
 	range 0 3
 	help
 	  Trade binary size versus speed for the md5sum algorithm.
@@ -42,16 +42,26 @@ config BUSYBOX_CONFIG_MD5_SIZE_VS_SPEED
 	  2                   3.0                5088
 	  3 (smallest)        5.1                4912
 
+config BUSYBOX_CONFIG_SHA3_SMALL
+	int "SHA3: Trade bytes for speed (0:fast, 1:slow)"
+	default BUSYBOX_DEFAULT_SHA3_SMALL
+	range 0 1
+	help
+	  Trade binary size versus speed for the sha3sum algorithm.
+	  SHA3_SMALL=0 compared to SHA3_SMALL=1 (approximate):
+	  64-bit x86: +270 bytes of code, 45% faster
+	  32-bit x86: +450 bytes of code, 75% faster
+
 config BUSYBOX_CONFIG_FEATURE_FAST_TOP
 	bool "Faster /proc scanning code (+100 bytes)"
-	default y
+	default BUSYBOX_DEFAULT_FEATURE_FAST_TOP
 	help
 	  This option makes top (and ps) ~20% faster (or 20% less CPU hungry),
 	  but code size is slightly bigger.
 
 config BUSYBOX_CONFIG_FEATURE_ETC_NETWORKS
 	bool "Support for /etc/networks"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_ETC_NETWORKS
 	help
 	  Enable support for network names in /etc/networks. This is
 	  a rarely used feature which allows you to use names
@@ -59,7 +69,7 @@ config BUSYBOX_CONFIG_FEATURE_ETC_NETWORKS
 
 config BUSYBOX_CONFIG_FEATURE_USE_TERMIOS
 	bool "Use termios to manipulate the screen"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_USE_TERMIOS
 	depends on BUSYBOX_CONFIG_MORE || BUSYBOX_CONFIG_TOP || BUSYBOX_CONFIG_POWERTOP
 	help
 	  This option allows utilities such as 'more' and 'top' to determine
@@ -70,14 +80,14 @@ config BUSYBOX_CONFIG_FEATURE_USE_TERMIOS
 
 config BUSYBOX_CONFIG_FEATURE_EDITING
 	bool "Command line editing"
-	default y
+	default BUSYBOX_DEFAULT_FEATURE_EDITING
 	help
 	  Enable line editing (mainly for shell command line).
 
 config BUSYBOX_CONFIG_FEATURE_EDITING_MAX_LEN
 	int "Maximum length of input"
 	range 128 8192
-	default 512
+	default BUSYBOX_DEFAULT_FEATURE_EDITING_MAX_LEN
 	depends on BUSYBOX_CONFIG_FEATURE_EDITING
 	help
 	  Line editing code uses on-stack buffers for storage.
@@ -86,7 +96,7 @@ config BUSYBOX_CONFIG_FEATURE_EDITING_MAX_LEN
 
 config BUSYBOX_CONFIG_FEATURE_EDITING_VI
 	bool "vi-style line editing commands"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_EDITING_VI
 	depends on BUSYBOX_CONFIG_FEATURE_EDITING
 	help
 	  Enable vi-style line editing. In shells, this mode can be
@@ -96,21 +106,28 @@ config BUSYBOX_CONFIG_FEATURE_EDITING_HISTORY
 	int "History size"
 	# Don't allow way too big values here, code uses fixed "char *history[N]" struct member
 	range 0 9999
-	default 256
+	default BUSYBOX_DEFAULT_FEATURE_EDITING_HISTORY
 	depends on BUSYBOX_CONFIG_FEATURE_EDITING
 	help
 	  Specify command history size (0 - disable).
 
 config BUSYBOX_CONFIG_FEATURE_EDITING_SAVEHISTORY
 	bool "History saving"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_EDITING_SAVEHISTORY
 	depends on BUSYBOX_CONFIG_FEATURE_EDITING
 	help
 	  Enable history saving in shells.
 
+config BUSYBOX_CONFIG_FEATURE_EDITING_SAVE_ON_EXIT
+	bool "Save history on shell exit, not after every command"
+	default BUSYBOX_DEFAULT_FEATURE_EDITING_SAVE_ON_EXIT
+	depends on BUSYBOX_CONFIG_FEATURE_EDITING_SAVEHISTORY
+	help
+	  Save history on shell exit, not after every command.
+
 config BUSYBOX_CONFIG_FEATURE_REVERSE_SEARCH
 	bool "Reverse history search"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_REVERSE_SEARCH
 	depends on BUSYBOX_CONFIG_FEATURE_EDITING_SAVEHISTORY
 	help
 	  Enable readline-like Ctrl-R combination for reverse history search.
@@ -118,21 +135,21 @@ config BUSYBOX_CONFIG_FEATURE_REVERSE_SEARCH
 
 config BUSYBOX_CONFIG_FEATURE_TAB_COMPLETION
 	bool "Tab completion"
-	default y
+	default BUSYBOX_DEFAULT_FEATURE_TAB_COMPLETION
 	depends on BUSYBOX_CONFIG_FEATURE_EDITING
 	help
 	  Enable tab completion.
 
 config BUSYBOX_CONFIG_FEATURE_USERNAME_COMPLETION
 	bool "Username completion"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_USERNAME_COMPLETION
 	depends on BUSYBOX_CONFIG_FEATURE_TAB_COMPLETION
 	help
 	  Enable username completion.
 
 config BUSYBOX_CONFIG_FEATURE_EDITING_FANCY_PROMPT
 	bool "Fancy shell prompts"
-	default y
+	default BUSYBOX_DEFAULT_FEATURE_EDITING_FANCY_PROMPT
 	depends on BUSYBOX_CONFIG_FEATURE_EDITING
 	help
 	  Setting this option allows for prompts to use things like \w and
@@ -140,7 +157,7 @@ config BUSYBOX_CONFIG_FEATURE_EDITING_FANCY_PROMPT
 
 config BUSYBOX_CONFIG_FEATURE_EDITING_ASK_TERMINAL
 	bool "Query cursor position from terminal"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_EDITING_ASK_TERMINAL
 	depends on BUSYBOX_CONFIG_FEATURE_EDITING
 	help
 	  Allow usage of "ESC [ 6 n" sequence. Terminal answers back with
@@ -152,7 +169,7 @@ config BUSYBOX_CONFIG_FEATURE_EDITING_ASK_TERMINAL
 
 config BUSYBOX_CONFIG_FEATURE_NON_POSIX_CP
 	bool "Non-POSIX, but safer, copying to special nodes"
-	default y
+	default BUSYBOX_DEFAULT_FEATURE_NON_POSIX_CP
 	help
 	  With this option, "cp file symlink" will delete symlink
 	  and create a regular file. This does not conform to POSIX,
@@ -162,7 +179,7 @@ config BUSYBOX_CONFIG_FEATURE_NON_POSIX_CP
 
 config BUSYBOX_CONFIG_FEATURE_VERBOSE_CP_MESSAGE
 	bool "Give more precise messages when copy fails (cp, mv etc)"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_VERBOSE_CP_MESSAGE
 	help
 	  Error messages with this feature enabled:
 	    $ cp file /does_not_exist/file
@@ -177,7 +194,7 @@ config BUSYBOX_CONFIG_FEATURE_VERBOSE_CP_MESSAGE
 config BUSYBOX_CONFIG_FEATURE_COPYBUF_KB
 	int "Copy buffer size, in kilobytes"
 	range 1 1024
-	default 4
+	default BUSYBOX_DEFAULT_FEATURE_COPYBUF_KB
 	help
 	  Size of buffer used by cp, mv, install, wget etc.
 	  Buffers which are 4 kb or less will be allocated on stack.
@@ -186,7 +203,7 @@ config BUSYBOX_CONFIG_FEATURE_COPYBUF_KB
 
 config BUSYBOX_CONFIG_FEATURE_SKIP_ROOTFS
 	bool "Skip rootfs in mount table"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_SKIP_ROOTFS
 	help
 	  Ignore rootfs entry in mount table.
 
@@ -198,14 +215,14 @@ config BUSYBOX_CONFIG_FEATURE_SKIP_ROOTFS
 
 	  However, some systems do not mount anything on /.
 	  If you need to configure busybox for one of these systems,
-	  you may find useful to turn this option off to make df show
-	  initramfs statistic.
+	  you may find it useful to turn this option off to make df show
+	  initramfs statistics.
 
 	  Otherwise, choose Y.
 
 config BUSYBOX_CONFIG_MONOTONIC_SYSCALL
 	bool "Use clock_gettime(CLOCK_MONOTONIC) syscall"
-	default n
+	default BUSYBOX_DEFAULT_MONOTONIC_SYSCALL
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  Use clock_gettime(CLOCK_MONOTONIC) syscall for measuring
@@ -216,7 +233,7 @@ config BUSYBOX_CONFIG_MONOTONIC_SYSCALL
 
 config BUSYBOX_CONFIG_IOCTL_HEX2STR_ERROR
 	bool "Use ioctl names rather than hex values in error messages"
-	default y
+	default BUSYBOX_DEFAULT_IOCTL_HEX2STR_ERROR
 	help
 	  Use ioctl names rather than hex values in error messages
 	  (e.g. VT_DISALLOCATE rather than 0x5608). If disabled this
@@ -224,7 +241,7 @@ config BUSYBOX_CONFIG_IOCTL_HEX2STR_ERROR
 
 config BUSYBOX_CONFIG_FEATURE_HWIB
 	bool "Support infiniband HW"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_HWIB
 	help
 	  Support for printing infiniband addresses in
 	  network applets.

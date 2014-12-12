@@ -49,7 +49,12 @@
 	};
 
 	ethernet@10100000 {
+		mtd-mac-address = <&factory 0x4>;
 		ralink,port-map = "wllll";
+	};
+
+	wmac@10180000 {
+		ralink,mtd-eeprom = <&factory 0>;
 	};
 
 	pinctrl {

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2007-2013 OpenWrt.org
+# Copyright (C) 2007-2014 OpenWrt.org
 # Copyright (C) 2010 Vertical Communications
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -7,11 +7,11 @@
 #
 
 include $(TOPDIR)/rules.mk
-include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/version.mk
+include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=base-files
-PKG_RELEASE:=151
+PKG_RELEASE:=158
 
 PKG_FILE_DEPENDS:=$(PLATFORM_DIR)/ $(GENERIC_PLATFORM_DIR)/base-files/
 PKG_BUILD_DEPENDS:=opkg/host
@@ -28,7 +28,7 @@ endif
 define Package/base-files
   SECTION:=base
   CATEGORY:=Base system
-  DEPENDS:=+netifd +libc +procd
+  DEPENDS:=+netifd +libc +procd +jsonfilter
   TITLE:=Base filesystem for OpenWrt
   URL:=http://openwrt.org/
   VERSION:=$(PKG_RELEASE)-$(REVISION)
@@ -112,7 +112,8 @@ define Package/base-files/install
 	$(VERSION_SED) \
 		$(1)/etc/banner \
 		$(1)/etc/openwrt_version \
-		$(1)/etc/openwrt_release
+		$(1)/etc/openwrt_release \
+		$(1)/etc/device_info
 
 	mkdir -p $(1)/CONTROL
 	mkdir -p $(1)/dev
@@ -147,7 +148,9 @@ define Package/base-files/install
 		fi \
 	done
 
-	echo -e "#!/bin/sh\n[ -z "\$$$$IPKG_INSTROOT" ] && rm -f `ls $(1)/etc/uci-defaults | awk '{ printf "/etc/uci-defaults/%s ", $$$$0 }'` " > $(1)/CONTROL/postinst
+	echo "#!/bin/sh" > $(1)/CONTROL/postinst	
+	echo -e "[ -z "\$$$$IPKG_INSTROOT" ] && rm -f `ls $(1)/etc/uci-defaults | awk '{ printf "/etc/uci-defaults/%s ", $$$$0 }'` " >> $(1)/CONTROL/postinst
+	echo -e "[ -z "\$$$$IPKG_INSTROOT" ] && for i in `ls $(1)/etc/init.d/ | awk '{ printf "/etc/init.d/%s ", $$$$0 }'`; do "\$$$$i" enable || true; done" >> $(1)/CONTROL/postinst
 endef
 
 ifneq ($(DUMP),1)

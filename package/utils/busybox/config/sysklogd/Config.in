@@ -7,10 +7,9 @@
 menu "System Logging Utilities"
 
 
-
 config BUSYBOX_CONFIG_SYSLOGD
 	bool "syslogd"
-	default n
+	default BUSYBOX_DEFAULT_SYSLOGD
 	help
 	  The syslogd utility is used to record logs of all the
 	  significant events that occur on a system. Every
@@ -25,7 +24,7 @@ config BUSYBOX_CONFIG_SYSLOGD
 
 config BUSYBOX_CONFIG_FEATURE_ROTATE_LOGFILE
 	bool "Rotate message files"
-	default y
+	default BUSYBOX_DEFAULT_FEATURE_ROTATE_LOGFILE
 	depends on BUSYBOX_CONFIG_SYSLOGD
 	help
 	  This enables syslogd to rotate the message files
@@ -33,7 +32,7 @@ config BUSYBOX_CONFIG_FEATURE_ROTATE_LOGFILE
 
 config BUSYBOX_CONFIG_FEATURE_REMOTE_LOG
 	bool "Remote Log support"
-	default y
+	default BUSYBOX_DEFAULT_FEATURE_REMOTE_LOG
 	depends on BUSYBOX_CONFIG_SYSLOGD
 	help
 	  When you enable this feature, the syslogd utility can
@@ -47,7 +46,7 @@ config BUSYBOX_CONFIG_FEATURE_REMOTE_LOG
 
 config BUSYBOX_CONFIG_FEATURE_SYSLOGD_DUP
 	bool "Support -D (drop dups) option"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_SYSLOGD_DUP
 	depends on BUSYBOX_CONFIG_SYSLOGD
 	help
 	  Option -D instructs syslogd to drop consecutive messages
@@ -55,14 +54,14 @@ config BUSYBOX_CONFIG_FEATURE_SYSLOGD_DUP
 
 config BUSYBOX_CONFIG_FEATURE_SYSLOGD_CFG
 	bool "Support syslog.conf"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_SYSLOGD_CFG
 	depends on BUSYBOX_CONFIG_SYSLOGD
 	help
 	  Supports restricted syslogd config. See docs/syslog.conf.txt
 
 config BUSYBOX_CONFIG_FEATURE_SYSLOGD_READ_BUFFER_SIZE
 	int "Read buffer size in bytes"
-	default 256
+	default BUSYBOX_DEFAULT_FEATURE_SYSLOGD_READ_BUFFER_SIZE
 	range 256 20000
 	depends on BUSYBOX_CONFIG_SYSLOGD
 	help
@@ -72,7 +71,7 @@ config BUSYBOX_CONFIG_FEATURE_SYSLOGD_READ_BUFFER_SIZE
 
 config BUSYBOX_CONFIG_FEATURE_IPC_SYSLOG
 	bool "Circular Buffer support"
-	default y
+	default BUSYBOX_DEFAULT_FEATURE_IPC_SYSLOG
 	depends on BUSYBOX_CONFIG_SYSLOGD
 	help
 	  When you enable this feature, the syslogd utility will
@@ -86,7 +85,7 @@ config BUSYBOX_CONFIG_FEATURE_IPC_SYSLOG
 
 config BUSYBOX_CONFIG_FEATURE_IPC_SYSLOG_BUFFER_SIZE
 	int "Circular buffer size in Kbytes (minimum 4KB)"
-	default 16
+	default BUSYBOX_DEFAULT_FEATURE_IPC_SYSLOG_BUFFER_SIZE
 	range 4 2147483647
 	depends on BUSYBOX_CONFIG_FEATURE_IPC_SYSLOG
 	help
@@ -95,8 +94,8 @@ config BUSYBOX_CONFIG_FEATURE_IPC_SYSLOG_BUFFER_SIZE
 
 config BUSYBOX_CONFIG_LOGREAD
 	bool "logread"
-	default n
-	depends on BUSYBOX_CONFIG_FEATURE_IPC_SYSLOG && BROKEN
+	default BUSYBOX_DEFAULT_LOGREAD
+	depends on BUSYBOX_CONFIG_FEATURE_IPC_SYSLOG
 	help
 	  If you enabled Circular Buffer support, you almost
 	  certainly want to enable this feature as well. This
@@ -105,7 +104,7 @@ config BUSYBOX_CONFIG_LOGREAD
 
 config BUSYBOX_CONFIG_FEATURE_LOGREAD_REDUCED_LOCKING
 	bool "Double buffering"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_LOGREAD_REDUCED_LOCKING
 	depends on BUSYBOX_CONFIG_LOGREAD
 	help
 	  'logread' ouput to slow serial terminals can have
@@ -114,9 +113,22 @@ config BUSYBOX_CONFIG_FEATURE_LOGREAD_REDUCED_LOCKING
 	  from circular buffer, minimizing semaphore
 	  contention at some minor memory expense.
 
+config BUSYBOX_CONFIG_FEATURE_KMSG_SYSLOG
+	bool "Linux kernel printk buffer support"
+	default BUSYBOX_DEFAULT_FEATURE_KMSG_SYSLOG
+	depends on BUSYBOX_CONFIG_SYSLOGD
+	select BUSYBOX_CONFIG_PLATFORM_LINUX
+	help
+	  When you enable this feature, the syslogd utility will
+	  write system log message to the Linux kernel's printk buffer.
+	  This can be used as a smaller alternative to the syslogd IPC
+	  support, as klogd and logread aren't needed.
+
+	  NOTICE: Syslog facilities in log entries needs kernel 3.5+.
+
 config BUSYBOX_CONFIG_KLOGD
 	bool "klogd"
-	default n
+	default BUSYBOX_DEFAULT_KLOGD
 	help
 	  klogd is a utility which intercepts and logs all
 	  messages from the Linux kernel and sends the messages
@@ -124,9 +136,12 @@ config BUSYBOX_CONFIG_KLOGD
 	  you wish to record the messages produced by the kernel,
 	  you should enable this option.
 
+comment "klogd should not be used together with syslog to kernel printk buffer"
+	depends on BUSYBOX_CONFIG_KLOGD && BUSYBOX_CONFIG_FEATURE_KMSG_SYSLOG
+
 config BUSYBOX_CONFIG_FEATURE_KLOGD_KLOGCTL
 	bool "Use the klogctl() interface"
-	default y
+	default BUSYBOX_DEFAULT_FEATURE_KLOGD_KLOGCTL
 	depends on BUSYBOX_CONFIG_KLOGD
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
@@ -143,7 +158,7 @@ config BUSYBOX_CONFIG_FEATURE_KLOGD_KLOGCTL
 
 config BUSYBOX_CONFIG_LOGGER
 	bool "logger"
-	default y
+	default BUSYBOX_DEFAULT_LOGGER
 	select BUSYBOX_CONFIG_FEATURE_SYSLOG
 	help
 	    The logger utility allows you to send arbitrary text

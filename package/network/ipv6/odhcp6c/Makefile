@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2012 OpenWrt.org
+# Copyright (C) 2012-2014 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,15 +8,16 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=odhcp6c
-PKG_VERSION:=2014-03-31
+PKG_VERSION:=2014-12-10
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_URL:=git://github.com/sbyx/odhcp6c.git
+PKG_SOURCE_URL:=https://github.com/sbyx/odhcp6c.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=47fac6f603c236d7b149e0ec593269322572b352
+PKG_SOURCE_VERSION:=722226c4f1d45c8bf4ac9189523738abcf7d648f
 PKG_MAINTAINER:=Steven Barth <steven@midlink.org>
+PKG_LICENSE:=GPL-2.0
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk

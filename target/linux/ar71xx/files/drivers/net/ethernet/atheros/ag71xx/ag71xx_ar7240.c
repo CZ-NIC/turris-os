@@ -36,7 +36,8 @@
 #define AR7240_FLOOD_MASK_BROAD_TO_CPU	BIT(26)
 
 #define AR7240_REG_GLOBAL_CTRL		0x30
-#define AR7240_GLOBAL_CTRL_MTU_M	BITM(12)
+#define AR7240_GLOBAL_CTRL_MTU_M	BITM(11)
+#define AR9340_GLOBAL_CTRL_MTU_M	BITM(14)
 
 #define AR7240_REG_VTU			0x0040
 #define   AR7240_VTU_OP			BITM(3)
@@ -586,6 +587,11 @@ static void ar7240sw_setup(struct ar7240sw *as)
 				 AR934X_FLOOD_MASK_BC_DP(0) |
 				 AR934X_FLOOD_MASK_MC_DP(0));
 
+		/* setup MTU */
+		ar7240sw_reg_rmw(mii, AR7240_REG_GLOBAL_CTRL,
+				 AR9340_GLOBAL_CTRL_MTU_M,
+				 AR9340_GLOBAL_CTRL_MTU_M);
+
 		/* Enable MIB counters */
 		ar7240sw_reg_set(mii, AR7240_REG_MIB_FUNCTION0,
 				 AR934X_MIB_ENABLE);
@@ -601,11 +607,12 @@ static void ar7240sw_setup(struct ar7240sw *as)
 		/* Enable Broadcast frames transmitted to the CPU */
 		ar7240sw_reg_set(mii, AR7240_REG_FLOOD_MASK,
 				 AR7240_FLOOD_MASK_BROAD_TO_CPU);
-	}
 
-	/* setup MTU */
-	ar7240sw_reg_rmw(mii, AR7240_REG_GLOBAL_CTRL, AR7240_GLOBAL_CTRL_MTU_M,
-			 1536);
+		/* setup MTU */
+		ar7240sw_reg_rmw(mii, AR7240_REG_GLOBAL_CTRL,
+				 AR7240_GLOBAL_CTRL_MTU_M,
+				 AR7240_GLOBAL_CTRL_MTU_M);
+	}
 
 	/* setup Service TAG */
 	ar7240sw_reg_rmw(mii, AR7240_REG_SERVICE_TAG, AR7240_SERVICE_TAG_M, 0);
@@ -1043,7 +1050,7 @@ static struct ar7240sw *ar7240_probe(struct ag71xx *ag)
 	if ((phy_id1 != AR7240_PHY_ID1 || phy_id2 != AR7240_PHY_ID2) &&
 	    (phy_id1 != AR934X_PHY_ID1 || phy_id2 != AR934X_PHY_ID2)) {
 		pr_err("%s: unknown phy id '%04x:%04x'\n",
-		       ag->dev->name, phy_id1, phy_id2);
+		       dev_name(&mii->dev), phy_id1, phy_id2);
 		return NULL;
 	}
 
@@ -1074,7 +1081,7 @@ static struct ar7240sw *ar7240_probe(struct ag71xx *ag)
 					 AR934X_OPER_MODE0_PHY_MII_EN);
 		} else {
 			pr_err("%s: invalid PHY interface mode\n",
-			       ag->dev->name);
+			       dev_name(&mii->dev));
 			goto err_free;
 		}
 
@@ -1087,7 +1094,7 @@ static struct ar7240sw *ar7240_probe(struct ag71xx *ag)
 		}
 	} else {
 		pr_err("%s: unsupported chip, ctrl=%08x\n",
-			ag->dev->name, ctrl);
+			dev_name(&mii->dev), ctrl);
 		goto err_free;
 	}
 
@@ -1098,7 +1105,7 @@ static struct ar7240sw *ar7240_probe(struct ag71xx *ag)
 	if (register_switch(&as->swdev, ag->dev) < 0)
 		goto err_free;
 
-	pr_info("%s: Found an %s\n", ag->dev->name, swdev->name);
+	pr_info("%s: Found an %s\n", dev_name(&mii->dev), swdev->name);
 
 	/* initialize defaults */
 	for (i = 0; i < AR7240_MAX_VLANS; i++)

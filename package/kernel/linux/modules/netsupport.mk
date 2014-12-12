@@ -536,7 +536,7 @@ define KernelPackage/ppp
   FILES:= \
 	$(LINUX_DIR)/drivers/net/ppp/ppp_async.ko \
 	$(LINUX_DIR)/drivers/net/ppp/ppp_generic.ko
-  AUTOLOAD:=$(call AutoProbe,ppp_async)
+  AUTOLOAD:=$(call AutoLoad,27,ppp_async)
 endef
 
 define KernelPackage/ppp/description
@@ -552,7 +552,7 @@ define KernelPackage/ppp-synctty
   DEPENDS:=kmod-ppp
   KCONFIG:=CONFIG_PPP_SYNC_TTY
   FILES:=$(LINUX_DIR)/drivers/net/ppp/ppp_synctty.ko
-  AUTOLOAD:=$(call AutoProbe,ppp_synctty)
+  AUTOLOAD:=$(call AutoLoad,27,ppp_synctty)
 endef
 
 define KernelPackage/ppp-synctty/description
@@ -583,7 +583,7 @@ define KernelPackage/pppoe
   DEPENDS:=kmod-ppp +kmod-pppox
   KCONFIG:=CONFIG_PPPOE
   FILES:=$(LINUX_DIR)/drivers/net/ppp/pppoe.ko
-  AUTOLOAD:=$(call AutoProbe,pppoe)
+  AUTOLOAD:=$(call AutoLoad,27,pppoe)
 endef
 
 define KernelPackage/pppoe/description
@@ -615,7 +615,7 @@ define KernelPackage/pptp
   DEPENDS:=kmod-ppp +kmod-gre +kmod-pppox
   KCONFIG:=CONFIG_PPTP
   FILES:=$(LINUX_DIR)/drivers/net/ppp/pptp.ko
-  AUTOLOAD:=$(call AutoProbe,pptp)
+  AUTOLOAD:=$(call AutoLoad,27,pptp)
 endef
 
 $(eval $(call KernelPackage,pptp))
@@ -627,7 +627,7 @@ define KernelPackage/pppol2tp
   DEPENDS:=kmod-ppp +kmod-pppox +kmod-l2tp
   KCONFIG:=CONFIG_PPPOL2TP
   FILES:=$(LINUX_DIR)/net/l2tp/l2tp_ppp.ko
-  AUTOLOAD:=$(call AutoProbe,l2tp_ppp)
+  AUTOLOAD:=$(call AutoLoad,27,l2tp_ppp)
 endef
 
 define KernelPackage/pppol2tp/description
@@ -643,7 +643,7 @@ define KernelPackage/ipoa
   DEPENDS:=kmod-atm
   KCONFIG:=CONFIG_ATM_CLIP
   FILES:=$(LINUX_DIR)/net/atm/clip.ko
-  AUTOLOAD:=$(call AutoProbe,clip)
+  AUTOLOAD:=$(call AutoLoad,27,clip)
 endef
 
 define KernelPackage/ipoa/description
@@ -661,7 +661,7 @@ define KernelPackage/mppe
 	CONFIG_PPP_MPPE_MPPC \
 	CONFIG_PPP_MPPE
   FILES:=$(LINUX_DIR)/drivers/net/ppp/ppp_mppe.ko
-  AUTOLOAD:=$(call AutoProbe,ppp_mppe)
+  AUTOLOAD:=$(call AutoLoad,27,ppp_mppe)
 endef
 
 define KernelPackage/mppe/description
@@ -938,3 +938,32 @@ endef
 
 $(eval $(call KernelPackage,slip))
 
+define KernelPackage/dnsresolver
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=In-kernel DNS Resolver
+  KCONFIG:= CONFIG_DNS_RESOLVER
+  FILES:=$(LINUX_DIR)/net/dns_resolver/dns_resolver.ko
+  AUTOLOAD:=$(call AutoLoad,30,dns_resolver)
+endef
+
+$(eval $(call KernelPackage,dnsresolver))
+
+define KernelPackage/rxrpc
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=AF_RXRPC support
+  KCONFIG:= \
+	CONFIG_AF_RXRPC \
+	CONFIG_RXKAD=m \
+	CONFIG_AF_RXRPC_DEBUG=n
+  FILES:= \
+	$(LINUX_DIR)/net/rxrpc/af-rxrpc.ko \
+	$(LINUX_DIR)/net/rxrpc/rxkad.ko
+  AUTOLOAD:=$(call AutoLoad,30,af-rxrpc rxkad)
+  DEPENDS:=+kmod-crypto-core +kmod-crypto-manager +kmod-crypto-pcbc +kmod-crypto-fcrypt
+endef
+
+define KernelPackage/rxrpc/description
+  Kernel support for AF_RXRPC; required for AFS client
+endef
+
+$(eval $(call KernelPackage,rxrpc))

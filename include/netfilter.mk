@@ -36,12 +36,13 @@ $(eval $(if $(NF_KMOD),$(call nf_add,IPT_CORE,CONFIG_IP_NF_FILTER, $(P_V4)iptabl
 $(eval $(if $(NF_KMOD),$(call nf_add,IPT_CORE,CONFIG_IP_NF_MANGLE, $(P_V4)iptable_mangle),))
 
 # userland only
-$(eval $(if $(NF_KMOD),,$(call nf_add,IPT_CORE,CONFIG_IP_NF_IPTABLES, xt_standard ipt_icmp xt_tcp xt_udp xt_comment xt_set xt_SET)))
+$(eval $(if $(NF_KMOD),,$(call nf_add,IPT_CORE,CONFIG_IP_NF_IPTABLES, xt_standard ipt_icmp xt_tcp xt_udp xt_comment xt_id xt_set xt_SET)))
 
 $(eval $(call nf_add,IPT_CORE,CONFIG_NETFILTER_XT_MATCH_LIMIT, $(P_XT)xt_limit))
 $(eval $(call nf_add,IPT_CORE,CONFIG_NETFILTER_XT_MATCH_MAC, $(P_XT)xt_mac))
 $(eval $(call nf_add,IPT_CORE,CONFIG_NETFILTER_XT_MATCH_MULTIPORT, $(P_XT)xt_multiport))
 $(eval $(call nf_add,IPT_CORE,CONFIG_NETFILTER_XT_MATCH_COMMENT, $(P_XT)xt_comment))
+$(eval $(call nf_add,IPT_CORE,CONFIG_NETFILTER_XT_MATCH_ID, $(P_XT)xt_id))
 
 $(eval $(call nf_add,IPT_CORE,CONFIG_NETFILTER_XT_TARGET_LOG, $(P_XT)xt_LOG, ge 3.4.0))
 $(eval $(call nf_add,IPT_CORE,CONFIG_IP_NF_TARGET_LOG, $(P_V4)ipt_LOG, lt 3.4.0))
@@ -72,6 +73,7 @@ $(eval $(call nf_add,IPT_CONNTRACK,CONFIG_NETFILTER_XT_MATCH_CONNTRACK, $(P_XT)x
 # conntrack-extra
 
 $(eval $(call nf_add,IPT_CONNTRACK_EXTRA,CONFIG_NETFILTER_XT_MATCH_CONNBYTES, $(P_XT)xt_connbytes))
+$(eval $(call nf_add,IPT_CONNTRACK_EXTRA,CONFIG_NETFILTER_XT_MATCH_CONNLIMIT, $(P_XT)xt_connlimit))
 $(eval $(call nf_add,IPT_CONNTRACK_EXTRA,CONFIG_NETFILTER_XT_CONNMARK, $(P_XT)xt_connmark))
 $(eval $(call nf_add,IPT_CONNTRACK_EXTRA,CONFIG_NETFILTER_XT_MATCH_HELPER, $(P_XT)xt_helper))
 $(eval $(call nf_add,IPT_CONNTRACK_EXTRA,CONFIG_NETFILTER_XT_MATCH_RECENT, $(P_XT)xt_recent))
@@ -142,16 +144,18 @@ $(eval $(if $(NF_KMOD),$(call nf_add,IPT_IPV6,CONFIG_IP6_NF_RAW, $(P_V6)ip6table
 
 $(eval $(if $(NF_KMOD),,$(call nf_add,IPT_IPV6,CONFIG_IP6_NF_IPTABLES, ip6t_icmp6)))
 
-$(eval $(call nf_add,IPT_IPV6,CONFIG_IP6_NF_MATCH_AH, $(P_V6)ip6t_ah))
-$(eval $(call nf_add,IPT_IPV6,CONFIG_IP6_NF_MATCH_EUI64, $(P_V6)ip6t_eui64))
-$(eval $(call nf_add,IPT_IPV6,CONFIG_IP6_NF_MATCH_FRAG, $(P_V6)ip6t_frag))
-$(eval $(call nf_add,IPT_IPV6,CONFIG_IP6_NF_MATCH_IPV6HEADER, $(P_V6)ip6t_ipv6header))
-$(eval $(call nf_add,IPT_IPV6,CONFIG_IP6_NF_MATCH_MH, $(P_V6)ip6t_mh))
-$(eval $(call nf_add,IPT_IPV6,CONFIG_IP6_NF_MATCH_OPTS, $(P_V6)ip6t_hbh))
-$(eval $(call nf_add,IPT_IPV6,CONFIG_IP6_NF_MATCH_RT, $(P_V6)ip6t_rt))
 
 $(eval $(call nf_add,IPT_IPV6,CONFIG_IP6_NF_TARGET_LOG, $(P_V6)ip6t_LOG))
 $(eval $(call nf_add,IPT_IPV6,CONFIG_IP6_NF_TARGET_REJECT, $(P_V6)ip6t_REJECT))
+
+# ipv6 extra
+$(eval $(call nf_add,IPT_IPV6_EXTRA,CONFIG_IP6_NF_MATCH_IPV6HEADER, $(P_V6)ip6t_ipv6header))
+$(eval $(call nf_add,IPT_IPV6_EXTRA,CONFIG_IP6_NF_MATCH_AH, $(P_V6)ip6t_ah))
+$(eval $(call nf_add,IPT_IPV6_EXTRA,CONFIG_IP6_NF_MATCH_MH, $(P_V6)ip6t_mh))
+$(eval $(call nf_add,IPT_IPV6_EXTRA,CONFIG_IP6_NF_MATCH_EUI64, $(P_V6)ip6t_eui64))
+$(eval $(call nf_add,IPT_IPV6_EXTRA,CONFIG_IP6_NF_MATCH_OPTS, $(P_V6)ip6t_hbh))
+$(eval $(call nf_add,IPT_IPV6_EXTRA,CONFIG_IP6_NF_MATCH_FRAG, $(P_V6)ip6t_frag))
+$(eval $(call nf_add,IPT_IPV6_EXTRA,CONFIG_IP6_NF_MATCH_RT, $(P_V6)ip6t_rt))
 
 # nat
 

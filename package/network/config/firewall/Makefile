@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 OpenWrt.org
+# Copyright (C) 2013-2014 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -17,7 +17,6 @@ PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_VERSION:=ee9b9c82e33e7fd37455b2dcf5c9a81ef223ab56
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_MAINTAINER:=Stepan Henek <stepan.henek@nic.cz>
-
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk

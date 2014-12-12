@@ -12,9 +12,8 @@ BOARDNAME:=Broadcom BCM47xx/53xx with ARM CPU
 FEATURES:=squashfs usb pci pcie gpio
 MAINTAINER:=Hauke Mehrtens <hauke@hauke-m.de>
 CPU_TYPE:=cortex-a9
-CPU_SUBTYPE:=soft
 
-LINUX_VERSION:=3.10.18
+LINUX_VERSION:=3.10.49
 
 include $(INCLUDE_DIR)/target.mk
 

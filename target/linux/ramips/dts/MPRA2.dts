@@ -52,8 +52,16 @@
 		};
 	};
 
+	ethernet@10100000 {
+		mtd-mac-address = <&factory 0x4>;
+	};
+
 	esw@10110000 {
 		ralink,portmap = <0x2f>;
+	};
+
+	wmac@10180000 {
+		ralink,mtd-eeprom = <&factory 0>;
 	};
 
 	ehci@101c0000 {
@@ -67,11 +75,11 @@
 	gpio-leds {
 		compatible = "gpio-leds";
 		system {
-			label = "mpr-a2:blue:system";
+			label = "hame:blue:system";
 			gpios = <&gpio0 20 1>;
 		};
 		power {
-			label = "mpr-a2:red:power";
+			label = "hame:red:power";
 			gpios = <&gpio0 17 1>;
 		};
 	};

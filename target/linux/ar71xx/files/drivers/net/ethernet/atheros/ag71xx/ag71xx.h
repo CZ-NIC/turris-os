@@ -51,14 +51,14 @@
 #define AG71XX_INT_INIT	(AG71XX_INT_ERR | AG71XX_INT_POLL)
 
 #define AG71XX_TX_MTU_LEN	1540
-#define AG71XX_RX_PKT_SIZE	\
-	(ETH_FRAME_LEN + ETH_FCS_LEN + VLAN_HLEN)
-#define AG71XX_RX_BUF_SIZE (AG71XX_RX_PKT_SIZE + NET_SKB_PAD + NET_IP_ALIGN)
 
-#define AG71XX_TX_RING_SIZE_DEFAULT	32
+#define AG71XX_TX_RING_SPLIT		512
+#define AG71XX_TX_RING_DS_PER_PKT	DIV_ROUND_UP(AG71XX_TX_MTU_LEN, \
+						     AG71XX_TX_RING_SPLIT)
+#define AG71XX_TX_RING_SIZE_DEFAULT	48
 #define AG71XX_RX_RING_SIZE_DEFAULT	128
 
-#define AG71XX_TX_RING_SIZE_MAX		32
+#define AG71XX_TX_RING_SIZE_MAX		48
 #define AG71XX_RX_RING_SIZE_MAX		128
 
 #ifdef CONFIG_AG71XX_DEBUG
@@ -102,7 +102,8 @@ struct ag71xx_ring {
 	struct ag71xx_buf	*buf;
 	u8			*descs_cpu;
 	dma_addr_t		descs_dma;
-	unsigned int		desc_size;
+	u16			desc_split;
+	u16			desc_size;
 	unsigned int		curr;
 	unsigned int		dirty;
 	unsigned int		size;
@@ -168,6 +169,10 @@ struct ag71xx {
 	unsigned int		speed;
 	int			duplex;
 
+	unsigned int		max_frame_len;
+	unsigned int		desc_pktlen_mask;
+	unsigned int		rx_buf_size;
+
 	struct work_struct	restart_work;
 	struct delayed_work	link_work;
 	struct timer_list	oom_timer;
@@ -196,11 +201,6 @@ static inline struct ag71xx_platform_data *ag71xx_get_pdata(struct ag71xx *ag)
 static inline int ag71xx_desc_empty(struct ag71xx_desc *desc)
 {
 	return (desc->ctrl & DESC_EMPTY) != 0;
-}
-
-static inline int ag71xx_desc_pktlen(struct ag71xx_desc *desc)
-{
-	return desc->ctrl & DESC_PKTLEN_M;
 }
 
 /* Register offsets */

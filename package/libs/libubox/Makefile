@@ -1,13 +1,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libubox
-PKG_VERSION:=2013-11-19-3
+PKG_VERSION:=2014-08-04
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=git://nbd.name/luci2/libubox.git
+PKG_SOURCE_URL:=http://git.openwrt.org/project/libubox.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=f100acef37bd562218b25d1a9fbe1ece1ef57438
+PKG_SOURCE_VERSION:=dffbc09baf71b294185a36048166d00066d433b5
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_MIRROR_MD5SUM:=
 CMAKE_INSTALL:=1
@@ -26,6 +26,7 @@ define Package/libubox
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=Basic utility library
+  ABI_VERSION:=$(PKG_VERSION)
   DEPENDS:=
 endef
 
@@ -39,7 +40,7 @@ endef
 define Package/jshn
   SECTION:=utils
   CATEGORY:=Utilities
-  DEPENDS:=+libjson-c
+  DEPENDS:=+libjson-c +libubox +libblobmsg-json
   TITLE:=JSON SHell Notation
 endef
 

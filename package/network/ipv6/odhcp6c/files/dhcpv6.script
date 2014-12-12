@@ -26,6 +26,15 @@ setup_interface () {
 
 	for prefix in $PREFIXES; do
 		proto_add_ipv6_prefix "$prefix"
+                local entry="${prefix#*/}"
+                entry="${entry#*,}"
+                entry="${entry#*,}"
+                local valid="${entry%%,*}"
+
+		if [ -z "$RA_ADDRESSES" -a -z "$RA_ROUTES" -a \
+				-z "$RA_DNS" -a "$FAKE_ROUTES" = 1 ]; then
+			RA_ROUTES="::/0,$SERVER,$valid,4096"
+		fi
 	done
 
 	[ -n "$USERPREFIX" ] && proto_add_ipv6_prefix "$USERPREFIX"
@@ -51,6 +60,11 @@ setup_interface () {
 		local valid="${entry%%,*}"
 
 		proto_add_ipv6_address "$addr" "$mask" "$preferred" "$valid" 1
+
+                if [ -z "$RA_ADDRESSES" -a -z "$RA_ROUTES" -a \
+                                -z "$RA_DNS" -a "$FAKE_ROUTES" = 1 ]; then
+                        RA_ROUTES="::/0,$SERVER,$valid,4096"
+                fi
 	done
 
 	for entry in $RA_ROUTES; do
@@ -64,22 +78,64 @@ setup_interface () {
 		entry="${entry#*,}"
 		local metric="${entry%%,*}"
 
-		proto_add_ipv6_route "$addr" "$mask" "$gw" "$metric" "$valid"
+		if [ -z "$SOURCE_ROUTING" -o -z "$gw" ]; then
+			proto_add_ipv6_route "$addr" "$mask" "$gw" "$metric" "$valid"
+		else
+			proto_add_ipv6_route "$addr" "$mask" "$gw" "$metric" "$valid" "::/128"
+			for prefix in $PREFIXES $ADDRESSES; do
+				local paddr="${prefix%%,*}"
+				proto_add_ipv6_route "$addr" "$mask" "$gw" "$metric" "$valid" "$paddr"
+			done
+		fi
 	done
 
 	proto_add_data
 	[ -n "$CER" ] && json_add_string cer "$CER"
+	[ -n "$PASSTHRU" ] && json_add_string passthru "$PASSTHRU"
+	[ -n "$ZONE" ] && json_add_string zone "$ZONE"
 	proto_close_data
 
 	proto_send_update "$INTERFACE"
 
-	if [ -n "$AFTR_IP " -a -n "$IFACE_DSLITE" ]; then
+	MAPTYPE=""
+	MAPRULE=""
+
+	if [ -n "$MAPE" -a -f /lib/netifd/proto/map.sh ]; then
+		MAPTYPE="map-e"
+		MAPRULE="$MAPE"
+	elif [ -n "$MAPT" -a -f /lib/netifd/proto/map.sh -a -f /proc/net/nat46/control ]; then
+		MAPTYPE="map-t"
+		MAPRULE="$MAPT"
+	elif [ -n "$LW4O6" -a -f /lib/netifd/proto/map.sh ]; then
+		MAPTYPE="lw4o6"
+		MAPRULE="$LW4O6"
+	fi
+
+	[ -n "$ZONE" ] || ZONE=$(fw3 -q network $INTERFACE)
+
+	if [ "$IFACE_MAP" != 0 -a -n "$MAPTYPE" -a -n "$MAPRULE" ]; then
+		[ -z "$IFACE_MAP" -o "$IFACE_MAP" = 1 ] && IFACE_MAP=${INTERFACE}_map
+		json_init
+		json_add_string name "$IFACE_MAP"
+		json_add_string ifname "@$INTERFACE"
+		json_add_string proto map
+		json_add_string type "$MAPTYPE"
+		json_add_string rule "$MAPRULE"
+		json_add_string tunlink "$INTERFACE"
+		[ -n "$ZONE_MAP" ] || ZONE_MAP=$ZONE
+		[ -n "$ZONE_MAP" ] && json_add_string zone "$ZONE_MAP"
+		[ -n "$IFACE_MAP_DELEGATE" ] && json_add_boolean delegate "$IFACE_MAP_DELEGATE"
+		json_close_object
+		ubus call network add_dynamic "$(json_dump)"
+	elif [ -n "$AFTR_IP" -a "$IFACE_DSLITE" != 0 -a -f /lib/netifd/proto/dslite.sh ]; then
+		[ -z "$IFACE_DSLITE" -o "$IFACE_DSLITE" = 1 ] && IFACE_DSLITE=${INTERFACE}_dslite
 		json_init
 		json_add_string name "$IFACE_DSLITE"
 		json_add_string ifname "@$INTERFACE"
 		json_add_string proto "dslite"
 		json_add_string peeraddr "$AFTR_IP"
 		json_add_string tunlink "$INTERFACE"
+		[ -n "$ZONE_DSLITE" ] || ZONE_DSLITE=$ZONE
 		[ -n "$ZONE_DSLITE" ] && json_add_string zone "$ZONE_DSLITE"
 		[ -n "$IFACE_DSLITE_DELEGATE" ] && json_add_boolean delegate "$IFACE_DSLITE_DELEGATE"
 		json_close_object
@@ -99,8 +155,11 @@ case "$2" in
 		teardown_interface "$1"
 		setup_interface "$1"
 	;;
-	informed|updated|rebound|ra-updated)
+	informed|updated|rebound)
 		setup_interface "$1"
+	;;
+	ra-updated)
+		[ -n "$ADDRESSES$RA_ADDRESSES$PREFIXES$USERPREFIX" ] && setup_interface "$1"
 	;;
 	started|stopped|unbound)
 		teardown_interface "$1"

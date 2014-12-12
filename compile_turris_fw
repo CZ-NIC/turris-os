@@ -9,8 +9,7 @@
 
 # Install luci feed
 ./scripts/feeds update -i lucics
-./scripts/feeds install luci
-./scripts/feeds install luci-i18n-czech
+./scripts/feeds install -p lucics -a
 
 # Install routing feed
 ./scripts/feeds update routing
@@ -21,7 +20,6 @@ cp configs/config-turris-nand .config
 [ -n "$BUILD_ALL" ] && echo "CONFIG_ALL=y" >> .config
 [ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
 make defconfig
-make tools/install
 export TARGET_BOARD=turris
 if [ -d .git ] ; then
 	git log -n1 --format='%H' >files/etc/git-version

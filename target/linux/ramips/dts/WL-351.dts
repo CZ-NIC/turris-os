@@ -48,6 +48,10 @@
 		};
 	};
 
+	ethernet@10100000 {
+		mtd-mac-address = <&factory 0x4>;
+	};
+
 	esw@10110000 {
 		ralink,portmap = <0x3f>;
 		ralink,fct2 = <0x0002500c>;
@@ -58,6 +62,10 @@
 		 * port6: enabled, gige, full-duplex, rx/tx-flow-control
 		*/
 		ralink,fpa2 = <0x1f003fff>;
+	};
+
+	wmac@10180000 {
+		ralink,mtd-eeprom = <&factory 0>;
 	};
 
 	otg@101c0000 {

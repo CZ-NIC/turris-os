@@ -8,13 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=u-boot
-PKG_VERSION:=2013.10-rc2-sunxi
-PKG_RELEASE:=1
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=git://github.com/linux-sunxi/u-boot-sunxi
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=8a4621c488f33089d831168bfa5bae210a5684c8
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
+PKG_VERSION:=2014.01-rc1
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+PKG_SOURCE_URL:= \
+	http://mirror2.openwrt.org/sources \
+	ftp://ftp.denx.de/pub/u-boot
+PKG_SOURCE_VERSION:=1552fe43c3e827d56c9cd212fba3dcba
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
@@ -25,27 +24,47 @@ define uboot/Default
   IMAGE:=
 endef
 
+define uboot/A10-OLinuXino-Lime
+  TITLE:=U-Boot 2014.01-rc1 for the A10 OLinuXino LIME
+endef
+
 define uboot/A13-OLinuXino
-  TITLE:=U-Boot 2013.10-rc2 for the A13 Olinuxino
-endef
-
-define uboot/Hackberry
-  TITLE:=U-Boot 2013.10-rc2 for the Hackbeery
-endef
-
-define uboot/Cubieboard
-  TITLE:=U-Boot 2013.10-rc2 for Cubieboard
-endef
-
-define uboot/Cubieboard2
-  TITLE:=U-Boot 2013.10-rc2 for Cubieboard2
+  TITLE:=U-Boot 2014.01-rc1 for the A13 OlinuXino
 endef
 
 define uboot/A20-OLinuXino_MICRO
-  TITLE:=U-Boot 2013.10-rc2 for A20 Olinuxino
+  TITLE:=U-Boot 2014.01-rc1 for A20 OLinuXino MICRO
 endef
 
-UBOOTS:=A13-OLinuXino Cubieboard Cubieboard2 A20-OLinuXino_MICRO Hackberry
+define uboot/bananapi
+  TITLE:=U-Boot 2014.01-rc1 for BananaPi
+endef
+
+define uboot/Cubieboard
+  TITLE:=U-Boot 2014.01-rc1 for Cubieboard
+endef
+
+define uboot/Cubieboard2
+  TITLE:=U-Boot 2014.01-rc1 for Cubieboard2
+endef
+
+define uboot/Cubietruck
+  TITLE:=U-Boot 2014.01-rc1 for Cubietruck
+endef
+
+define uboot/Hackberry
+  TITLE:=U-Boot 2014.01-rc1 for the Hackbeery
+endef
+
+define uboot/pcDuino
+  TITLE:=U-Boot 2014.01-rc1 for pcDuino
+endef  
+
+define uboot/pcDuino3
+  TITLE:=U-Boot 2014.01-rc1 for pcDuino3
+endef  
+
+UBOOTS:=A10-OLinuXino-Lime A13-OLinuXino A20-OLinuXino_MICRO bananapi Cubieboard Cubieboard2 Cubietruck Hackberry pcDuino pcDuino3
 
 define Package/uboot/template
 define Package/uboot-sunxi-$(1)
@@ -73,7 +92,7 @@ endif
 
 define Build/Configure
 	$(MAKE) -C $(PKG_BUILD_DIR) \
-		$(UBOOT_CONFIG)_config
+		USE_PRIVATE_LIBGCC=yes $(UBOOT_CONFIG)_config
 endef
 
 define Build/Compile
@@ -86,9 +105,11 @@ define Package/uboot/install/default
 	$(CP) $(PKG_BUILD_DIR)/u-boot.bin \
 		$(BIN_DIR)/uboot-$(BOARD)-$(1)/openwrt-$(BOARD)-$(1)-u-boot.bin
 	$(CP) $(PKG_BUILD_DIR)/spl/sunxi-spl.bin \
-		$(BIN_DIR)/uboot-$(BOARD)-$(1)/openwrt-$(BOARD)-$(1)-sunxi-spl.bin
+		$(BIN_DIR)/uboot-$(BOARD)-$(1)/openwrt-$(BOARD)-$(1)-spl.bin
 	$(CP) $(PKG_BUILD_DIR)/u-boot-sunxi-with-spl.bin \
-		$(BIN_DIR)/uboot-$(BOARD)-$(1)/openwrt-$(BOARD)-$(1)-sunxi-with-spl.bin
+		$(BIN_DIR)/uboot-$(BOARD)-$(1)/openwrt-$(BOARD)-$(1)-u-boot-with-spl.bin
+	$(CP) uEnv.txt \
+		$(BIN_DIR)/uboot-$(BOARD)-$(1)/openwrt-$(BOARD)-$(1)-uEnv.txt
 endef
 
 define Package/uboot/install/template

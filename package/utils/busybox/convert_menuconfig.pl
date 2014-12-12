@@ -9,18 +9,8 @@
 use strict;
 my $PATH = $ARGV[0];
 ($PATH and -d $PATH) or die 'invalid path';
-my $DEFCONFIG = $ARGV[1];
-($DEFCONFIG and -f $DEFCONFIG) or die 'invalid config file';
 
 my %config;
-
-open CONFIG, $DEFCONFIG or die 'cannot open config file';
-while (<CONFIG>) {
-	/^CONFIG_([\w_]+)=([ym])/ and $config{$1} = $2;
-	/^CONFIG_([\w_]+)=(\d+)/ and $config{$1} = $2;
-	/^CONFIG_([\w_]+)=(".+")/ and $config{$1} = $2;
-}
-close CONFIG;
 
 open FIND, "find \"$PATH\" -name Config.in |";
 while (<FIND>) {
@@ -31,7 +21,7 @@ while (<FIND>) {
 	my $output = $_;
 	print STDERR "$input => $output\n";
 	$output =~ /^(.+)\/[^\/]+$/ and system("mkdir -p $1");
-	
+
 	open INPUT, $input;
 	open OUTPUT, ">$output";
 	my ($cur, $default_set, $line);
@@ -50,12 +40,12 @@ while (<FIND>) {
 			undef $cur;
 			undef $default_set;
 		}
-		$line =~ s/^(\s*source\s+)/$1package\/busybox\/config\//;
-		
+		$line =~ s/^(\s*source\s+)/$1package\/utils\/busybox\/config\//;
+
 		$line =~ s/^(\s*(prompt "[^"]+" if|config|depends|depends on|select|default|default \w if)\s+\!?)([A-Z_])/$1BUSYBOX_CONFIG_$3/g;
 		$line =~ s/(( \|\| | \&\& | \( )!?)([A-Z_])/$1BUSYBOX_CONFIG_$3/g;
 		$line =~ s/(\( ?!?)([A-Z_]+ (\|\||&&))/$1BUSYBOX_CONFIG_$2/g;
-		
+
 		if ($cur) {
 			($cur eq 'LFS') and do {
 				$line =~ s/^(\s*(bool|tristate|string))\s*".+"$/$1/;
@@ -63,16 +53,15 @@ while (<FIND>) {
 			if ($line =~ /^\s*default/) {
 				my $c;
 				$default_set = 1;
-				$c = $config{$cur} or $c = 'n';
+				$c = "BUSYBOX_DEFAULT_$cur";
 
 				$line =~ s/^(\s*default\s*)(\w+|"[^"]*")(.*)/$1$c$3/;
 			}
 		}
-		
+
 		print OUTPUT $line;
 	}
 	close OUTPUT;
 	close INPUT;
-	
 }
 close FIND;

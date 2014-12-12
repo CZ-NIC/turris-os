@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2006-2012 OpenWrt.org
+# Copyright (C) 2006-2014 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -7,16 +7,17 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/version.mk
+include $(INCLUDE_DIR)/feeds.mk
 
 PKG_NAME:=opkg
-PKG_REV:=746
+PKG_REV:=c0b1318bb9d01494595644cab75872dafec11eb8
 PKG_VERSION:=$(PKG_REV)
 PKG_RELEASE:=4
 
-PKG_SOURCE_PROTO:=svn
+PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=$(PKG_REV)
 PKG_SOURCE_SUBDIR:=opkg-$(PKG_VERSION)
-PKG_SOURCE_URL:=http://opkg.googlecode.com/svn/trunk/
+PKG_SOURCE_URL:=http://git.yoctoproject.org/git/opkg
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_FIXUP:=autoreconf
@@ -92,6 +93,7 @@ CONFIGURE_ARGS += \
 	--enable-static \
 	--disable-shared
 
+
 ifeq ($(BUILD_VARIANT),smime)
 	CONFIGURE_ARGS += --enable-openssl --enable-sha256
 endif
@@ -107,6 +109,18 @@ define Package/opkg/Default/install
 	$(INSTALL_DIR) $(1)/bin
 	$(INSTALL_DIR) $(1)/etc
 	$(INSTALL_DATA) ./files/opkg$(2).conf $(1)/etc/opkg.conf
+  ifeq ($(CONFIG_PER_FEED_REPO),)
+	echo "src/gz %n %U" >> $(1)/etc/opkg.conf
+  else
+	for d in base $(FEEDS_ENABLED); do \
+		echo "src/gz %n_$$$$d %U/$$$$d" >> $(1)/etc/opkg.conf; \
+	done
+    ifneq ($(CONFIG_PER_FEED_REPO_ADD_DISABLED),)
+	for d in $(FEEDS_DISABLED); do \
+		echo "# src/gz %n_$$$$d %U/$$$$d" >> $(1)/etc/opkg.conf; \
+	done
+    endif
+  endif
 	$(VERSION_SED) $(1)/etc/opkg.conf
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/opkg-cl $(1)/bin/opkg
 endef

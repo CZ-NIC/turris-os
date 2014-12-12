@@ -1,9 +1,11 @@
 #
-# Copyright (C) 2006,2007 OpenWrt.org
+# Copyright (C) 2006-2014 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
 #
+
+include $(INCLUDE_DIR)/feeds.mk
 
 # invoke ipkg-build with some default options
 IPKG_BUILD:= \
@@ -74,15 +76,19 @@ endif
 
 ifeq ($(DUMP),)
   define BuildTarget/ipkg
-    IPKG_$(1):=$(PACKAGE_DIR)/$(1)_$(VERSION)_$(PKGARCH).ipk
+    PDIR_$(1):=$(call FeedPackageDir,$(1))
+    IPKG_$(1):=$$(PDIR_$(1))/$(1)_$(VERSION)_$(PKGARCH).ipk
     IDIR_$(1):=$(PKG_BUILD_DIR)/ipkg-$(PKGARCH)/$(1)
     KEEP_$(1):=$(strip $(call Package/$(1)/conffiles))
 
     ifeq ($(BUILD_VARIANT),$$(if $$(VARIANT),$$(VARIANT),$(BUILD_VARIANT)))
     ifdef Package/$(1)/install
-      ifneq ($(CONFIG_PACKAGE_$(1))$(SDK)$(DEVELOPER),)
+      ifneq ($(CONFIG_PACKAGE_$(1))$(DEVELOPER),)
         IPKGS += $(1)
         compile: $$(IPKG_$(1)) $(PKG_INFO_DIR)/$(1).provides $(STAGING_DIR_ROOT)/stamp/.$(1)_installed
+        ifneq ($(ABI_VERSION),)
+        compile: $(PKG_INFO_DIR)/$(1).version
+        endif
 
         ifeq ($(CONFIG_PACKAGE_$(1)),y)
           .PHONY: $(PKG_INSTALL_STAMP).$(1)
@@ -124,9 +130,13 @@ ifeq ($(DUMP),)
 	rm -rf $(STAGING_DIR_ROOT)/tmp-$(1)
 	touch $$@
 
+    $(PKG_INFO_DIR)/$(1).version: $$(IPKG_$(1))
+	echo '$(ABI_VERSION)' | cmp -s - $$@ || \
+		echo '$(ABI_VERSION)' > $$@
+
     $(PKG_INFO_DIR)/$(1).provides: $$(IPKG_$(1))
     $$(IPKG_$(1)): $(STAMP_BUILT) $(INCLUDE_DIR)/package-ipkg.mk
-	@rm -rf $(PACKAGE_DIR)/$(1)_* $$(IDIR_$(1))
+	@rm -rf $$(PDIR_$(1))/$(1)_* $$(IDIR_$(1))
 	mkdir -p $(PACKAGE_DIR) $$(IDIR_$(1))/CONTROL $(PKG_INFO_DIR)
 	$(call Package/$(1)/install,$$(IDIR_$(1)))
 	-find $$(IDIR_$(1)) -name 'CVS' -o -name '.svn' -o -name '.#*' -o -name '*~'| $(XARGS) rm -rf
@@ -152,8 +162,6 @@ ifeq ($(DUMP),)
 		[ -z "$$$$DEPENDS" ] || echo "Depends: $$$$DEPENDS"; \
 		$(if $(PROVIDES), echo "Provides: $(PROVIDES)"; ) \
 		echo "Source: $(SOURCE)"; \
-		$(if $(PKG_SOURCE), echo "SourceFile: $(PKG_SOURCE)"; ) \
-		$(if $(PKG_SOURCE_URL), echo "SourceURL: $(PKG_SOURCE_URL)"; ) \
 		$(if $(PKG_LICENSE), echo "License: $(PKG_LICENSE)"; ) \
 		$(if $(PKG_LICENSE_FILES), echo "LicenseFiles: $(PKG_LICENSE_FILES)"; ) \
 		echo "Section: $(SECTION)"; \
@@ -182,11 +190,12 @@ ifeq ($(DUMP),)
 		)
     endif
 
-	$(IPKG_BUILD) $$(IDIR_$(1)) $(PACKAGE_DIR)
+	$(INSTALL_DIR) $$(PDIR_$(1))
+	$(IPKG_BUILD) $$(IDIR_$(1)) $$(PDIR_$(1))
 	@[ -f $$(IPKG_$(1)) ]
 
     $(1)-clean:
-	rm -f $(PACKAGE_DIR)/$(1)_*
+	rm -f $$(PDIR_$(1))/$(1)_*
 
     clean: $(1)-clean
 

@@ -71,7 +71,9 @@ prepare-tmpinfo: FORCE
 		f=tmp/.$${type}info; t=tmp/.config-$${type}.in; \
 		[ "$$t" -nt "$$f" ] || ./scripts/metadata.pl $${type}_config "$$f" > "$$t" || { rm -f "$$t"; echo "Failed to build $$t"; false; break; }; \
 	done
+	[ tmp/.config-feeds.in -nt tmp/.packagefeeds ] || ./scripts/feeds feed_config > tmp/.config-feeds.in
 	./scripts/metadata.pl package_mk tmp/.packageinfo > tmp/.packagedeps || { rm -f tmp/.packagedeps; false; }
+	./scripts/metadata.pl package_feeds tmp/.packageinfo > tmp/.packagefeeds || { rm -f tmp/.packagefeeds; false; }
 	touch $(TOPDIR)/tmp/.build
 
 .config: ./scripts/config/conf $(if $(CONFIG_HAVE_DOT_CONFIG),,prepare-tmpinfo)
@@ -156,6 +158,15 @@ prereq:: prepare-tmpinfo .config
 	@+$(MAKE) -r -s tmp/.prereq-build $(PREP_MK)
 	@+$(NO_TRACE_MAKE) -r -s $@
 
+ifeq ($(SDK),1)
+
+%::
+	@+$(PREP_MK) $(NO_TRACE_MAKE) -r -s prereq
+	@./scripts/config/conf --defconfig=.config Config.in
+	@+$(ULIMIT_FIX) $(SUBMAKE) -r $@
+
+else
+
 %::
 	@+$(PREP_MK) $(NO_TRACE_MAKE) -r -s prereq
 	@( \
@@ -166,6 +177,8 @@ prereq:: prepare-tmpinfo .config
 		fi \
 	)
 	@+$(ULIMIT_FIX) $(SUBMAKE) -r $@
+
+endif
 
 help:
 	cat README

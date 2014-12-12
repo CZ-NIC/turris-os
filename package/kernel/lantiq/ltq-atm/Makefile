@@ -23,13 +23,16 @@ define KernelPackage/ltq-atm-template
   VARIANT:=$(1)
   DEPENDS:=@TARGET_lantiq_$(2) +kmod-atm +br2684ctl
   FILES:=$(PKG_BUILD_DIR)/ltq_atm_$(1).ko
-  AUTOLOAD:=$(call AutoProbe,ltq_atm_$(1))
+  AUTOLOAD:=$(call AutoLoad,27,ltq_atm_$(1))
 endef
 
 KernelPackage/ltq-atm-danube=$(call KernelPackage/ltq-atm-template,danube,xway)
 KernelPackage/ltq-atm-ar9=$(call KernelPackage/ltq-atm-template,ar9,xway)
 KernelPackage/ltq-atm-ase=$(call KernelPackage/ltq-atm-template,ase,ase)
-KernelPackage/ltq-atm-vr9=$(call KernelPackage/ltq-atm-template,vr9,xrx200)
+define KernelPackage/ltq-atm-vr9
+  $(call KernelPackage/ltq-atm-template,vr9,xrx200)
+  AUTOLOAD:=
+endef
 
 define Build/Prepare
 	$(INSTALL_DIR) $(PKG_BUILD_DIR) 

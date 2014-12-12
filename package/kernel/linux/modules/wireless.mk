@@ -13,7 +13,7 @@ define KernelPackage/net-airo
   DEPENDS:=@PCI_SUPPORT +@DRIVER_WEXT_SUPPORT
   KCONFIG:=CONFIG_AIRO
   FILES:=$(LINUX_DIR)/drivers/net/wireless/airo.ko
-  AUTOLOAD:=$(call AutoProbe,airo)
+  AUTOLOAD:=$(call AutoLoad,27,airo)
 endef
 
 define KernelPackage/net-airo/description
@@ -29,7 +29,7 @@ define KernelPackage/net-zd1201
   DEPENDS:=@USB_SUPPORT +@DRIVER_WEXT_SUPPORT +kmod-usb-core
   KCONFIG:=CONFIG_USB_ZD1201
   FILES:=$(LINUX_DIR)/drivers/net/wireless/zd1201.ko
-  AUTOLOAD:=$(call AutoProbe,zd1201)
+  AUTOLOAD:=$(call AutoLoad,27,zd1201)
 endef
 
 define KernelPackage/net-zd1201/description
@@ -83,7 +83,7 @@ define KernelPackage/net-prism54
   DEPENDS:=@PCI_SUPPORT +@DRIVER_WEXT_SUPPORT
   KCONFIG:=CONFIG_PRISM54
   FILES:=$(LINUX_DIR)/drivers/net/wireless/prism54/prism54.ko
-  AUTOLOAD:=$(call AutoProbe,prism54)
+  AUTOLOAD:=$(call AutoLoad,27,prism54)
 endef
 
 define KernelPackage/net-prism54/description
@@ -106,3 +106,23 @@ endef
 
 $(eval $(call Download,net-prism54))
 $(eval $(call KernelPackage,net-prism54))
+
+define KernelPackage/net-rtl8188eu
+  SUBMENU:=$(WIRELESS_MENU)
+  TITLE:=RTL8188EU support (staging)
+  DEPENDS:=@LINUX_3_13 @USB_SUPPORT +@DRIVER_WEXT_SUPPORT +r8188eu-firmware +kmod-usb-core
+  KCONFIG:=\
+	CONFIG_STAGING=y \
+	CONFIG_R8188EU \
+	CONFIG_88EU_AP_MODE=n \
+	CONFIG_88EU_P2P=n
+  FILES:=$(LINUX_DIR)/drivers/staging/rtl8188eu/r8188eu.ko
+  AUTOLOAD:=$(call AutoLoad,27,r8188eu)
+endef
+
+define KernelPackage/net-rtl8188eu/description
+ Kernel modules for RealTek RTL8188EU support
+endef
+
+$(eval $(call KernelPackage,net-rtl8188eu))
+

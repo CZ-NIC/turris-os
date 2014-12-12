@@ -24,8 +24,8 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 
-		partition@0 {
-			label = "u-boot";
+		uboot: partition@0 {
+			label = "uboot";
 			reg = <0x0 0x50000>;
 			read-only;
 		};
@@ -46,8 +46,16 @@
 		};
 	};
 
+	ethernet@10100000 {
+		mtd-mac-address = <&uboot 0x40004>;
+	};
+
 	esw@10110000 {
 		ralink,portmap = <0x3f>;
+	};
+
+	wmac@10180000 {
+		ralink,mtd-eeprom = <&uboot 0x40000>;
 	};
 
 	otg@101c0000 {

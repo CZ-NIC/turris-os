@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=comgt
 PKG_VERSION:=0.32
-PKG_RELEASE:=21
+PKG_RELEASE:=23
 
 PKG_SOURCE:=$(PKG_NAME).$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=@SF/comgt
@@ -18,6 +18,7 @@ PKG_MD5SUM:=db2452680c3d953631299e331daf49ef
 PKG_MAINTAINER:=Felix Fietkau <nbd@openwrt.org>
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME).$(PKG_VERSION)
+PKG_CHECK_FORMAT_SECURITY:=0
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -58,10 +59,13 @@ define Package/comgt/install
 	$(INSTALL_DATA) ./files/getcarrier.gcom $(1)/etc/gcom/getcarrier.gcom
 	$(INSTALL_DATA) ./files/getcnum.gcom $(1)/etc/gcom/getcnum.gcom
 	$(INSTALL_DATA) ./files/getimsi.gcom $(1)/etc/gcom/getimsi.gcom
+	$(INSTALL_DATA) ./files/directip.gcom $(1)/etc/gcom/directip.gcom
+	$(INSTALL_DATA) ./files/directip-stop.gcom $(1)/etc/gcom/directip-stop.gcom
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/tty
 	$(INSTALL_DATA) ./files/3g.usb $(1)/etc/hotplug.d/tty/30-3g
 	$(INSTALL_DIR) $(1)/lib/netifd/proto
 	$(INSTALL_BIN) ./files/3g.sh $(1)/lib/netifd/proto/3g.sh
+	$(INSTALL_BIN) ./files/directip.sh $(1)/lib/netifd/proto/directip.sh
 endef
 
 $(eval $(call BuildPackage,comgt))

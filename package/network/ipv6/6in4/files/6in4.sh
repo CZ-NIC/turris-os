@@ -1,6 +1,6 @@
 #!/bin/sh
 # 6in4.sh - IPv6-in-IPv4 tunnel backend
-# Copyright (c) 2010-2012 OpenWrt.org
+# Copyright (c) 2010-2014 OpenWrt.org
 
 [ -n "$INCLUDE_ONLY" ] || {
 	. /lib/functions.sh
@@ -14,8 +14,8 @@ proto_6in4_setup() {
 	local iface="$2"
 	local link="6in4-$cfg"
 
-	local mtu ttl ipaddr peeraddr ip6addr ip6prefix tunnelid username password
-	json_get_vars mtu ttl ipaddr peeraddr ip6addr ip6prefix tunnelid username password
+	local mtu ttl ipaddr peeraddr ip6addr ip6prefix tunnelid username password updatekey sourcerouting
+	json_get_vars mtu ttl ipaddr peeraddr ip6addr ip6prefix tunnelid username password updatekey sourcerouting
 
 	[ -z "$peeraddr" ] && {
 		proto_notify_error "$cfg" "MISSING_ADDRESS"
@@ -34,16 +34,23 @@ proto_6in4_setup() {
 	}
 
 	proto_init_update "$link" 1
-	proto_add_ipv6_route "::" 0
+
+	local source=""
+	[ "$sourcerouting" != "0" ] && source="::/128"
+	proto_add_ipv6_route "::" 0 "" "" "" "$source"
 
 	[ -n "$ip6addr" ] && {
 		local local6="${ip6addr%%/*}"
 		local mask6="${ip6addr##*/}"
 		[[ "$local6" = "$mask6" ]] && mask6=
 		proto_add_ipv6_address "$local6" "$mask6"
+		[ "$sourcerouting" != "0" ] && proto_add_ipv6_route "::" 0 "" "" "" "$local6/$mask6"
 	}
 
-	[ -n "$ip6prefix" ] && proto_add_ipv6_prefix "$ip6prefix"
+	[ -n "$ip6prefix" ] && {
+		proto_add_ipv6_prefix "$ip6prefix"
+		[ "$sourcerouting" != "0" ] && proto_add_ipv6_route "::" 0 "" "" "" "$ip6prefix"
+	}
 
 	proto_add_tunnel
 	json_add_string mode sit
@@ -55,12 +62,10 @@ proto_6in4_setup() {
 
 	proto_send_update "$cfg"
 
-	[ -n "$tunnelid" -a -n "$username" -a -n "$password" ] && {
-		[ "${#password}" == 32 -a -z "${password//[a-fA-F0-9]/}" ] || {
-			password="$(echo -n "$password" | md5sum)"; password="${password%% *}"
-		}
+	[ -n "$tunnelid" -a -n "$username" -a \( -n "$password" -o -n "$updatekey" \) ] && {
+		[ -n "$updatekey" ] && password="$updatekey"
 
-		local url="http://ipv4.tunnelbroker.net/ipv4_end.php?ip=AUTO&apikey=$username&pass=$password&tid=$tunnelid"
+		local url="http://ipv4.tunnelbroker.net/nic/update?username=$username&password=$password&hostname=$tunnelid"
 		local try=0
 		local max=3
 
@@ -88,8 +93,10 @@ proto_6in4_init_config() {
 	proto_config_add_string "tunnelid"
 	proto_config_add_string "username"
 	proto_config_add_string "password"
+	proto_config_add_string "updatekey"
 	proto_config_add_int "mtu"
 	proto_config_add_int "ttl"
+	proto_config_add_boolean "sourcerouting"
 }
 
 [ -n "$INCLUDE_ONLY" ] || {

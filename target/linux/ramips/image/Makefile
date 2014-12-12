@@ -29,9 +29,15 @@ define kernel_entry
 -a 0x88000000 -e 0x88000000
 endef
 else
+ifeq ($(CONFIG_SOC_MT7621),y)
+define kernel_entry
+-a 0x80001000 -e 0x80001000
+endef
+else
 define kernel_entry
 -a 0x80000000 -e 0x80000000
 endef
+endif
 endif
 
 define MkCombineduImage
@@ -102,8 +108,8 @@ endef
 # $(2) = lowercase board name
 # $(3) = dts file
 ralink_default_fw_size_4M=3866624
-BuildFirmware/Default4M/squashfs=$(call BuildFirmware/OF,$(1),$(2),$(3),$(ralink_default_fw_size_4M))
-BuildFirmware/Default4M/initramfs=$(call BuildFirmware/OF/initramfs,$(1),$(2),$(3))
+BuildFirmware/Default4M/squashfs=$(call BuildFirmware/OF,$(1),$(2),$(3),$(ralink_default_fw_size_4M),$(4))
+BuildFirmware/Default4M/initramfs=$(call BuildFirmware/OF/initramfs,$(1),$(2),$(3),$(4))
 
 # Build images for default ralink layout for 8MB flash
 # kernel + roots = 0x7b0000
@@ -156,7 +162,8 @@ BuildFirmware/Edimax/initramfs=$(call BuildFirmware/OF/initramfs,$(1),$(2),$(3))
 
 # build Seama header images
 define BuildFirmware/Seama/squashfs
-	$(call BuildFirmware/OF,$(1),$(2),$(3),$(5))
+	$(call MkImageLzmaDtb,$(2),$(3),$(5))
+	$(eval output_name=$(IMG_PREFIX)-$(2)-$(1)-sysupgrade.bin)
 	cat $(KDIR)/vmlinux-$(2).bin.lzma $(KDIR)/root.$(1) > $(KDIR)/img_$(2).$(1).tmp
 	if [ `stat -c%s "$(KDIR)/img_$(2).$(1).tmp"` -gt $$$$(($(5) - 64)) ]; then \
 		echo "Warning: $(KDIR)/img_$(2).$(1).tmp is too big" >&2; \
@@ -173,6 +180,14 @@ define BuildFirmware/Seama/squashfs
 			-s $(call imgname,$(1),$(2))-factory.bin \
 			-m "signature=$(4)" \
 			-i $(KDIR)/vmlinux-$(2).tmp.seama; \
+		dd if=$(KDIR)/vmlinux-$(2).bin.lzma.padded bs=1 count=`expr \`stat -c%s $(KDIR)/vmlinux-$(2).bin.lzma.padded\` - 64` of=$(KDIR)/vmlinux-$(2)-sysupgrade.tmp; \
+		$(STAGING_DIR_HOST)/bin/seama \
+			-i $(KDIR)/vmlinux-$(2)-sysupgrade.tmp \
+			-m "dev=/dev/mtdblock/2" -m "type=firmware"; \
+		( \
+			dd if=$(KDIR)/vmlinux-$(2)-sysupgrade.tmp.seama; \
+			dd if=$(KDIR)/root.$(1) bs=64k conv=sync; \
+		) > $(BIN_DIR)/$(output_name); \
 	fi
 endef
 BuildFirmware/Seama/initramfs=$(call BuildFirmware/OF/initramfs,$(1),$(2),$(3))
@@ -251,9 +266,21 @@ define BuildFirmware/PorayDualSize/squashfs
 endef
 BuildFirmware/PorayDualSize/initramfs=$(call BuildFirmware/DefaultDualSize/initramfs,$(1),$(2),$(3))
 
+define BuildFirmware/Gemtek/squashfs
+	$(call BuildFirmware/Default4M/$(1),$(1),$(2),$(3))
+	if [ -e "$(call sysupname,$(1),$(2))" ]; then \
+		mkheader_gemtek "$(call sysupname,$(1),$(2))" \
+			"$(call imgname,$(1),$(2))-factory.bin" $(2) || \
+		rm -f "$(call imgname,$(1),$(2))-factory.bin"; \
+	fi
+endef
+BuildFirmware/Gemtek/initramfs=$(call BuildFirmware/OF/initramfs,$(1),$(2),$(3))
+
 #
 # RT288X Profiles
 #
+
+Image/Build/Profile/AR725W=$(call BuildFirmware/Gemtek/$(1),$(1),ar725w,AR725W)
 
 # 0x790000
 belkin_f5d8235v1_mtd_size=7929856
@@ -267,6 +294,7 @@ Image/Build/Profile/WLITX4AG300N=$(call BuildFirmware/Default4M/$(1),$(1),wli-tx
 
 ifeq ($(SUBTARGET),rt288x)
 define Image/Build/Profile/Default
+	$(call Image/Build/Profile/AR725W,$(1))
 	$(call Image/Build/Profile/F5D8235V1,$(1))
 	$(call Image/Build/Profile/RTN15,$(1))
 	$(call Image/Build/Profile/V11STFE,$(1))
@@ -320,6 +348,8 @@ endef
 Image/Build/Profile/ASL26555=$(call BuildFirmware/ASL26555/$(1),$(1),asl26555,ASL26555)
 
 Image/Build/Profile/AWM002EVB=$(call BuildFirmware/DefaultDualSize/$(1),$(1),awm002-evb,AWM002-EVB)
+Image/Build/Profile/AWM003EVB=$(call BuildFirmware/Default8M/$(1),$(1),awm003-evb,AWM003-EVB)
+Image/Build/Profile/AWAPN2403=$(call BuildFirmware/Default4M/$(1),$(1),awmapn2403,AWAPN2403)
 
 Image/Build/Profile/BC2=$(call BuildFirmware/Default8M/$(1),$(1),bc2,BC2)
 
@@ -347,8 +377,9 @@ Image/Build/Profile/DIR-620-D1=$(call BuildFirmware/Default8M/$(1),$(1),dir-620-
 
 define BuildFirmware/DIR615H1/squashfs
 	$(call BuildFirmware/Default4M/$(1),$(1),dir-615-h1,DIR-615-H1)
-	-mkdir615h1 -e $(call sysupname,$(1),dir-615-h1) \
-		-o $(call imgname,$(1),dir-615-h1)-factory.bin
+	-mksenaofw -e $(call sysupname,$(1),dir-615-h1) \
+		-o $(call imgname,$(1),dir-615-h1)-factory.bin \
+		-r 0x218 -p 0x30 -t 3
 endef
 BuildFirmware/DIR615H1/initramfs=$(call BuildFirmware/OF/initramfs,$(1),dir-615-h1,DIR-615-H1)
 Image/Build/Profile/DIR615H1=$(call BuildFirmware/DIR615H1/$(1),$(1))
@@ -396,6 +427,13 @@ Image/Build/Profile/FREESTATION5=$(call BuildFirmware/Default8M/$(1),$(1),freest
 
 Image/Build/Profile/IP2202=$(call BuildFirmware/Default8M/$(1),$(1),ip2202,IP2202)
 
+BuildFirmware/HLKRM04/squashfs=$(call BuildFirmware/Default4M/squashfs,$(1),$(2),$(3),$(4))
+define BuildFirmware/HLKRM04/initramfs
+	$(call BuildFirmware/OF/initramfs,$(1),$(2),$(3),$(4))
+	#mkhilinkfw -e -i$(call imgname,$(1),$(2))-uImage.bin -o $(call imgname,$(1),$(2))-factory.bin;
+endef
+Image/Build/Profile/HLKRM04=$(call BuildFirmware/HLKRM04/$(1),$(1),hlk-rm04,HLKRM04,HLK-RM02)
+
 Image/Build/Profile/M3=$(call BuildFirmware/Poray4M/$(1),$(1),m3,M3)
 
 Image/Build/Profile/M4=$(call BuildFirmware/PorayDualSize/$(1),$(1),m4,M4)
@@ -413,22 +451,32 @@ Image/Build/Profile/NBG-419N=$(call BuildFirmware/Default4M/$(1),$(1),nbg-419n,N
 
 Image/Build/Profile/MZKW300NH2=$(call BuildFirmware/Edimax/$(1),$(1),mzk-w300nh2,MZK-W300NH2,$(mzkw300nh2_mtd_size),CSYS,RN52,0x50000,0xc0000)
 
+Image/Build/Profile/NCS601W=$(call BuildFirmware/Default8M/$(1),$(1),ncs601W,NCS601W)
+
 nw718_mtd_size=3801088
 Image/Build/Profile/NW718=$(call BuildFirmware/CustomFlashFactory/$(1),$(1),nw718m,NW718,$(nw718_mtd_size),ARA1B4NCRNW718;1,factory)
 
 Image/Build/Profile/OMNI-EMB=$(call BuildFirmware/Default8M/$(1),$(1),omni-emb,OMNI-EMB)
 
+Image/Build/Profile/OMNI-PLUG=$(call BuildFirmware/Default8M/$(1),$(1),omni-plug,OMNI-PLUG)
+
 Image/Build/Profile/PSR-680W=$(call BuildFirmware/Default4M/$(1),$(1),psr-680w,PSR-680W)
 
 Image/Build/Profile/PWH2004=$(call BuildFirmware/Default8M/$(1),$(1),pwh2004,PWH2004)
+
+Image/Build/Profile/PX4885=$(call BuildFirmware/Default4M/$(1),$(1),px4885,PX4885)
 
 Image/Build/Profile/RTG32B1=$(call BuildFirmware/Default4M/$(1),$(1),rt-g32-b1,RT-G32-B1)
 
 Image/Build/Profile/RTN10PLUS=$(call BuildFirmware/Default4M/$(1),$(1),rt-n10-plus,RT-N10-PLUS)
 
+Image/Build/Profile/RUT5XX=$(call BuildFirmware/Default8M/$(1),$(1),rut5xx,RUT5XX)
+
 Image/Build/Profile/SL-R7205=$(call BuildFirmware/Default4M/$(1),$(1),sl-r7205,SL-R7205)
 
 Image/Build/Profile/V22RW-2X2=$(call BuildFirmware/Default4M/$(1),$(1),v22rw-2x2,V22RW-2X2)
+
+Image/Build/Profile/VOCORE=$(call BuildFirmware/Default8M/$(1),$(1),vocore,VOCORE)
 
 Image/Build/Profile/W150M=$(call BuildFirmware/CustomFlashFactory/$(1),$(1),w150m,W150M,$(ralink_default_fw_size_4M),W150M Kernel Image,factory)
 
@@ -443,13 +491,15 @@ define BuildFirmware/WHRG300N/squashfs
 	$(call BuildFirmware/Default4M/$(1),$(1),whr-g300n,WHR-G300N)
 	# the following line has a bad argument 3 ... the old Makefile was already broken	
 	$(call BuildFirmware/Buffalo,$(1),whr-g300n,whr-g300n)
-	( \
-		echo -n -e "# Airstation FirmWare\nrun u_fw\nreset\n\n" | \
-			dd bs=512 count=1 conv=sync; \
-		dd if=$(call sysupname,$(1),whr-g300n); \
-	) > $(KDIR)/whr-g300n-tftp.tmp
-	buffalo-tftp -i $(KDIR)/whr-g300n-tftp.tmp \
-		-o $(call imgname,$(1),whr-g300n)-tftp.bin
+	if [ -e "$(call sysupname,$(1),$(2))" ]; then \
+		( \
+			echo -n -e "# Airstation FirmWare\nrun u_fw\nreset\n\n" | \
+				dd bs=512 count=1 conv=sync; \
+			dd if=$(call sysupname,$(1),whr-g300n); \
+		) > $(KDIR)/whr-g300n-tftp.tmp && \
+		buffalo-tftp -i $(KDIR)/whr-g300n-tftp.tmp \
+			-o $(call imgname,$(1),whr-g300n)-tftp.bin; \
+	fi
 endef
 BuildFirmware/WHRG300N/initramfs=$(call BuildFirmware/OF/initramfs,$(1),whr-g300n,WHR-G300N)
 Image/Build/Profile/WHRG300N=$(call BuildFirmware/WHRG300N/$(1),$(1))
@@ -521,6 +571,7 @@ define Image/Build/Profile/Default
 	$(call Image/Build/Profile/ARGUS_ATP52B,$(1))
 	$(call Image/Build/Profile/ASL26555,$(1))
 	$(call Image/Build/Profile/AWM002EVB,$(1))
+	$(call Image/Build/Profile/AWAPN2403,$(1))
 	$(call Image/Build/Profile/BC2,$(1))
 	$(call Image/Build/Profile/BROADWAY,$(1))
 	$(call Image/Build/Profile/CARAMBOLA,$(1))
@@ -544,24 +595,31 @@ define Image/Build/Profile/Default
 	$(call Image/Build/Profile/FONERA20N,$(1))
 	$(call Image/Build/Profile/FREESTATION5,$(1))
 #	$(call Image/Build/Profile/HG255D,$(1))
+	$(call Image/Build/Profile/HLKRM04,$(1))
 	$(call Image/Build/Profile/HW550-3G,$(1))
 	$(call Image/Build/Profile/IP2202,$(1))
 	$(call Image/Build/Profile/M3,$(1))
 	$(call Image/Build/Profile/M4,$(1))
 	$(call Image/Build/Profile/MOFI3500-3GN,$(1))
+	$(call Image/Build/Profile/MPRA1,$(1))
 	$(call Image/Build/Profile/MPRA2,$(1))
 	$(call Image/Build/Profile/MZKW300NH2,$(1))
 	$(call Image/Build/Profile/NBG-419N,$(1))
+	$(call Image/Build/Profile/NCS601W,$(1))
 	$(call Image/Build/Profile/NW718,$(1))
 	$(call Image/Build/Profile/OMNI-EMB,$(1))
+	$(call Image/Build/Profile/OMNI-PLUG,$(1))
 	$(call Image/Build/Profile/PSR-680W,$(1))
 	$(call Image/Build/Profile/PWH2004,$(1))
+	$(call Image/Build/Profile/PX4885,$(1))
 	$(call Image/Build/Profile/RTG32B1,$(1))
 	$(call Image/Build/Profile/RTN10PLUS,$(1))
 	$(call Image/Build/Profile/RT-N13U,$(1))
+	$(call Image/Build/Profile/RUT5XX,$(1))
 	$(call Image/Build/Profile/SL-R7205,$(1))
 	$(call Image/Build/Profile/UR-326N4G,$(1))
 	$(call Image/Build/Profile/V22RW-2X2,$(1))
+	$(call Image/Build/Profile/VOCORE,$(1))
 	$(call Image/Build/Profile/W150M,$(1))
 	$(call Image/Build/Profile/W306R_V20,$(1))
 	$(call Image/Build/Profile/W502U,$(1))
@@ -585,22 +643,63 @@ endif
 #
 # RT3662/RT3883 Profiles
 #
+
+# $(1) = squashfs/initramfs
+# $(2) = lowercase board name
+# $(3) = dts file
+# $(4) = kernel size
+# $(5) = rootfs size
+# $(6) = signature
+# $(7) = model
+# $(8) = flash address
+# $(9) = start address
+define BuildFirmware/EdimaxCombined/squashfs
+	$(call PatchKernelLzmaDtb,$(2),$(3))
+	$(call MkImage,lzma,$(KDIR)/vmlinux-$(2).bin.lzma,$(KDIR)/vmlinux-$(2).bin.uImage)
+	if [ `stat -c%s "$(KDIR)/vmlinux-$(2).bin.uImage"` -gt `expr $(4) - 20` ]; then \
+		echo "Warning: $(KDIR)/vmlinux-$(2).bin.uImage is too big" >&2; \
+		exit 1; \
+	else if [ `stat -c%s "$(KDIR)/root.$(1)"` -gt $(5) ]; then \
+		echo "Warning: $(KDIR)/root.$(1) is too big" >&2; \
+		exit 1; \
+	else \
+		( dd if=$(KDIR)/vmlinux-$(2).bin.uImage bs=`expr $(4) - 20` conv=sync ; dd if=$(KDIR)/root.$(1) ) > $(KDIR)/vmlinux-$(2).bin.uImage.combined ; \
+	fi ; fi
+	mkedimaximg -i "$(KDIR)/vmlinux-$(2).bin.uImage.combined" \
+		-o $(call imgname,$(1),$(2)).bin \
+		-s $(6) -m $(7) -f $(8) -S $(9)
+endef
+
+Image/Build/Profile/CYSWR1100=$(call BuildFirmware/Seama/$(1),$(1),cy-swr1100,CY-SWR1100,wrgnd10_samsung_ss815,$(ralink_default_fw_size_8M))
+
 Image/Build/Profile/DIR645=$(call BuildFirmware/Seama/$(1),$(1),dir-645,DIR-645,wrgn39_dlob.hans_dir645,$(ralink_default_fw_size_8M))
 
 omniembhpm_mtd_size=16449536
 Image/Build/Profile/OMNIEMBHPM=$(call BuildFirmware/CustomFlash/$(1),$(1),omni-emb-hpm,OMNI-EMB-HPM,$(omniembhpm_mtd_size))
 
-Image/Build/Profile/RTN56U=$(call BuildFirmware/Default8M/$(1),$(1),rt-n56u,RTN56U)
+define BuildFirmware/RTN56U/squashfs
+	$(call BuildFirmware/Default8M/$(1),$(1),rt-n56u,RTN56U)
+	-mkrtn56uimg -s $(call sysupname,$(1),rt-n56u)
+	-cp $(call sysupname,$(1),rt-n56u) $(call imgname,$(1),rt-n56u)-factory.bin
+	-mkrtn56uimg -f $(call imgname,$(1),rt-n56u)-factory.bin
+endef
+Image/Build/Profile/RTN56U=$(call BuildFirmware/RTN56U/$(1),$(1),rt-n56u,RTN56U)
 
 Image/Build/Profile/TEW691GR=$(call BuildFirmware/UMedia/$(1),$(1),tew-691gr,TEW-691GR,0x026910)
 
 Image/Build/Profile/TEW692GR=$(call BuildFirmware/UMedia/$(1),$(1),tew-692gr,TEW-692GR,0x026920)
 
+kernel_size_BR6475ND:=2097152
+rootfs_size_BR6475ND:=5832704
+Image/Build/Profile/BR6475ND=$(call BuildFirmware/EdimaxCombined/$(1),$(1),br-6475nd,BR-6475ND,$(kernel_size_BR6475ND),$(rootfs_size_BR6475ND),CSYS,RN54,0x70000,0x01100000)
+
 ifeq ($(SUBTARGET),rt3883)
 define Image/Build/Profile/Default
+	$(call Image/Build/Profile/CYSWR1100,$(1))
 	$(call Image/Build/Profile/DIR645,$(1))
 	$(call Image/Build/Profile/OMNIEMBHPM,$(1))
 	$(call Image/Build/Profile/RTN56U,$(1))
+	$(call Image/Build/Profile/BR6475ND,$(1))
 	$(call Image/Build/Profile/TEW691GR,$(1))
 	$(call Image/Build/Profile/TEW692GR,$(1))
 endef
@@ -616,10 +715,17 @@ Image/Build/Profile/MT7620a_MT7530=$(call BuildFirmware/Default8M/$(1),$(1),mt76
 Image/Build/Profile/MT7620a_V22SG=$(call BuildFirmware/Default8M/$(1),$(1),mt7620a_v22sg,MT7620a_V22SG)
 Image/Build/Profile/RP-N53=$(call BuildFirmware/Default8M/$(1),$(1),rp_n53,RP-N53)
 whr_300hp2_mtd_size=7012352
-Image/Build/Profile/WHR-300HP2=$(call BuildFirmware/CustomFlash/$(1),$(1),whr-300hp2,WHR-300HP2,$(whr_300hp2_mtd_size))
-Image/Build/Profile/WHR-600D=$(call BuildFirmware/CustomFlash/$(1),$(1),whr-600d,WHR-600D,$(whr_300hp2_mtd_size))
+Image/Build/Profile/WHR300HP2=$(call BuildFirmware/CustomFlash/$(1),$(1),whr-300hp2,WHR-300HP2,$(whr_300hp2_mtd_size))
+Image/Build/Profile/WHR600D=$(call BuildFirmware/CustomFlash/$(1),$(1),whr-600d,WHR-600D,$(whr_300hp2_mtd_size))
+whr_1166d_mtd_size=15400960
+Image/Build/Profile/WHR1166D=$(call BuildFirmware/CustomFlash/$(1),$(1),whr-1166d,WHR-1166D,$(whr_1166hd_mtd_size))
 dlink810l_mtd_size=6881280
 Image/Build/Profile/DIR-810L=$(call BuildFirmware/CustomFlash/$(1),$(1),dir-810l,DIR-810L,$(dlink810l_mtd_size))
+na930_mtd_size=20971520
+Image/Build/Profile/NA930=$(call BuildFirmware/CustomFlash/$(1),$(1),na930,NA930,$(na930_mtd_size))
+Image/Build/Profile/MZK-750DHP=$(call BuildFirmware/Default8M/$(1),$(1),mzk-750dhp,MZK-750DHP)
+Image/Build/Profile/Y1=$(call BuildFirmware/Default16M/$(1),$(1),Lenovo-y1,Y1)
+Image/Build/Profile/Y1S=$(call BuildFirmware/Default16M/$(1),$(1),Lenovo-y1s,Y1S)
 
 ifeq ($(SUBTARGET),mt7620a)
 define Image/Build/Profile/Default
@@ -629,8 +735,13 @@ define Image/Build/Profile/Default
 	$(call Image/Build/Profile/MT7620a_V22SG,$(1))
 	$(call Image/Build/Profile/RP-N53,$(1))
 	$(call Image/Build/Profile/DIR-810L,$(1))
-	$(call Image/Build/Profile/WHR-300HP2,$(1))
-	$(call Image/Build/Profile/WHR-600D,$(1))
+	$(call Image/Build/Profile/WHR300HP2,$(1))
+	$(call Image/Build/Profile/WHR600D,$(1))
+	$(call Image/Build/Profile/WHR1166D,$(1))
+	$(call Image/Build/Profile/MZK-750DHP,$(1))
+	$(call Image/Build/Profile/NA930,$(1))
+	$(call Image/Build/Profile/Y1,$(1))
+	$(call Image/Build/Profile/Y1S,$(1))
 endef
 endif
 
@@ -639,11 +750,34 @@ endif
 # MT7620N Profiles
 #
 
+Image/Build/Profile/MLW221=$(call BuildFirmware/Default16M/$(1),$(1),mlw221,MLW221)
 Image/Build/Profile/WMR300=$(call BuildFirmware/Default8M/$(1),$(1),wmr-300,WMR300)
+Image/Build/Profile/RT-N14U=$(call BuildFirmware/Default8M/$(1),$(1),rt-n14u,RT-N14U)
+Image/Build/Profile/WR8305RT=$(call BuildFirmware/Default8M/$(1),$(1),wr8305rt,WR8305RT)
+Image/Build/Profile/WRTNODE=$(call BuildFirmware/Default16M/$(1),$(1),wrtnode,WRTNODE)
+Image/Build/Profile/ZBT-WA05=$(call BuildFirmware/Default8M/$(1),$(1),zbt-wa05,ZBT-WA05)
 
 ifeq ($(SUBTARGET),mt7620n)
 define Image/Build/Profile/Default
+	$(call Image/Build/Profile/MLW221,$(1))
 	$(call Image/Build/Profile/WMR300,$(1))
+	$(call Image/Build/Profile/RT-N14U,$(1))
+	$(call Image/Build/Profile/WR8305RT,$(1))
+	$(call Image/Build/Profile/WRTNODE,$(1))
+	$(call Image/Build/Profile/ZBT-WA05,$(1))
+endef
+endif
+
+
+#
+# MT7621 Profiles
+#
+
+Image/Build/Profile/MT7621=$(call BuildFirmware/Default4M/$(1),$(1),mt7621,MT7621)
+
+ifeq ($(SUBTARGET),mt7621)
+define Image/Build/Profile/Default
+	$(call Image/Build/Profile/MT7621,$(1))
 endef
 endif
 

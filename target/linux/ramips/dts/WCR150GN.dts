@@ -3,7 +3,7 @@
 /include/ "rt3050.dtsi"
 
 / {
-	compatible = "WCR150GN", "ralink,rt3052-soc";
+	compatible = "WCR150GN", "ralink,rt3050-soc";
 	model = "Sparklan WCR-150GN";
 
 	pinctrl {
@@ -77,8 +77,16 @@
 		};
 	};
 
+	ethernet@10100000 {
+		mtd-mac-address = <&factory 0x4>;
+	};
+
 	esw@10110000 {
 		ralink,portmap = <0x2f>;
+	};
+
+	wmac@10180000 {
+		ralink,mtd-eeprom = <&factory 0>;
 	};
 
 	otg@101c0000 {

@@ -37,4 +37,6 @@ echo "Pading file $1 to size $2"
 FILE_SIZE=`stat -c%s $1`;
 echo "That means from $FILE_SIZE bytes to $WANT_SIZE bytes"
 
-tr '\000' '\377' < /dev/zero | dd of=$1 bs=1 count=$(( $WANT_SIZE - $FILE_SIZE )) seek=$FILE_SIZE
+#tr '\000' '\377' < /dev/zero | dd of=$1 bs=1 count=$(( $WANT_SIZE - $FILE_SIZE )) seek=$FILE_SIZE
+
+dd if=/dev/zero count=$(( $WANT_SIZE - $FILE_SIZE )) bs=1 | tr '\000' '\377' | dd of=$1 bs=1 seek=$FILE_SIZE

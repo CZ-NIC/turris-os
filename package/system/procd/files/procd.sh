@@ -17,6 +17,7 @@
 #     data: arbitrary name/value pairs for detecting config changes (table)
 #     file: configuration files (array)
 #     netdev: bound network device (detects ifindex changes)
+#     limits: resource limits (passed to the process)
 #
 #   No space separation is done for arrays/tables - use one function argument per command line argument
 #
@@ -49,6 +50,7 @@ _procd_wrapper() {
 _procd_ubus_call() {
 	local cmd="$1"
 
+	[ -n "$PROCD_DEBUG" ] && json_dump >&2
 	ubus call service "$cmd" "$(json_dump)"
 	json_cleanup
 }
@@ -73,7 +75,7 @@ _procd_close_service() {
 }
 
 _procd_add_array_data() {
-	while [ -n "$1" ]; do
+	while [ "$#" -gt 0 ]; do
 		json_add_string "" "$1"
 		shift
 	done
@@ -123,16 +125,52 @@ _procd_set_param() {
 	local type="$1"; shift
 
 	case "$type" in
-		env|data)
+		env|data|limits)
 			_procd_add_table "$type" "$@"
 		;;
-		command|netdev|file|respawn)
+		command|netdev|file|respawn|watch)
 			_procd_add_array "$type" "$@"
+		;;
+		error)
+			json_add_array "$type"
+			json_add_string "" "$@"
+			json_close_array
 		;;
 		nice)
 			json_add_int "$type" "$1"
 		;;
 	esac
+}
+
+_procd_add_interface_trigger() {
+	json_add_array
+	_procd_add_array_data "$1"
+	shift
+
+	json_add_array
+	_procd_add_array_data "if"
+
+	json_add_array
+	_procd_add_array_data "eq" "interface" "$1"
+	shift
+	json_close_array
+
+	json_add_array
+	_procd_add_array_data "run_script" "$@"
+	json_close_array
+
+	json_close_array
+
+	json_close_array
+}
+
+_procd_add_reload_interface_trigger() {
+	local script=$(readlink "$initscript")
+	local name=$(basename ${script:-$initscript})
+
+	_procd_open_trigger
+	_procd_add_interface_trigger "interface.*" $1 /etc/init.d/$name reload
+	_procd_close_trigger
 }
 
 _procd_add_config_trigger() {
@@ -160,9 +198,12 @@ _procd_add_config_trigger() {
 _procd_add_reload_trigger() {
 	local script=$(readlink "$initscript")
 	local name=$(basename ${script:-$initscript})
+	local file
 
 	_procd_open_trigger
-	_procd_add_config_trigger "config.change" $1 /etc/init.d/$name reload
+	for file in "$@"; do
+		_procd_add_config_trigger "config.change" "$file" /etc/init.d/$name reload
+	done
 	_procd_close_trigger
 }
 
@@ -174,14 +215,22 @@ _procd_add_validation() {
 
 _procd_append_param() {
 	local type="$1"; shift
+	local _json_no_warning=1
 
 	json_select "$type"
+	[ $? = 0 ] || {
+		_procd_set_param "$type" "$@"
+		return
+	}
 	case "$type" in
-		env|data)
+		env|data|limits)
 			_procd_add_table_data "$@"
 		;;
-		command|netdev|file|respawn)
+		command|netdev|file|respawn|watch)
 			_procd_add_array_data "$@"
+		;;
+		error)
+			json_add_string "" "$@"
 		;;
 	esac
 	json_select ..
@@ -215,62 +264,42 @@ _procd_kill() {
 	_procd_ubus_call delete
 }
 
+procd_open_data() {
+	local name="$1"
+	json_set_namespace procd __procd_old_cb
+	json_add_object data
+}
+
+procd_close_data() {
+	json_close_object
+	json_set_namespace $__procd_old_cb
+}
+
+_procd_set_config_changed() {
+	local package="$1"
+
+	json_init
+	json_add_string type config.change
+	json_add_object data
+	json_add_string package "$package"
+	json_close_object
+
+	ubus call service event "$(json_dump)"
+}
+
 uci_validate_section()
 {
-	local error=0
-
-	[ "$4" = "" ] && return 1
-	[ "$3" = "" ] && {
-		json_add_object
-		json_add_string "package" "$1"
-		json_add_string "type" "$2"
-		json_add_object "data"
-
-		shift; shift; shift
-
-		while [ -n "$1" ]; do
-			local tmp=${1#*:}
-			json_add_string "${1%%:*}" "${tmp%%:*}"
-			shift
-		done
-
-		json_close_object
-		json_close_object
-		return 0
-	}
-
-	local section="${3}"
-	config_load "${1}"
+	local _package="$1"
+	local _type="$2"
+	local _name="$3"
+	local _result
+	local _error
 	shift; shift; shift
-
-	while [ -n "$1" ]; do
-		local name=${1%%:*}
-		local tmp=${1#*:}
-		local type=${tmp%%:*}
-		local default=""
-
-		[ "$tmp" = "$type" ] || default=${tmp#*:}
-
-		shift
-		config_get "${name}" "${section}" "${name}"
-		eval val=\$$name
-
-		[ "$type" = "bool" ] && {
-			case "$val" in
-			1|on|true|enabled) val=1;;
-			0|off|false|disabled) val=0;;
-			*) val="";;
-			esac
-		}
-		[ -z "$val" ] && val=${default}
-		eval $name=\"$val\"
-		[ -z "$val" ] || {
-			/sbin/validate_data "${type}" "${val}"
-			[ $? -eq 0 ] || error="$((error + 1))"
-		}
-	done
-
-	return $error
+	_result=`/sbin/validate_data "$_package" "$_type" "$_name" "$@" 2> /dev/null`
+	_error=$?
+	eval "$_result"
+	[ "$_error" = "0" ] || `/sbin/validate_data "$_package" "$_type" "$_name" "$@" 1> /dev/null`
+	return $_error
 }
 
 _procd_wrapper \
@@ -278,12 +307,18 @@ _procd_wrapper \
 	procd_close_service \
 	procd_add_instance \
 	procd_add_config_trigger \
+	procd_add_interface_trigger \
 	procd_add_reload_trigger \
+	procd_add_reload_interface_trigger \
+	procd_add_interface_reload \
 	procd_open_trigger \
 	procd_close_trigger \
 	procd_open_instance \
 	procd_close_instance \
+	procd_open_validate \
+	procd_close_validate \
 	procd_set_param \
 	procd_append_param \
 	procd_add_validation \
+	procd_set_config_changed \
 	procd_kill

@@ -53,6 +53,7 @@ define Package/uboot-omap-$(1)
   TITLE:=$(2)
   URL:=http://www.denx.de/wiki/U-Boot
   VARIANT:=$(1)
+  HIDDEN:=1
 endef
 endef
 
@@ -70,7 +71,7 @@ endif
 
 define Build/Configure
 	$(MAKE) -C $(PKG_BUILD_DIR) \
-		$(UBOOT_CONFIG)_config
+		USE_PRIVATE_LIBGCC=yes $(UBOOT_CONFIG)_config
 endef
 
 define Build/Compile
@@ -80,8 +81,8 @@ endef
 
 define Package/uboot/install/default
 	$(INSTALL_DIR) $(BIN_DIR)/uboot-$(BOARD)-$(1)
-	$(CP) $(PKG_BUILD_DIR)/u-boot.img $(BIN_DIR)/uboot-$(BOARD)-$(1)/openwrt-$(BOARD)-$(1)-u-boot.img
-	$(CP) $(PKG_BUILD_DIR)/MLO $(BIN_DIR)/uboot-$(BOARD)-$(1)/openwrt-$(BOARD)-$(1)-MLO
+	$(CP) $(PKG_BUILD_DIR)/u-boot.img $(BIN_DIR)/uboot-$(BOARD)-$(1)/u-boot.img
+	$(CP) $(PKG_BUILD_DIR)/MLO $(BIN_DIR)/uboot-$(BOARD)-$(1)/MLO
 endef
 
 define Package/uboot/install/template
