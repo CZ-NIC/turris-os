@@ -1,3 +1,4 @@
+* Zamergovaný next, upgrade celého openwrt
 * Přejaté opravy z upstreamu knihovny libnetconf
 * Oprava memory leaku v ucollect-buckets
 * SMRT daemon and image
