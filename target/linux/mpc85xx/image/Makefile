@@ -89,9 +89,9 @@ define Image/Build/Profile/TURRISNOR
 
 	# Build NOR image with uboot
 	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nor.bin of=$(BIN_DIR)/$(IMG_PREFIX)-turris-nor-uboot.bin bs=128k
-	$(SCRIPT_DIR)/pad_with_ff $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-uboot.bin 0x00f00000
-	#dd if=$(BIN_DIR)/uboot-mpc85xx/uboot-mpc85xx-TURRIS1 bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-uboot.bin  
-	dd if=$(TOPDIR)/uboot-static/uboot-mpc85xx-TURRIS1 bs=128k conv=sync >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-uboot.bin
+	$(SCRIPT_DIR)/pad_with_ff $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-uboot.bin 0x00f80000
+	#dd if=$(BIN_DIR)/uboot-mpc85xx/uboot-mpc85xx-TURRIS1 bs=128k >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-uboot.bin  
+	dd if=$(TOPDIR)/uboot-static/uboot-mpc85xx-TURRIS1 bs=128k >> $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-uboot.bin
 
 	echo "Creating bootable SDCARD image."
 	if [ -d $(TOPDIR)/bin-sdcard ]; then rm -rf $(TOPDIR)/bin-sdcard; fi
@@ -99,7 +99,8 @@ define Image/Build/Profile/TURRISNOR
 
 	# cp $(BIN_DIR)/uboot-mpc85xx/uboot-mpc85xx-TURRIS1_SDCARD $(TOPDIR)/bin-sdcard/sdcard.img
 	cp $(TOPDIR)/uboot-static/uboot-mpc85xx-TURRIS1_SDCARD $(TOPDIR)/bin-sdcard/sdcard.img
-	truncate -s 1M $(TOPDIR)/bin-sdcard/sdcard.img
+	$(SCRIPT_DIR)/check_filesize $(TOPDIR)/bin-sdcard/sdcard.img 1M
+	$(SCRIPT_DIR)/pad_with_ff $(TOPDIR)/bin-sdcard/sdcard.img 1M
 	cat $(BIN_DIR)/$(IMG_PREFIX)-turris-nor-uboot.bin >> $(TOPDIR)/bin-sdcard/sdcard.img
 
 endef
