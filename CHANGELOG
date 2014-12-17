@@ -1,3 +1,4 @@
+* Squid na 3.4.10 kvůli IPv6
 * UNbound na 1.5.1 kvůli CVE-2014-8602
 * Zamergovaný next, upgrade celého openwrt
 * Přejaté opravy z upstreamu knihovny libnetconf
