@@ -1,3 +1,4 @@
+* Updater má další CA root (GeoTrust)
 * Nová verze bandwidth, která definuje barvu turris-default a nastavuje ji podle HW revize
 * Squid na 3.4.10 kvůli IPv6
 * Foris (v50): nová verze pro Next - rychlejší, hezčí, úžasnější a SMRTící.
