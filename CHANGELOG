@@ -1,3 +1,4 @@
+* Plugin bandwidth používá jiné veliskoti kyblíčků pro statistiky provozu
 * Nová verze nástroje Majordomo s lepší správou cache
 * Opraven "generátor sekund" v pluginu bandwidth
 * Updater má další CA root (GeoTrust)
