@@ -1,3 +1,4 @@
+* Novější OpenSSL (Bezpečnostní opravy, 1.0.1k)
 * Plugin bandwidth používá jiné veliskoti kyblíčků pro statistiky provozu
 * Nová verze nástroje Majordomo s lepší správou cache
 * Opraven "generátor sekund" v pluginu bandwidth
