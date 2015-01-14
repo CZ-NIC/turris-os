@@ -61,6 +61,39 @@ define Package/odhcpd/description
  (non-bridged) interfaces in case no delegated prefixes are available.
 endef
 
+define Package/odhcpd/postinst
+#!/bin/sh
+# check if we are on real system
+if [ -z "$$IPKG_INSTROOT" ]; then
+	if /etc/init.d/6relayd enabled; then
+	    /etc/init.d/odhcpd enable
+	    /etc/init.d/6relayd disable
+	    rm -f /etc/uci-defaults/odhcpd.defaults
+
+	    uci set dhcp.odhcpd=odhcpd
+	    uci set dhcp.odhcpd.maindhcp=0
+	    uci set dhcp.odhcpd.leasefile=/tmp/hosts/odhcpd
+	    uci set dhcp.odhcpd.leasetrigger=/usr/sbin/odhcpd-update
+
+	    for server in `uci get 6relayd.@server[0].network`; do
+		rd=`uci get 6relayd.@server[0].rd` || true
+		dhcpv6=`uci get 6relayd.@server[0].dhcpv6` || true
+		ndp=`uci get 6relayd.@server[0].ndp` || true
+
+		[ -n "$$rd" ] && uci set dhcp.$$server.rd=$$rd
+		[ -n "$$dhcpv6" ] && uci set dhcp.$$server.dhcpv6=$$dhcpv6
+		[ -n "$$ndp" ] && uci set dhcp.$$server.ndp=$$ndp
+	    done
+
+	    uci commit
+	    /etc/init.d/6relayd stop
+	    /etc/init.d/odhcpd start
+	else
+	    /etc/uci-defaults/odhcpd.defaults && rm -f /etc/uci-defaults/odhcpd.defaults
+	fi
+fi
+endef
+
 define Package/odhcpd/install
 	$(INSTALL_DIR) $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/odhcpd $(1)/usr/sbin/
