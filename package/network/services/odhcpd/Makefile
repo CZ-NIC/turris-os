@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=odhcpd
-PKG_VERSION:=2014-09-25
+PKG_VERSION:=2014-09-25-2
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
@@ -86,8 +86,6 @@ if [ -z "$$IPKG_INSTROOT" ]; then
 	    done
 
 	    uci commit
-	    /etc/init.d/6relayd stop
-	    /etc/init.d/odhcpd start
 	else
 	    /etc/uci-defaults/odhcpd.defaults && rm -f /etc/uci-defaults/odhcpd.defaults
 	fi
