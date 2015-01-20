@@ -10,7 +10,7 @@ mpc85xx_set_preinit_iface() {
         tl-wdr4900-v1)
                 ifname=eth0
                 ;;
-	turris)
+	rtrs*)
 		ifname=eth2
 		;;
 	*)
