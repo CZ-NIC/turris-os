@@ -1,3 +1,4 @@
+* Hlášení z coverity opravená v ucollect
 * Drobné opravy statistik z nuci (board name, turris OS version)
 * Novější OpenSSL (Bezpečnostní opravy, 1.0.1k)
 * Plugin bandwidth používá jiné veliskoti kyblíčků pro statistiky provozu
