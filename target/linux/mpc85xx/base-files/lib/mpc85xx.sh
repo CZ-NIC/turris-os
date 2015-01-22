@@ -17,7 +17,13 @@ mpc85xx_board_detect() {
 		name="tl-wdr4900-v1"
 		;;
 	"Turris")
-		name="turris"
+                turris_revision=$(atsha204cmd serial-number | awk '{print substr($1,8,1)}')
+                
+                if [ $turris_revision -gt 5 ]; then
+                    name="rtrs02"
+                else
+                    name="rtrs01"
+                fi
 		;;
 	esac
 
