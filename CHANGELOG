@@ -1,4 +1,3 @@
-* Funkční ca-certificates
 * User list ca certificates v nuci
 * Hlášení z coverity opravená v ucollect
 * Drobné opravy statistik z nuci (board name, turris OS version)
