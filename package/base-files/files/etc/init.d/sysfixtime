@@ -4,8 +4,18 @@
 START=00
 
 boot() {
-	local curtime="$(date +%s)"
-	local maxtime="$(find /etc -type f -exec date -r {} +%s \; | sort -nr | head -n1)"
-	[ $curtime -lt $maxtime ] && date -s @$maxtime
+	local hwtime=0
+	if [ -c /dev/rtc0 ]; then
+		hwtime=$(date +%s -d"$(hwclock -r -u -f /dev/rtc0)" -D"%a %b %d %H:%M:%S %Y  0.000000 seconds")
+	fi
+	if [ $hwtime -lt 1420424242 ]; then
+		# hwtime is broken, approximate from /etc files
+		local curtime="$(date +%s)"
+		local maxtime="$(find /etc -type f -exec date -r {} +%s \; | sort -nr | head -n1)"
+		[ $curtime -lt $maxtime ] && date -s @$maxtime
+		# write "better" time to RTC
+		hwclock -u -w -f /dev/rtc0
+	else
+		hwclock -u -s -f /dev/rtc0
+	fi
 }
-
