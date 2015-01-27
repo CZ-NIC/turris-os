@@ -65,7 +65,15 @@ define Package/odhcpd/postinst
 #!/bin/sh
 # check if we are on real system
 if [ -z "$$IPKG_INSTROOT" ]; then
-	/usr/lib/odhcpd/transfer_config.sh
+	if /etc/init.d/6relayd enabled; then
+		/etc/init.d/odhcpd enable
+		/etc/init.d/6relayd disable
+		rm -f /etc/uci-defaults/odhcpd.defaults
+
+		/usr/lib/odhcpd/transfer_config.sh
+	else
+		/etc/uci-defaults/odhcpd.defaults && rm -f /etc/uci-defaults/odhcpd.defaults
+	fi
 fi
 endef
 
