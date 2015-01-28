@@ -13,8 +13,10 @@ boot() {
 		local curtime="$(date +%s)"
 		local maxtime="$(find /etc -type f -exec date -r {} +%s \; | sort -nr | head -n1)"
 		[ $curtime -lt $maxtime ] && date -s @$maxtime
-		# write "better" time to RTC
-		hwclock -u -w -f /dev/rtc0
+		# write "better" time to RTC if it's present
+		if [ -c /dev/rtc0 ]; then
+			hwclock -u -w -f /dev/rtc0
+		fi
 	else
 		hwclock -u -s -f /dev/rtc0
 	fi
