@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=odhcpd
-PKG_VERSION:=2014-09-25-2
+PKG_VERSION:=2014-09-25-3
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
@@ -66,28 +66,13 @@ define Package/odhcpd/postinst
 # check if we are on real system
 if [ -z "$$IPKG_INSTROOT" ]; then
 	if /etc/init.d/6relayd enabled; then
-	    /etc/init.d/odhcpd enable
-	    /etc/init.d/6relayd disable
-	    rm -f /etc/uci-defaults/odhcpd.defaults
+		/etc/init.d/odhcpd enable
+		/etc/init.d/6relayd disable
+		rm -f /etc/uci-defaults/odhcpd.defaults
 
-	    uci set dhcp.odhcpd=odhcpd
-	    uci set dhcp.odhcpd.maindhcp=0
-	    uci set dhcp.odhcpd.leasefile=/tmp/hosts/odhcpd
-	    uci set dhcp.odhcpd.leasetrigger=/usr/sbin/odhcpd-update
-
-	    for server in `uci get 6relayd.@server[0].network`; do
-		rd=`uci get 6relayd.@server[0].rd` || true
-		dhcpv6=`uci get 6relayd.@server[0].dhcpv6` || true
-		ndp=`uci get 6relayd.@server[0].ndp` || true
-
-		[ -n "$$rd" ] && uci set dhcp.$$server.rd=$$rd
-		[ -n "$$dhcpv6" ] && uci set dhcp.$$server.dhcpv6=$$dhcpv6
-		[ -n "$$ndp" ] && uci set dhcp.$$server.ndp=$$ndp
-	    done
-
-	    uci commit
+		/usr/lib/odhcpd/transfer_config.sh
 	else
-	    /etc/uci-defaults/odhcpd.defaults && rm -f /etc/uci-defaults/odhcpd.defaults
+		/etc/uci-defaults/odhcpd.defaults && rm -f /etc/uci-defaults/odhcpd.defaults
 	fi
 fi
 endef
@@ -100,6 +85,8 @@ define Package/odhcpd/install
 	$(INSTALL_BIN) ./files/odhcpd.init $(1)/etc/init.d/odhcpd
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/odhcpd.defaults $(1)/etc/uci-defaults
+	$(INSTALL_DIR) $(1)/usr/lib/odhcpd/
+	$(INSTALL_BIN) ./files/transfer_config.sh $(1)/usr/lib/odhcpd
 endef
 
 $(eval $(call BuildPackage,odhcpd))
