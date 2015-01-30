@@ -24,9 +24,14 @@ management_preference=`uci get 6relayd.@server[0].management_preference`
 
 networks=`uci get 6relayd.@server[0].network`
 
-if [ -n $networks ]; then
+if [ -n "$networks" ]; then
         for network in $networks; do
-            [ -n "$rd" ] && uci set dhcp.$network.rd=$rd
+            uci get -q dhcp.$network || {
+                uci set dhcp.${network}=dhcp
+                uci set dhcp.$network.interface=$network
+                uci set dhcp.$network.ignore=1
+            }
+            [ -n "$rd" ] && uci set dhcp.$network.ra=$rd
             [ -n "$dhcpv6" ] && uci set dhcp.$network.dhcpv6=$dhcpv6
             [ -n "$ndp" ] && uci set dhcp.$network.ndp=$ndp
             [ -n "$management_level" ] && uci set dhcp.$network.ra_management=$management_level
