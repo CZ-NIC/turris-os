@@ -26,11 +26,6 @@ DTS_TARGETS = mpc8548cds_32b p1010rdb tl-wdr4900-v1 p1020rdb p2020rdb turris-nor
 BOOT_IMAGES:=zImage cuImage.tl-wdr4900-v1
 
 define Image/Prepare
-	if [ "$(PROFILE)" = "TURRISNOR" ]; then \
-	    $(STAGING_DIR_HOST)/bin/mksquashfs4 $(TOPDIR)/bin-nand/mpc85xx/medkit/medkit.tar.xz $(TOPDIR)/bin-nand/mpc85xx/medkit/medkit.squashfs \
-	    	-nopad -noappend -root-owned -comp $(SQUASHFSCOMP) -b 128k -processors $(if $(CONFIG_PKG_BUILD_JOBS),$(CONFIG_PKG_BUILD_JOBS),1); \
-	fi
-
 	$(foreach image,$(BOOT_IMAGES),
 		cp $(LINUX_DIR)/arch/powerpc/boot/$(image) $(KDIR)/$(image)
 	)
@@ -122,6 +117,10 @@ define Image/Build/Profile/TURRISNAND
 	gunzip -c $(BIN_DIR)/openwrt-mpc85xx-p2020-nand-TURRISNAND-rootfs.tar.gz > $(BIN_DIR)/openwrt-mpc85xx-p2020-nand-rootfs.tar
 	tar cf $(BIN_DIR)/medkit/medkit.tar -C $(BIN_DIR) $(IMG_PREFIX)-turris-nand.fdt $(IMG_PREFIX)-zImage openwrt-mpc85xx-p2020-nand-rootfs.tar
 	xz -9 $(BIN_DIR)/medkit/medkit.tar
+
+	$(STAGING_DIR_HOST)/bin/mksquashfs4 $(BIN_DIR)/medkit/medkit.tar.xz $(BIN_DIR)/medkit/medkit.squashfs \
+		-nopad -noappend -root-owned -comp $(SQUASHFSCOMP) -b 128k -processors $(if $(CONFIG_PKG_BUILD_JOBS),$(CONFIG_PKG_BUILD_JOBS),1)
+
 endef
 
 
