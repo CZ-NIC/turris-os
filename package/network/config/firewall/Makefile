@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=firewall
-PKG_VERSION:=2015-01-20
+PKG_VERSION:=2015-02-12
 PKG_RELEASE:=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://gitlab.labs.nic.cz/turris/firewall3.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=f3d51fa66fa3ab86d450faf2ab61de65cb600e99
+PKG_SOURCE_VERSION:=40ac2ffc290330463e9e15faa601ca2db7ba8673
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_MAINTAINER:=Stepan Henek <stepan.henek@nic.cz>
 
@@ -68,8 +68,20 @@ define Package/firewall/postinst
 #!/bin/sh
 # check if we are on real system
 if [ -z "$${IPKG_INSTROOT}" ]; then
-	echo "Reloading the firewall"
-	/etc/init.d/firewall reload
+	# fill in log_limit_burst
+	for index in $$(uci show firewall | grep log_prefix | sed -e 's/^firewall.@zone\[//' -e 's/\].*//'); do
+		 uci -q get firewall.@zone["$${index}"].log_limit_burst
+		 res=$$?
+		 if [ $${res} = 1]; then
+			echo -n 'Updating firewall... ' &&
+			uci set firewall.@zone["$${index}"].log_limit_burst=500 &&
+			uci commit &&
+			echo 'OK' &&
+		 fi
+	done
+	echo -n 'Reloading firewall... ' &&
+	/etc/init.d/firewall reload 1>/dev/null 2>&1 &&
+	echo 'OK'
 fi
 exit 0
 endef
