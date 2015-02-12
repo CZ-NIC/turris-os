@@ -7,12 +7,14 @@ config system
 
 config timeserver ntp
 	# When resolution doesn't work because of wrong time (ntp.nic.cz)
-        list server     '217.31.205.226'
+        list server     '217.31.202.100'
+        list server     '195.113.144.201'
+        list server     '195.113.144.238'
+        list server     '2001:1488:ffff::100'
         list server	'ntp.nic.cz'
         list server     '0.openwrt.pool.ntp.org'
         list server     '1.openwrt.pool.ntp.org'
         list server     '2.openwrt.pool.ntp.org'
         list server     '3.openwrt.pool.ntp.org'
-	list server	'2001:1488:cde0::1'
         option enabled 1
         option enable_server '0'

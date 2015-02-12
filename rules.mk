@@ -282,7 +282,7 @@ export $(call shvar,$(1))
 endef
 
 define include_mk
-$(eval include $(if $(DUMP),,$(STAGING_DIR)/mk/$(strip $(1))))
+$(eval -include $(if $(DUMP),,$(STAGING_DIR)/mk/$(strip $(1))))
 endef
 
 # Execute commands under flock
