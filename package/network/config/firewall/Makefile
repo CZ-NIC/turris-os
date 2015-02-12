@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=firewall
-PKG_VERSION:=2015-02-12
+PKG_VERSION:=2015-02-14
 PKG_RELEASE:=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE_PROTO:=git
@@ -72,11 +72,11 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
 	for index in $$(uci show firewall | grep log_prefix | sed -e 's/^firewall.@zone\[//' -e 's/\].*//'); do
 		 uci -q get firewall.@zone["$${index}"].log_limit_burst
 		 res=$$?
-		 if [ $${res} = 1]; then
+		 if [ $${res} = 1 ]; then
 			echo -n 'Updating firewall... ' &&
 			uci set firewall.@zone["$${index}"].log_limit_burst=500 &&
 			uci commit &&
-			echo 'OK' &&
+			echo 'OK'
 		 fi
 	done
 	echo -n 'Reloading firewall... ' &&
