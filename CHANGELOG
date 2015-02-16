@@ -1,6 +1,7 @@
-* Novější verze squid
+* Smrtd po sobě uklízí
 * User list na honeypot
 ===================== 2.0 =======================
+* Novější verze squid
 * User list ca certificates a tor v nuci
 * Hlášení z coverity opravená v ucollect
 * Drobné opravy statistik z nuci (board name, turris OS version)
