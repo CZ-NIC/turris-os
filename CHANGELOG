@@ -1,3 +1,4 @@
+* Program Thermometer nahrazen programem lm-sensors
 * Rainbow obsahuje podporu pro SMRT
 * Oprava odstraňování essential packages v updateru
 * Smrtd po sobě uklízí
