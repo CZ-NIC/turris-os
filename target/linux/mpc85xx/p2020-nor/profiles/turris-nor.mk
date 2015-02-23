@@ -14,7 +14,7 @@ define Profile/TURRISNOR
 	NAME:=Turris-nor
 	PACKAGES:=\
 		mtd-utils mtd-utils-nandwrite mtd-utils-nandtest mtd-utils-nanddump \
-		mtd-utils-flash-erase mtd-utils-flash-eraseall rescue-mode dropbear getmac \
+		mtd-utils-flash-erase mtd-utils-flash-eraseall rescue-mode -dropbear getmac \
 		-opkg -dnsmasq -firewall -6relayd -odhcp6c -iptables -ip6tables -ppp \
 		-swconfig -ubox -uci -kmod-leds-gpio -kmod-ipt-conntrack -kmod-ipt-core -kmod-ipt-nat \
 		-kmod-ipt-nathelper -ubus -ubusd -jshn -netifd -kmod-input-core -kmod-input-gpio-keys \
