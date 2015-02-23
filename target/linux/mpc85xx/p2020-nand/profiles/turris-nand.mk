@@ -25,10 +25,9 @@ define Profile/TURRISNAND
 		mtd-utils mtd-utils-nandwrite mtd-utils-nandtest mtd-utils-nanddump \
 		mtd-utils-flash-erase mtd-utils-flash-eraseall mtd-utils-flash-info \
 		luci luci-i18n-czech zlib curl cert-backup foris update_mac wget \
-		userspace_time_sync openssh-moduli openssh-client \
-		openssh-sftp-client openssh-sftp-server openssh-client-utils watchdog_adjust \
+		userspace_time_sync openssh-moduli watchdog_adjust \
 		ucollect-config rainbow wpa-supplicant turris-version \
-		smrt spidev-test i2c-tools
+		smrt spidev-test i2c-tools -dropbear
 endef
 
 define Profile/TURRISNAND/Description
