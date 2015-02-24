@@ -62,6 +62,9 @@ get_status_led() {
 	dir-835-a1)
 		status_led="d-link:amber:power"
 		;;
+	dragino2)
+		status_led="dragino2:red:system"
+		;;
 	eap300v2)
 		status_led="engenius:blue:power"
 		;;
@@ -192,6 +195,7 @@ get_status_led() {
 	tl-mr3220-v2 | \
 	tl-mr3420 | \
 	tl-mr3420-v2 | \
+	tl-wa701nd-v2 | \
 	tl-wa801nd-v2 | \
 	tl-wa901nd | \
 	tl-wa901nd-v2 | \

@@ -3,8 +3,8 @@
 /include/ "mt7620n.dtsi"
 
 / {
-	compatible = "mlw221", "ralink,mt7620n-soc";
-	model = "Kingston MLW221";
+	compatible = "mlwg2", "ralink,mt7620n-soc";
+	model = "Kingston MLWG2";
 
 	palmbus@10000000 {
 		gpio0: gpio@600 {
@@ -25,9 +25,9 @@
 			m25p80@0 {
 				#address-cells = <1>;
 				#size-cells = <1>;
-				compatible = "s25fl129p1";
+				compatible = "mx25l12805d";
 				reg = <0 0>;
-				linux,modalias = "m25p80", "s25fl129p1";
+				linux,modalias = "m25p80";
 				spi-max-frequency = <10000000>;
 
 				partition@0 {
@@ -56,7 +56,6 @@
 				partition@fb0000 {
 					label = "user-config";
 					reg = <0xfb0000 0x50000>;
-
 				};
 			};
 		};
