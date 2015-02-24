@@ -4,7 +4,7 @@
 * Rainbow obsahuje podporu pro SMRT
 * Oprava odstraňování essential packages v updateru
 * Smrtd po sobě uklízí
-* User list na honeypot
+* User list na honeypot, webcam
 ===================== 2.0 =======================
 * Novější verze squid
 * User list ca certificates a tor v nuci
