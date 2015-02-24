@@ -1,3 +1,4 @@
+* owfs: aktualizace na nejnovější verzi z upstreamu openwrt/packages.
 * Majordomo používá naši vlastní databázi výrobců MAC adres instalované u uživatele. Nadále nepoužívá externí webovou službu.
 * Program Thermometer nahrazen programem lm-sensors
 * Rainbow obsahuje podporu pro SMRT
