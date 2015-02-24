@@ -1,5 +1,10 @@
+* owfs: aktualizace na nejnovější verzi z upstreamu openwrt/packages.
+* Majordomo používá naši vlastní databázi výrobců MAC adres instalované u uživatele. Nadále nepoužívá externí webovou službu.
+* Program Thermometer nahrazen programem lm-sensors
+* Rainbow obsahuje podporu pro SMRT
+* Oprava odstraňování essential packages v updateru
 * Smrtd po sobě uklízí
-* User list na honeypot
+* User list na honeypot, webcam
 ===================== 2.0 =======================
 * Novější verze squid
 * User list ca certificates a tor v nuci

@@ -20,15 +20,14 @@ define Profile/TURRISNAND
 		kmod-usb-core kmod-usb2 kmod-usb2-fsl \
 		kmod-ath9k kmod-hostapd hostapd kmod-usb3 \
 		kmod-usb-storage-extras kmod-usb-storage \
-		block-mount kmod-mmc kmod-mmc-fsl-p2020 \
+		block-mount kmod-mmc kmod-mmc-fsl-p2020 kmod-hwmon-core kmod-hwmon-lm90 \
 		nuci updater logsend unbound oneshot logrotate \
 		mtd-utils mtd-utils-nandwrite mtd-utils-nandtest mtd-utils-nanddump \
 		mtd-utils-flash-erase mtd-utils-flash-eraseall mtd-utils-flash-info \
 		luci luci-i18n-czech zlib curl cert-backup foris update_mac wget \
-		userspace_time_sync openssh-moduli openssh-client \
-		openssh-sftp-client openssh-sftp-server openssh-client-utils watchdog_adjust \
-		ucollect-config init-thermometer rainbow wpa-supplicant turris-version \
-		smrt spidev-test i2c-tools
+		userspace_time_sync openssh-moduli watchdog_adjust \
+		ucollect-config rainbow wpa-supplicant turris-version \
+		smrt spidev-test i2c-tools -dropbear
 endef
 
 define Profile/TURRISNAND/Description
