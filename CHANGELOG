@@ -1,3 +1,4 @@
+* Updater umožňuje přepsat některé parametry
 * unbound zvedá limity na počet TCP spojení
 * owfs: aktualizace na nejnovější verzi z upstreamu openwrt/packages.
 * Majordomo používá naši vlastní databázi výrobců MAC adres instalované u uživatele. Nadále nepoužívá externí webovou službu.
