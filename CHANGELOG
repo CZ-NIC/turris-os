@@ -1,4 +1,5 @@
 * Updater nainstaluje jen základní balíky pokud atsha selže
+* python: aktualizace na verzi 2.7.9 z upstreamu, refactoring závislostí na Pythonu (místo python-mini + python je nyní python-base + python).
 * Updater umožňuje přepsat některé parametry
 * unbound zvedá limity na počet TCP spojení
 * owfs: aktualizace na nejnovější verzi z upstreamu openwrt/packages.
