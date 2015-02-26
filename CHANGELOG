@@ -1,3 +1,4 @@
+* Updater nainstaluje jen základní balíky pokud atsha selže
 * Updater umožňuje přepsat některé parametry
 * unbound zvedá limity na počet TCP spojení
 * owfs: aktualizace na nejnovější verzi z upstreamu openwrt/packages.
