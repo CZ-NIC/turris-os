@@ -68,6 +68,7 @@ CONFIG_PACKAGE_kmod-ipt-tproxy=m
 CONFIG_PACKAGE_kmod-bridge=m
 CONFIG_PACKAGE_kmod-llc=m
 CONFIG_PACKAGE_kmod-stp=m
+CONFIG_PACKAGE_kmod-tun=m
 CONFIG_PACKAGE_conntrack-tools=m
 CONFIG_PACKAGE_ebtables=m
 CONFIG_PACKAGE_iptables-mod-tproxy=m
