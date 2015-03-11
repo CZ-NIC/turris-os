@@ -26,6 +26,11 @@ define Package/librpc
   TITLE:=uClibc RPC library
 endef
 
+define Build/InstallDev
+        $(INSTALL_DIR) $(1)/usr/include/rpc
+        $(CP) $(PKG_INSTALL_DIR)/usr/include/rpc/*.h $(1)/usr/include/rpc
+endef
+
 define Package/librpc/install
 	$(INSTALL_DIR) $(1)/lib/
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/librpc.so $(1)/lib/
