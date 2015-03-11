@@ -21,14 +21,14 @@ include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
 define Package/librpc
-  SECTION:=libs
-  CATEGORY:=Libraries
-  TITLE:=uClibc RPC library
+	SECTION:=libs
+	CATEGORY:=Libraries
+	TITLE:=uClibc RPC library
 endef
 
 define Build/InstallDev
-        $(INSTALL_DIR) $(1)/usr/include/rpc
-        $(CP) $(PKG_INSTALL_DIR)/usr/include/rpc/*.h $(1)/usr/include/rpc
+	$(INSTALL_DIR) $(1)/usr/include/rpc
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/rpc/*.h $(1)/usr/include/rpc
 endef
 
 define Package/librpc/install
