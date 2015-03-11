@@ -1,3 +1,4 @@
+* Foris (v52): možnost použít přefix URL pro Foris v konfiguraci; opravy drobných chyb.
 * nuci načítá definice userlistů ze souboru od updateru
 * Updater stahuje definice userlistů
 * Updater nainstaluje jen základní balíky pokud atsha selže
