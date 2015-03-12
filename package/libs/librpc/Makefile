@@ -28,7 +28,9 @@ endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/rpc
+	$(INSTALL_DIR) $(1)/usr/lib/
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/rpc/*.h $(1)/usr/include/rpc
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/librpc.so $(1)/usr/lib/
 endef
 
 define Package/librpc/install
