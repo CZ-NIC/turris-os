@@ -19,7 +19,7 @@ PKG_MD5SUM:=7d95fc3bea3365bc03c48e484224f65f
 
 PKG_MAINTAINER:=Jo-Philipp Wich <jow@openwrt.org>
 
-PKG_FIXUP:=autoreconf
+PKG_FIXUP:=autoreconf libtool
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
