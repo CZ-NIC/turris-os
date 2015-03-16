@@ -1,3 +1,5 @@
+* nginx: aktualizace na nejnovější verzi z upstreamu.
+* Postfix (+ tinycdb): nový balíček z upstreamu.
 * Majoromo: Opravena chyba v parseru cache
 * Foris (v52): možnost použít přefix URL pro Foris v konfiguraci; opravy drobných chyb.
 * nuci načítá definice userlistů ze souboru od updateru
