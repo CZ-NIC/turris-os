@@ -1,3 +1,4 @@
+* nginx: kompilován s SSL podporou.
 * nginx: aktualizace na nejnovější verzi z upstreamu.
 * Postfix (+ tinycdb): nový balíček z upstreamu.
 * Majoromo: Opravena chyba v parseru cache
