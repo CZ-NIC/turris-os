@@ -1,3 +1,4 @@
+* Ucollect: Nepoužívá promiskuidní mód
 ===================== 2.1 =======================
 * Firewall: Lepší popis pravidel zachycených na firewallu.
 * Nikola: Přidána kontrola zachytávání paketů pravidly projektu Turris
