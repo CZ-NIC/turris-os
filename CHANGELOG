@@ -1,3 +1,4 @@
+* Nikola: filtrování paketů, co se posílají na server, podle lokální adresy
 * Nikola: posílání TCP flagů na server
 * Ucollect: Nepoužívá promiskuidní mód
 ===================== 2.1 =======================
