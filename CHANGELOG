@@ -1,3 +1,4 @@
+* Nuci: Kloudná chyba při ukládání do poškozeného konfiguráku
 * Nuci: přidán plugin Securris (v balíčku nuci-securris).
 * Nikola: filtrování paketů, co se posílají na server, podle lokální adresy
 * Nikola: posílání TCP flagů na server
