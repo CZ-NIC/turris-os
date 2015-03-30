@@ -90,6 +90,7 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
     create_notification -s restart "Jádro systému bylo aktualizováno na verzi $(VERSION). Prosím restartujte své zařízení."
 fi
 rm $${IPKG_INSTROOT}/tmp/fdt
+rm $${IPKG_INSTROOT}/tmp/fdt-ubi
 rm $${IPKG_INSTROOT}/tmp/zImage
 endef
 
