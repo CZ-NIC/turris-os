@@ -22,7 +22,7 @@ define Profile/TURRISNAND
 		kmod-usb-storage-extras kmod-usb-storage \
 		block-mount kmod-mmc kmod-mmc-fsl-p2020 kmod-hwmon-core kmod-hwmon-lm90 \
 		nuci updater unbound oneshot logrotate \
-		mtd-utils mtd-utils-nandwrite mtd-utils-nandtest mtd-utils-nanddump \
+		mtd-utils mtd-utils-nandwrite \
 		mtd-utils-flash-erase mtd-utils-flash-eraseall mtd-utils-flash-info \
 		luci luci-i18n-czech zlib curl cert-backup foris update_mac wget \
 		userspace_time_sync openssh-moduli watchdog_adjust \
