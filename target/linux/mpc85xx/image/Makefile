@@ -103,6 +103,7 @@ endef
 define Image/Build/Profile/TURRISNAND
 	echo "Building for Turris NAND!!!!!!!!!!!!!!!"
 	$(call Image/makeDTS,turris-nand)
+	$(call Image/makeDTS,turris-nand-ubi)
 
 	dd if=$(BIN_DIR)/$(IMG_PREFIX)-turris-nand.fdt bs=128k conv=sync > $(BIN_DIR)/$(IMG_PREFIX)-turris-nand.bin
 	truncate -s 2M $(BIN_DIR)/$(IMG_PREFIX)-turris-nand.bin 

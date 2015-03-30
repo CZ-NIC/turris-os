@@ -34,6 +34,7 @@ endef
 
 define Build/Compile
 	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/powerpc/boot/dts/turris-nand.dts -o $(PKG_BUILD_DIR)/fdt
+	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/powerpc/boot/dts/turris-nand-ubi.dts -o $(PKG_BUILD_DIR)/fdt-ubi
 endef
 
 define KernelPackage/depends
@@ -53,7 +54,8 @@ endef
 define Package/kernel/install
 	$(INSTALL_DIR) $(1)/tmp
 	$(CP) $(LINUX_DIR)/arch/powerpc/boot/zImage $(1)/tmp/zImage
-	$(CP) $(PKG_BUILD_DIR)/fdt $(1)/tmp/fdt	
+	$(CP) $(PKG_BUILD_DIR)/fdt $(1)/tmp/fdt
+	$(CP) $(PKG_BUILD_DIR)/fdt-ubi $(1)/tmp/fdt-ubi	
 endef
 
 define Package/kernel/preinst
@@ -61,19 +63,31 @@ define Package/kernel/preinst
 if [ -z "$${IPKG_INSTROOT}" ]; then
 	if [ -f /tmp/zImage ]; then rm -f /tmp/zImage; fi
 	if [ -f /tmp/fdt ]; then rm -f /tmp/fdt; fi
+	if [ -f /tmp/fdt-ubi ]; then rm -f /tmp/fdt-ubi; fi
 fi
 endef
 
 define Package/kernel/postinst
 #!/bin/sh
 if [ -z "$${IPKG_INSTROOT}" ]; then
+    fstype=$$(sed -nr 's/.*rootfstype=([a-z0-9]+).*/\1/p' /proc/cmdline)
+    case $$fstype in
+    "jffs2")
+    	echo "JFFS2 rootfstype found"
 	echo "Erasing and flashing FDT partition."
 	flash_erase /dev/mtd6 0 0 && nandwrite -p /dev/mtd6 /tmp/fdt
 
 	echo "Erasing and flashing kernel partition."
 	flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /tmp/zImage
+	;;
+    "ubifs")
+    	echo "UBIFS rootfstype found"
+	cp /tmp/zImage /boot/zImage
+	cp /tmp/fdt-ubi /boot/fdt
+        ;;
+    esac
 
-	create_notification -s restart "Jádro systému bylo aktualizováno na verzi $(VERSION). Prosím restartujte své zařízení."
+    create_notification -s restart "Jádro systému bylo aktualizováno na verzi $(VERSION). Prosím restartujte své zařízení."
 fi
 rm $${IPKG_INSTROOT}/tmp/fdt
 rm $${IPKG_INSTROOT}/tmp/zImage
