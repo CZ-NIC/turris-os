@@ -1,7 +1,8 @@
 src-git lucics https://gitlab.labs.nic.cz/turris/luci-cs.git
 src-git packages https://github.com/openwrt/packages.git;for-14.07
 src-git luci https://github.com/openwrt/luci.git;luci-0.12
-src-git routing https://github.com/openwrt-routing/packages.git;for-14.07
+src-git routing https://github.com/openwrt-routing/packages.git^5d4ad63897b435d5df0f39a49bd58962c22c33b8
+#src-git routing https://github.com/openwrt-routing/packages.git;for-14.07
 src-git telephony https://github.com/openwrt/telephony.git;for-14.07
 src-git management https://github.com/openwrt-management/packages.git;for-14.07
 src-git oldpackages http://git.openwrt.org/14.07/packages.git
