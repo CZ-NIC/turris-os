@@ -1,0 +1,32 @@
+This folder contains configuration files for Vagrant development environment.
+It's purpose is to easily create the environment that is used for building
+of the Turris OS.
+
+The environment created contains a fresh installation of Ubuntu 14.04 with
+all the dependencies that are required for building of all the packages
+that are currently present in the repository. The packages that are installed
+during bootstrapping of the system are listed in vagrant_bootstrap.sh script
+and can probably installed on any 64-bit Debian-based system.
+
+To start the Vagrant instance, you need to do the following:
+
+- install Vagrant (either from system's repository or from a package from
+  the official Vagrant homepage http://www.vagrantup.com/downloads.html)
+- install LXC plugin for Vagrant: https://github.com/fgrehm/vagrant-lxc
+  (you may also need to install its requirements, see README of vagrant-lxc)
+- go to the directory containing cloned Turris' repository and create a symlink
+  (or copy) the Vagrantfile configuration: ln -s vagrant/Vagrantfile
+
+Then just simply start the Vagrant instance - Vagrant should download base file
+for system and install all the dependencies. This can be achieved by executing
+the following command (you'll be probably asked for your password because LXC
+needs superuser privileges):
+
+    vagrant up --provider-lxc
+
+When the command finishes, you can connect to the fresh system using SSH:
+
+    vagrant ssh
+
+The mirrored content of Turris OS' repository can now be found in folder
+/openwrt in the created guest system.
