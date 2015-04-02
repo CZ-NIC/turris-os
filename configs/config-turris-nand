@@ -31,6 +31,7 @@ CONFIG_PACKAGE_ucollect-flow=m
 CONFIG_PACKAGE_ucollect-meta=m
 CONFIG_PACKAGE_lcollect-majordomo=m
 CONFIG_PACKAGE_luci-app-majordomo=m
+CONFIG_PACKAGE_luci-app-rainbow=m
 CONFIG_PACKAGE_daemon-watchdog=m
 CONFIG_PACKAGE_updater-testkey=m
 CONFIG_PACKAGE_updater-consolidator=m
