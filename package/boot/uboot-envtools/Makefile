@@ -98,6 +98,10 @@ ifneq ($(CONFIG_TARGET_ramips),)
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_DATA) ./files/ramips $(1)/etc/uci-defaults/30_uboot-envtools
 endif
+ifneq ($(CONFIG_TARGET_mpc85xx_p2020_nand_TURRISNAND),)
+	$(INSTALL_DIR) $(1)/etc
+	$(INSTALL_CONF) ./files/turris.cfg $(1)/etc/fw_env.config
+endif
 endef
 
 $(eval $(call BuildPackage,uboot-envtools))
