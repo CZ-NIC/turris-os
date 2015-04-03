@@ -87,7 +87,6 @@
                                 /* 512KB for u-boot Environment Variables */
                                 reg = <0x00f00000 0x00100000>;
                                 label = "NOR (RO) U-Boot Image";
-                                read-only;
                         };
                 };
 	
