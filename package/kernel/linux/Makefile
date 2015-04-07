@@ -76,6 +76,9 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
 
 	echo "Erasing and flashing kernel partition."
 	flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /tmp/zImage
+
+	echo "Setting up uboot environment."
+	fw_setenv nandboot "setenv bootargs \$$bootargsnand; nand read 0x1000000 0x0 0x00100000; nboot 0x1100000 0 0x00200000; bootm 0x1100000 - 0x1000000"
 	;;
     "ubifs")
     	echo "UBIFS rootfstype found"
