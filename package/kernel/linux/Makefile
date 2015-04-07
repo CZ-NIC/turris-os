@@ -34,7 +34,6 @@ endef
 
 define Build/Compile
 	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/powerpc/boot/dts/turris-nand.dts -o $(PKG_BUILD_DIR)/fdt
-	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/powerpc/boot/dts/turris-nand-ubi.dts -o $(PKG_BUILD_DIR)/fdt-ubi
 endef
 
 define KernelPackage/depends
@@ -55,7 +54,6 @@ define Package/kernel/install
 	$(INSTALL_DIR) $(1)/tmp
 	$(CP) $(LINUX_DIR)/arch/powerpc/boot/zImage $(1)/tmp/zImage
 	$(CP) $(PKG_BUILD_DIR)/fdt $(1)/tmp/fdt
-	$(CP) $(PKG_BUILD_DIR)/fdt-ubi $(1)/tmp/fdt-ubi	
 endef
 
 define Package/kernel/preinst
@@ -63,7 +61,6 @@ define Package/kernel/preinst
 if [ -z "$${IPKG_INSTROOT}" ]; then
 	if [ -f /tmp/zImage ]; then rm -f /tmp/zImage; fi
 	if [ -f /tmp/fdt ]; then rm -f /tmp/fdt; fi
-	if [ -f /tmp/fdt-ubi ]; then rm -f /tmp/fdt-ubi; fi
 fi
 endef
 
@@ -83,14 +80,13 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
     "ubifs")
     	echo "UBIFS rootfstype found"
 	cp /tmp/zImage /boot/zImage
-	cp /tmp/fdt-ubi /boot/fdt
+	cp /tmp/fdt /boot/fdt
         ;;
     esac
 
     create_notification -s restart "Jádro systému bylo aktualizováno na verzi $(VERSION). Prosím restartujte své zařízení."
 fi
 rm $${IPKG_INSTROOT}/tmp/fdt
-rm $${IPKG_INSTROOT}/tmp/fdt-ubi
 rm $${IPKG_INSTROOT}/tmp/zImage
 endef
 

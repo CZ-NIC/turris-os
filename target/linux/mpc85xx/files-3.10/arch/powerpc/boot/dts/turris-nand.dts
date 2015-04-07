@@ -115,6 +115,11 @@
 				label = "NAND (RW) JFFS2 Root File System";
 			};
 
+			partition@00 {
+				reg = <0x00000000 0x10000000>;
+				label = "rootfs-ubifs";
+			};
+
 		};
 
 	};
