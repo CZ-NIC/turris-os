@@ -1,3 +1,4 @@
+* Updater: malá oprava logování
 * Luci aplikace majordomo a rainbow jsou nyní jako samostatné balíčky
 * Nuci: Kloudná chyba při ukládání do poškozeného konfiguráku
 * Nuci: přidán plugin Securris (v balíčku nuci-securris).
