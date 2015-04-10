@@ -1,3 +1,4 @@
+* Ucollect: fake plugin (zatím jen pro testování)
 * Updater: malá oprava logování
 * Luci aplikace majordomo a rainbow jsou nyní jako samostatné balíčky
 * Nuci: Kloudná chyba při ukládání do poškozeného konfiguráku
