@@ -18,7 +18,7 @@ define Profile/TURRISNOR
 		-opkg -dnsmasq -firewall -6relayd -odhcp6c -iptables -ip6tables -ppp \
 		-swconfig -ubox -uci -kmod-leds-gpio -kmod-ipt-conntrack -kmod-ipt-core -kmod-ipt-nat \
 		-kmod-ipt-nathelper -ubus -ubusd -jshn -netifd -kmod-input-core -kmod-input-gpio-keys \
-		-kmod-button-hotplug -base-files 
+		-kmod-button-hotplug -base-files -libubox -fstools -ppp-mod-pppoe -odhcpd 
 endef
 
 define Profile/TURRISNOR/Description

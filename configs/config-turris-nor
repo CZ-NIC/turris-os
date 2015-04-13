@@ -17,3 +17,9 @@ CONFIG_BUSYBOX_CONFIG_FEATURE_USE_INITTAB=y
 CONFIG_PACKAGE_uboot-TURRIS1_SDCARD=m
 CONFIG_PACKAGE_uboot-TURRIS1=m
 
+# Disabled packages
+# CONFIG_PACKAGE_fstools is not set
+# CONFIG_PACKAGE_odhcpd is not set
+# CONFIG_PACKAGE_libuci is not set
+# CONFIG_PACKAGE_libubox is not set
+
