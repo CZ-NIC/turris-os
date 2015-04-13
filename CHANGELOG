@@ -1,3 +1,4 @@
+* iptables: -m socket bere --nowildcard parametr
 * Ucollect: fake plugin (zatím jen pro testování)
 * Updater: malá oprava logování
 * Luci aplikace majordomo a rainbow jsou nyní jako samostatné balíčky
