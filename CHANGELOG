@@ -1,3 +1,4 @@
+* kernel: Uklizení většiny kolizí v balíčcích modulů
 * net-snmp: aktualizace na verzi z upstreamu
 * iptables: -m socket bere --nowildcard parametr
 * Ucollect: fake plugin (zatím jen pro testování)
