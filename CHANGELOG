@@ -1,3 +1,4 @@
+* nethist: Vede statistiky o pár dalších hodnotách ohledně paměti
 * kernel: Uklizení většiny kolizí v balíčcích modulů
 * net-snmp: aktualizace na verzi z upstreamu
 * iptables: -m socket bere --nowildcard parametr
