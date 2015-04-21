@@ -8,12 +8,8 @@
 ./scripts/feeds uninstall -a
 
 # Install luci feed
-./scripts/feeds update -i lucics
-./scripts/feeds install -p lucics -a
-
-# Install routing feed
-./scripts/feeds update routing
-./scripts/feeds install ohybridproxy hnetd
+./scripts/feeds update -a
+./scripts/feeds install -a
 
 # Build NAND FW
 cp configs/config-turris-nand .config
