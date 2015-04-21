@@ -389,7 +389,7 @@ sub install_package {
 	# check previously installed packages
 	$installed{$name} and return 0;
 	$installed{$src} = 1;
-	warn "Installing package '$src'\n";
+	warn "Installing package '$feed->[1]/$src'\n";
 
 	$install_method{$type} or do {
 		warn "Unknown installation method: '$type'\n";
