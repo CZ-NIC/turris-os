@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013-2014 OpenWrt.org
+# Copyright (C) 2013-2015 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=firewall
-PKG_VERSION:=2015-02-14
+PKG_VERSION:=2015-04-22
 PKG_RELEASE:=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE_PROTO:=git
@@ -60,8 +60,10 @@ define Package/firewall/install
 	$(INSTALL_DATA) ./files/firewall.user $(1)/etc/firewall.user
 	$(INSTALL_DIR) $(1)/etc/firewall.d/with_reload
 	$(INSTALL_BIN) ./files/firewall.includedir $(1)/etc/firewall.d/with_reload/firewall.include.sh
+	sed -i -e 's/BASEDIR=.*/BASEDIR=\/etc\/firewall.d\/with_reload\//' $(1)/etc/firewall.d/with_reload/firewall.include.sh
 	$(INSTALL_DIR) $(1)/etc/firewall.d/without_reload
 	$(INSTALL_BIN) ./files/firewall.includedir $(1)/etc/firewall.d/without_reload/firewall.include.sh
+	sed -i -e 's/BASEDIR=.*/BASEDIR=\/etc\/firewall.d\/without_reload\//' $(1)/etc/firewall.d/without_reload/firewall.include.sh
 endef
 
 define Package/firewall/postinst
@@ -75,10 +77,35 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
 		 if [ $${res} = 1 ]; then
 			echo -n 'Updating firewall... ' &&
 			uci set firewall.@zone["$${index}"].log_limit_burst=500 &&
-			uci commit &&
+			uci commit firewall &&
 			echo 'OK'
 		 fi
 	done
+	need_with_reload=true
+	need_without_reload=true
+	idx=0
+	while [ "$$(uci get -q firewall.@include[$$idx] || echo none)" = "include" ] ; do
+		path="$$(uci get -q firewall.@include[$$idx].path)"
+		if [ "$$path" = "/etc/firewall.d/with_reload/firewall.include.sh" ] ; then
+			need_with_reload=false
+		elif [ "$$path" = "/etc/firewall.d/without_reload/firewall.include.sh" ] ; then
+			need_without_reload=false
+		fi
+		idx=$$((idx + 1))
+	done
+	if $$need_with_reload ; then
+		name=$$(uci add firewall include)
+		uci set firewall.$$name.path=/etc/firewall.d/with_reload/firewall.include.sh
+		uci set firewall.$$name.reload=1
+	fi
+	if $$need_without_reload ; then
+		name=$$(uci add firewall include)
+		uci set firewall.$$name.path=/etc/firewall.d/without_reload/firewall.include.sh
+		uci set firewall.$$name.reload=0
+	fi
+	if $$need_with_reload || $$need_without_reload ; then
+		uci commit firewall
+	fi
 	echo -n 'Reloading firewall... ' &&
 	/etc/init.d/firewall reload 1>/dev/null 2>&1 &&
 	echo 'OK'
