@@ -13,9 +13,9 @@
       for (i=0; i < available->len; i++) {
  	  pkg = available->pkgs[i];
  	  /* if we have package name or pattern and pkg does not match, then skip it */
--	  if (pkg_name && fnmatch(pkg_name, pkg->name, opkg_config->nocase))
-+	  if (pkg_name && fnmatch(pkg_name, pkg->name, opkg_config->nocase) &&
-+	      (!use_desc || !pkg->description || fnmatch(pkg_name, pkg->description, opkg_config->nocase)))
+-	  if (pkg_name && fnmatch(pkg_name, pkg->name, conf->nocase))
++	  if (pkg_name && fnmatch(pkg_name, pkg->name, conf->nocase) &&
++	      (!use_desc || !pkg->description || fnmatch(pkg_name, pkg->description, conf->nocase)))
  	       continue;
            print_pkg(pkg);
       }

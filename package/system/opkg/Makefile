@@ -10,9 +10,9 @@ include $(INCLUDE_DIR)/version.mk
 include $(INCLUDE_DIR)/feeds.mk
 
 PKG_NAME:=opkg
-PKG_REV:=c0b1318bb9d01494595644cab75872dafec11eb8
+PKG_REV:=9c97d5ecd795709c8584e972bfdf3aee3a5b846d
 PKG_VERSION:=$(PKG_REV)
-PKG_RELEASE:=4
+PKG_RELEASE:=7
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=$(PKG_REV)
@@ -89,10 +89,7 @@ CONFIGURE_ARGS += \
 	--disable-curl \
 	--disable-gpg \
 	--with-opkgetcdir=/etc \
-	--with-opkglockfile=/var/lock/opkg.lock \
-	--enable-static \
-	--disable-shared
-
+	--with-opkglockfile=/var/lock/opkg.lock
 
 ifeq ($(BUILD_VARIANT),smime)
 	CONFIGURE_ARGS += --enable-openssl --enable-sha256
