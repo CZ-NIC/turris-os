@@ -45,7 +45,7 @@ define Package/kernel
   CATEGORY:=Kernel
   DEFAULT:=y
   TITLE:=Kernel package
-  VERSION:=$(LINUX_VERSION)-$(LINUX_RELEASE)-$(PKG_VERSION)
+  VERSION:=$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
   URL:=http://www.kernel.org/
   DEPENDS:=+create_notification
 endef
