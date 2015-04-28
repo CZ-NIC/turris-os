@@ -1,5 +1,5 @@
 * ucollect-fake: Skripty na inicializaci firewallu
-* updater: Pouští opkg z /
+* updater: Pouští opkg z /, nové opkg, oprava pouštění postinst skriptů
 ===================== 2.2 =======================
 * nethist: Vede statistiky o pár dalších hodnotách ohledně paměti
 * kernel: Uklizení většiny kolizí v balíčcích modulů
