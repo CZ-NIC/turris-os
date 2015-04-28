@@ -12,6 +12,9 @@
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 
+# Uninstall broken pkgs
+for pkg in $(cat ./disabled_packages); do ./scripts/feeds uninstall $pkg; done
+
 # Build NAND FW
 cp configs/config-turris-nand .config
 [ -n "$BUILD_ALL" ] && echo "CONFIG_ALL=y" >> .config
