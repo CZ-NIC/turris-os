@@ -113,7 +113,9 @@ define Kernel/Configure/Default
 	$(call Kernel/SetNoInitramfs)
 	rm -rf $(KERNEL_BUILD_DIR)/modules
 	$(_SINGLE) [ -d $(LINUX_DIR)/user_headers ] || $(MAKE) $(KERNEL_MAKEOPTS) INSTALL_HDR_PATH=$(LINUX_DIR)/user_headers headers_install
-	$(SH_FUNC) grep '=[ym]' $(LINUX_DIR)/.config | LC_ALL=C sort | md5s > $(LINUX_DIR)/.vermagic
+	$(SH_FUNC) grep '=[ym]' $(LINUX_DIR)/.config | LC_ALL=C sort | md5s > $(LINUX_DIR)/.vermagic-orig
+	sed -rn 's/PKG_VERSION:=([0-9]+)/\1/p' $(TOPDIR)/package/kernel/linux/Makefile > $(LINUX_DIR)/.vermagic-kernel-pkg-vers
+	echo "`cat $(LINUX_DIR)/.vermagic-orig 2>/dev/null`-`cat $(LINUX_DIR)/.vermagic-kernel-pkg-vers 2>/dev/null`" > $(LINUX_DIR)/.vermagic
 	sed 's/CONFIG_LOCALVERSION=.*//g' $(LINUX_DIR)/.config
 	echo CONFIG_LOCALVERSION=\""-`cat $(LINUX_DIR)/.vermagic`"\"  >> $(LINUX_DIR)/.config;
 endef

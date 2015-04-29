@@ -15,7 +15,7 @@ SCAN_DEPS=modules/*.mk $(TOPDIR)/target/linux/*/modules.mk
 
 PKG_LICENSE:=GPLv2
 PKG_LICENSE_FILES:=
-PKG_VERSION:=6
+PKG_VERSION:=7
 
 include $(INCLUDE_DIR)/package.mk
 
