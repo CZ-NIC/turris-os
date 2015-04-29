@@ -1,4 +1,4 @@
-src-git turrispackages https://gitlab.labs.nic.cz/turris/openwrt-packages.git^d21e8da93ed237d43433c2b340d074a3068f44de
+src-git turrispackages https://gitlab.labs.nic.cz/turris/openwrt-packages.git^32c8d48f6cd3f8aefd9259344b4cefba6762e66e
 src-git lucics https://gitlab.labs.nic.cz/turris/luci-cs.git^39a5f33635f2558ac0f459103ad80bcad2d2dd83
 src-git packages https://github.com/openwrt/packages.git^0b8ec3e5f9d6c8e6aabeb36c2e3a501525e18916
 src-git routing https://github.com/openwrt-routing/packages.git^5d4ad63897b435d5df0f39a49bd58962c22c33b8
