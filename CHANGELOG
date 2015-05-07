@@ -1,3 +1,4 @@
+* updater: Kontrolovadlo hashů
 * ucollect-fake: Skripty na inicializaci firewallu
 * updater: Pouští opkg z /, nové opkg, oprava pouštění postinst skriptů
 ===================== 2.2 =======================
