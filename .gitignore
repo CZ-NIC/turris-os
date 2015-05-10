@@ -23,4 +23,5 @@
 TAGS*~
 /files/etc/git-version
 git-src
+.vagrant/
 /Vagrantfile
