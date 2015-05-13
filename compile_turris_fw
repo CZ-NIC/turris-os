@@ -5,7 +5,6 @@
 [ -d ./bin ] && rm -rf ./bin
 
 # Clean feeds
-./scripts/feeds uninstall -a
 ./scripts/feeds clean
 
 # Install luci feed
