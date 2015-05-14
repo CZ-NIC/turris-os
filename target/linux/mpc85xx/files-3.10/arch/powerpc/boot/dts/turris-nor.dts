@@ -86,6 +86,10 @@
                 };
 	
 		nand@1,0 {
+			nand-ecc-mode = "soft_bch";
+                        nand-ecc-step-size = <512>;
+                        nand-ecc-strength = <4>; 
+	
 			#address-cells = <1>;
 			#size-cells = <1>;
 			compatible = "fsl,p2020-fcm-nand",
@@ -110,6 +114,10 @@
 				label = "NAND (RW) JFFS2 Root File System";
 			};
 
+                        partition@00 {
+                                reg = <0x00000000 0x10000000>;
+                                label = "rootfs-ubifs";
+                        };
 		};
 
 	};

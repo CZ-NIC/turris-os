@@ -91,6 +91,10 @@
                 };
 	
 		nand@1,0 {
+			nand-ecc-mode = "soft_bch";
+			nand-ecc-step-size = <512>;
+			nand-ecc-strength = <4>; 
+
 			#address-cells = <1>;
 			#size-cells = <1>;
 			compatible = "fsl,p2020-fcm-nand",

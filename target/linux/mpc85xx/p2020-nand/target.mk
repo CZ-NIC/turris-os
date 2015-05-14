@@ -1,4 +1,4 @@
-FEATURES:= $(FEATURES) rtc jffs2_nand 
+FEATURES:= $(FEATURES) rtc jffs2_nand nand ubifs 
 BOARDNAME:=P2020-NAND
 
 define Target/Description
