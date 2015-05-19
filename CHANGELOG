@@ -1,3 +1,4 @@
+* ucollect: Zavírání filedescriptorů po forku
 * smrt: Omezení módů
 * ucollect: Volba na zapnutí promiskuitního módu
 * nuci: Nepadej kvůli chybějícímu času v souboru
