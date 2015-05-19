@@ -5,15 +5,14 @@
 [ -d ./bin ] && rm -rf ./bin
 
 # Clean feeds
-./scripts/feeds uninstall -a
+./scripts/feeds clean
 
 # Install luci feed
-./scripts/feeds update -i lucics
-./scripts/feeds install -p lucics -a
+./scripts/feeds update -a
+./scripts/feeds install -a
 
-# Install routing feed
-./scripts/feeds update routing
-./scripts/feeds install ohybridproxy hnetd
+# Uninstall broken pkgs
+for pkg in $(cat ./disabled_packages); do ./scripts/feeds uninstall $pkg; done
 
 # Build NAND FW
 cp configs/config-turris-nand .config

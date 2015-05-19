@@ -1,3 +1,16 @@
+* smrt: Omezení módů
+* ucollect: Volba na zapnutí promiskuitního módu
+* nuci: Nepadej kvůli chybějícímu času v souboru
+* updater: Kontrolovadlo hashů
+* ucollect-fake: Skripty na inicializaci firewallu
+* updater: Pouští opkg z /, nové opkg, oprava pouštění postinst skriptů
+===================== 2.2 =======================
+* nethist: Vede statistiky o pár dalších hodnotách ohledně paměti
+* kernel: Uklizení většiny kolizí v balíčcích modulů
+* net-snmp: aktualizace na verzi z upstreamu
+* iptables: -m socket bere --nowildcard parametr
+* Ucollect: fake plugin (zatím jen pro testování)
+* Updater: malá oprava logování
 * Luci aplikace majordomo a rainbow jsou nyní jako samostatné balíčky
 * Nuci: Kloudná chyba při ukládání do poškozeného konfiguráku
 * Nuci: přidán plugin Securris (v balíčku nuci-securris).

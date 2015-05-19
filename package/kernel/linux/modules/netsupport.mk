@@ -673,7 +673,7 @@ $(eval $(call KernelPackage,mppe))
 
 SCHED_MODULES = $(patsubst $(LINUX_DIR)/net/sched/%.ko,%,$(wildcard $(LINUX_DIR)/net/sched/*.ko))
 SCHED_MODULES_CORE = sch_ingress sch_fq_codel sch_hfsc cls_fw cls_route cls_flow cls_tcindex cls_u32 em_u32 act_mirred act_skbedit
-SCHED_MODULES_FILTER = $(SCHED_MODULES_CORE) act_connmark sch_esfq
+SCHED_MODULES_FILTER = $(SCHED_MODULES_CORE) act_connmark sch_esfq sch_netem
 SCHED_MODULES_EXTRA = $(filter-out $(SCHED_MODULES_FILTER),$(SCHED_MODULES))
 SCHED_FILES = $(patsubst %,$(LINUX_DIR)/net/sched/%.ko,$(filter $(SCHED_MODULES_CORE),$(SCHED_MODULES)))
 SCHED_FILES_EXTRA = $(patsubst %,$(LINUX_DIR)/net/sched/%.ko,$(SCHED_MODULES_EXTRA))
@@ -946,6 +946,10 @@ define KernelPackage/dnsresolver
   AUTOLOAD:=$(call AutoLoad,30,dns_resolver)
 endef
 
+define KernelPackage/dnsresolver/description
+ Kernel modules for DNS-RESOLVER support
+endef
+
 $(eval $(call KernelPackage,dnsresolver))
 
 define KernelPackage/rxrpc
@@ -967,17 +971,3 @@ define KernelPackage/rxrpc/description
 endef
 
 $(eval $(call KernelPackage,rxrpc))
-
-define KernelPackage/dns-resolver
-  SUBMENU:=$(NETWORK_SUPPORT_MENU)
-  TITLE:=DNS-resolver modules
-  KCONFIG:=CONFIG_DNS_RESOLVER
-  FILES:= \
-       $(LINUX_DIR)/net/dns_resolver/dns_resolver.ko
-endef
-
-define KernelPackage/dns-resolver/description
- Kernel modules for DNS-RESOLVER support
-endef
-
-$(eval $(call KernelPackage,dns-resolver))

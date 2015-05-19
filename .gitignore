@@ -10,8 +10,7 @@
 /staging_dir
 /tmp
 /logs
-/feeds/*
-!/feeds/lucics
+/feeds
 /feeds.conf
 /package/feeds
 /package/openwrt-packages
@@ -24,3 +23,5 @@
 TAGS*~
 /files/etc/git-version
 git-src
+.vagrant/
+/Vagrantfile

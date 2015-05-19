@@ -1,6 +1,6 @@
 --- a/libopkg/opkg_download.c
 +++ b/libopkg/opkg_download.c
-@@ -157,16 +157,29 @@
+@@ -157,23 +157,36 @@
  #else
      {
        int res;
@@ -10,7 +10,7 @@
  
 -      argv[i++] = "wget";
 -      argv[i++] = "-q";
--      if (opkg_config->http_proxy || opkg_config->ftp_proxy) {
+-      if (conf->http_proxy || conf->ftp_proxy) {
 -	argv[i++] = "-Y";
 -	argv[i++] = "on";
 +      argv[i++] = "get-api-crl";
@@ -18,12 +18,12 @@
 +      res = xsystem(argv);
 +
 +      if (res) {
-+	opkg_msg(ERROR, "Failed to download CRL, wget returned %d.\n", res);
-+	free(tmp_file_location);
-+	return -1;
++	  opkg_msg(ERROR, "Failed to download CRL, wget returned %d.\n", res);
++	  free(tmp_file_location);
++	  return -1;
        }
 -      argv[i++] = "-O";
-+
++      
 +      i = 0;
 +
 +      argv[i++] = "curl";
@@ -37,7 +37,6 @@
        argv[i++] = tmp_file_location;
        argv[i++] = src;
        argv[i++] = NULL;
-@@ -173,7 +185,7 @@
        res = xsystem(argv);
  
        if (res) {

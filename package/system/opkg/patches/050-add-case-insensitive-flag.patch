@@ -5,7 +5,7 @@
  	  pkg = ordered->pkgs[i];
  
 -	  if (pkg_name && fnmatch(pkg_name, pkg->name, 0))
-+	  if (pkg_name && fnmatch(pkg_name, pkg->name, opkg_config->nocase))
++	  if (pkg_name && fnmatch(pkg_name, pkg->name, conf->nocase))
  	       continue;
  
  	  if (pkg->state_status == SS_UNPACKED) {
@@ -14,7 +14,7 @@
  	  pkg = available->pkgs[i];
  	  /* if we have package name or pattern and pkg does not match, then skip it */
 -	  if (pkg_name && fnmatch(pkg_name, pkg->name, 0))
-+	  if (pkg_name && fnmatch(pkg_name, pkg->name, opkg_config->nocase))
++	  if (pkg_name && fnmatch(pkg_name, pkg->name, conf->nocase))
  	       continue;
            print_pkg(pkg);
       }
@@ -23,7 +23,7 @@
  	  pkg = available->pkgs[i];
  	  /* if we have package name or pattern and pkg does not match, then skip it */
 -	  if (pkg_name && fnmatch(pkg_name, pkg->name, 0))
-+	  if (pkg_name && fnmatch(pkg_name, pkg->name, opkg_config->nocase))
++	  if (pkg_name && fnmatch(pkg_name, pkg->name, conf->nocase))
  	       continue;
            print_pkg(pkg);
       }
@@ -32,7 +32,7 @@
  	  pkg = available->pkgs[i];
  	  /* if we have package name or pattern and pkg does not match, then skip it */
 -	  if (pkg_name && fnmatch(pkg_name, pkg->name, 0))
-+	  if (pkg_name && fnmatch(pkg_name, pkg->name, opkg_config->nocase))
++	  if (pkg_name && fnmatch(pkg_name, pkg->name, conf->nocase))
  	    continue;
  	  if (nv_pair_list_empty(&pkg->conffiles))
  	    continue;
@@ -41,7 +41,7 @@
       for (i=0; i < available->len; i++) {
  	  pkg = available->pkgs[i];
 -	  if (pkg_name && fnmatch(pkg_name, pkg->name, 0)) {
-+	  if (pkg_name && fnmatch(pkg_name, pkg->name, opkg_config->nocase)) {
++	  if (pkg_name && fnmatch(pkg_name, pkg->name, conf->nocase)) {
  	       continue;
  	  }
  
@@ -50,7 +50,7 @@
          for (a=0; a<available->len; a++) {
              pkg = available->pkgs[a];
 -	    if (fnmatch(argv[i], pkg->name, 0)) {
-+	    if (fnmatch(argv[i], pkg->name, opkg_config->nocase)) {
++	    if (fnmatch(argv[i], pkg->name, conf->nocase)) {
                 continue;
              }
              if (conf->restrict_to_default_dest) {
@@ -59,7 +59,7 @@
  			pkg = available_pkgs->pkgs[j];
  
 -			if (fnmatch(argv[i], pkg->name, 0) != 0)
-+			if (fnmatch(argv[i], pkg->name, opkg_config->nocase) != 0)
++			if (fnmatch(argv[i], pkg->name, conf->nocase) != 0)
  				continue;
  
  			depends_count = pkg->depends_count +
@@ -68,10 +68,10 @@
  			       ? pkg->provides[k]
  			       : pkg->replaces[k]);
 -			 if (fnmatch(target, apkg->name, 0) == 0) {
-+			 if (fnmatch(target, apkg->name, opkg_config->nocase) == 0) {
++			 if (fnmatch(target, apkg->name, conf->nocase) == 0) {
  			      opkg_msg(NOTICE, "    %s", pkg->name);
 -			      if (strcmp(target, apkg->name) != 0)
-+			      if ((opkg_config->nocase ? strcasecmp(target, apkg->name) : strcmp(target, apkg->name)) != 0)
++			      if ((conf->nocase ? strcasecmp(target, apkg->name) : strcmp(target, apkg->name)) != 0)
  				   opkg_msg(NOTICE, "\t%s %s\n",
  						   rel_str, apkg->name);
  			      opkg_message(NOTICE, "\n");
@@ -80,7 +80,7 @@
  	  for (iter = str_list_first(installed_files); iter; iter = str_list_next(installed_files, iter)) {
  	       installed_file = (char *)iter->data;
 -	       if (fnmatch(argv[0], installed_file, 0)==0)
-+	       if (fnmatch(argv[0], installed_file, opkg_config->nocase)==0)
++	       if (fnmatch(argv[0], installed_file, conf->nocase)==0)
  	            print_pkg(pkg);
  	  }
  
@@ -144,7 +144,7 @@
  			conf->conf_file = xstrdup(optarg);
  			break;
 +		case 'i':
-+			opkg_config->nocase = FNM_CASEFOLD;
++			conf->nocase = FNM_CASEFOLD;
 +			break;
  		case 'o':
  			conf->offline_root = xstrdup(optarg);
@@ -154,7 +154,7 @@
  			conf->nodeps = 1;
  			break;
 +		case ARGS_OPT_NOCASE:
-+			opkg_config->nocase = FNM_CASEFOLD;
++			conf->nocase = FNM_CASEFOLD;
 +			break;
  		case ARGS_OPT_ADD_ARCH:
  		case ARGS_OPT_ADD_DEST:

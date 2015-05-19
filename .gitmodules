@@ -1,6 +1,0 @@
-[submodule "package/packages"]
-	path = package/packages
-	url = https://gitlab.labs.nic.cz/turris/openwrt-packages.git
-[submodule "feeds/lucics"]
-	path = feeds/lucics
-	url = https://gitlab.labs.nic.cz/turris/luci-cs.git

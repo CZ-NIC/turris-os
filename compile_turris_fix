@@ -1,13 +1,11 @@
 #!/bin/bash -xe
 
 # Install luci feed
-./scripts/feeds update -i lucics
-./scripts/feeds install -p lucics -a
+./scripts/feeds update -a
+./scripts/feeds install -a
 
-# Install routing feed and bird package
-./scripts/feeds update routing
-#./scripts/feeds install bird4 birdc4 bird6 birdc6
-./scripts/feeds install ohybridproxy hnetd
+# Uninstall broken pkgs
+for pkg in $(cat ./disabled_packages); do ./scripts/feeds uninstall $pkg; done
 
 # Build NAND FW
 cp configs/config-turris-nand .config

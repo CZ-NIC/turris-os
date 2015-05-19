@@ -1,10 +1,8 @@
 #!/bin/sh
 
-SUBMODULES=`git submodule status | awk '{print $2;}'`
-
 git config remote.origin.pushurl git@gitlab.labs.nic.cz:turris/openwrt.git
 
-for i in $SUBMODULES; do
+for i in $(find feeds/ -maxdepth 1 -type d -regex '[a-zA-Z/]+'); do
     (
     cd $i; 
     REMOTE=`git config remote.origin.url`;

@@ -389,7 +389,7 @@ sub install_package {
 	# check previously installed packages
 	$installed{$name} and return 0;
 	$installed{$src} = 1;
-	warn "Installing package '$src'\n";
+	warn "Installing package '$feed->[1]/$src'\n";
 
 	$install_method{$type} or do {
 		warn "Unknown installation method: '$type'\n";
@@ -561,6 +561,7 @@ sub update {
 	my %opts;
 	my $feed_name;
 	my $perform_update=1;
+	my $failed=0;
 
 	$ENV{SCAN_COOKIE} = $$;
 	$ENV{OPENWRT_VERBOSE} = 's';
@@ -585,7 +586,8 @@ sub update {
 	if ( ($#ARGV == -1) or $opts{a}) {
 		foreach my $feed (@feeds) {
 			my ($type, $name, $src) = @$feed;
-			update_feed($type, $name, $src, $perform_update);
+			update_feed($type, $name, $src, $perform_update) == 0 or $failed=1;
+
 		}
 	} else {
 		while ($feed_name = shift @ARGV) {
@@ -594,14 +596,13 @@ sub update {
 				if($feed_name ne $name) {
 					next;
 				}
-				update_feed($type, $name, $src, $perform_update);
+				update_feed($type, $name, $src, $perform_update) == 0 or $failed=1;
 			}
 		}
 	}
 
 	refresh_config();
-
-	return 0;
+	return $failed;
 }
 
 sub feed_config() {
@@ -665,7 +666,7 @@ my %commands = (
 	'uninstall' => \&uninstall,
 	'feed_config' => \&feed_config,
 	'clean' => sub {
-		system("rm -rf feeds");
+		system("rm -rf ./feeds ./packages/feeds");
 	}
 );
 

@@ -149,8 +149,8 @@ define Package/base-files/install
 	done
 
 	echo "#!/bin/sh" > $(1)/CONTROL/postinst	
-	echo -e "[ -z "\$$$$IPKG_INSTROOT" ] && rm -f `ls $(1)/etc/uci-defaults | awk '{ printf "/etc/uci-defaults/%s ", $$$$0 }'` " >> $(1)/CONTROL/postinst
-	echo -e "[ -z "\$$$$IPKG_INSTROOT" ] && for i in `ls $(1)/etc/init.d/ | awk '{ printf "/etc/init.d/%s ", $$$$0 }'`; do "\$$$$i" enable || true; done" >> $(1)/CONTROL/postinst
+	echo -e "if [ -z "\$$$$IPKG_INSTROOT" ]; then rm -f `ls $(1)/etc/uci-defaults | awk '{ printf "/etc/uci-defaults/%s ", $$$$0 }'`; fi" >> $(1)/CONTROL/postinst;
+	echo -e "if [ -z "\$$$$IPKG_INSTROOT" ]; then for i in `ls $(1)/etc/init.d/ | awk '{ printf "/etc/init.d/%s ", $$$$0 }'`; do "\$$$$i" enable || true; done; fi" >> $(1)/CONTROL/postinst
 endef
 
 ifneq ($(DUMP),1)
