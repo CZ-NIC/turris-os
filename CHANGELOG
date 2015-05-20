@@ -1,3 +1,4 @@
+* cznic-cacert-bundle: Ošetření problému se stahováním
 * squid: Nová verze, bez chyby ve validaci certifikátů v CVE-2015-3455
 * ucollect: Zavírání filedescriptorů po forku
 * smrt: Omezení módů
