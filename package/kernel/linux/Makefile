@@ -39,7 +39,7 @@ endef
 define KernelPackage/depends
 endef
 
-CONFIG_PACKAGE_kernel=y
+CONFIG_PACKAGE_kernel=m
 define Package/kernel
   SECTION:=sys
   CATEGORY:=Kernel
@@ -51,17 +51,9 @@ define Package/kernel
 endef
 
 define Package/kernel/install
-	$(INSTALL_DIR) $(1)/tmp
-	$(CP) $(LINUX_DIR)/arch/powerpc/boot/zImage $(1)/tmp/zImage
-	$(CP) $(PKG_BUILD_DIR)/fdt $(1)/tmp/fdt
-endef
-
-define Package/kernel/preinst
-#!/bin/sh
-if [ -z "$${IPKG_INSTROOT}" ]; then
-	if [ -f /tmp/zImage ]; then rm -f /tmp/zImage; fi
-	if [ -f /tmp/fdt ]; then rm -f /tmp/fdt; fi
-fi
+	$(INSTALL_DIR) $(1)/boot
+	$(CP) $(LINUX_DIR)/arch/powerpc/boot/zImage	$(1)/boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
+	$(CP) $(PKG_BUILD_DIR)/fdt 			$(1)/boot/fdt-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
 endef
 
 define Package/kernel/postinst
@@ -72,22 +64,20 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
     "jffs2")
     	echo "JFFS2 rootfstype found"
 	echo "Erasing and flashing FDT partition."
-	flash_erase /dev/mtd6 0 0 && nandwrite -p /dev/mtd6 /tmp/fdt
+	flash_erase /dev/mtd6 0 0 && nandwrite -p /dev/mtd6 /boot/fdt-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
 
 	echo "Erasing and flashing kernel partition."
-	flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /tmp/zImage
+	flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
 	;;
     "ubifs")
     	echo "UBIFS rootfstype found"
-	cp /tmp/zImage /boot/zImage
-	cp /tmp/fdt /boot/fdt
+	ln -sf zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) /boot/zImage
+	ln -sf fdt-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) /boot/fdt
         ;;
     esac
 
     create_notification -s restart "Jádro systému bylo aktualizováno na verzi $(VERSION). Prosím restartujte své zařízení."
 fi
-rm $${IPKG_INSTROOT}/tmp/fdt
-rm $${IPKG_INSTROOT}/tmp/zImage
 endef
 
 define Package/kernel/extra_provides
