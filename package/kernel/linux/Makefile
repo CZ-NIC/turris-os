@@ -39,7 +39,7 @@ endef
 define KernelPackage/depends
 endef
 
-CONFIG_PACKAGE_kernel=y
+CONFIG_PACKAGE_kernel=m
 define Package/kernel
   SECTION:=sys
   CATEGORY:=Kernel
