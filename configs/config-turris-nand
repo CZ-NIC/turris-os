@@ -42,6 +42,7 @@ CONFIG_PACKAGE_openssh_server_nuci_support=y
 CONFIG_PACKAGE_rssh=m
 CONFIG_PACKAGE_sshtunnel=m
 CONFIG_PACKAGE_nikola=m
+CONFIG_PACKAGE_start-indicator=m
 CONFIG_PACKAGE_nuci-nethist=m
 CONFIG_PACKAGE_nuci-securris=m
 CONFIG_PACKAGE_getbranch-test=m
