@@ -39,7 +39,7 @@ endef
 define KernelPackage/depends
 endef
 
-CONFIG_PACKAGE_kernel=m
+CONFIG_PACKAGE_kernel=y
 define Package/kernel
   SECTION:=sys
   CATEGORY:=Kernel
@@ -54,6 +54,8 @@ define Package/kernel/install
 	$(INSTALL_DIR) $(1)/boot
 	$(CP) $(LINUX_DIR)/arch/powerpc/boot/zImage	$(1)/boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
 	$(CP) $(PKG_BUILD_DIR)/fdt 			$(1)/boot/fdt-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
+	ln -sf zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) $(1)/boot/zImage
+	ln -sf fdt-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) $(1)/boot/fdt
 endef
 
 define Package/kernel/postinst
@@ -71,8 +73,6 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
 	;;
     "ubifs")
     	echo "UBIFS rootfstype found"
-	ln -sf zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) /boot/zImage
-	ln -sf fdt-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) /boot/fdt
         ;;
     esac
 
