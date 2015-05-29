@@ -1,3 +1,4 @@
+===================== 2.3 =======================
 * Foris (v54): Přidána stránka Sběr dat, kosmetické změny (select 802.11n jen při zaplé WiFi aj.).
 * Foris (v53): Zobrazení stavu odesílání uCollectu/FW na stránce O routeru.
 * Foris (v53): Opravy v CSRF ochraně, validace MAC adresy a dalších drobností.
