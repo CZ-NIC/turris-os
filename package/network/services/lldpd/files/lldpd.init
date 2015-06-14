@@ -1,0 +1,73 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2008-2012 OpenWrt.org
+
+START=90
+
+SERVICE_USE_PID=1
+
+find_release_info()
+{
+	[ -s /etc/openwrt_release ] && . /etc/openwrt_release
+	[ -z "$DISTRIB_DESCRIPTION" ] && [ -s /etc/openwrt_version ] && \
+		DISTRIB_DESCRIPTION="$(cat /etc/openwrt_version)"
+
+	echo "${DISTRIB_DESCRIPTION:-Unknown OpenWrt release} @ $(cat /proc/sys/kernel/hostname)"
+}
+
+start() {
+	. /lib/functions/network.sh
+
+	local enable_cdp
+	local enable_fdp
+	local enable_sonmp
+	local enable_edp
+	local lldp_class
+	local lldp_location
+	local lldp_description
+	local readonly_mode
+
+	config_load 'lldpd'
+	config_get_bool enable_cdp 'config' 'enable_cdp' 0
+	config_get_bool enable_fdp 'config' 'enable_fdp' 0
+	config_get_bool enable_sonmp 'config' 'enable_sonmp' 0
+	config_get_bool enable_edp 'config' 'enable_edp' 0
+	config_get lldp_class 'config' 'lldp_class'
+	config_get lldp_location 'config' 'lldp_location'
+	config_get lldp_description 'config' 'lldp_description' "$(find_release_info)"
+	config_get_bool readonly_mode 'config' 'readonly_mode' 0
+
+	local ifaces
+	config_get ifaces 'config' 'interface'
+
+	local iface ifnames=""
+	for iface in $ifaces; do
+		local ifname=""
+		if network_get_device ifname "$iface" || [ -e "/sys/class/net/$iface" ]; then
+			append ifnames "${ifname:-$iface}" ","
+		fi
+	done
+
+	[ -n "$ifnames" ] && append args "-I $ifnames"
+	[ $enable_cdp -gt 0 ] && append args '-c'
+	[ $enable_fdp -gt 0 ] && append args '-f'
+	[ $enable_sonmp -gt 0 ] && append args '-s'
+	[ $enable_edp -gt 0 ] && append args '-e'
+	[ $readonly_mode -gt 0 ] && append args '-r'
+
+	mkdir -p /var/run/lldp
+	chown lldp:lldp /var/run/lldp
+
+	service_start /usr/sbin/lldpd $args \
+		${lldp_class:+ -M $lldp_class} \
+		${lldp_description:+ -S "$lldp_description"}
+
+	[ -n "$lldp_location" ] && {
+		sleep 1
+		/usr/sbin/lldpctl -L "$lldp_location" > /dev/null 2>&1
+	}
+}
+
+stop() {
+	service_stop /usr/sbin/lldpd
+	rm -f /var/run/lldpd.socket /var/run/lldpd.pid
+}

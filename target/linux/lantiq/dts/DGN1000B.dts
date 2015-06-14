@@ -1,0 +1,138 @@
+/dts-v1/;
+
+/include/ "amazonse.dtsi"
+
+/ {
+	model = "DGN1000B - Netgear DGN1000B";
+
+	chosen {
+		bootargs = "console=ttyLTQ0,115200 init=/etc/preinit";
+	};
+
+	memory@0 {
+		reg = <0x0 0x1000000>;
+	};
+
+	fpi@10000000 {
+		gpio: pinmux@E100B10 {
+			pinctrl-names = "default";
+			pinctrl-0 = <&state_default>;
+
+			state_default: pinmux {
+				spi {
+					lantiq,groups = "spi", "spi_cs1";
+					lantiq,function = "spi";
+				};
+				asc {
+					lantiq,groups = "asc";
+					lantiq,function = "asc";
+				};
+				keys_in {
+					lantiq,pins = "io0",/* "io25", */"io29";
+					lantiq,pull = <2>;
+					lantiq,open-drain = <1>;
+				};
+			};
+		};
+
+		etop@E180000 {
+			phy-mode = "mii";
+			mac-address = [ 00 11 22 33 44 55 ];
+		};
+
+		spi@E100800 {
+			m25p80@0 {
+				#address-cells = <1>;
+				#size-cells = <1>;
+				compatible = "mx25l3205d";
+				reg = <0 0>;
+				linux,modalias = "m25p80", "mx25l64";
+				spi-max-frequency = <5000000>;
+
+				partition@0 {
+					reg = <0x0 0x20000>;
+					label = "SPI (RO) U-Boot Image";
+					read-only;
+				};
+
+				partition@20000 {
+					reg = <0x20000 0x10000>;
+					label = "ENV_MAC";
+					read-only;
+				};
+
+				partition@30000 {
+					reg = <0x30000 0x10000>;
+					label = "DPF";
+					read-only;
+				};
+
+				partition@40000 {
+					reg = <0x40000 0x10000>;
+					label = "NVRAM";
+					read-only;
+				};
+
+				partition@500000 {
+					reg = <0x50000 0x003a0000>;
+					label = "kernel";
+				};
+			};
+		};
+		ifxhcd@E101000 {
+			status = "okay";
+		};
+	};
+
+	gpio-keys-polled {
+		compatible = "gpio-keys-polled";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		poll-interval = <100>;
+
+		reset {
+			label = "reset";
+			gpios = <&gpio 0 1>;
+			linux,code = <0x198>;
+		};
+		rfkill {
+			label = "rfkill";
+			gpios = <&gpio 25 1>;
+			linux,code = <0xf7>;
+		};
+		wps {
+			label = "wps";
+			gpios = <&gpio 29 1>;
+			linux,code = <0x211>;
+		};
+	};
+
+	gpio-leds {
+		cmpatible = "gpio-leds";
+		dsl {
+			label = "dsl";
+			gpios = <&gpio 1 1>;
+			default-state = "on";
+		};
+		online {
+			label = "online";
+			gpios = <&gpio 2 1>;
+			default-state = "on";
+		};
+		online2 {
+			label = "online2";
+			gpios = <&gpio 3 1>;
+			default-state = "on";
+		};
+		wps {
+			label = "wps";
+			gpios = <&gpio 4 1>;
+			default-state = "on";
+		};
+		power {
+			label = "power";
+			gpios = <&gpio 13 1>;
+			default-state = "on";
+		};
+	};
+};
