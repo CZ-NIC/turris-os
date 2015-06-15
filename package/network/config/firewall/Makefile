@@ -38,11 +38,6 @@ define Package/firewall/conffiles
 /etc/firewall.user
 endef
 
-define Build/Configure
-	$(foreach file,$(wildcard $(STAGING_DIR)/usr/lib/iptables/libext*.a),$(CP) $(file) $(PKG_BUILD_DIR)/$(notdir $(file));)
-	$(call Build/Configure/Default)
-endef
-
 TARGET_CFLAGS += -ffunction-sections -fdata-sections
 TARGET_LDFLAGS += -Wl,--gc-sections
 CMAKE_OPTIONS += $(if $(CONFIG_IPV6),,-DDISABLE_IPV6=1)
