@@ -8,14 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=procd
-PKG_VERSION:=2015-05-23
+PKG_VERSION:=2015-06-18
 
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git://nbd.name/luci2/procd.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=a771644fd3a3ac055ec0c62fbe434aed0df002fe
+PKG_SOURCE_VERSION:=8559df08db51a2e5fe056e6a1c07984e51068eaf
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 CMAKE_INSTALL:=1
 
@@ -143,4 +143,3 @@ $(eval $(call BuildPackage,procd))
 $(eval $(call BuildPackage,procd-jail))
 $(eval $(call BuildPackage,procd-nand))
 $(eval $(call BuildPackage,procd-nand-firstboot))
-$(eval $(call BuildPackage,procd-nand))
