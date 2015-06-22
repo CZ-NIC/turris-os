@@ -1089,6 +1089,21 @@ endef
 $(eval $(call KernelPackage,usb-net-smsc95xx))
 
 
+define KernelPackage/usb-net-smsc75xx
+  TITLE:=SMSC LAN75XX based USB 2.0 10/100 ethernet devices
+  KCONFIG:=CONFIG_USB_NET_SMSC75XX
+  FILES:=$(LINUX_DIR)/drivers/$(USBNET_DIR)/smsc75xx.ko
+  AUTOLOAD:=$(call AutoLoad,27,smsc75xx)
+  $(call AddDepends/usb-net, +(!LINUX_3_3&&!LINUX_3_6):kmod-lib-crc16)
+endef
+
+define KernelPackage/usb-net-smsc75xx/description
+ Kernel module for SMSC LAN75XX based devices
+endef
+
+$(eval $(call KernelPackage,usb-net-smsc75xx))
+
+
 define KernelPackage/usb-net-dm9601-ether
   TITLE:=Support for DM9601 ethernet connections
   KCONFIG:=CONFIG_USB_NET_DM9601

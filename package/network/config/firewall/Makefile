@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=firewall
-PKG_VERSION:=2015-04-22
+PKG_VERSION:=2015-06-16
 PKG_RELEASE:=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://gitlab.labs.nic.cz/turris/firewall3.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=40ac2ffc290330463e9e15faa601ca2db7ba8673
+PKG_SOURCE_VERSION:=a139b8a9c100b4f2f6840f55ab5fdd3435a36a45
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_MAINTAINER:=Stepan Henek <stepan.henek@nic.cz>
 
@@ -36,11 +36,6 @@ endef
 define Package/firewall/conffiles
 /etc/config/firewall
 /etc/firewall.user
-endef
-
-define Build/Configure
-	$(foreach file,$(wildcard $(STAGING_DIR)/usr/lib/iptables/libext*.a),$(CP) $(file) $(PKG_BUILD_DIR)/$(notdir $(file));)
-	$(call Build/Configure/Default)
 endef
 
 TARGET_CFLAGS += -ffunction-sections -fdata-sections
