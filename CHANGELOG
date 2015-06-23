@@ -1,3 +1,4 @@
+* ucollect-fake: Logování lokální IP adresy a vzdáleného portu
 * Firewall: Uložená pravidla ze serveru jsou komprimována, aby zabírala méně místa.
 * ucollect: nová aktivace pluginů
 ===================== 2.3 =======================
