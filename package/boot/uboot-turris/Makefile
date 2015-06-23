@@ -44,8 +44,8 @@ if [ -z "$$IPKG_INSTROOT" ]; then
 	    touch /lib/uboot/uboot-$(PKG_VERSION).installed
 	fi
 else
-	rm $(1)/boot/uboot/uboot-$(PKG_VERSION)
-	touch $(1)/lib/uboot/uboot-$(PKG_VERSION).installed
+	rm $${IPKG_INSTROOT}/boot/uboot/uboot-$(PKG_VERSION)
+	touch $${IPKG_INSTROOT}/lib/uboot/uboot-$(PKG_VERSION).installed
 fi
 endef
 
