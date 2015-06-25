@@ -37,7 +37,7 @@ if [ -z "$$IPKG_INSTROOT" ]; then
 	mtd -e /dev/mtd5 write /boot/uboot/uboot-$${fstype}-$(PKG_VERSION) /dev/mtd5
 	ret=$$?
 	if [ $$ret -ne 0 ]; then
-	    echo "mtd -r /dev/mtd5 write /boot/uboot/uboot-$${fstype}-$(PKG_VERSION) /dev/mtd5 && \\"  > /etc/uci-defaults/10-flash_uboot
+	    echo "mtd -e /dev/mtd5 write /boot/uboot/uboot-$${fstype}-$(PKG_VERSION) /dev/mtd5 && \\"  > /etc/uci-defaults/10-flash_uboot
 	    echo "touch /lib/uboot/uboot-$(PKG_VERSION).installed && \\" >> /etc/uci-defaults/10-flash_uboot
 	    echo "reboot" >> /etc/uci-defaults/10-flash_uboot
 	else
