@@ -33,13 +33,14 @@ define Build/Configure
 endef
 
 define Build/Compile
-	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/powerpc/boot/dts/turris-nand.dts -o $(PKG_BUILD_DIR)/fdt
+	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/powerpc/boot/dts/turris-nand-bch.dts -o $(PKG_BUILD_DIR)/fdt-bch
+	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/powerpc/boot/dts/turris-nand-hw.dts -o $(PKG_BUILD_DIR)/fdt-hw
 endef
 
 define KernelPackage/depends
 endef
 
-CONFIG_PACKAGE_kernel=m
+CONFIG_PACKAGE_kernel=y
 define Package/kernel
   SECTION:=sys
   CATEGORY:=Kernel
@@ -47,13 +48,16 @@ define Package/kernel
   TITLE:=Kernel package
   VERSION:=$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
   URL:=http://www.kernel.org/
-  DEPENDS:=+create_notification
+  DEPENDS:=+create_notification +uboot-turris
 endef
 
 define Package/kernel/install
 	$(INSTALL_DIR) $(1)/boot
 	$(CP) $(LINUX_DIR)/arch/powerpc/boot/zImage	$(1)/boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
-	$(CP) $(PKG_BUILD_DIR)/fdt 			$(1)/boot/fdt-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
+	$(CP) $(PKG_BUILD_DIR)/fdt-bch 			$(1)/boot/fdt-bch-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
+	$(CP) $(PKG_BUILD_DIR)/fdt-hw                  $(1)/boot/fdt-hw-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
+	ln -sf zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) $(1)/boot/zImage
+	ln -sf fdt-bch-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) $(1)/boot/fdt
 endef
 
 define Package/kernel/postinst
@@ -64,15 +68,19 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
     "jffs2")
     	echo "JFFS2 rootfstype found"
 	echo "Erasing and flashing FDT partition."
-	flash_erase /dev/mtd6 0 0 && nandwrite -p /dev/mtd6 /boot/fdt-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
+	flash_erase /dev/mtd6 0 0 && nandwrite -p /dev/mtd6 /boot/fdt-hw-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
 
 	echo "Erasing and flashing kernel partition."
-	flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
+	if [ -f /lib/uboot/uboot-1.installed ]; then
+		flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
+	else
+		echo "[ -f /lib/uboot/uboot-1.installed ] && \\"
+	    	echo "flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) && \\" > /etc/uci-defaults/11-flash_kernel
+		echo "reboot" >> /etc/uci-defaults/11-flash_kernel
+	fi
 	;;
     "ubifs")
     	echo "UBIFS rootfstype found"
-	ln -sf zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) /boot/zImage
-	ln -sf fdt-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) /boot/fdt
         ;;
     esac
 

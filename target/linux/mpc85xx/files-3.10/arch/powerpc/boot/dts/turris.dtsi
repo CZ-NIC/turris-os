@@ -51,28 +51,24 @@
                                 /* 128KB for DTB Image */
                                 reg = <0x0 0x00020000>;
                                 label = "NOR (RO) DTB Image";
-                                read-only;
                         };
 
                         partition@20000 {
                                 /* 1.7 MB for Linux Kernel Image */
                                 reg = <0x00020000 0x1A0000>;
                                 label = "NOR (RO) Linux Kernel Image";
-                                read-only;
                         };
 
                         partition@1C0000 {
                                 /* 1.5 MB for JFFS2 based Root file System */
                                 reg = <0x001C0000 0x180000>;
                                 label = "NOR (RO) JFFS2 Root File System";
-                                read-only;
                         };
 
                         partition@340000 {
                                 /* for nand fw backup */
                                 reg = <0x00340000 0xb00000>;
                                 label = "NOR (RO) NAND FW backup";
-                                read-only;
                         };
 
                         partition@E40000 {
