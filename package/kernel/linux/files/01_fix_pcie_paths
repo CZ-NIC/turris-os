@@ -1,0 +1,100 @@
+#!/bin/sh
+
+OLD_PCI_PATH1="ffe09000.pcie/pci0000:00/0000:00:00.0/0000:01:00.0"
+OLD_PCI_PATH2="ffe0a000.pcie/pci0001:02/0001:02:00.0/0001:03:00.0"
+
+NEW_PCI_PATH1="ffe09000.pcie/pci0001:02/0001:02:00.0/0001:03:00.0"
+NEW_PCI_PATH2="ffe0a000.pcie/pci0002:04/0002:04:00.0/0002:05:00.0"
+
+CHANGE=0
+
+remove_wifi_iface() {
+	local RADIO_ID=$1
+	for k in `seq 0 10`; do 
+		local IFACE_RADIO_ID=$(uci get wireless.@wifi-iface[$k].device 2> /dev/null)
+		if [ -n "$IFACE_RADIO_ID" ] && [ "$IFACE_RADIO_ID" = "$RADIO_ID" ]; then	
+			uci delete wireless.@wifi-iface[$k]
+			local RET=$?
+			if [ $RET -eq 0 ]; then
+				echo "wifi iface $k removed"
+				return 0
+			fi
+		fi
+	done
+	return 1
+} 
+
+find_radio() {
+	local NEW_PCI_PATH=$1
+	for j in `seq 0 10`; do
+		local PCI_PATH=$(uci get wireless.radio$j.path 2>/dev/null)
+		if [ -n "$PCI_PATH" ] && [ "$PCI_PATH" =  "$NEW_PCI_PATH" ]; then
+			local DISABLED=$(uci get wireless.radio$j.disabled 2> /dev/null)
+			[ -z "$DISABLED" ] && DISABLED=0
+			if [ $DISABLED -eq 1 ]; then
+				ls /sys/devices/$PCI_PATH &>/dev/null
+				local RET=$?
+				if [ $RET -eq 0 ]; then
+					# So we found a radio which is enabled with desired existing pci path 
+					echo "Found $PCI_PATH"
+					remove_wifi_iface radio$j
+					local RET=$?
+					if [ $RET -eq 0 ]; then
+						uci delete wireless.radio$j
+						local RET2=$?
+						if [ $RET2 == 0 ]; then
+							return 0
+						fi
+					fi
+				fi
+			fi
+		fi
+	done
+	return 1
+}
+
+
+
+
+for i in `seq 0 10`; do
+	PCI_PATH=$(uci get wireless.radio$i.path 2>/dev/null)
+	if [ -n "$PCI_PATH" ]; then
+		
+		DISABLED=$(uci get wireless.radio$i.disabled 2> /dev/null)
+		[ -z "$DISABLED" ] && DISABLED=0
+
+		if [ $DISABLED -eq 0 ]; then
+			if [ "$PCI_PATH" = "$OLD_PCI_PATH1" ]; then
+				ls /sys/devices/$PCI_PATH &>/dev/null
+				RET=$?
+				if [ $RET -ne 0 ]; then
+					# So we found enabled radio with old pci path which does not exist
+					echo $PCI_PATH
+					find_radio $NEW_PCI_PATH1
+					local RET2=$?
+					if [ $RET2 -eq 0 ]; then
+						echo "Set new pci path for radio $i"
+						uci set wireless.radio$i.path=$NEW_PCI_PATH1
+						CHANGE=1
+					fi
+				fi
+			elif [ "$PCI_PATH" = "$OLD_PCI_PATH2" ]; then  
+                                ls /sys/devices/$PCI_PATH &>/dev/null
+                                RET=$?
+                                if [ $RET -ne 0 ]; then
+                                        # So we found enabled radio with old pci path which does not exist
+                                        echo $PCI_PATH
+					find_radio $NEW_PCI_PATH2
+					local RET2=$?                                                     
+                                        if [ $RET2 -eq 0 ]; then                                           
+						echo "Set new pci path for radio $i"
+                                                uci set wireless.radio$i.path=$NEW_PCI_PATH2              
+						CHANGE=1
+                                        fi
+                                fi
+			fi
+		fi
+	fi
+done
+
+[ $CHANGE -ne 0 ] && uci commit && wifi

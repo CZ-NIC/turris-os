@@ -15,7 +15,7 @@ SCAN_DEPS=modules/*.mk $(TOPDIR)/target/linux/*/modules.mk
 
 PKG_LICENSE:=GPLv2
 PKG_LICENSE_FILES:=
-PKG_VERSION:=7
+PKG_VERSION:=8
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -53,9 +53,13 @@ endef
 
 define Package/kernel/install
 	$(INSTALL_DIR) $(1)/boot
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
+
+	$(CP) ./files/01_fix_pcie_paths			$(1)/etc/uci-defaults/01_fix_pcie_paths
+
 	$(CP) $(LINUX_DIR)/arch/powerpc/boot/zImage	$(1)/boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
 	$(CP) $(PKG_BUILD_DIR)/fdt-bch 			$(1)/boot/fdt-bch-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
-	$(CP) $(PKG_BUILD_DIR)/fdt-hw                  $(1)/boot/fdt-hw-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
+	$(CP) $(PKG_BUILD_DIR)/fdt-hw                   $(1)/boot/fdt-hw-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
 	ln -sf zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) $(1)/boot/zImage
 	ln -sf fdt-bch-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) $(1)/boot/fdt
 endef
