@@ -74,8 +74,8 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
 	if [ -f /lib/uboot/uboot-1.installed ]; then
 		flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
 	else
-		echo "[ -f /lib/uboot/uboot-1.installed ] && \\"
-	    	echo "flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) && \\" > /etc/uci-defaults/11-flash_kernel
+		echo "[ -f /lib/uboot/uboot-1.installed ] && \\" > /etc/uci-defaults/11-flash_kernel
+	    	echo "flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) && \\" >> /etc/uci-defaults/11-flash_kernel
 		echo "reboot" >> /etc/uci-defaults/11-flash_kernel
 	fi
 	;;
