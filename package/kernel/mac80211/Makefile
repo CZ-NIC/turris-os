@@ -23,8 +23,8 @@ PKG_BUILD_PARALLEL:=1
 PKG_MAINTAINER:=Felix Fietkau <nbd@openwrt.org>
 
 PKG_DRIVERS = \
-	adm8211 ath5k libertas-usb libertas-sd p54-common p54-pci p54-usb p54-spi \
-	rt2x00-lib rt2x00-pci rt2x00-usb rt2800-lib rt2400-pci rt2500-pci \
+	adm8211 ath5k libertas libertas-usb libertas-sd p54-common p54-pci p54-usb \
+	p54-spi rt2x00-lib rt2x00-pci rt2x00-usb rt2800-lib rt2400-pci rt2500-pci \
 	rt2500-usb rt61-pci rt73-usb rt2800-mmio rt2800-pci rt2800-usb rt2800-soc \
 	rtl8180 rtl8187 zd1211rw mac80211-hwsim carl9170 b43 b43legacy \
 	ath9k-common ath9k ath9k-htc ath10k ath net-libipw net-ipw2100 net-ipw2200 \
@@ -669,24 +669,31 @@ define KernelPackage/lib80211/description
  - lib80211_crytp_ccmp
 endef
 
+define KernelPackage/libertas
+  $(call KernelPackage/mac80211/Default)
+  TITLE:=Marvell 8xxx Libertas WLAN driver support
+  DEPENDS:= +kmod-lib80211 +kmod-cfg80211 +@DRIVER_WEXT_SUPPORT
+  FILES:= \
+	$(PKG_BUILD_DIR)/drivers/net/wireless/libertas/libertas.ko
+  AUTOLOAD:=$(call AutoLoad,26,libertas)
+endef
+
 define KernelPackage/libertas-usb
   $(call KernelPackage/mac80211/Default)
-  DEPENDS+= @USB_SUPPORT +kmod-cfg80211 +kmod-usb-core +kmod-lib80211 +@DRIVER_WEXT_SUPPORT
+  DEPENDS+= @USB_SUPPORT +kmod-usb-core +kmod-libertas
   TITLE:=Marvell 88W8015 Wireless Driver
   FILES:= \
-	$(PKG_BUILD_DIR)/drivers/net/wireless/libertas/libertas.ko \
 	$(PKG_BUILD_DIR)/drivers/net/wireless/libertas/usb8xxx.ko
-  AUTOLOAD:=$(call AutoLoad,27,libertas usb8xxx)
+  AUTOLOAD:=$(call AutoLoad,27,usb8xxx)
 endef
 
 define KernelPackage/libertas-sd
   $(call KernelPackage/mac80211/Default)
-  DEPENDS+= +kmod-cfg80211 +kmod-lib80211 +kmod-mmc +@DRIVER_WEXT_SUPPORT @!TARGET_uml
+  DEPENDS+= +kmod-mmc @!TARGET_uml +kmod-libertas
   TITLE:=Marvell 88W8686 Wireless Driver
   FILES:= \
-	$(PKG_BUILD_DIR)/drivers/net/wireless/libertas/libertas.ko \
 	$(PKG_BUILD_DIR)/drivers/net/wireless/libertas/libertas_sdio.ko
-  AUTOLOAD:=$(call AutoLoad,27,libertas libertas_sdio)
+  AUTOLOAD:=$(call AutoLoad,27,libertas_sdio)
 endef
 
 define KernelPackage/mac80211-hwsim
