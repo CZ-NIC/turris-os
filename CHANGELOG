@@ -1,3 +1,4 @@
+===================== 2.4 =======================
 * ucollect: Reload pluginů po chybě
 * ucollect-fake: Firewallový skript už nenadává
 * ucollect-fake: Logování lokální IP adresy a vzdáleného portu
