@@ -1986,6 +1986,7 @@ endef
 $(eval $(call KernelPackage,adm8211))
 $(eval $(call KernelPackage,ath5k))
 $(eval $(call KernelPackage,lib80211))
+$(eval $(call KernelPackage,libertas))
 $(eval $(call KernelPackage,libertas-usb))
 $(eval $(call KernelPackage,libertas-sd))
 $(eval $(call KernelPackage,cfg80211))
