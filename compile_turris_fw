@@ -16,7 +16,7 @@ for pkg in $(cat ./disabled_packages); do ./scripts/feeds uninstall $pkg; done
 
 # Build NAND FW
 cp configs/config-turris-nand .config
-[ -n "$BUILD_ALL" ] && echo "CONFIG_ALL=y" >> .config
+[ -n "$BUILD_ALL" ] && echo "CONFIG_ALL=y" >> .config && echo "CONFIG_SDK=y" >> .config
 [ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
 make defconfig
 export TARGET_BOARD=turris
