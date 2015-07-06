@@ -10,11 +10,11 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=mac80211
 
-PKG_VERSION:=2015-03-09
-PKG_RELEASE:=1-$(LINUX_VERMAGIC)
+PKG_VERSION:=2015-06-22
+PKG_RELEASE:=1
 PKG_SOURCE_URL:=http://mirror2.openwrt.org/sources
 PKG_BACKPORT_VERSION:=
-PKG_MD5SUM:=6d4b04e4ce8a1f54dabfb04f4709453c
+PKG_MD5SUM:=352b2b46d36a72aadc96161a3cefdb1c
 
 PKG_SOURCE:=compat-wireless-$(PKG_VERSION)$(PKG_BACKPORT_VERSION).tar.bz2
 PKG_BUILD_DIR:=$(KERNEL_BUILD_DIR)/compat-wireless-$(PKG_VERSION)
@@ -23,8 +23,8 @@ PKG_BUILD_PARALLEL:=1
 PKG_MAINTAINER:=Felix Fietkau <nbd@openwrt.org>
 
 PKG_DRIVERS = \
-	adm8211 ath5k libertas libertas-usb libertas-sdio p54-common p54-pci p54-usb \
-	p54-spi rt2x00-lib rt2x00-pci rt2x00-usb rt2800-lib rt2400-pci rt2500-pci \
+	adm8211 ath5k libertas-usb libertas-sdio p54-common p54-pci p54-usb p54-spi \
+	rt2x00-lib rt2x00-pci rt2x00-usb rt2800-lib rt2400-pci rt2500-pci \
 	rt2500-usb rt61-pci rt73-usb rt2800-mmio rt2800-pci rt2800-usb rt2800-soc \
 	rtl8180 rtl8187 zd1211rw mac80211-hwsim carl9170 b43 b43legacy \
 	ath9k-common ath9k ath9k-htc ath10k ath net-libipw net-ipw2100 net-ipw2200 \
@@ -655,29 +655,22 @@ define KernelPackage/lib80211/description
  - lib80211_crytp_ccmp
 endef
 
-define KernelPackage/libertas
-  $(call KernelPackage/mac80211/Default)
-  TITLE:=Marvell 8xxx Libertas WLAN driver support
-  DEPENDS:= +kmod-lib80211 +kmod-cfg80211 +@DRIVER_WEXT_SUPPORT
-  FILES:= \
-	$(PKG_BUILD_DIR)/drivers/net/wireless/libertas/libertas.ko
-  AUTOLOAD:=$(call AutoLoad,26,libertas)
-endef
-
 define KernelPackage/libertas-usb
   $(call KernelPackage/mac80211/Default)
-  DEPENDS+= @USB_SUPPORT +kmod-usb-core +kmod-libertas
+  DEPENDS+= @USB_SUPPORT +kmod-cfg80211 +kmod-usb-core +kmod-lib80211 +@DRIVER_WEXT_SUPPORT
   TITLE:=Marvell 88W8015 Wireless Driver
   FILES:= \
+	$(PKG_BUILD_DIR)/drivers/net/wireless/libertas/libertas.ko \
 	$(PKG_BUILD_DIR)/drivers/net/wireless/libertas/usb8xxx.ko
   AUTOLOAD:=$(call AutoProbe,libertas usb8xxx)
 endef
 
 define KernelPackage/libertas-sdio
   $(call KernelPackage/mac80211/Default)
-  DEPENDS+= +kmod-mmc @!TARGET_uml +kmod-libertas
+  DEPENDS+= +kmod-cfg80211 +kmod-lib80211 +kmod-mmc +@DRIVER_WEXT_SUPPORT @!TARGET_uml
   TITLE:=Marvell 88W8686 Wireless Driver
   FILES:= \
+	$(PKG_BUILD_DIR)/drivers/net/wireless/libertas/libertas.ko \
 	$(PKG_BUILD_DIR)/drivers/net/wireless/libertas/libertas_sdio.ko
   AUTOLOAD:=$(call AutoProbe,libertas libertas_sdio)
 endef
@@ -2007,7 +2000,6 @@ endef
 $(eval $(call KernelPackage,adm8211))
 $(eval $(call KernelPackage,ath5k))
 $(eval $(call KernelPackage,lib80211))
-$(eval $(call KernelPackage,libertas))
 $(eval $(call KernelPackage,libertas-usb))
 $(eval $(call KernelPackage,libertas-sdio))
 $(eval $(call KernelPackage,cfg80211))
