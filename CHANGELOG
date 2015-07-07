@@ -1,3 +1,5 @@
+* ucollect: Použití TLS 1.2
+* socat: Verze 1.7.3 (lepší podpora pro nastavení SSL/TLS)
 ===================== 2.4 =======================
 * ucollect: Reload pluginů po chybě
 * ucollect-fake: Firewallový skript už nenadává
