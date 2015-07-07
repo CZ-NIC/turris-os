@@ -798,6 +798,7 @@ CONFIG_DQL=y
 # CONFIG_DVB_DUMMY_FE is not set
 # CONFIG_DVB_DYNAMIC_MINORS is not set
 # CONFIG_DVB_EC100 is not set
+# CONFIG_DVB_FIREDTV is not set
 # CONFIG_DVB_HD29L2 is not set
 # CONFIG_DVB_ISL6405 is not set
 # CONFIG_DVB_ISL6421 is not set
