@@ -1,3 +1,4 @@
+* Kernel: podpora pro vybrané DVB (resp. DVB USB) tunery.
 * unbound: Podpora pro validaci ECDSA DNSSEC podpisů.
 * ucollect: Použití TLS 1.2
 * socat: Verze 1.7.3 (lepší podpora pro nastavení SSL/TLS)
