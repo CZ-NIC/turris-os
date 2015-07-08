@@ -42,7 +42,6 @@ define KernelPackage/dvb-core
 	CONFIG_DVB_NET=y \
 	CONFIG_DVB_MAX_ADAPTERS=8 \
 	CONFIG_DVB_CORE
-  DEPENDS:=@CRC32
   FILES:=$(LINUX_DIR)/drivers/media/dvb-core/dvb-core.ko
   AUTOLOAD:=$(call AutoLoad,50,dvb-core)
 endef
