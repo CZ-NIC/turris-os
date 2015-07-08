@@ -22,18 +22,19 @@ endef
 
 zImage:=$(BIN_DIR)/$(IMG_PREFIX)-zImage
 
-BOOT_IMAGES:=zImage cuImage.tl-wdr4900-v1
 
 define Image/Prepare
-	$(foreach image,$(BOOT_IMAGES),
-		cp $(LINUX_DIR)/arch/powerpc/boot/$(image) $(KDIR)/$(image)
-	)
+	cp $(KDIR)/zImage $(BIN_DIR)/$(IMG_PREFIX)-zImage
+endef
+
+define Image/BuildKernel/Initramfs
+	cp $(KDIR)/zImage-initramfs $(BIN_DIR)/$(IMG_PREFIX)-initramfs-zImage
 endef
 
 define Image/BuildKernel
 	[ -d $(BIN_DIR) ] || mkdir -p $(BIN_DIR);
 	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/powerpc/boot/dts/$($(PROFILE)_DTS).dts -o $(BIN_DIR)/$(IMG_PREFIX)-$($(PROFILE)_DTS).fdt;
-	cp $(KDIR)/zImage $(zImage); 
+	cp $(KDIR)/zImage $(zImage);
 endef
 
 define Image/InstallKernel
