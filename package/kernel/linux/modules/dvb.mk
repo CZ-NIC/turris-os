@@ -39,10 +39,10 @@ define KernelPackage/dvb-core
   KCONFIG:= \
 	CONFIG_MEDIA_SUPPORT=m \
 	CONFIG_MEDIA_DIGITAL_TV_SUPPORT=y \
-	CONFIG_CRC32=y \
 	CONFIG_DVB_NET=y \
 	CONFIG_DVB_MAX_ADAPTERS=8 \
 	CONFIG_DVB_CORE
+  DEPENDS:=@CRC32
   FILES:=$(LINUX_DIR)/drivers/media/dvb-core/dvb-core.ko
   AUTOLOAD:=$(call AutoLoad,50,dvb-core)
 endef
@@ -130,7 +130,6 @@ define KernelPackage/dvb-usb-v2
   TITLE:=Support for various USB DVB devices v2
   KCONFIG:= \
 	CONFIG_MEDIA_USB_SUPPORT=y \
-	CONFIG_USB=y \
 	CONFIG_DVB_USB_V2
   FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb-v2/dvb_usb_v2.ko
   AUTOLOAD:=$(call AutoLoad,61,dvb_usb_v2)
