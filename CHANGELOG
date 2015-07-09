@@ -1,3 +1,5 @@
+* majordomo: Nevytváří pravidelně zneplatňovanou cache PTR záznamů, ale adresy rovnou ukládá do DB k jednotlivým zázamům. Tato implementace rapidně snižuje paměťovou náročnost a vytížení sítě.
+* majordomo: "Nezatajuje" chyby v konfiguraci
 * Tvheadend: aktualizace na stabilní verzi 4.0.5.
 * nuci-tls: Možnost pouštět nuci jako TLS server
 * Kernel: podpora pro vybrané DVB (resp. DVB USB) tunery.
