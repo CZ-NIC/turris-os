@@ -1,3 +1,4 @@
+* majordomo: Seznam dostupných MAC adres se bere z cache a nezískává se z DB jako doposud. Jedná se o mnohem rychlejší řešení.
 * majordomo: Nevytváří pravidelně zneplatňovanou cache PTR záznamů, ale adresy rovnou ukládá do DB k jednotlivým zázamům. Tato implementace rapidně snižuje paměťovou náročnost a vytížení sítě.
 * majordomo: "Nezatajuje" chyby v konfiguraci
 * Tvheadend: aktualizace na stabilní verzi 4.0.5.
