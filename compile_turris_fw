@@ -25,6 +25,13 @@ if [ -d .git ] ; then
 fi
 make clean
 make "$@"
+
+#Build initramfs
+echo -e "CONFIG_TARGET_ROOTFS_INITRAMFS=y\nCONFIG_TARGET_INITRAMFS_COMPRESSION_XZ=y" >> .config
+make defconfig
+make target/linux/compile "$@"
+cp build_dir/target-powerpc_*/linux-mpc85xx_p2020-nand/zImage-initramfs bin/mpc85xx/turris-initramfs-zimage
+
 # Preserve the uncompressed image too
 mv build_dir/target-powerpc_*/root-mpc85xx bin/mpc85xx/root
 cd bin/mpc85xx/root
