@@ -1,3 +1,5 @@
+* Tvheadend: aktualizace na stabilní verzi 4.0.5.
+* nuci-tls: Možnost pouštět nuci jako TLS server
 * Kernel: podpora pro vybrané DVB (resp. DVB USB) tunery.
 * unbound: Podpora pro validaci ECDSA DNSSEC podpisů.
 * ucollect: Použití TLS 1.2
