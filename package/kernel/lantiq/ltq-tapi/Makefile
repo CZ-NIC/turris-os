@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=drv_tapi
 PKG_VERSION:=3.13.0
-PKG_RELEASE:=3-$(LINUX_VERMAGIC)
+PKG_RELEASE:=3
 
 PKG_SOURCE:=drv_tapi-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://mirror2.openwrt.org/sources

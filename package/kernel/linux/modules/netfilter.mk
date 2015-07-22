@@ -781,7 +781,7 @@ define KernelPackage/nfnetlink-log
   TITLE:=Netfilter LOG over NFNETLINK interface
   FILES:=$(foreach mod,$(NFNETLINK_LOG-m),$(LINUX_DIR)/net/$(mod).ko)
   KCONFIG:=$(KCONFIG_NFNETLINK_LOG)
-  AUTOLOAD:=$(call AutoLoad,27,$(notdir $(NFNETLINK_LOG-m)))
+  AUTOLOAD:=$(call AutoProbe,$(notdir $(NFNETLINK_LOG-m)))
   $(call AddDepends/nfnetlink)
 endef
 
@@ -798,7 +798,7 @@ define KernelPackage/nfnetlink-queue
   TITLE:=Netfilter QUEUE over NFNETLINK interface
   FILES:=$(foreach mod,$(NFNETLINK_QUEUE-m),$(LINUX_DIR)/net/$(mod).ko)
   KCONFIG:=$(KCONFIG_NFNETLINK_QUEUE)
-  AUTOLOAD:=$(call AutoLoad,27,$(notdir $(NFNETLINK_QUEUE-m)))
+  AUTOLOAD:=$(call AutoProbe,$(notdir $(NFNETLINK_QUEUE-m)))
   $(call AddDepends/nfnetlink)
 endef
 

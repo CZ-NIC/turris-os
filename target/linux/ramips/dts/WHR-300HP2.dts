@@ -136,8 +136,4 @@
 			linux,input-type = <5>; /* EV_SW */
 		};
 	};
-
-	wmac@10180000 {
-		status = "disabled";
-	};
 };

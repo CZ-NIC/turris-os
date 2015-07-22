@@ -9,7 +9,7 @@ include $(INCLUDE_DIR)/kernel.mk
 PKG_NAME:=lib_ifxos
 PKG_VERSION:=1.5.14
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_RELEASE:=3-$(LINUX_VERMAGIC)
+PKG_RELEASE:=3
 PKG_SOURCE_URL:=http://mirror2.openwrt.org/sources
 PKG_MD5SUM:=bc107f9d8ff6bed4c2760a2817bbb029
 PKG_MAINTAINER:=John Crispin <blogic@openwrt.org>

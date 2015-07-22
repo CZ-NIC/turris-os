@@ -12,6 +12,9 @@ get_status_led() {
 	all0305)
 		status_led="eap7660d:green:ds4"
 		;;
+	antminer-s1)
+		status_led="bitmain:green:system"
+		;;
 	ap132)
 		status_led="ap132:green:status"
 		;;
@@ -307,6 +310,9 @@ get_status_led() {
 		;;
 	wpj344)
 		status_led="wpj344:green:status"
+		;;
+	wpj531)
+		status_led="wpj531:green:sig3"
 		;;
 	wpj558)
 		status_led="wpj558:green:sig3"

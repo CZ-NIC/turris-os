@@ -90,7 +90,6 @@ mac80211_hostapd_setup_base() {
 
 	[ "$auto_channel" -gt 0 ] && channel=acs_survey
 
-	json_get_vars noscan
 	json_get_vars noscan ht_coex
 	json_get_values ht_capab_list ht_capab
 

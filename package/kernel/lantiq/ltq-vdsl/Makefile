@@ -8,7 +8,7 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=ltq-vdsl-vr9
 PKG_VERSION:=4.11.4
-PKG_RELEASE:=1-$(LINUX_VERMAGIC)
+PKG_RELEASE:=1
 
 PKG_BASE_NAME:=drv_dsl_cpe_api_vrx
 PKG_SOURCE:=$(PKG_BASE_NAME)-$(PKG_VERSION).tar.gz

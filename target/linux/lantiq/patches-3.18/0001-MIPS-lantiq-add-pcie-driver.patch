@@ -193,7 +193,7 @@ Signed-off-by: John Crispin <blogic@openwrt.org>
  	if (ltq_pci_plat_arch_init)
  		return ltq_pci_plat_arch_init(dev);
  
-@@ -25,5 +31,10 @@
+@@ -25,5 +31,10 @@ int pcibios_plat_dev_init(struct pci_dev
  
  int __init pcibios_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
  {
@@ -5514,7 +5514,7 @@ Signed-off-by: John Crispin <blogic@openwrt.org>
  	  (transaction layer end-to-end CRC checking).
 --- a/include/linux/pci.h
 +++ b/include/linux/pci.h
-@@ -1160,6 +1160,8 @@ void pci_walk_bus(struct pci_bus *top, i
+@@ -1156,6 +1156,8 @@ void pci_walk_bus(struct pci_bus *top, i
  		  void *userdata);
  int pci_cfg_space_size(struct pci_dev *dev);
  unsigned char pci_bus_max_busnr(struct pci_bus *bus);

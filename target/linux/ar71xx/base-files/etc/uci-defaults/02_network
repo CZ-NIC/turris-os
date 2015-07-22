@@ -343,6 +343,7 @@ wp543)
 	ucidef_set_interface_lan "eth0"
 	;;
 
+antminer-s1 |\
 dir-505-a1)
 	ucidef_set_interface_lan "eth1"
 	;;
@@ -366,6 +367,10 @@ wpj344)
 	ucidef_add_switch "switch0" "1" "1"
 	ucidef_add_switch_vlan "switch0" "1" "0t 3"
 	ucidef_add_switch_vlan "switch0" "2" "0t 2"
+	;;
+
+wpj531)
+	ucidef_set_interfaces_lan_wan "eth0" "eth1"
 	;;
 
 wpj558)

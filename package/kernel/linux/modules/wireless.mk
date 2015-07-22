@@ -22,6 +22,7 @@ endef
 
 $(eval $(call KernelPackage,net-airo))
 
+
 define KernelPackage/net-prism54
   SUBMENU:=$(WIRELESS_MENU)
   TITLE:=Intersil Prism54 support

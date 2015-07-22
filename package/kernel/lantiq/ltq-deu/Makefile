@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=ltq-deu
-PKG_RELEASE:=1-$(LINUX_VERMAGIC)
+PKG_RELEASE:=1
 PKG_BUILD_DIR:=$(KERNEL_BUILD_DIR)/ltq-deu-$(BUILD_VARIANT)
 
 PKG_MAINTAINER:=John Crispin <blogic@openwrt.org>
@@ -23,7 +23,7 @@ define KernelPackage/ltq-deu-template
   VARIANT:=$(1)
   DEPENDS:=@TARGET_lantiq_$(2) +kmod-crypto-manager
   FILES:=$(PKG_BUILD_DIR)/ltq_deu_$(1).ko
-  AUTOLOAD:=$(call AutoLoad,27,ltq_deu_$(1))
+  AUTOLOAD:=$(call AutoProbe,ltq_deu_$(1))
 endef
 
 KernelPackage/ltq-deu-danube=$(call KernelPackage/ltq-deu-template,danube,xway)
