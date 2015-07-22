@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2007-2012 OpenWrt.org
+# Copyright (C) 2007-2014 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,14 +9,14 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=samba
 PKG_VERSION:=3.6.25
-PKG_RELEASE:=1
+PKG_RELEASE:=4
 
 PKG_SOURCE_URL:=http://ftp.samba.org/pub/samba \
 	http://ftp.samba.org/pub/samba/stable
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_MD5SUM:=76da2fa64edd94a0188531e7ecb27c4e
 
-PKG_LICENSE:=GPLv3
+PKG_LICENSE:=GPL-3.0
 PKG_LICENSE_FILES:=COPYING
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@openwrt.org>
@@ -35,7 +35,7 @@ define Package/samba36-server
   CATEGORY:=Network
   TITLE:=Samba 3.6 SMB/CIFS server
   URL:=http://www.samba.org/
-  DEPENDS:=+USE_EGLIBC:librt
+  DEPENDS:=+USE_GLIBC:librt $(ICONV_DEPENDS)
 endef
 
 define Package/samba36-client
@@ -83,7 +83,9 @@ CONFIGURE_VARS += \
 	samba_cv_have_setreuid=yes \
 	samba_cv_have_setresuid=yes \
 	ac_cv_header_zlib_h=no \
-	samba_cv_zlib_1_2_3=no
+	samba_cv_zlib_1_2_3=no \
+	ac_cv_path_PYTHON="" \
+	ac_cv_path_PYTHON_CONFIG=""
 
 CONFIGURE_ARGS += \
 	--exec-prefix=/usr \
@@ -95,6 +97,7 @@ CONFIGURE_ARGS += \
 	--disable-static \
 	--disable-swat \
 	--disable-shared-libs \
+	--with-libiconv="$(ICONV_PREFIX)" \
 	--with-codepagedir=/etc/samba \
 	--with-configdir=/etc/samba \
 	--with-included-iniparser \
@@ -140,7 +143,7 @@ endef
 
 define Package/samba36-server/install
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_DATA) ./files/samba.config $(1)/etc/config/samba
+	$(INSTALL_CONF) ./files/samba.config $(1)/etc/config/samba
 	$(INSTALL_DIR) $(1)/etc/samba
 	$(INSTALL_DATA) ./files/smb.conf.template $(1)/etc/samba
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/codepages/lowcase.dat $(1)/etc/samba
@@ -150,9 +153,9 @@ define Package/samba36-server/install
 	$(INSTALL_BIN) ./files/samba.init $(1)/etc/init.d/samba
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_BIN)/samba_multicall $(1)/usr/sbin
-	ln -sf samba_multicall $(1)/usr/sbin/smbd
-	ln -sf samba_multicall $(1)/usr/sbin/nmbd
-	ln -sf samba_multicall $(1)/usr/sbin/smbpasswd
+	$(LN) samba_multicall $(1)/usr/sbin/smbd
+	$(LN) samba_multicall $(1)/usr/sbin/nmbd
+	$(LN) samba_multicall $(1)/usr/sbin/smbpasswd
 endef
 
 define Package/samba36-client/install

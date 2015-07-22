@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=openssl
-PKG_VERSION:=1.0.2d
+PKG_VERSION:=1.0.2c
 PKG_RELEASE:=1
 PKG_USE_MIPS16:=0
 
@@ -18,15 +18,24 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.openssl.org/source/ \
 	ftp://ftp.funet.fi/pub/crypt/mirrors/ftp.openssl.org/source \
 	ftp://ftp.sunet.se/pub/security/tools/net/openssl/source/
-PKG_MD5SUM:=38dd619b2e77cbac69b99f52a053d25a
+PKG_MD5SUM:=8c8d81a9ae7005276e486702edbcd4b6
 
-PKG_LICENSE:=SSLEAY OPENSSL
+PKG_LICENSE:=OpenSSL
 PKG_LICENSE_FILES:=LICENSE
 PKG_BUILD_DEPENDS:=ocf-crypto-headers
-PKG_CONFIG_DEPENDS:=CONFIG_OPENSSL_ENGINE_CRYPTO CONFIG_OPENSSL_ENGINE_DIGEST \
-	CONFIG_OPENSSL_WITH_EC CONFIG_OPENSSL_WITH_EC2M
+PKG_CONFIG_DEPENDS:= \
+	CONFIG_OPENSSL_ENGINE_CRYPTO \
+	CONFIG_OPENSSL_ENGINE_DIGEST \
+	CONFIG_OPENSSL_WITH_EC \
+	CONFIG_OPENSSL_WITH_EC2M \
+	CONFIG_OPENSSL_WITH_SSL3
 
 include $(INCLUDE_DIR)/package.mk
+
+ifneq ($(CONFIG_CCACHE),)
+HOSTCC=$(HOSTCC_NOCACHE)
+HOSTCXX=$(HOSTCXX_NOCACHE)
+endif
 
 define Package/openssl/Default
   TITLE:=Open source SSL toolkit
@@ -78,9 +87,8 @@ This package contains the OpenSSL command-line utility.
 endef
 
 
-OPENSSL_NO_CIPHERS:= no-idea no-md2 no-mdc2 no-rc5 no-sha0 no-smime \
-	no-aes192 no-camellia no-ans1 no-krb5
-OPENSSL_OPTIONS:= shared no-err no-hw zlib-dynamic no-sse2
+OPENSSL_NO_CIPHERS:= no-idea no-md2 no-mdc2 no-rc5 no-sha0 no-camellia no-krb5
+OPENSSL_OPTIONS:= shared no-err no-hw zlib-dynamic no-sse2 no-ssl2
 
 ifdef CONFIG_OPENSSL_ENGINE_CRYPTO
   OPENSSL_OPTIONS += -DHAVE_CRYPTODEV
@@ -99,13 +107,19 @@ ifndef CONFIG_OPENSSL_WITH_EC2M
   OPENSSL_OPTIONS += no-ec2m
 endif
 
+ifndef CONFIG_OPENSSL_WITH_SSL3
+  OPENSSL_OPTIONS += no-ssl3
+endif
+
 ifeq ($(CONFIG_x86_64),y)
-  OPENSSL_TARGET:=linux-x86_64
+  OPENSSL_TARGET:=linux-x86_64-openwrt
   OPENSSL_MAKEFLAGS += LIBDIR=lib
 else
   OPENSSL_OPTIONS+=no-sse2
   ifeq ($(CONFIG_mips)$(CONFIG_mipsel),y)
     OPENSSL_TARGET:=linux-mips-openwrt
+#  else ifeq ($(CONFIG_arm)$(CONFIG_armeb),y)
+#    OPENSSL_TARGET:=linux-armv4-openwrt
   else
     OPENSSL_TARGET:=linux-generic-openwrt
     OPENSSL_OPTIONS+=no-perlasm
@@ -144,7 +158,7 @@ TARGET_CFLAGS += $(FPIC)
 define Build/Compile
 	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
 		CC="$(TARGET_CC)" \
-		ASFLAGS="$(TARGET_ASFLAGS) -c" \
+		ASFLAGS="$(TARGET_ASFLAGS) -I$(PKG_BUILD_DIR)/crypto -c" \
 		AR="$(TARGET_CROSS)ar r" \
 		RANLIB="$(TARGET_CROSS)ranlib" \
 		OPENWRT_OPTIMIZATION_FLAGS="$(TARGET_CFLAGS)" \
@@ -152,7 +166,7 @@ define Build/Compile
 		all
 	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
 		CC="$(TARGET_CC)" \
-		ASFLAGS="$(TARGET_ASFLAGS) -c" \
+		ASFLAGS="$(TARGET_ASFLAGS) -I$(PKG_BUILD_DIR)/crypto -c" \
 		AR="$(TARGET_CROSS)ar r" \
 		RANLIB="$(TARGET_CROSS)ranlib" \
 		OPENWRT_OPTIMIZATION_FLAGS="$(TARGET_CFLAGS)" \

@@ -39,7 +39,10 @@ start_relay() {
 	local ifaces=""
 
 	config_get proto "$cfg" proto
-	[[ "$proto" == relay ]] || return 0
+	[ "$proto" = "relay" ] || return 0
+
+	config_get_bool disabled "$cfg" disabled 0
+	[ "$disabled" -gt 0 ] && return 0
 
 	SERVICE_DAEMONIZE=1
 	SERVICE_WRITE_PID=1

@@ -54,6 +54,11 @@ endif
 endif
 endef
 
+define Image/BuildKernel/Initramfs
+	cp $(KDIR)/zImage-initramfs $(BIN_DIR)/$(IMG_PREFIX)-initramfs-zImage
+	cp $(KDIR)/cuImage.tl-wdr4900-v1-initramfs $(BIN_DIR)/$(IMG_PREFIX)-tl-wdr4900-v1-initramfs.uImage
+endef
+
 define Image/Build/TPLINK
 	-$(STAGING_DIR_HOST)/bin/mktplinkfw \
 		-H $(4) -W $(5) -F $(6) -N OpenWrt -V $(REVISION) $(7) \

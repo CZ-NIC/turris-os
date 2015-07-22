@@ -10,8 +10,9 @@ BOARD:=lantiq
 BOARDNAME:=Lantiq
 FEATURES:=squashfs
 SUBTARGETS=xway xrx200
+MAINTAINER:=John Crispin <blogic@openwrt.org>
 
-KERNEL_PATCHVER:=3.10
+KERNEL_PATCHVER:=3.18
 
 CPU_TYPE:=mips32r2
 

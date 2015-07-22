@@ -38,6 +38,8 @@ boot() {
 	mkdir -p /var/state
 	mkdir -p /tmp/.uci
 	chmod 0700 /tmp/.uci
+	mkdir -p /tmp/.jail
+	chmod 0700 /tmp/.jail
 	touch /var/log/wtmp
 	touch /var/log/lastlog
 	touch /tmp/resolv.conf.auto
@@ -57,6 +59,7 @@ boot() {
 	rm -f /tmp/wireless.tmp
 
 	feed_urandom
+	/bin/board_detect
 	uci_apply_defaults
 	
 	# temporary hack until configd exists

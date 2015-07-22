@@ -21,11 +21,17 @@ qstrip=$(strip $(subst ",,$(1)))
 
 empty:=
 space:= $(empty) $(empty)
+comma:=,
 merge=$(subst $(space),,$(1))
 confvar=$(call merge,$(foreach v,$(1),$(if $($(v)),y,n)))
 strip_last=$(patsubst %.$(lastword $(subst .,$(space),$(1))),%,$(1))
 
 define sep
+
+endef
+
+define newline
+
 
 endef
 
@@ -110,7 +116,7 @@ STAGING_DIR_ROOT:=$(STAGING_DIR)/root-$(BOARD)
 BUILD_LOG_DIR:=$(TOPDIR)/logs
 PKG_INFO_DIR := $(STAGING_DIR)/pkginfo
 
-TARGET_PATH:=$(STAGING_DIR_HOST)/bin:$(subst $(space),:,$(filter-out .,$(filter-out ./,$(subst :,$(space),$(PATH)))))
+TARGET_PATH:=$(subst $(space),:,$(filter-out .,$(filter-out ./,$(subst :,$(space),$(PATH)))))
 TARGET_CFLAGS:=$(TARGET_OPTIMIZATION)$(if $(CONFIG_DEBUG), -g3) $(EXTRA_OPTIMIZATION)
 TARGET_CXXFLAGS = $(TARGET_CFLAGS)
 TARGET_ASFLAGS_DEFAULT = $(TARGET_CFLAGS)
@@ -187,19 +193,35 @@ export PKG_CONFIG
 
 HOSTCC:=gcc
 HOSTCXX:=g++
-HOST_CPPFLAGS:=-I$(STAGING_DIR_HOST)/include
+HOST_CPPFLAGS:=-I$(STAGING_DIR_HOST)/include -I$(STAGING_DIR_HOST)/usr/include
 HOST_CFLAGS:=-O2 $(HOST_CPPFLAGS)
-HOST_LDFLAGS:=-L$(STAGING_DIR_HOST)/lib
+HOST_LDFLAGS:=-L$(STAGING_DIR_HOST)/lib -L$(STAGING_DIR_HOST)/usr/lib
+
+ifeq ($(CONFIG_GCC_VERSION_4_4)$(CONFIG_GCC_VERSION_4_6)$(CONFIG_EXTERNAL_TOOLCHAIN),)
+  TARGET_AR:=$(TARGET_CROSS)gcc-ar
+  TARGET_RANLIB:=$(TARGET_CROSS)gcc-ranlib
+  TARGET_NM:=$(TARGET_CROSS)gcc-nm
+else
+  TARGET_AR:=$(TARGET_CROSS)ar
+  TARGET_RANLIB:=$(TARGET_CROSS)ranlib
+  TARGET_NM:=$(TARGET_CROSS)nm
+endif
+
+BUILD_KEY=$(TOPDIR)/key-build
 
 TARGET_CC:=$(TARGET_CROSS)gcc
-TARGET_AR:=$(TARGET_CROSS)ar
-TARGET_RANLIB:=$(TARGET_CROSS)ranlib
 TARGET_CXX:=$(TARGET_CROSS)g++
 KPATCH:=$(SCRIPT_DIR)/patch-kernel.sh
 SED:=$(STAGING_DIR_HOST)/bin/sed -i -e
 CP:=cp -fpR
 LN:=ln -sf
 XARGS:=xargs -r
+
+BASH:=bash
+TAR:=tar
+FIND:=find
+PATCH:=patch
+PYTHON:=python
 
 INSTALL_BIN:=install -m0755
 INSTALL_DIR:=install -d -m0755
@@ -222,14 +244,14 @@ ifneq ($(CONFIG_CCACHE),)
 endif
 
 TARGET_CONFIGURE_OPTS = \
-  AR=$(TARGET_CROSS)ar \
+  AR="$(TARGET_AR)" \
   AS="$(TARGET_CC) -c $(TARGET_ASFLAGS)" \
   LD=$(TARGET_CROSS)ld \
-  NM=$(TARGET_CROSS)nm \
+  NM="$(TARGET_NM)" \
   CC="$(TARGET_CC)" \
   GCC="$(TARGET_CC)" \
   CXX="$(TARGET_CXX)" \
-  RANLIB=$(TARGET_CROSS)ranlib \
+  RANLIB="$(TARGET_RANLIB)" \
   STRIP=$(TARGET_CROSS)strip \
   OBJCOPY=$(TARGET_CROSS)objcopy \
   OBJDUMP=$(TARGET_CROSS)objdump \
@@ -254,6 +276,7 @@ else
     NM="$(TARGET_CROSS)nm" \
     STRIP="$(STRIP)" \
     STRIP_KMOD="$(SCRIPT_DIR)/strip-kmod.sh" \
+    PATCHELF="$(STAGING_DIR_HOST)/bin/patchelf" \
     $(SCRIPT_DIR)/rstrip.sh
 endif
 
@@ -277,8 +300,7 @@ V_$(subst .,_,$(subst -,_,$(subst /,_,$(1))))
 endef
 
 define shexport
-$(call shvar,$(1))=$$(call $(1))
-export $(call shvar,$(1))
+export $(call shvar,$(1))=$$(call $(1))
 endef
 
 define include_mk

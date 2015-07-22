@@ -18,6 +18,7 @@ PKG_MD5SUM:=394c119363dd8b469fb898442a6764b8
 PKG_BUILD_DIR:=$(BUILD_DIR)/uClibc++-$(PKG_VERSION)
 PKG_BUILD_PARALLEL:=1
 PKG_USE_MIPS16:=0
+PKG_LICENSE:=LGPL-2.1+
 
 PKG_INSTALL:=1
 
@@ -41,7 +42,6 @@ UCLIBC_TARGET_ARCH:=$(shell echo $(ARCH) | sed -e s'/-.*//' \
 	-e 's/sh[234].*/sh/' \
 	-e 's/mips.*/mips/' \
 	-e 's/mipsel.*/mips/' \
-	-e 's/cris.*/cris/' \
 )
 
 TARGET_CFLAGS += $(FPIC)

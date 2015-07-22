@@ -1,4 +1,4 @@
-# 
+#
 # Copyright (C) 2006 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -64,7 +64,7 @@ ifeq ($(findstring s,$(OPENWRT_VERBOSE)),)
 	CRASH_MESSAGE:="Please re-run make with V=s to see what's going on"
     endif
     export QUIET:=1
-    SUBMAKE=cmd() { $(SILENT) $(MAKE) -s $$* < /dev/null || { echo "make $$*: build failed. "$(CRASH_MESSAGE); false; } } 8>&1 9>&2; cmd
+    SUBMAKE=cmd() { $(SILENT) $(MAKE) -s $$* < /dev/null || { echo "make $$*: build failed. Please re-run make with -j1 V=s to see what's going on"; false; } } 8>&1 9>&2; cmd
   endif
 
   .SILENT: $(MAKECMDGOALS)

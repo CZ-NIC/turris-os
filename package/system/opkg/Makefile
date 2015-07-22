@@ -23,8 +23,10 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSI
 PKG_FIXUP:=autoreconf
 PKG_REMOVE_FILES = autogen.sh aclocal.m4
 
-PKG_LICENSE:=GPLv2
+PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING
+
+PKG_CONFIG_DEPENDS := CONFIG_SIGNED_PACKAGES
 
 PKG_BUILD_PARALLEL:=1
 HOST_BUILD_PARALLEL:=1
@@ -88,11 +90,16 @@ EXTRA_CFLAGS += $(TARGET_CPPFLAGS)
 CONFIGURE_ARGS += \
 	--disable-curl \
 	--disable-gpg \
+	--enable-sha256 \
 	--with-opkgetcdir=/etc \
 	--with-opkglockfile=/var/lock/opkg.lock
 
 ifeq ($(BUILD_VARIANT),smime)
-	CONFIGURE_ARGS += --enable-openssl --enable-sha256
+	CONFIGURE_ARGS += --enable-openssl --disable-usign
+else
+  ifndef CONFIG_SIGNED_PACKAGES
+    CONFIGURE_ARGS += --disable-usign
+  endif
 endif
 
 MAKE_FLAGS = \
@@ -106,23 +113,19 @@ define Package/opkg/Default/install
 	$(INSTALL_DIR) $(1)/bin
 	$(INSTALL_DIR) $(1)/etc
 	$(INSTALL_DATA) ./files/opkg$(2).conf $(1)/etc/opkg.conf
-  ifeq ($(CONFIG_PER_FEED_REPO),)
-	echo "src/gz %n %U" >> $(1)/etc/opkg.conf
-  else
-	for d in base $(FEEDS_ENABLED); do \
-		echo "src/gz %n_$$$$d %U/$$$$d" >> $(1)/etc/opkg.conf; \
-	done
-    ifneq ($(CONFIG_PER_FEED_REPO_ADD_DISABLED),)
-	for d in $(FEEDS_DISABLED); do \
-		echo "$(if $(CONFIG_PER_FEED_REPO_ADD_COMMENTED),# )src/gz %n_$$$$d %U/$$$$d" >> $(1)/etc/opkg.conf; \
-	done
-    endif
+  ifneq ($(CONFIG_SIGNED_PACKAGES),)
+	echo "option check_signature 1" >> $(1)/etc/opkg.conf
   endif
+	$(call FeedSourcesAppend,$(1)/etc/opkg.conf)
 	$(VERSION_SED) $(1)/etc/opkg.conf
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/opkg-cl $(1)/bin/opkg
 endef
 
-Package/opkg/install = $(call Package/opkg/Default/install,$(1),)
+define Package/opkg/install
+	$(call Package/opkg/Default/install,$(1),)
+	mkdir $(1)/usr/sbin
+	$(INSTALL_BIN) ./files/opkg-key $(1)/usr/sbin/
+endef
 
 define Package/opkg-smime/install
 	$(call Package/opkg/Default/install,$(1),-smime)
@@ -139,6 +142,7 @@ endef
 HOST_CONFIGURE_ARGS+= \
 	--disable-curl \
 	--disable-gpg \
+	--enable-sha256 \
 	--with-opkgetcdir=/etc \
 	--with-opkglockfile=/tmp/opkg.lock
 

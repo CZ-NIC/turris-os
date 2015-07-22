@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2012-2014 OpenWrt.org
+# Copyright (C) 2012-2015 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,23 +8,19 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=odhcp6c
-PKG_VERSION:=2014-12-10
+PKG_VERSION:=2015-06-10
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_URL:=https://github.com/sbyx/odhcp6c.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=722226c4f1d45c8bf4ac9189523738abcf7d648f
+PKG_SOURCE_VERSION:=d21764d12bb799f89d42c94dc20d4adb6d588077
 PKG_MAINTAINER:=Steven Barth <steven@midlink.org>
 PKG_LICENSE:=GPL-2.0
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
-
-ifneq ($(CONFIG_PACKAGE_odhcp6c_ext_prefix_class),0)
-  CMAKE_OPTIONS += -DEXT_PREFIX_CLASS=$(CONFIG_PACKAGE_odhcp6c_ext_prefix_class)
-endif
 
 ifneq ($(CONFIG_PACKAGE_odhcp6c_ext_cer_id),0)
   CMAKE_OPTIONS += -DEXT_CER_ID=$(CONFIG_PACKAGE_odhcp6c_ext_cer_id)
@@ -46,11 +42,6 @@ killall -9 odhcp6c || true
 endef
 
 define Package/odhcp6c/config
-  config PACKAGE_odhcp6c_ext_prefix_class
-    int "Prefix Class Extension ID (0 = disabled)"
-    depends on PACKAGE_odhcp6c
-    default 0
-
   config PACKAGE_odhcp6c_ext_cer_id
     int "CER-ID Extension ID (0 = disabled)"
     depends on PACKAGE_odhcp6c
