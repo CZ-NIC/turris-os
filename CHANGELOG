@@ -1,3 +1,4 @@
+* git: backport verze 2.4.6-1 z upstreamu (branch master).
 * Foris (v56): drobné opravy - na záložce updater a ve filtrování hesel v error reportu.
 * updater: Protizasekávací skript
 * nuci: Dává k dispozici seznam PCAPů
