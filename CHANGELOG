@@ -1,3 +1,4 @@
+* Foris (v56): drobné opravy - na záložce updater a ve filtrování hesel v error reportu.
 * updater: Protizasekávací skript
 * nuci: Dává k dispozici seznam PCAPů
 * majordomo: Při migraci je schopen využít cache, která zůstala z předchozích verzí programu.
