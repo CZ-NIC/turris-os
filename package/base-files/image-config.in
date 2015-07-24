@@ -245,53 +245,6 @@ menuconfig PER_FEED_REPO
 source "tmp/.config-feeds.in"
 
 
-	config VERSION_MANUFACTURER
-		string
-		prompt "Manufacturer name"
-		help
-			This is the manufacturer name embedded in /etc/device_info
-			Useful for OEMs building OpenWrt based firmware
-
-	config VERSION_PRODUCT
-		string
-		prompt "Product name"
-		help
-			This is the product name embedded in /etc/device_info
-			Useful for OEMs building OpenWrt based firmware
-
-	config VERSION_HWREV
-		string
-		prompt "Hardware revision"
-		help
-			This is the hardware revision string embedded in /etc/device_info
-			Useful for OEMs building OpenWrt based firmware
-endif
-
-
-menuconfig PER_FEED_REPO
-	bool "Separate feed repositories" if IMAGEOPT
-	default n
-	help
-		If set, a separate repository is generated within bin/*/packages/
-		for the core packages and each enabled feed.
-
-	config PER_FEED_REPO_ADD_DISABLED
-		bool "Add installed but disabled feeds to opkg.conf"
-		default n
-		depends on PER_FEED_REPO
-		help
-		  Add not installed or disabled feeds from feeds.conf to opkg.conf.
-
-	config PER_FEED_REPO_ADD_COMMENTED
-		bool "Comment out not enabled feeds"
-		default y
-		depends on PER_FEED_REPO && PER_FEED_REPO_ADD_DISABLED
-		help
-		  Add not enabled feeds as commented out source lines to opkg.conf.
-
-source "tmp/.config-feeds.in"
-
-
 menuconfig SMIMEOPT
 	bool "Package signing options" if IMAGEOPT
         default n
