@@ -1,3 +1,5 @@
+* ucollect: Pozdržení posílání dat při ztrátě spojení
+#### Merge do mastera zde ####
 * mitmproxy: workaround pro firewallový redirect, který přestal fungovat
 * python-twisted: fix závislostí
 * tor: update na 0.2.6.10
