@@ -101,3 +101,4 @@ CONFIG_PACKAGE_kmod-mmc=m
 CONFIG_PACKAGE_kmod-mmc-fsl-p2020=m
 CONFIG_PACKAGE_smrt=m
 CONFIG_PACKAGE_smrt-image=m
+CONFIG_PACKAGE_domoticz=m
