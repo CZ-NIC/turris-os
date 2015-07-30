@@ -159,6 +159,8 @@ define KernelPackage/fs-ext4
     +kmod-lib-crc16 \
     +kmod-crypto-hash
   KCONFIG:= \
+	CONFIG_EXT4_FS_SECURITY=y \
+	CONFIG_EXT4_FS_POSIX_ACL=y \
 	CONFIG_EXT4_FS \
 	CONFIG_JBD2
   FILES:= \
