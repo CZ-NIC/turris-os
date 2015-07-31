@@ -1,3 +1,12 @@
+* ucollect: Pozdržení posílání dat při ztrátě spojení
+#### Merge do mastera zde ####
+* mitmproxy: workaround pro firewallový redirect, který přestal fungovat
+* python-twisted: fix závislostí
+* tor: update na 0.2.6.10
+* Domoticz: nový balíček pro Turris Gadgets (+ přidán Boost - závislost Domoticzu).
+* git: backport verze 2.4.6-1 z upstreamu (branch master).
+* Foris (v56): drobné opravy - na záložce updater a ve filtrování hesel v error reportu.
+* updater: Protizasekávací skript
 * nuci: Dává k dispozici seznam PCAPů
 * majordomo: Při migraci je schopen využít cache, která zůstala z předchozích verzí programu.
 * majordomo: Seznam dostupných MAC adres se bere z cache a nezískává se z DB jako doposud. Jedná se o mnohem rychlejší řešení.
