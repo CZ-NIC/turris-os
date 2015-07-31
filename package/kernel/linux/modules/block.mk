@@ -278,7 +278,8 @@ define KernelPackage/dm
 	CONFIG_BLK_DEV_DM \
 	CONFIG_DM_CRYPT \
 	CONFIG_DM_MIRROR
-  FILES:=$(LINUX_DIR)/drivers/md/dm-*.ko
+  FILES:=$(LINUX_DIR)/drivers/md/dm-*.ko \
+	$(LINUX_DIR)/drivers/md/persistent-data/dm-persistent-data.ko
   AUTOLOAD:=$(call AutoLoad,30,dm-mod dm-log dm-region-hash dm-mirror dm-crypt)
 endef
 
