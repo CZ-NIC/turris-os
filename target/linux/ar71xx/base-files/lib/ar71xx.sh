@@ -110,6 +110,9 @@ tplink_board_detect() {
 	"04440001"*)
 		model="BITMAIN ANTMINER S1"
 		;;
+	"04440003"*)
+		model="BITMAIN ANTMINER S3"
+		;;
 	"120000"*)
 		model="MERCURY MAC1200R"
 		;;
@@ -414,6 +417,12 @@ ar71xx_board_detect() {
 	*"DIR-835 rev. A1")
 		name="dir-835-a1"
 		;;
+	*"dLAN pro 500 Wireless+")
+		name="dlan-pro-500-wp"
+		;;
+	*"dLAN pro 1200+ WiFi ac")
+		name="dlan-pro-1200-ac"
+		;;
 	*"Dragino v2")
 		name="dragino2"
 		;;
@@ -432,6 +441,9 @@ ar71xx_board_detect() {
 	*"GL-CONNECT INET v1")
 		name="gl-inet"
 		gl_inet_board_detect
+		;;
+	*"EnGenius EPG5000")
+		name="epg5000"
 		;;
 	*"EnGenius ESR1750")
 		name="esr1750"
@@ -537,6 +549,9 @@ ar71xx_board_detect() {
 		;;
 	*"OM5P AN")
 		name="om5p-an"
+		;;
+	*"Onion Omega")
+		name="onion-omega"
 		;;
 	*PB42)
 		name="pb42"

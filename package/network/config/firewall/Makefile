@@ -14,11 +14,9 @@ PKG_RELEASE:=$(PKG_SOURCE_VERSION)
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://gitlab.labs.nic.cz/turris/firewall3.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=980b7859bbd1db1e5e46422fccccbce38f9809ab
+PKG_SOURCE_VERSION:=a139b8a9c100b4f2f6840f55ab5fdd3435a36a45
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
-PKG_MAINTAINER:=Jo-Philipp Wich <jow@openwrt.org>
-PKG_LICENSE:=ISC
-
+PKG_MAINTAINER:=Stepan Henek <stepan.henek@nic.cz>
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk

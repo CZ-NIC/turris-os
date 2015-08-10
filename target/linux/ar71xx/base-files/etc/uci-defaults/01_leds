@@ -36,6 +36,12 @@ antminer-s1)
 	ucidef_set_led_wlan "wlan" "WLAN" "bitmain:green:wlan" "phy0tpt"
 	;;
 
+antminer-s3)
+	ucidef_set_led_wlan "wlan" "WLAN" "bitmain:green:wlan" "phy0tpt"
+	ucidef_set_led_default "sys" "SYS" "bitmain:green:sys" "0"
+	ucidef_set_led_default "lan" "LAN" "bitmain:yellow:lan" "0"
+	;;
+
 ap113)
 	ucidef_set_led_usbdev "usb" "USB" "ap113:green:usb" "1-1"
 	;;
@@ -150,6 +156,19 @@ dir-825-c1)
 	ucidef_set_led_wlan "wlan2g" "WLAN 2.4 GHz" "d-link:blue:wlan2g" "phy0tpt"
 	;;
 
+dlan-pro-500-wp)
+	ucidef_set_led_default "power" "System Power" "devolo:green:status" "1"
+	ucidef_set_led_netdev "lan" "Ethernet Activity" "devolo:green:eth" "br-lan"
+	ucidef_set_led_wlan "wlan2g" "WLAN 2.4 GHz" "devolo:green:wlan-2g" "phy0tpt"
+	ucidef_set_led_wlan "wlan5g" "WLAN 5 GHz" "devolo:blue:wlan-5g" "none"
+	;;
+
+dlan-pro-1200-ac)
+	ucidef_set_led_wlan "wlan" "WLAN" "devolo:status:wlan" "phy0radio"
+	ucidef_set_led_trigger_gpio "plcw" "dLAN" "devolo:status:dlan" "17" "0"
+	ucidef_set_led_trigger_gpio "plcr" "dLAN" "devolo:error:dlan" "16" "0"
+	;;
+
 gl-inet)
 	ucidef_set_led_netdev "lan" "LAN" "gl-connect:green:lan" "eth1"
 	ucidef_set_led_wlan "wlan" "WLAN" "gl-connect:red:wlan" "phy0tpt"
@@ -163,6 +182,11 @@ esr900)
 esr1750)
 	ucidef_set_led_wlan "wlan2g" "WLAN 2.4 GHz" "esr1750:blue:wlan-2g" "phy0tpt"
 	ucidef_set_led_wlan "wlan5g" "WLAN 5 GHz" "esr1750:blue:wlan-5g" "phy1tpt"
+	;;
+
+epg5000)
+	ucidef_set_led_wlan "wlan2g" "WLAN 2.4 GHz" "epg5000:blue:wlan-2g" "phy1tpt"
+	ucidef_set_led_wlan "wlan5g" "WLAN 5 GHz" "epg5000:blue:wlan-5g" "phy0tpt"
 	;;
 
 hiwifi-hc6361)
