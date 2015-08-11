@@ -1,3 +1,4 @@
+* Foris (v57): Oprava validátoru MAC adresy.
 * Tvheadend: fix zapomenuté instalace /etc/config/tvheadend.
 * Python 3: backport z upstreamu (Python 3.4.3).
 ===================== 2.5 =======================
