@@ -420,7 +420,7 @@ $(eval $(call KernelPackage,ipt-iprange))
 
 define KernelPackage/ipt-extra
   TITLE:=Extra modules
-  KCONFIG:=$(KCONFIG_IPT_EXTRA)
+  KCONFIG:=$(KCONFIG_IPT_EXTRA) CONFIG_BRIDGE_NETFILTER=y
   FILES:=$(foreach mod,$(IPT_EXTRA-m),$(LINUX_DIR)/net/$(mod).ko)
   AUTOLOAD:=$(call AutoLoad,27,$(notdir $(IPT_EXTRA-m)))
   $(call AddDepends/ipt)
@@ -431,7 +431,7 @@ define KernelPackage/ipt-extra/description
  Includes:
  - addrtype
  - owner
- - physdev (if bridge support was enabled in kernel)
+ - physdev
  - pkttype
  - quota
 endef
