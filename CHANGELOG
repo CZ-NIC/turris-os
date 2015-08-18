@@ -1,6 +1,14 @@
+* Foris (v58): podpora pro podporu více kanálů v pásmu 5 GHz.
+* wifi: Podpora více kanálů v pásmu 5GHz
+* nuci: Podpora pro více jazyků firewallových pravidel
+* majordomo: Hotfix chyby, která způsobuje odmazávání dat
+* ucollect: Oprava zjišťování online stavu
+* ucollect: Zlepšení řešení chyb v pluginech
+* ucollect: Podpora knihoven pro pluginy
 * Foris (v57): Oprava validátoru MAC adresy.
 * Tvheadend: fix zapomenuté instalace /etc/config/tvheadend.
 * Python 3: backport z upstreamu (Python 3.4.3).
+* kernel: zapnutí podpory pro physdev iptables modul
 ===================== 2.5 =======================
 * ucollect: Pozdržení posílání dat při ztrátě spojení
 * mitmproxy: workaround pro firewallový redirect, který přestal fungovat
