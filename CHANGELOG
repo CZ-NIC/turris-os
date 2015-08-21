@@ -1,3 +1,4 @@
+* Kernel: přidána podpora pro tuner AVerMedia A800 a další DiBcom USB tunery.
 * distribute, python-eeml, simplejson, pyrrd, mako: odstraněny, distribute nahrazeno setuptools.
 * python-twisted: compile-time závislost na distribute nahrazena setuptools (nemělo by mít vliv na funkci).
 * python-setuptools, python-pip: nové balíčky
