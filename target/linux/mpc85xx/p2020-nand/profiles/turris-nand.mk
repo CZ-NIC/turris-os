@@ -21,7 +21,7 @@ define Profile/TURRISNAND
 #   it here explicitly.
 	PACKAGES:=\
 		kmod-usb-core kmod-usb2 kmod-usb2-fsl \
-		kmod-ath9k kmod-hostapd hostapd kmod-usb3 \
+		kmod-ath9k kmod-hostapd kmod-usb3 wpad \
 		kmod-usb-storage uboot-turris \
 		block-mount kmod-hwmon-core kmod-hwmon-lm90 \
 		nuci updater unbound oneshot logrotate \
@@ -29,7 +29,7 @@ define Profile/TURRISNAND
 		mtd-utils-flash-erase mtd-utils-flash-eraseall mtd-utils-flash-info \
 		luci luci-i18n-czech zlib curl cert-backup foris update_mac wget \
 		userspace_time_sync openssh-moduli watchdog_adjust \
-		ucollect-config rainbow wpa-supplicant turris-version \
+		ucollect-config rainbow turris-version \
 		spidev-test i2c-tools -dropbear
 endef
 
