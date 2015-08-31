@@ -1,3 +1,10 @@
+* Foris (v59): podpora pro podporu vícejazyčných notifikací.
+* Vícejazyčná podpora pro create-notification
+* wpad místo hostapd a wpa_supplicantu
+* Kernel: přidána podpora pro tuner AVerMedia A800 a další DiBcom USB tunery.
+* distribute, python-eeml, simplejson, pyrrd, mako: odstraněny, distribute nahrazeno setuptools.
+* python-twisted: compile-time závislost na distribute nahrazena setuptools (nemělo by mít vliv na funkci).
+* python-setuptools, python-pip: nové balíčky
 * Foris (v58): podpora pro podporu více kanálů v pásmu 5 GHz.
 * wifi: Podpora více kanálů v pásmu 5GHz
 * nuci: Podpora pro více jazyků firewallových pravidel

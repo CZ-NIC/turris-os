@@ -89,7 +89,6 @@ define AddDepends/dvb-usb
   DEPENDS+=+kmod-dvb-usb $1
 endef
 
-
 define KernelPackage/dvb-usb-dib0700
   TITLE:=DiBcom DiB0700 USB DVB devices
   KCONFIG:=CONFIG_DVB_USB_DIB0700
@@ -122,6 +121,72 @@ endef
 
 $(eval $(call KernelPackage,dvb-usb-dib0700))
 
+define KernelPackage/dvb-usb-dibusb-common
+  TITLE:=Common library for DiBcom USB drivers
+  FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb/dvb-usb-dibusb-common.ko
+  AUTOLOAD:=$(call AutoLoad,62,dvb-usb-dibusb-common)
+  $(call AddDepends/dvb-usb,+PACKAGE_kmod-dvb-dib3000mc:kmod-dvb-dib3000mc)
+endef
+
+$(eval $(call KernelPackage,dvb-usb-dibusb-common))
+
+define KernelPackage/dvb-usb-a800
+  TITLE:=AVerMedia AverTV DVB-T USB 2.0 (A800)
+  KCONFIG:=CONFIG_DVB_USB_A800
+  FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb/dvb-usb-a800.ko
+  AUTOLOAD:=$(call AutoLoad,63,dvb-usb-a800)
+  $(call AddDepends/dvb-usb,+kmod-dvb-dib3000mc +kmod-dvb-usb-dibusb-common)
+endef
+
+define KernelPackage/dvb-usb-a800/description
+ Say Y here to support the AVerMedia AverTV DVB-T USB 2.0 (A800) receiver.
+endef
+
+$(eval $(call KernelPackage,dvb-usb-a800))
+
+define KernelPackage/dvb-usb-dibusb-mb
+  TITLE:=DiBcom USB DVB-T devices (DiB3000M-B based)
+  KCONFIG:= \
+	CONFIG_DVB_USB_DIBUSB_MB_FAULTY=y \
+	CONFIG_DVB_USB_DIBUSB_MB
+  FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb/dvb-usb-dibusb-mb.ko
+  AUTOLOAD:=$(call AutoLoad,63,dvb-usb-dibusb-mb)
+  $(call AddDepends/dvb-usb,+kmod-dvb-dib3000mb +kmod-dvb-usb-dibusb-common)
+endef
+
+define KernelPackage/dvb-usb-dibusb-mb/description
+ Support for USB 1.1 and 2.0 DVB-T receivers based on reference designs made by
+ DiBcom (<http://www.dibcom.fr>) equipped with a DiB3000M-B demodulator.
+
+ For an up-to-date list of devices supported by this driver, have a look
+ on the Linux-DVB Wiki at www.linuxtv.org.
+
+ Say Y if you own such a device and want to use it. You should build it as
+ a module.
+endef
+
+$(eval $(call KernelPackage,dvb-usb-dibusb-mb))
+
+define KernelPackage/dvb-usb-dibusb-mc
+  TITLE:=DiBcom USB DVB-T devices (DiB3000M-C/P based)
+  KCONFIG:=CONFIG_DVB_USB_DIBUSB_MC
+  FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb/dvb-usb-dibusb-mc.ko
+  AUTOLOAD:=$(call AutoLoad,63,dvb-usb-dibusb-mc)
+  $(call AddDepends/dvb-usb,+kmod-dvb-dib3000mc +kmod-dvb-usb-dibusb-common)
+endef
+
+define KernelPackage/dvb-usb-dibusb-mc/description
+ Support for USB2.0 DVB-T receivers based on reference designs made by
+ DiBcom (<http://www.dibcom.fr>) equipped with a DiB3000M-C/P demodulator.
+
+ For an up-to-date list of devices supported by this driver, have a look
+ on the Linux-DVB Wiki at www.linuxtv.org.
+
+ Say Y if you own such a device and want to use it. You should build it as
+ a module.
+endef
+
+$(eval $(call KernelPackage,dvb-usb-dibusb-mc))
 
 # --------------------------- DVB USB v2 drivers ------------------------------
 
