@@ -1,3 +1,4 @@
+* Update libevent (2.0.22, 1.4.15), fix CVE-2014-6272
 * Foris (v59): podpora pro podporu vícejazyčných notifikací.
 * Vícejazyčná podpora pro create-notification
 * wpad místo hostapd a wpa_supplicantu
