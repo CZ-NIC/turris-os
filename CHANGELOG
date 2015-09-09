@@ -1,3 +1,4 @@
+===================== 2.6 =======================
 * python-pip, python-setuptools: aktualizace na nejnovější verze z upstreamu.
 * Přidán Home Assistant s podporou Turris Gadgets.
 * Nové balíčky (vše nutné pro Home Assistant): python3-astral, python3-netdisco, python3-netifaces, python3-pydispatcher, python3-pyserial, python3-pytz, python3-pyyaml, python3-requests, python3-setuptools, python3-six, python3-zeroconf.
