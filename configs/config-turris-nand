@@ -27,6 +27,8 @@ CONFIG_BUSYBOX_CONFIG_CROND=n
 CONFIG_BUSYBOX_CONFIG_CRONTAB=n
 CONFIG_BUSYBOX_CONFIG_SYSLOGD=n
 CONFIG_BUSYBOX_CONFIG_STTY=y
+# Make sure we use real strip, that one leaves the debug link in
+CONFIG_USE_STRIP=y
 # These are needed as packages for updater
 CONFIG_PACKAGE_ucollect-badconf=m
 CONFIG_PACKAGE_ucollect-buckets=m

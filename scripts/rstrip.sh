@@ -20,7 +20,7 @@ TARGETS=$*
   exit 1
 }
 
-find $TARGETS -type f -a -exec file {} \; | \
+find $TARGETS -type f -a -not -path '*/usr/lib/debug/*' -a -exec file {} \; | \
   sed -n -e 's/^\(.*\):.*ELF.*\(executable\|relocatable\|shared object\).*,.* stripped/\1:\2/p' | \
 (
   IFS=":"
