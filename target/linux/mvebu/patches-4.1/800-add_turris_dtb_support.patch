@@ -1,0 +1,12 @@
+--- a/arch/arm/boot/dts/Makefile	2015-09-18 00:23:22.511065234 +0200
++++ b/arch/arm/boot/dts/Makefile	2015-09-18 00:23:55.267339088 +0200
+@@ -635,7 +635,8 @@
+ 	armada-385-db-ap.dtb \
+ 	armada-388-db.dtb \
+ 	armada-388-gp.dtb \
+-	armada-388-rd.dtb
++	armada-388-rd.dtb \
++	turris-lite.dtb
+ dtb-$(CONFIG_MACH_ARMADA_39X) += \
+ 	armada-398-db.dtb
+ dtb-$(CONFIG_MACH_ARMADA_XP) += \
