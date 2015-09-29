@@ -1,0 +1,56 @@
+--- a/drivers/net/phy/marvell.c	2015-09-27 23:25:56.298515371 +0200
++++ b/drivers/net/phy/marvell.c	2015-09-27 23:46:31.623749251 +0200
+@@ -728,6 +728,45 @@
+ 	return 0;
+ }
+ 
++void phy_writebits(struct phy_device *phydev,
++	   u8 reg_num, u16 offset, u16 len, u16 data)
++{
++	u16 reg, mask;
++
++	if ((len + offset) >= 16)
++		mask = 0 - (1 << offset);
++	else
++		mask = (1 << (len + offset)) - (1 << offset);
++
++	reg = phy_read(phydev, reg_num);
++
++	reg &= ~mask;
++	reg |= data << offset;
++
++	phy_write(phydev, reg_num, reg);
++}
++
++static int m88e1510_config_init(struct phy_device *phydev)
++{
++	phy_write(phydev, 22, 0x00ff);
++	phy_write(phydev, 17, 0x214B);
++	phy_write(phydev, 16, 0x2144);
++	phy_write(phydev, 17, 0x0C28);
++	phy_write(phydev, 16, 0x2146);
++	phy_write(phydev, 17, 0xB233);
++	phy_write(phydev, 16, 0x214D);
++	phy_write(phydev, 17, 0xCC0C);
++	phy_write(phydev, 16, 0x2159);
++	phy_write(phydev, 22, 0x0000); 
++	phy_write(phydev, 22, 18);
++	phy_writebits(phydev, 20, 0, 3, 1);
++
++	phy_writebits(phydev, 20, 15, 1, 1);
++	phy_write(phydev, 22, 0);
++
++	return m88e1111_config_init(phydev);
++}
++
+ /* marvell_read_status
+  *
+  * Generic status code does not detect Fiber correctly!
+@@ -1092,6 +1131,7 @@
+ 		.name = "Marvell 88E1510",
+ 		.features = PHY_GBIT_FEATURES,
+ 		.flags = PHY_HAS_INTERRUPT,
++		.config_init = &m88e1510_config_init,
+ 		.config_aneg = &m88e1510_config_aneg,
+ 		.read_status = &marvell_read_status,
+ 		.ack_interrupt = &marvell_ack_interrupt,
