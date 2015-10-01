@@ -35,7 +35,19 @@
                                 		label = "SPI flash";
                         		};
 				};
+				spi-nor@1 {
+					/* Test */
+					compatible = "spansion,s25fl164k", "jedec,spi-nor";
+					#address-cells = <1>;
+					#size-cells = <1>;
+					reg = <2>;
+					spi-max-frequency = <40000000>;
 
+					partition@0 {
+						reg = <0x0 0x00800000>;
+                                		label = "SPI flash test";
+                        		};
+				};
 			};
 
 			i2c@11000 {
@@ -47,17 +59,75 @@
 					#address-cells = <1>;
 					#size-cells = <0>;
 					compatible = "philips,pca9547";
-					reg = <0x77>;
+					reg = <0x70>;
 					i2c@0 {
+						/*  */
 						#address-cells = <1>;
 						#size-cells = <0>;
 						compatible = "philips,pca9547-channel";
 						reg = <0>;
+						eeprom@54 {
+							compatible = "at,24c64";
+							reg = <0x54>;
+						};
+
+						/* Additional device: STM-32, address unknown. */
+      					};
+					i2c@1 {
+						/* SATA */
+						#address-cells = <1>;
+						#size-cells = <0>;
+						compatible = "philips,pca9547-channel";
+						reg = <1>;
+					};
+					i2c@2 {
+						/* PCI 1 */
+						#address-cells = <1>;
+						#size-cells = <0>;
+						compatible = "philips,pca9547-channel";
+						reg = <2>;
+					};
+					i2c@3 {
+						/* PCI 0 */
+						#address-cells = <1>;
+						#size-cells = <0>;
+						compatible = "philips,pca9547-channel";
+						reg = <3>;
+					};
+					i2c@4 {
+						/* SFP */
+						#address-cells = <1>;
+						#size-cells = <0>;
+						compatible = "philips,pca9547-channel";
+						reg = <4>;
+					};
+					i2c@5 {
+						/* ATSHA */
+						#address-cells = <1>;
+						#size-cells = <0>;
+						compatible = "philips,pca9547-channel";
+						reg = <5>;
+      					};
+					i2c@6 {
+						/* User GPIO header */
+						#address-cells = <1>;
+						#size-cells = <0>;
+						compatible = "philips,pca9547-channel";
+						reg = <6>;
+						eeprom@50 {
+							/* Test */
+							compatible = "at,24c04";
+							reg = <0x50>;
+						};
       					};
 				};
 			};
 
 			serial@12000 {
+				status = "okay";
+			};
+			
+			serial@12100 {
 				status = "okay";
 			};
 
@@ -153,3 +223,12 @@
 		cpu-port-1 = <6>;
 	};
 };
+
+&pinctrl {
+	user_pin: user-pin {
+		marvell,pins = "mpp18", "mpp33", "mpp34", "mpp35", "mpp36",
+				"mpp42", "mpp44", "mpp47", "mpp51", "mpp56";
+		marvell,function = "gpio";
+	};
+};
+
