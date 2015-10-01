@@ -1,4 +1,4 @@
-src-git turrispackages https://gitlab.labs.nic.cz/turris/openwrt-packages.git^0f2b909db93a04768257ca62e3dccdd319a9b8df
+src-git turrispackages https://gitlab.labs.nic.cz/turris/openwrt-packages.git^f4dd6f7dd78e898f2b8771ab96e84ec93749cf9b
 src-git lucics https://gitlab.labs.nic.cz/turris/luci-cs.git^39a5f33635f2558ac0f459103ad80bcad2d2dd83
 src-git packages https://github.com/openwrt/packages.git^725b31909bed2066575c05215238b634d62ab6e7
 src-git routing https://github.com/openwrt-routing/packages.git^5d4ad63897b435d5df0f39a49bd58962c22c33b8
@@ -10,7 +10,7 @@ src-git management https://github.com/openwrt-management/packages.git^c332e7c073
 #src-svn xwrt http://x-wrt.googlecode.com/svn/trunk/package
 #src-svn phone svn://svn.openwrt.org/openwrt/feeds/phone
 #src-svn efl svn://svn.openwrt.org/openwrt/feeds/efl
-src-svn xorg svn://svn.openwrt.org/openwrt/feeds/xorg
+#src-svn xorg svn://svn.openwrt.org/openwrt/feeds/xorg
 #src-svn desktop svn://svn.openwrt.org/openwrt/feeds/desktop
 #src-svn xfce svn://svn.openwrt.org/openwrt/feeds/xfce
 #src-svn lxde svn://svn.openwrt.org/openwrt/feeds/lxde
