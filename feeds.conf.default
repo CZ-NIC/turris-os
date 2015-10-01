@@ -10,7 +10,7 @@ src-git management https://github.com/openwrt-management/packages.git^c332e7c073
 #src-svn xwrt http://x-wrt.googlecode.com/svn/trunk/package
 #src-svn phone svn://svn.openwrt.org/openwrt/feeds/phone
 #src-svn efl svn://svn.openwrt.org/openwrt/feeds/efl
-#src-svn xorg svn://svn.openwrt.org/openwrt/feeds/xorg
+src-svn xorg svn://svn.openwrt.org/openwrt/feeds/xorg
 #src-svn desktop svn://svn.openwrt.org/openwrt/feeds/desktop
 #src-svn xfce svn://svn.openwrt.org/openwrt/feeds/xfce
 #src-svn lxde svn://svn.openwrt.org/openwrt/feeds/lxde
