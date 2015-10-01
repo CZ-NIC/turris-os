@@ -1,6 +1,47 @@
---- a/drivers/net/phy/marvell.c	2015-09-27 23:25:56.298515371 +0200
-+++ b/drivers/net/phy/marvell.c	2015-09-27 23:46:31.623749251 +0200
-@@ -728,6 +728,45 @@
+--- a/drivers/net/phy/marvell.c	2015-08-17 05:52:51.000000000 +0200
++++ b/drivers/net/phy/marvell.c	2015-10-01 12:40:50.748337714 +0200
+@@ -388,14 +388,39 @@
+ static int m88e1510_config_aneg(struct phy_device *phydev)
+ {
+ 	int err;
++	u16 addrreg, reg;
+ 
+ 	err = m88e1318_config_aneg(phydev);
+ 	if (err < 0)
+ 		return err;
+ 
+-	return marvell_of_reg_init(phydev);
++	err = marvell_of_reg_init(phydev);
++	if (err < 0)
++		return err;
++
++	/* 88E1514 LEDs in Turris */
++	addrreg = phy_read(phydev, 22);
++	phy_write(phydev, 22, 3);
++/*	reg = phy_read(phydev, 16);
++	printk("reg before LED hack: 0x%04x\n",reg); */
++
++	/* Set LED0 mode */
++	phy_write(phydev, 16, 0x1aa1);
++
++	/* Set IRQ enable */
++	reg = phy_read(phydev, 18);
++	reg |= 0x40;
++	phy_write(phydev, 18, reg);
++
++/*	reg = phy_read(phydev, 16);
++	printk("reg after LED hack: 0x%04x\n",reg); */
++
++	phy_write(phydev, 22, addrreg);
++
++	return 0;
+ }
+ 
++
+ static int m88e1116r_config_init(struct phy_device *phydev)
+ {
+ 	int temp;
+@@ -728,6 +753,47 @@
  	return 0;
  }
  
@@ -24,6 +65,7 @@
 +
 +static int m88e1510_config_init(struct phy_device *phydev)
 +{
++	/* Turris hack for 88E1514 - taken from U-Boot */
 +	phy_write(phydev, 22, 0x00ff);
 +	phy_write(phydev, 17, 0x214B);
 +	phy_write(phydev, 16, 0x2144);
@@ -39,6 +81,7 @@
 +
 +	phy_writebits(phydev, 20, 15, 1, 1);
 +	phy_write(phydev, 22, 0);
++	/* End of turris hack */
 +
 +	return m88e1111_config_init(phydev);
 +}
@@ -46,7 +89,7 @@
  /* marvell_read_status
   *
   * Generic status code does not detect Fiber correctly!
-@@ -1092,6 +1131,7 @@
+@@ -1092,6 +1158,7 @@
  		.name = "Marvell 88E1510",
  		.features = PHY_GBIT_FEATURES,
  		.flags = PHY_HAS_INTERRUPT,
