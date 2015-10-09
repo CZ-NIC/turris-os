@@ -177,7 +177,12 @@
 			};
 
 			/* USB part of the eSATA/USB 2.0 port */
-			usb@50000 {
+			usb@58000 {
+				status = "okay";
+			};
+
+			/* 2x external USB3 */
+			usb3@f0000 {
 				status = "okay";
 			};
 
