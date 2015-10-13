@@ -124,10 +124,14 @@
 			};
 
 			serial@12000 {
+				pinctrl-names = "default";
+				pinctrl-0 = <&uart0_pins>;
 				status = "okay";
 			};
 			
 			serial@12100 {
+				pinctrl-names = "default";
+				pinctrl-0 = <&uart1_pins>;
 				status = "okay";
 			};
 
