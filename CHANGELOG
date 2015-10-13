@@ -1,3 +1,4 @@
+* Foris (v60): refactoring jako Py modul, dynamicky generovaný config -> ucifikace scriptname.
 * nuci: Podpora pro jednodušší editování povolených user-listů
 * updater: Nepadat při chybě z create_notification
 * ucollect: Backtrace při spadnutí v logu
