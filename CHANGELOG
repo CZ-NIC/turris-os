@@ -1,3 +1,4 @@
+* python-turris-gpio: Python modul pro ovládání GPIO portů z Pythonu.
 * updater: Hash checker není vyžadován
 * nuci-securris: Zrušen
 * lighttpd: Aktualizace na 1.4.37, sofistikovanější modularita konfigurace.
