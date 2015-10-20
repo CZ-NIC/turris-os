@@ -1,3 +1,4 @@
+* nuci-securris: Zrušen
 * lighttpd: Aktualizace na 1.4.37, sofistikovanější modularita konfigurace.
 * Foris (v60): refactoring jako Py modul, dynamicky generovaný config -> ucifikace scriptname.
 * nuci: Podpora pro jednodušší editování povolených user-listů
