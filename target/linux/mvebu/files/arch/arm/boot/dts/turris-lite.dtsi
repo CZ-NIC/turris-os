@@ -55,64 +55,59 @@
 				pinctrl-0 = <&i2c0_pins>;
 				status = "okay";
 
-				i2cmux@77 {
+				i2cmux@70 {
+					compatible = "nxp,pca9547";
 					#address-cells = <1>;
 					#size-cells = <0>;
-					compatible = "philips,pca9547";
 					reg = <0x70>;
+					status = "okay";
 					i2c@0 {
-						/*  */
+						/* Config memory */
 						#address-cells = <1>;
 						#size-cells = <0>;
-						compatible = "philips,pca9547-channel";
 						reg = <0>;
+						status = "okay";
 						eeprom@54 {
 							compatible = "at,24c64";
 							reg = <0x54>;
 						};
 
-						/* Additional device: STM-32, address unknown. */
+						/* Additional device: STM-32, address 0x55.*/
       					};
 					i2c@1 {
 						/* SATA */
 						#address-cells = <1>;
 						#size-cells = <0>;
-						compatible = "philips,pca9547-channel";
 						reg = <1>;
 					};
 					i2c@2 {
 						/* PCI 1 */
 						#address-cells = <1>;
 						#size-cells = <0>;
-						compatible = "philips,pca9547-channel";
 						reg = <2>;
 					};
 					i2c@3 {
 						/* PCI 0 */
 						#address-cells = <1>;
 						#size-cells = <0>;
-						compatible = "philips,pca9547-channel";
 						reg = <3>;
 					};
 					i2c@4 {
 						/* SFP */
 						#address-cells = <1>;
 						#size-cells = <0>;
-						compatible = "philips,pca9547-channel";
 						reg = <4>;
 					};
 					i2c@5 {
 						/* ATSHA */
 						#address-cells = <1>;
 						#size-cells = <0>;
-						compatible = "philips,pca9547-channel";
 						reg = <5>;
       					};
 					i2c@6 {
 						/* User GPIO header */
 						#address-cells = <1>;
 						#size-cells = <0>;
-						compatible = "philips,pca9547-channel";
 						reg = <6>;
 						eeprom@50 {
 							/* Test */
