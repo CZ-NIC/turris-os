@@ -593,7 +593,7 @@ define KernelPackage/ppp
   FILES:= \
 	$(LINUX_DIR)/drivers/net/ppp/ppp_async.ko \
 	$(LINUX_DIR)/drivers/net/ppp/ppp_generic.ko
-  AUTOLOAD:=$(call AutoLoad,27,ppp_async)
+  AUTOLOAD:=$(call AutoProbe,ppp_async)
 endef
 
 define KernelPackage/ppp/description
@@ -609,7 +609,7 @@ define KernelPackage/ppp-synctty
   DEPENDS:=kmod-ppp
   KCONFIG:=CONFIG_PPP_SYNC_TTY
   FILES:=$(LINUX_DIR)/drivers/net/ppp/ppp_synctty.ko
-  AUTOLOAD:=$(call AutoLoad,27,ppp_synctty)
+  AUTOLOAD:=$(call AutoProbe,ppp_synctty)
 endef
 
 define KernelPackage/ppp-synctty/description
@@ -640,7 +640,7 @@ define KernelPackage/pppoe
   DEPENDS:=kmod-ppp +kmod-pppox
   KCONFIG:=CONFIG_PPPOE
   FILES:=$(LINUX_DIR)/drivers/net/ppp/pppoe.ko
-  AUTOLOAD:=$(call AutoLoad,27,pppoe)
+  AUTOLOAD:=$(call AutoProbe,pppoe)
 endef
 
 define KernelPackage/pppoe/description
@@ -672,7 +672,7 @@ define KernelPackage/pptp
   DEPENDS:=kmod-ppp +kmod-gre +kmod-pppox
   KCONFIG:=CONFIG_PPTP
   FILES:=$(LINUX_DIR)/drivers/net/ppp/pptp.ko
-  AUTOLOAD:=$(call AutoLoad,27,pptp)
+  AUTOLOAD:=$(call AutoProbe,pptp)
 endef
 
 $(eval $(call KernelPackage,pptp))
@@ -684,7 +684,7 @@ define KernelPackage/pppol2tp
   DEPENDS:=kmod-ppp +kmod-pppox +kmod-l2tp
   KCONFIG:=CONFIG_PPPOL2TP
   FILES:=$(LINUX_DIR)/net/l2tp/l2tp_ppp.ko
-  AUTOLOAD:=$(call AutoLoad,27,l2tp_ppp)
+  AUTOLOAD:=$(call AutoProbe,l2tp_ppp)
 endef
 
 define KernelPackage/pppol2tp/description
@@ -700,7 +700,7 @@ define KernelPackage/ipoa
   DEPENDS:=kmod-atm
   KCONFIG:=CONFIG_ATM_CLIP
   FILES:=$(LINUX_DIR)/net/atm/clip.ko
-  AUTOLOAD:=$(call AutoLoad,27,clip)
+  AUTOLOAD:=$(call AutoProbe,clip)
 endef
 
 define KernelPackage/ipoa/description
@@ -718,7 +718,7 @@ define KernelPackage/mppe
 	CONFIG_PPP_MPPE_MPPC \
 	CONFIG_PPP_MPPE
   FILES:=$(LINUX_DIR)/drivers/net/ppp/ppp_mppe.ko
-  AUTOLOAD:=$(call AutoLoad,27,ppp_mppe)
+  AUTOLOAD:=$(call AutoProbe,ppp_mppe)
 endef
 
 define KernelPackage/mppe/description
