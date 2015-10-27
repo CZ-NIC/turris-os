@@ -37,6 +37,7 @@ CONFIG_PACKAGE_ucollect-count=m
 CONFIG_PACKAGE_ucollect-sniff=m
 CONFIG_PACKAGE_ucollect-bandwidth=m
 CONFIG_PACKAGE_ucollect-flow=m
+CONFIG_PACKAGE_ucollect-fwup=m
 CONFIG_PACKAGE_ucollect-meta=m
 CONFIG_PACKAGE_ucollect-fake=m
 CONFIG_PACKAGE_lcollect-majordomo=m
