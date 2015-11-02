@@ -15,6 +15,7 @@ PKG_SOURCE_URL:=http://ftp.debian.org/debian/pool/main/c/ca-certificates
 PKG_MD5SUM:=f619282081c8bfc65ea64c37fa5285ed
 
 PKG_INSTALL:=1
+PKG_REVISION:=2
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -22,6 +23,7 @@ define Package/ca-certificates
   SECTION:=base
   CATEGORY:=Base system
   TITLE:=System CA certificates
+  DEPENDS:=+c-rehash
 endef
 
 define Build/Install
@@ -34,15 +36,18 @@ endef
 define Package/ca-certificates/install
 	$(INSTALL_DIR) $(1)/etc/ssl/certs
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/share/ca-certificates/*/*.crt $(1)/etc/ssl/certs/
+endef
+define Package/$(PKG_NAME)/postinst
+#!/bin/sh
 
-	for CERTFILE in `ls -1 $(1)/etc/ssl/certs`; do \
-		HASH=`openssl x509 -hash -noout -in $(1)/etc/ssl/certs/$$$$CERTFILE` ; \
-		SUFFIX=0 ; \
-		while [ -h "$(1)/etc/ssl/certs/$$$$HASH.$$$$SUFFIX" ]; do \
-			let "SUFFIX += 1" ; \
-		done ; \
-		ln -s "$$$$CERTFILE" "$(1)/etc/ssl/certs/$$$$HASH.$$$$SUFFIX" ; \
-	done
+cd "$${IPKG_INSTROOT}"/etc/ssl/certs
+c_rehash .
+endef
+
+define Package/$(PKG_NAME)/postrm
+#!/bin/sh
+
+( cd /etc/ssl/certs && c_rehash . ) || true
 endef
 
 $(eval $(call BuildPackage,ca-certificates))

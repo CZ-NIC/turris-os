@@ -18,7 +18,7 @@
 +      res = xsystem(argv);
 +
 +      if (res) {
-+	  opkg_msg(ERROR, "Failed to download CRL, wget returned %d.\n", res);
++	  opkg_msg(ERROR, "Failed to download CRL, get-api-crl returned %d.\n", res);
 +	  free(tmp_file_location);
 +	  return -1;
        }
