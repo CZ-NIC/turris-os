@@ -1,3 +1,47 @@
+===================== 2.7 =======================
+* user_notify: hostname v předmětu mailu, oprava detekce jazyka.
+* minidlna: Aktualizace na verzi 1.1.4 (1.1.4-2 z upstreamu) - včetně opravy init skriptu.
+* python-turris-gpio: Python modul pro ovládání GPIO portů z Pythonu.
+* updater: Hash checker není vyžadován
+* nuci-securris: Zrušen
+* lighttpd: Aktualizace na 1.4.37, sofistikovanější modularita konfigurace.
+* Foris (v60): refactoring jako Py modul, dynamicky generovaný config -> ucifikace scriptname.
+* nuci: Podpora pro jednodušší editování povolených user-listů
+* updater: Nepadat při chybě z create_notification
+* ucollect: Backtrace při spadnutí v logu
+* Firewall: oprava vytváření DROP pravidel
+* Firewall: sbírání firewallových logů z více WAN zařízení (různá zařízení pro IPv4 a IPv6)
+===================== 2.6 =======================
+* python-pip, python-setuptools: aktualizace na nejnovější verze z upstreamu.
+* Přidán Home Assistant s podporou Turris Gadgets.
+* Nové balíčky (vše nutné pro Home Assistant): python3-astral, python3-netdisco, python3-netifaces, python3-pydispatcher, python3-pyserial, python3-pytz, python3-pyyaml, python3-requests, python3-setuptools, python3-six, python3-zeroconf.
+* Update libevent (2.0.22, 1.4.15), fix CVE-2014-6272
+* Foris (v59): podpora pro podporu vícejazyčných notifikací.
+* Vícejazyčná podpora pro create-notification
+* wpad místo hostapd a wpa_supplicantu
+* Kernel: přidána podpora pro tuner AVerMedia A800 a další DiBcom USB tunery.
+* distribute, python-eeml, simplejson, pyrrd, mako: odstraněny, distribute nahrazeno setuptools.
+* python-twisted: compile-time závislost na distribute nahrazena setuptools (nemělo by mít vliv na funkci).
+* python-setuptools, python-pip: nové balíčky
+* Foris (v58): podpora pro podporu více kanálů v pásmu 5 GHz.
+* wifi: Podpora více kanálů v pásmu 5GHz
+* nuci: Podpora pro více jazyků firewallových pravidel
+* majordomo: Hotfix chyby, která způsobuje odmazávání dat
+* ucollect: Oprava zjišťování online stavu
+* ucollect: Zlepšení řešení chyb v pluginech
+* ucollect: Podpora knihoven pro pluginy
+* Foris (v57): Oprava validátoru MAC adresy.
+* Tvheadend: fix zapomenuté instalace /etc/config/tvheadend.
+* Python 3: backport z upstreamu (Python 3.4.3).
+* kernel: zapnutí podpory pro physdev iptables modul
+===================== 2.5 =======================
+* ucollect: Pozdržení posílání dat při ztrátě spojení
+* mitmproxy: workaround pro firewallový redirect, který přestal fungovat
+* python-twisted: fix závislostí
+* tor: update na 0.2.6.10
+* Domoticz: nový balíček pro Turris Gadgets (+ přidán Boost - závislost Domoticzu).
+* git: backport verze 2.4.6-1 z upstreamu (branch master).
+* Foris (v56): drobné opravy - na záložce updater a ve filtrování hesel v error reportu.
 * updater: Protizasekávací skript
 * nuci: Dává k dispozici seznam PCAPů
 * majordomo: Při migraci je schopen využít cache, která zůstala z předchozích verzí programu.

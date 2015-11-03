@@ -91,7 +91,7 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
         ;;
     esac
 
-    create_notification -s restart "Jádro systému bylo aktualizováno na verzi $(VERSION). Prosím restartujte své zařízení."
+    create_notification -s restart "Jádro systému bylo aktualizováno na verzi $(VERSION). Prosím restartujte své zařízení." "The OS kernel has been updated to version $(VERSION). Please reboot the device."
 fi
 endef
 
