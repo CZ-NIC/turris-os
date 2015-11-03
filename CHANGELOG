@@ -1,3 +1,9 @@
+===================== 2.7 =======================
+* user_notify: hostname v předmětu mailu, oprava detekce jazyka.
+* minidlna: Aktualizace na verzi 1.1.4 (1.1.4-2 z upstreamu) - včetně opravy init skriptu.
+* python-turris-gpio: Python modul pro ovládání GPIO portů z Pythonu.
+* updater: Hash checker není vyžadován
+* nuci-securris: Zrušen
 * lighttpd: Aktualizace na 1.4.37, sofistikovanější modularita konfigurace.
 * Foris (v60): refactoring jako Py modul, dynamicky generovaný config -> ucifikace scriptname.
 * nuci: Podpora pro jednodušší editování povolených user-listů
