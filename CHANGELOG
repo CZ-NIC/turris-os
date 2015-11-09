@@ -1,3 +1,4 @@
+* nuci: Přidán plugin neighbours, který dokáže zobrazit připojené sousedy (okolní počítače, mobily, ....
 ===================== 2.7 =======================
 * user_notify: hostname v předmětu mailu, oprava detekce jazyka.
 * minidlna: Aktualizace na verzi 1.1.4 (1.1.4-2 z upstreamu) - včetně opravy init skriptu.
