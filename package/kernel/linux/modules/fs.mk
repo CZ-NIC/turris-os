@@ -162,6 +162,7 @@ define KernelPackage/fs-ext4
 	CONFIG_EXT4_FS_SECURITY=y \
 	CONFIG_EXT4_FS_POSIX_ACL=y \
 	CONFIG_EXT4_FS \
+	CONFIG_EXT4_ENCRYPTION=n \
 	CONFIG_JBD2
   FILES:= \
 	$(LINUX_DIR)/fs/ext4/ext4.ko \

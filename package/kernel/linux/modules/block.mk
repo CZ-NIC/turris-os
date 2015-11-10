@@ -25,10 +25,13 @@ $(eval $(call KernelPackage,aoe))
 define KernelPackage/ata-core
   SUBMENU:=$(BLOCK_MENU)
   TITLE:=Serial and Parallel ATA support
-  DEPENDS:=@PCI_SUPPORT +kmod-scsi-core
+  DEPENDS:=@PCI_SUPPORT||TARGET_sunxi +kmod-scsi-core
   KCONFIG:=CONFIG_ATA \
 	CONFIG_SATA_PMP=y
   FILES:=$(LINUX_DIR)/drivers/ata/libata.ko
+ifneq ($(wildcard $(LINUX_DIR)/drivers/ata/libahci.ko),)
+  FILES+=$(LINUX_DIR)/drivers/ata/libahci.ko
+endif
 endef
 
 $(eval $(call KernelPackage,ata-core))
@@ -44,8 +47,7 @@ define KernelPackage/ata-ahci
   TITLE:=AHCI Serial ATA support
   KCONFIG:=CONFIG_SATA_AHCI
   FILES:= \
-    $(LINUX_DIR)/drivers/ata/ahci.ko \
-    $(LINUX_DIR)/drivers/ata/libahci.ko
+    $(LINUX_DIR)/drivers/ata/ahci.ko
   AUTOLOAD:=$(call AutoLoad,41,libahci ahci,1)
   $(call AddDepends/ata)
 endef
@@ -63,8 +65,8 @@ define KernelPackage/ata-ahci-platform
   FILES:= \
     $(LINUX_DIR)/drivers/ata/ahci_platform.ko \
     $(LINUX_DIR)/drivers/ata/libahci_platform.ko
-  AUTOLOAD:=$(call AutoLoad,40,libahci_platform ahci_platform,1)
-  $(call AddDepends/ata,@TARGET_ipq806x||TARGET_mvebu +kmod-ata-ahci)
+  AUTOLOAD:=$(call AutoLoad,40,libahci libahci_platform ahci_platform,1)
+  $(call AddDepends/ata,@TARGET_ipq806x||TARGET_mvebu||TARGET_sunxi)
 endef
 
 define KernelPackage/ata-ahci-platform/description
@@ -259,7 +261,7 @@ $(eval $(call KernelPackage,block2mtd))
 define KernelPackage/dm
   SUBMENU:=$(BLOCK_MENU)
   TITLE:=Device Mapper
-  DEPENDS:=+kmod-crypto-manager +kmod-lib-crc32c
+  DEPENDS:=+kmod-crypto-manager
   # All the "=n" are unnecessary, they're only there
   # to stop the config from asking the question.
   # MIRROR is M because I've needed it for pvmove.
@@ -268,18 +270,17 @@ define KernelPackage/dm
 	CONFIG_DM_DEBUG=n \
 	CONFIG_DM_UEVENT=n \
 	CONFIG_DM_DELAY=n \
+	CONFIG_DM_LOG_WRITES=n \
+	CONFIG_DM_MQ_DEFAULT=n \
 	CONFIG_DM_MULTIPATH=n \
 	CONFIG_DM_ZERO=n \
 	CONFIG_DM_SNAPSHOT=n \
 	CONFIG_DM_LOG_USERSPACE=n \
-	CONFIG_DM_THIN_PROVISIONING=y \
-	CONFIG_DM_DEBUG_BLOCK_STACK_TRACING=n \
 	CONFIG_MD=y \
 	CONFIG_BLK_DEV_DM \
 	CONFIG_DM_CRYPT \
 	CONFIG_DM_MIRROR
-  FILES:=$(LINUX_DIR)/drivers/md/dm-*.ko \
-	$(LINUX_DIR)/drivers/md/persistent-data/dm-persistent-data.ko
+  FILES:=$(LINUX_DIR)/drivers/md/dm-*.ko
   AUTOLOAD:=$(call AutoLoad,30,dm-mod dm-log dm-region-hash dm-mirror dm-crypt)
 endef
 
