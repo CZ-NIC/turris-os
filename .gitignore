@@ -9,7 +9,7 @@
 /build_dir
 /staging_dir
 /tmp
-/logs
+/logs*
 /feeds
 /feeds.conf
 /package/feeds
