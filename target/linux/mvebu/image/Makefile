@@ -190,11 +190,21 @@ define Image/Build/Profile/385-DB-AP/squashfs
 endef
 
 
+define Image/Build/Profile/Turris-Lite/ext4
+	$(CP) \
+		$(KDIR)/root.ext4 \
+		$(BIN_DIR)/$(IMG_PREFIX)-turris-lite-rootfs.ext4
+endef
+
 # The Default profile should build everything
 $(eval $(call MultiProfile,Default,$(PROFILES_LIST)))
 
 define Image/BuildKernel
 	$(call Image/BuildKernel/Profile/$(PROFILE))
+endef
+
+define Image/Build/ext4
+	$(call Image/Build/Profile/$(PROFILE)/ext4)
 endef
 
 define Image/Build/squashfs
