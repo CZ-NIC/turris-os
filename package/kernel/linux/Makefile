@@ -35,10 +35,19 @@ endef
 define Build/Configure
 endef
 
+ifdef CONFIG_TARGET_mpc85xx_p2020_nand
 define Build/Compile
 	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/powerpc/boot/dts/turris-nand-bch.dts -o $(PKG_BUILD_DIR)/fdt-bch
 	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/powerpc/boot/dts/turris-nand-hw.dts -o $(PKG_BUILD_DIR)/fdt-hw
 endef
+endif
+
+ifdef CONFIG_TARGET_mvebu_Turris-Lite
+define Build/Compile
+	$(HOSTCC) -E -nostdinc -I$(LINUX_DIR)/arch/arm/boot/dts -I$(LINUX_DIR)/arch/arm/boot/dts/include -undef -D__DTS__ -x assembler-with-cpp -o $(LINUX_DIR)/arch/arm/boot/dts/.turris-lite.dtb.dts.tmp $(LINUX_DIR)/arch/arm/boot/dts/turris-lite.dts
+	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/arm/boot/dts/.turris-lite.dtb.dts.tmp -o $(PKG_BUILD_DIR)/dtb
+endef
+endif
 
 define KernelPackage/depends
 endef
@@ -54,19 +63,49 @@ define Package/kernel
   DEPENDS:=+create_notification +uboot-turris
 endef
 
+ifdef CONFIG_TARGET_mvebu_Turris-Lite
+define Package/kernel/install
+	$(INSTALL_DIR) $(1)/boot
+
+	$(CP) \
+		$(LINUX_DIR)/arch/$(ARCH)/boot/zImage \
+		$(1)/boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
+
+	ln -sf zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) $(1)/boot/zImage
+
+	$(CP) \
+		$(PKG_BUILD_DIR)/dtb \
+		$(1)/boot/dtb
+endef
+endif
+
+ifdef CONFIG_TARGET_mpc85xx_p2020_nand
 define Package/kernel/install
 	$(INSTALL_DIR) $(1)/boot
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 
-	$(CP) ./files/01_fix_pcie_paths			$(1)/etc/uci-defaults/01_fix_pcie_paths
+	$(CP) \
+		./files/01_fix_pcie_paths \
+		$(1)/etc/uci-defaults/01_fix_pcie_paths
 
-	$(CP) $(LINUX_DIR)/arch/powerpc/boot/zImage	$(1)/boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
-	$(CP) $(PKG_BUILD_DIR)/fdt-bch 			$(1)/boot/fdt-bch-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
-	$(CP) $(PKG_BUILD_DIR)/fdt-hw                   $(1)/boot/fdt-hw-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
+	$(CP) \
+		$(LINUX_DIR)/arch/powerpc/boot/zImage \
+		$(1)/boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
+
+	$(CP) \
+		$(PKG_BUILD_DIR)/fdt-bch \
+		$(1)/boot/fdt-bch-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
+
+	$(CP) \
+		$(PKG_BUILD_DIR)/fdt-hw \
+		$(1)/boot/fdt-hw-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
+
 	ln -sf zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) $(1)/boot/zImage
 	ln -sf fdt-bch-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) $(1)/boot/fdt
 endef
+endif
 
+ifdef CONFIG_TARGET_mpc85xx_p2020_nand
 define Package/kernel/postinst
 #!/bin/sh
 if [ -z "$${IPKG_INSTROOT}" ]; then
@@ -94,6 +133,7 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
     create_notification -s restart "Jádro systému bylo aktualizováno na verzi $(VERSION). Prosím restartujte své zařízení." "The OS kernel has been updated to version $(VERSION). Please reboot the device."
 fi
 endef
+endif
 
 define Package/kernel/extra_provides
 	sed -e 's,.*/,,' $(LINUX_DIR)/modules.builtin;
