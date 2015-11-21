@@ -468,8 +468,10 @@ define KernelPackage/usb-dwc2
 	CONFIG_USB_DWC2_VERBOSE=n \
 	CONFIG_USB_DWC2_TRACK_MISSED_SOFS=n
   FILES:= \
-	$(LINUX_DIR)/drivers/usb/dwc2/dwc2.ko \
-	$(LINUX_DIR)/drivers/usb/dwc2/dwc2_platform.ko
+	$(LINUX_DIR)/drivers/usb/dwc2/dwc2.ko
+  ifneq ($(wildcard $(LINUX_DIR)/drivers/usb/dwc2/dwc2_platform.ko),)
+    FILES+=$(LINUX_DIR)/drivers/usb/dwc2/dwc2_platform.ko
+  endif
   AUTOLOAD:=$(call AutoLoad,54,dwc2 dwc2_platform,1)
   $(call AddDepends/usb)
 endef
