@@ -125,7 +125,7 @@
 
 		i2c@3000 {
 			rtc@6f {
-				compatible = "mcp7940";
+				compatible = "mcp7940x";
 				reg = <0x6f>;
 			};
 			lm90@4c {
