@@ -1,6 +1,6 @@
 --- a/Makefile
 +++ b/Makefile
-@@ -1154,7 +1154,7 @@
+@@ -1154,7 +1154,7 @@ modules modules_install: FORCE
  	@echo >&2 "Type 'make config' and enable loadable module support."
  	@echo >&2 "Then build a kernel with module support enabled."
  	@echo >&2

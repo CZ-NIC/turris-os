@@ -15,11 +15,9 @@ Date:   Mon Apr 13 13:45:16 2015 +0200
     
     Signed-off-by: Tomas Hlavacek <tmshlvck@gmail.com>
 
-diff --git a/drivers/mtd/nand/fsl_elbc_nand.c b/drivers/mtd/nand/fsl_elbc_nand.c
-index 04b22fd..1f60442 100644
 --- a/drivers/mtd/nand/fsl_elbc_nand.c
 +++ b/drivers/mtd/nand/fsl_elbc_nand.c
-@@ -335,6 +335,14 @@ static void fsl_elbc_cmdfunc(struct mtd_info *mtd, unsigned int command,
+@@ -335,6 +335,14 @@ static void fsl_elbc_cmdfunc(struct mtd_
  		fsl_elbc_run_command(mtd);
  		return;
  
@@ -34,7 +32,7 @@ index 04b22fd..1f60442 100644
  	/* READOOB reads only the OOB because no ECC is performed. */
  	case NAND_CMD_READOOB:
  		dev_vdbg(priv->dev,
-@@ -656,6 +664,10 @@ static int fsl_elbc_chip_init_tail(struct mtd_info *mtd)
+@@ -656,6 +664,10 @@ static int fsl_elbc_chip_init_tail(struc
  	        chip->ecc.steps);
  	dev_dbg(priv->dev, "fsl_elbc_init: nand->ecc.bytes = %d\n",
  	        chip->ecc.bytes);
@@ -45,7 +43,7 @@ index 04b22fd..1f60442 100644
  	dev_dbg(priv->dev, "fsl_elbc_init: nand->ecc.total = %d\n",
  	        chip->ecc.total);
  	dev_dbg(priv->dev, "fsl_elbc_init: nand->ecc.layout = %p\n",
-@@ -677,8 +689,8 @@ static int fsl_elbc_chip_init_tail(struct mtd_info *mtd)
+@@ -677,8 +689,8 @@ static int fsl_elbc_chip_init_tail(struc
  		priv->page_size = 1;
  		setbits32(&lbc->bank[priv->bank].or, OR_FCM_PGS);
  		/* adjust ecc setup if needed */
@@ -56,7 +54,7 @@ index 04b22fd..1f60442 100644
  			chip->ecc.size = 512;
  			chip->ecc.layout = (priv->fmr & FMR_ECCM) ?
  			                   &fsl_elbc_oob_lp_eccm1 :
-@@ -742,6 +754,8 @@ static int fsl_elbc_chip_init(struct fsl_elbc_mtd *priv)
+@@ -742,6 +754,8 @@ static int fsl_elbc_chip_init(struct fsl
  	struct fsl_lbc_regs __iomem *lbc = ctrl->regs;
  	struct fsl_elbc_fcm_ctrl *elbc_fcm_ctrl = ctrl->nand;
  	struct nand_chip *chip = &priv->chip;
@@ -65,7 +63,7 @@ index 04b22fd..1f60442 100644
  
  	dev_dbg(priv->dev, "eLBC Set Information for bank %d\n", priv->bank);
  
-@@ -774,11 +788,38 @@ static int fsl_elbc_chip_init(struct fsl_elbc_mtd *priv)
+@@ -774,11 +788,38 @@ static int fsl_elbc_chip_init(struct fsl
  
  	chip->ecc.read_page = fsl_elbc_read_page;
  	chip->ecc.write_page = fsl_elbc_write_page;
