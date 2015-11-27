@@ -20,7 +20,7 @@ KERNEL_IMAGES := zImage cuImage.tl-wdr4900-v1
 
 include $(INCLUDE_DIR)/target.mk
 
-KERNELNAME:="zImage"
+KERNELNAME:="zImage turris-nand-bch.dtb turris-nand-hw.dtb"
 
 DEFAULT_PACKAGES += \
 	kmod-input-core kmod-input-gpio-keys kmod-button-hotplug \

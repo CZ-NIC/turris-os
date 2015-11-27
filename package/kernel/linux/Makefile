@@ -35,19 +35,8 @@ endef
 define Build/Configure
 endef
 
-ifdef CONFIG_TARGET_mpc85xx_p2020_nand
 define Build/Compile
-	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/powerpc/boot/dts/turris-nand-bch.dts -o $(PKG_BUILD_DIR)/fdt-bch
-	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/powerpc/boot/dts/turris-nand-hw.dts -o $(PKG_BUILD_DIR)/fdt-hw
 endef
-endif
-
-ifdef CONFIG_TARGET_mvebu_Turris-Lite
-define Build/Compile
-	$(HOSTCC) -E -nostdinc -I$(LINUX_DIR)/arch/arm/boot/dts -I$(LINUX_DIR)/arch/arm/boot/dts/include -undef -D__DTS__ -x assembler-with-cpp -o $(LINUX_DIR)/arch/arm/boot/dts/.turris-lite.dtb.dts.tmp $(LINUX_DIR)/arch/arm/boot/dts/turris-lite.dts
-	$(LINUX_DIR)/scripts/dtc/dtc -I dts -O dtb $(LINUX_DIR)/arch/arm/boot/dts/.turris-lite.dtb.dts.tmp -o $(PKG_BUILD_DIR)/dtb
-endef
-endif
 
 define KernelPackage/depends
 endef
@@ -74,7 +63,7 @@ define Package/kernel/install
 	ln -sf zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) $(1)/boot/zImage
 
 	$(CP) \
-		$(PKG_BUILD_DIR)/dtb \
+		$(LINUX_DIR)/arch/$(ARCH)/boot/dts/turris-lite.dtb \
 		$(1)/boot/dtb
 endef
 endif
@@ -89,15 +78,15 @@ define Package/kernel/install
 		$(1)/etc/uci-defaults/01_fix_pcie_paths
 
 	$(CP) \
-		$(LINUX_DIR)/arch/powerpc/boot/zImage \
+		$(LINUX_DIR)/arch/$(ARCH)/boot/zImage \
 		$(1)/boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
 
 	$(CP) \
-		$(PKG_BUILD_DIR)/fdt-bch \
+		$(LINUX_DIR)/arch/$(ARCH)/boot/turris-nand-bch.dtb \
 		$(1)/boot/fdt-bch-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
 
 	$(CP) \
-		$(PKG_BUILD_DIR)/fdt-hw \
+		$(LINUX_DIR)/arch/$(ARCH)/boot/turris-nand-hw.dtb \
 		$(1)/boot/fdt-hw-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
 
 	ln -sf zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) $(1)/boot/zImage
