@@ -3,7 +3,7 @@
 #include "armada-385.dtsi"
 
 / {
-	model = "Turris Lite";
+	model = "Turris Omnia";
 	compatible = "marvell,armada385","marvell,armada380";
 
 	chosen {

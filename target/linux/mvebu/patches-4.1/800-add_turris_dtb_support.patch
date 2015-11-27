@@ -6,7 +6,7 @@
  	armada-388-gp.dtb \
 -	armada-388-rd.dtb
 +	armada-388-rd.dtb \
-+	turris-lite.dtb
++	armada-385-turris-omnia.dtb
  dtb-$(CONFIG_MACH_ARMADA_39X) += \
  	armada-398-db.dtb
  dtb-$(CONFIG_MACH_ARMADA_XP) += \

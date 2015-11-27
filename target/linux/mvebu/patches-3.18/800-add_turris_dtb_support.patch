@@ -6,7 +6,7 @@
  	armada-385-linksys-cobra.dtb \
 -	armada-385-rd.dtb
 +	armada-385-rd.dtb \
-+	turris-lite.dtb
++	armada-385-turris-omnia.dtb
  dtb-$(CONFIG_MACH_ARMADA_XP) += \
  	armada-xp-axpwifiap.dtb \
  	armada-xp-db.dtb \

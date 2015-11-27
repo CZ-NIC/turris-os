@@ -139,7 +139,7 @@ $(eval $(call UBINORProfile,OpenBlocks-AX-3-4,armada-xp-openblocks-ax3-4,128KiB)
 
 # Boards with small NOR, where UBI doesn't make sense
 $(eval $(call NORProfile,385-RD,armada-385-rd,256KiB))
-$(eval $(call NORProfile,Turris-Lite,turris-lite,256KiB))
+$(eval $(call NORProfile,Turris-Omnia,armada-385-turris-omnia,256KiB))
 
 ###
 ### Linksys
@@ -190,10 +190,10 @@ define Image/Build/Profile/385-DB-AP/squashfs
 endef
 
 
-define Image/Build/Profile/Turris-Lite/ext4
+define Image/Build/Profile/Turris-Omnia/ext4
 	$(CP) \
 		$(KDIR)/root.ext4 \
-		$(BIN_DIR)/$(IMG_PREFIX)-turris-lite-rootfs.ext4
+		$(BIN_DIR)/$(IMG_PREFIX)-turris-omnia-rootfs.ext4
 endef
 
 # The Default profile should build everything

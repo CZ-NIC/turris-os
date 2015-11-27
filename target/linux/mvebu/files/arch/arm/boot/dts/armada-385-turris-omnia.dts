@@ -1,6 +1,6 @@
 /dts-v1/;
 
-#include "turris-lite.dtsi"
+#include "armada-385-turris-omnia.dtsi"
 
 / {
 	soc {

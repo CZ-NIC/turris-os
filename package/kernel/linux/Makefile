@@ -52,7 +52,7 @@ define Package/kernel
   DEPENDS:=+create_notification +uboot-turris
 endef
 
-ifdef CONFIG_TARGET_mvebu_Turris-Lite
+ifdef CONFIG_TARGET_mvebu_Turris-Omnia
 define Package/kernel/install
 	$(INSTALL_DIR) $(1)/boot
 
@@ -63,7 +63,7 @@ define Package/kernel/install
 	ln -sf zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) $(1)/boot/zImage
 
 	$(CP) \
-		$(LINUX_DIR)/arch/$(ARCH)/boot/dts/turris-lite.dtb \
+		$(LINUX_DIR)/arch/$(ARCH)/boot/dts/armada-385-turris-omnia.dtb \
 		$(1)/boot/dtb
 endef
 endif
