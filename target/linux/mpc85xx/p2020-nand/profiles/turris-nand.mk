@@ -13,9 +13,6 @@ TURRISNAND_UBI_OPTS:="-m 2048 -p 128KiB -s 2048"
 define Profile/TURRISNAND
 	NAME:=Turris-nand
 # Hacks:
-# * zlib is included so curl gets --compress. Even when curl depends on it, it
-#   was not available at the time of compilation. Maybe some kind of race
-#   condition.
 # * cert-backup is conditional dependency on some targets (eg. this one). The
 #   build system is confused enough not to select it automatically, so we list
 #   it here explicitly.
@@ -27,7 +24,7 @@ define Profile/TURRISNAND
 		nuci updater unbound oneshot logrotate \
 		mtd-utils mtd-utils-nandwrite start-indicator \
 		mtd-utils-flash-erase mtd-utils-flash-eraseall mtd-utils-flash-info \
-		luci luci-i18n-czech zlib curl cert-backup foris update_mac wget \
+		luci luci-i18n-czech cert-backup foris update_mac wget \
 		userspace_time_sync openssh-moduli watchdog_adjust \
 		ucollect-config rainbow turris-version \
 		spidev-test i2c-tools -dropbear
