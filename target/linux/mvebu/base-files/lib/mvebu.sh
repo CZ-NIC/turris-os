@@ -46,6 +46,9 @@ mvebu_board_detect() {
 	*"Marvell Armada XP Development Board DB-MV784MP-GP")
 		name="armada-xp-gp"
 		;;
+	*"Turris Omnia")
+		name="turris-omnia"
+		;;
 	esac
 
 	[ -z "$name" ] && name="unknown"
