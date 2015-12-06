@@ -24,8 +24,8 @@ ifneq ($(CONFIG_PACKAGE_kmod-b43)$(CONFIG_PACKAGE_kmod-b43legacy)$(CONFIG_BRCMSM
 endif
 
 tools-$(BUILD_TOOLCHAIN) += gmp mpfr mpc libelf
-tools-y += m4 libtool autoconf automake flex bison pkg-config sed mklibs
-tools-y += sstrip make-ext4fs e2fsprogs mtd-utils mkimage
+tools-y += m4 libtool autoconf automake flex bison pkg-config sed mklibs zlib lzo
+tools-y += sstrip make-ext4fs e2fsprogs mtd-utils mkimage util-linux btrfs-progs
 tools-y += firmware-utils patch-image patch quilt yaffs2 flock padjffs2
 tools-y += mm-macros missing-macros xz cmake scons bc findutils gengetopt patchelf boot-format
 tools-$(CONFIG_TARGET_orion_generic) += wrt350nv2-builder upslug2
@@ -71,6 +71,7 @@ $(curdir)/bc/compile := $(curdir)/bison/install
 $(curdir)/findutils/compile := $(curdir)/bison/install
 $(curdir)/gengetopt/compile := $(curdir)/libtool/install
 $(curdir)/patchelf/compile := $(curdir)/libtool/install
+$(curdir)/btrfs-progs/compile := $(curdir)/util-linux/install $(curdir)/lzo/install $(curdir)/zlib/install
 
 ifneq ($(CONFIG_CCACHE)$(CONFIG_SDK),)
 $(foreach tool, $(filter-out patch,$(tools-y)), $(eval $(curdir)/$(tool)/compile += $(curdir)/ccache/install))
