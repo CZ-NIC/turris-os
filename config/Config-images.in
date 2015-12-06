@@ -66,6 +66,12 @@ menu "Target Images"
 
 	comment "Root filesystem images"
 
+	config TARGET_ROOTFS_BTRFS
+		bool "btrfs"
+		default y if USES_BTRFS
+		help
+		 Build a btrfs root filesystem.
+
 	menuconfig TARGET_ROOTFS_EXT4FS
 		bool "ext4"
 		default y if USES_EXT4

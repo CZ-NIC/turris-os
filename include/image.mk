@@ -65,6 +65,7 @@ endif
 
 JFFS2_BLOCKSIZE ?= 64k 128k
 
+fs-types-$(CONFIG_TARGET_ROOTFS_BTRFS) += btrfs
 fs-types-$(CONFIG_TARGET_ROOTFS_SQUASHFS) += squashfs
 fs-types-$(CONFIG_TARGET_ROOTFS_JFFS2) += $(addprefix jffs2-,$(JFFS2_BLOCKSIZE))
 fs-types-$(CONFIG_TARGET_ROOTFS_JFFS2_NAND) += $(addprefix jffs2-nand-,$(NAND_BLOCKSIZE))
@@ -241,6 +242,13 @@ define Image/mkfs/ext4
 		$(if $(CONFIG_TARGET_EXT4_JOURNAL),,-J) \
 		$(KDIR)/root.ext4 $(TARGET_DIR)/
 endef
+
+define Image/mkfs/btrfs
+	dd if=/dev/zero bs=1M count=40 of=$(KDIR)/root.btrfs
+	$(STAGING_DIR_HOST)/bin/mkfs.btrfs -f -m single -d single \
+		-r $(TARGET_DIR)/ $(KDIR)/root.btrfs
+endef
+
 
 define Image/mkfs/prepare/default
 	# Use symbolic permissions to avoid clobbering SUID/SGID/sticky bits
