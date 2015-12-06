@@ -196,6 +196,12 @@ define Image/Build/Profile/Turris-Omnia/ext4
 		$(BIN_DIR)/$(IMG_PREFIX)-turris-omnia-rootfs.ext4
 endef
 
+define Image/Build/Profile/Turris-Omnia/btrfs
+	$(CP) \
+		$(KDIR)/root.btrfs \
+		$(BIN_DIR)/$(IMG_PREFIX)-turris-omnia-rootfs.btrfs
+endef
+
 # The Default profile should build everything
 $(eval $(call MultiProfile,Default,$(PROFILES_LIST)))
 
@@ -205,6 +211,10 @@ endef
 
 define Image/Build/ext4
 	$(call Image/Build/Profile/$(PROFILE)/ext4)
+endef
+
+define Image/Build/btrfs
+	$(call Image/Build/Profile/$(PROFILE)/btrfs)
 endef
 
 define Image/Build/squashfs
