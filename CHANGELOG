@@ -1,3 +1,5 @@
+* unbound: Pokus obnovit rozbitou kořenovou kotvu
+===================== ??? =======================
 * daemon-watchdog: Možnost nepouštět unbound
 * ucollect-fwup: Skript na update ipsets
 * nuci: Přidán plugin neighbours, který dokáže zobrazit připojené sousedy (okolní počítače, mobily, ....
