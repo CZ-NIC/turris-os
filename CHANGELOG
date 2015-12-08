@@ -1,5 +1,7 @@
 * unbound: Pokus obnovit rozbitou kořenovou kotvu
 ===================== ??? =======================
+* foris-tls-plugin: nový plugin - GUI pro nuci-tls.
+* Foris (v61): podpora pro pluginy.
 * daemon-watchdog: Možnost nepouštět unbound
 * ucollect-fwup: Skript na update ipsets
 * nuci: Přidán plugin neighbours, který dokáže zobrazit připojené sousedy (okolní počítače, mobily, ....
