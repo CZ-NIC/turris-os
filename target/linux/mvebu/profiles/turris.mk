@@ -5,7 +5,7 @@ define Profile/Turris-Omnia
 	kmod-i2c-core kmod-i2c-mv64xxx \
 	kmod-thermal-armada kmod-ath9k kmod-ath10k \
 	swconfig btrfs-progs turris-version updater \
-	openssh-server -dropbear
+	ucollect-config openssh-server -dropbear
 endef
 
 define Profile/Turris-Omnia/Description
