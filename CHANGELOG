@@ -1,3 +1,4 @@
+* user_notify: lokalizace všech textů.
 * foris-tls-plugin: nový plugin - GUI pro nuci-tls.
 * Foris (v61): podpora pro pluginy.
 * daemon-watchdog: Možnost nepouštět unbound
