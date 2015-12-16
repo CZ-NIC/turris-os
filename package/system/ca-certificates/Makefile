@@ -15,7 +15,7 @@ PKG_SOURCE_URL:=http://ftp.debian.org/debian/pool/main/c/ca-certificates
 PKG_MD5SUM:=f619282081c8bfc65ea64c37fa5285ed
 
 PKG_INSTALL:=1
-PKG_REVISION:=2
+PKG_REVISION:=3
 
 include $(INCLUDE_DIR)/package.mk
 
