@@ -211,10 +211,10 @@
 				status = "okay";
 			};
 
-                        pcie@4,0 {
-                                /* Port 4, Lane 0 */
-                                status = "okay";
-                        };
+			pcie@4,0 {
+				/* Port 4, Lane 0 */
+				status = "okay";
+			};
 
 		};
 	};
