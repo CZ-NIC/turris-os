@@ -71,6 +71,7 @@ $(curdir)/bc/compile := $(curdir)/bison/install
 $(curdir)/findutils/compile := $(curdir)/bison/install
 $(curdir)/gengetopt/compile := $(curdir)/libtool/install
 $(curdir)/patchelf/compile := $(curdir)/libtool/install
+$(curdir)/util-linux/compile := $(curdir)/libtool/install
 $(curdir)/btrfs-progs/compile := $(curdir)/util-linux/install $(curdir)/lzo/install $(curdir)/zlib/install
 
 ifneq ($(CONFIG_CCACHE)$(CONFIG_SDK),)
