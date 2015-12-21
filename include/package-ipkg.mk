@@ -197,7 +197,7 @@ $(_endef)
 			echo "#!/bin/sh"; \
 			echo "[ \"\$$$${IPKG_NO_SCRIPT}\" = \"1\" ] && exit 0"; \
 			echo ". \$$$${IPKG_INSTROOT}/lib/functions.sh"; \
-			echo "( type default_postinst > /dev/null ) && default_postinst \$$$$0 \$$$$@"; \
+			echo "( type default_postinst > /dev/null ) && default_postinst \$$$$0 \$$$$@ || true"; \
 		) > postinst; \
 		( \
 			echo "#!/bin/sh"; \
