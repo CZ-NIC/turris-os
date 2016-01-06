@@ -15,7 +15,7 @@ CPU_SUBTYPE:=vfpv3
 MAINTAINER:=Imre Kaloz <kaloz@openwrt.org>
 
 #KERNEL_PATCHVER:=3.18
-KERNEL_PATCHVER:=4.1
+KERNEL_PATCHVER:=4.4
 
 include $(INCLUDE_DIR)/target.mk
 
