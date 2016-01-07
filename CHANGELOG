@@ -1,3 +1,4 @@
+* nuci-tls: Posluchá i na IPv6
 * unbound: Pokus obnovit rozbitou kořenovou kotvu
 ===================== 2.8 =======================
 * user_notify: lokalizace všech textů.
