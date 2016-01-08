@@ -28,6 +28,9 @@ CONFIG_BUSYBOX_CONFIG_CRONTAB=n
 CONFIG_BUSYBOX_CONFIG_SYSLOGD=n
 CONFIG_BUSYBOX_CONFIG_STTY=y
 
+# Disable package signing for now (we don't preserve signing key)
+CONFIG_SIGNED_PACKAGES=n
+
 # Use musl for Omnia
 CONFIG_TOOLCHAINOPTS=y
 CONFIG_LIBC_USE_MUSL=y

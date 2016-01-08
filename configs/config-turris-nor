@@ -19,6 +19,9 @@ CONFIG_BUSYBOX_CONFIG_FEATURE_USE_INITTAB=y
 CONFIG_PACKAGE_uboot-TURRIS1_SDCARD=m
 CONFIG_PACKAGE_uboot-TURRIS1=m
 
+# Disable package signing for now (we don't preserve signing key)
+CONFIG_SIGNED_PACKAGES=n
+
 # Disabled packages
 # CONFIG_PACKAGE_fstools is not set
 # CONFIG_PACKAGE_odhcpd is not set
