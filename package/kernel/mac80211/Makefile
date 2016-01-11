@@ -631,14 +631,6 @@ define KernelPackage/ath10k/config
 		  Use the ath10k firmware optimized for wireless client instead
 		  of access point operation.
 
-	config ATH10K_API2_FW
-		bool "Firmware optimized for AP operation (v10.1 / API v2)"
-		default n
-		depends on !ATH10K_STA_FW
-		help
-		  Use the ath10k firmware from the 10.1 SDK using API v2 optimized
-		  for access point operation if the default firmware keeps crashing.
-
   endif
 endef
 
@@ -714,7 +706,7 @@ endef
 define KernelPackage/net-libipw
   $(call KernelPackage/mac80211/Default)
   TITLE:=libipw for ipw2100 and ipw2200
-  DEPENDS:=@PCI_SUPPORT +kmod-crypto-core +kmod-crypto-arc4 +kmod-crypto-aes +kmod-crypto-michael-mic +kmod-lib80211 +kmod-cfg80211 +@DRIVER_WEXT_SUPPORT @!BIG_ENDIAN
+  DEPENDS:=@PCI_SUPPORT +kmod-crypto-core +kmod-crypto-arc4 +kmod-crypto-aes +kmod-crypto-michael-mic +kmod-lib80211 +kmod-cfg80211 +@DRIVER_WEXT_SUPPORT
   FILES:=$(PKG_BUILD_DIR)/drivers/net/wireless/ipw2x00/libipw.ko
   AUTOLOAD:=$(call AutoProbe,libipw)
 endef
@@ -1876,10 +1868,6 @@ define KernelPackage/ath10k/install
 ifeq ($(CONFIG_ATH10K_STA_FW),y)
 	$(INSTALL_DATA) \
 		$(PKG_BUILD_DIR)/$(PKG_ATH10K_LINUX_FIRMWARE_SUBDIR)/main/firmware-2.bin_999.999.0.636 \
-		$(1)/lib/firmware/ath10k/QCA988X/hw2.0/firmware-2.bin
-else ifeq ($(CONFIG_ATH10K_API2_FW),y)
-	$(INSTALL_DATA) \
-		$(PKG_BUILD_DIR)/$(PKG_ATH10K_LINUX_FIRMWARE_SUBDIR)/10.1/firmware-2.bin_10.1.467.2-1 \
 		$(1)/lib/firmware/ath10k/QCA988X/hw2.0/firmware-2.bin
 else
 	$(INSTALL_DATA) \
