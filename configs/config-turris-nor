@@ -22,6 +22,9 @@ CONFIG_PACKAGE_uboot-TURRIS1=m
 # Disable package signing for now (we don't preserve signing key)
 CONFIG_SIGNED_PACKAGES=n
 
+CONFIG_IPV6=n
+CONFIG_KERNEL_IPV6=n
+
 # Disabled packages
 # CONFIG_PACKAGE_fstools is not set
 # CONFIG_PACKAGE_odhcpd is not set
