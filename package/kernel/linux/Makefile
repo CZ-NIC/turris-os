@@ -15,7 +15,7 @@ SCAN_DEPS=modules/*.mk $(TOPDIR)/target/linux/*/modules.mk $(TOPDIR)/include/net
 
 PKG_LICENSE:=GPLv2
 PKG_LICENSE_FILES:=
-PKG_VERSION:=9
+PKG_VERSION:=10
 
 export SHELL:=/bin/sh
 .ONESHELL:
@@ -98,7 +98,7 @@ ifdef CONFIG_TARGET_mpc85xx_p2020_nand
 define Package/kernel/postinst
 #!/bin/sh
 if [ -z "$${IPKG_INSTROOT}" ]; then
-    fstype=$$(sed -nr 's/.*rootfstype=([a-z0-9]+).*/\1/p' /proc/cmdline)
+    fstype=$$(sed -nr 's/.*rootfstype=([a-z0-9]+).*/\\1/p' /proc/cmdline)
     case $$fstype in
     "jffs2")
     	echo "JFFS2 rootfstype found"
@@ -109,8 +109,8 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
 	if [ -f /lib/uboot/uboot-1.installed ]; then
 		flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
 	else
-		echo "[ -f /lib/uboot/uboot-1.installed ] && \\" > /etc/uci-defaults/11-flash_kernel
-	    	echo "flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) && \\" >> /etc/uci-defaults/11-flash_kernel
+		echo "[ -f /lib/uboot/uboot-1.installed ] && \\\\" > /etc/uci-defaults/11-flash_kernel
+		echo "flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) && \\\\" >> /etc/uci-defaults/11-flash_kernel
 		echo "reboot" >> /etc/uci-defaults/11-flash_kernel
 	fi
 	;;
