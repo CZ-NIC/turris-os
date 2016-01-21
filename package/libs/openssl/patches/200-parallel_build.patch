@@ -1,6 +1,6 @@
 --- a/Makefile.org
 +++ b/Makefile.org
-@@ -278,17 +278,17 @@ build_libcrypto: build_crypto build_engi
+@@ -277,17 +277,17 @@ build_libcrypto: build_crypto build_engi
  build_libssl: build_ssl libssl.pc
  
  build_crypto:

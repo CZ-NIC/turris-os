@@ -1,0 +1,267 @@
+/*
+ * Turris RDB Device Tree Source
+ *
+ * Copyright 2013 CZ.NIC z.s.p.o. (http://www.nic.cz/)
+ *
+ * This program is free software; you can redistribute  it and/or modify it
+ * under  the terms of  the GNU General  Public License as published by the
+ * Free Software Foundation;  either version 2 of the  License, or (at your
+ * option) any later version.
+ */
+
+/include/ "fsl/p2020si-pre.dtsi"
+
+/ {
+	model = "Turris";
+	compatible = "fsl,P2020RDB";
+
+	aliases {
+		ethernet0 = &enet0;
+		ethernet1 = &enet1;
+		ethernet2 = &enet2;
+		serial0 = &serial0;
+		serial1 = &serial1;
+		pci0 = &pci0;
+		pci1 = &pci1;
+		pci2 = &pci2;
+                spi0 = &spi0;
+	};
+
+	memory {
+		device_type = "memory";
+	};
+
+	lbc: localbus@ffe05000 {
+		reg = <0 0xffe05000 0 0x1000>;
+
+		/* NOR and NAND Flashes */
+		ranges = <0x0 0x0 0x0 0xef000000 0x01000000
+			  0x1 0x0 0x0 0xff800000 0x00040000
+			  0x2 0x0 0x0 0xffb00000 0x00020000>;
+		
+		nor@0,0 {
+                        #address-cells = <1>;
+                        #size-cells = <1>;
+                        compatible = "cfi-flash";
+                        reg = <0x0 0x0 0x1000000>;
+                        bank-width = <2>;
+                        device-width = <1>;
+
+                        partition@0 {
+                                /* 128KB for DTB Image */
+                                reg = <0x0 0x00020000>;
+                                label = "NOR (RO) DTB Image";
+                        };
+
+                        partition@20000 {
+                                /* 1.7 MB for Linux Kernel Image */
+                                reg = <0x00020000 0x1A0000>;
+                                label = "NOR (RO) Linux Kernel Image";
+                        };
+
+                        partition@1C0000 {
+                                /* 1.5 MB for JFFS2 based Root file System */
+                                reg = <0x001C0000 0x180000>;
+                                label = "NOR (RO) JFFS2 Root File System";
+                        };
+
+                        partition@340000 {
+                                /* for nand fw backup */
+                                reg = <0x00340000 0xb00000>;
+                                label = "NOR (RO) NAND FW backup";
+                        };
+
+                        partition@E40000 {
+                                /* 128KB for Certificates backup */
+                                reg = <0xE40000 0x000C0000>;
+                                label = "NOR (RW) Cert backup";
+                        };
+
+                        partition@f00000 {
+                                /* This location must not be altered  */
+                                /* 512KB for u-boot Bootloader Image */
+                                /* 512KB for u-boot Environment Variables */
+                                reg = <0x00f00000 0x00100000>;
+                                label = "NOR (RO) U-Boot Image";
+                        };
+                };
+	
+		nand@1,0 {
+			#address-cells = <1>;
+			#size-cells = <1>;
+			compatible = "fsl,p2020-fcm-nand",
+				     "fsl,elbc-fcm-nand";
+			reg = <0x1 0x0 0x00040000>;
+
+			partition@0 {
+				/* 2MB for DTB Image */
+				reg = <0x00000000 0x00200000>;
+				label = "NAND (RW) DTB Image";
+			};
+
+			partition@200000 {
+				/* 5MB for Linux Kernel Image */
+				reg = <0x00200000 0x00500000>;
+				label = "NAND (RW) Linux Kernel Image";
+			};
+
+			partition@700000 {
+				/* 249MB for JFFS2 based Root file System */
+				reg = <0x00700000 0xF900000>;
+				label = "NAND (RW) JFFS2 Root File System";
+			};
+
+			partition@00 {
+				reg = <0x00000000 0x10000000>;
+				label = "rootfs-ubifs";
+			};
+
+		};
+
+	};
+
+	soc: soc@ffe00000 {
+		ranges = <0x0 0x0 0xffe00000 0x100000>;
+
+		i2c@3000 {
+			rtc@6f {
+				compatible = "mcp7940x";
+				reg = <0x6f>;
+			};
+			lm90@4c {
+				compatible = "sa56004";
+				reg = <0x4c>;
+			};
+		};
+
+                spi0: spi@7000 {
+                        spidev@0 {
+                                compatible = "spidev";
+                                spi-max-frequency = <40000000>;
+                                reg = <0>;
+                        };
+                        spidev@1 {
+                                compatible = "spidev";
+                                spi-max-frequency = <40000000>;
+                                reg = <1>;
+                        };
+                        spidev@2 {
+                                compatible = "spidev";
+                                spi-max-frequency = <40000000>;
+                                reg = <2>;
+                        };
+                        spidev@3 {
+                                compatible = "spidev";
+                                spi-max-frequency = <40000000>;
+                                reg = <3>;
+                        };
+                };
+
+		usb@22000 {
+			phy_type = "ulpi";
+			dr_mode = "host";
+		};
+
+	        mdio@24520 {
+        	        phy0: ethernet-phy@0 {
+                	        interrupts = <2 1 0 0>;
+                        	reg = <0x0>;
+                              qca,ar8327-initvals = <
+                                        0x00004 0x07600000 /* PAD0_MODE - eth1 */
+                                        0x00008 0x01000000 /* PAD5_MODE */
+                                        0x0000c 0x07600000 /* PAD6_MODE - eth0 */
+                                        0x00010 0x40000000 /* POWER_ON_STRIP */
+                                        0x00050 0xcc35cc35 /* LED_CTRL0 */
+                                        0x00054 0xca35ca35 /* LED_CTRL1 */
+                                        0x00058 0xc935c935 /* LED_CTRL2 */
+                                        0x0005c 0x03ffff00 /* LED_CTRL3 */
+                                        0x0007c 0x0000007e /* PORT0_STATUS */
+                                        0x00094 0x0000007e /* PORT6 STATUS */
+                                >;
+	                };
+                        phy7: ethernet-phy@7 {
+                                interrupts = <3 1 0 0>;
+                                reg = <0x7>;
+                        };
+	        };
+
+        	mdio@25520 {
+                        status = "disabled";
+	        };
+	
+        	mdio@26520 {
+                        status = "disabled";
+        	};
+
+
+		ptp_clock@24e00 {
+			fsl,tclk-period = <5>;
+			fsl,tmr-prsc = <200>;
+			fsl,tmr-add = <0xCCCCCCCD>;
+			fsl,tmr-fiper1 = <0x3B9AC9FB>;
+			fsl,tmr-fiper2 = <0x0001869B>;
+			fsl,max-adj = <249999999>;
+		};
+
+	        enet0: ethernet@24000 {
+                        phy-handle = <&phy0>;
+	                phy-connection-type = "rgmii-id";
+        	};
+
+	        enet1: ethernet@25000 {
+	                fixed-link = <6 1 1000 1 0>;
+        	};
+
+	        enet2: ethernet@26000 {
+                	phy-handle = <&phy7>;
+	                phy-connection-type = "rgmii-id";
+        	};
+	};
+        pci2: pcie@ffe08000 {
+                ranges = <0x2000000 0x0 0xc0000000 0 0xc0000000 0x0 0x20000000
+                          0x1000000 0x0 0x00000000 0 0xffc20000 0x0 0x10000>;
+                reg = <0 0xffe08000 0 0x1000>;
+                pcie@0 {
+                        ranges = <0x2000000 0x0 0xc0000000
+                                  0x2000000 0x0 0xc0000000
+                                  0x0 0x20000000
+
+                                  0x1000000 0x0 0x0
+                                  0x1000000 0x0 0x0
+                                  0x0 0x10000>;
+                };
+        };
+
+        pci1: pcie@ffe09000 {
+                ranges = <0x2000000 0x0 0xa0000000 0 0xa0000000 0x0 0x20000000
+                          0x1000000 0x0 0x00000000 0 0xffc10000 0x0 0x10000>;
+                reg = <0 0xffe09000 0 0x1000>;
+                pcie@0 {
+                        ranges = <0x2000000 0x0 0xa0000000
+                                  0x2000000 0x0 0xa0000000
+                                  0x0 0x20000000
+
+                                  0x1000000 0x0 0x0
+                                  0x1000000 0x0 0x0
+                                  0x0 0x10000>;
+                };
+        };
+
+        pci0: pcie@ffe0a000 {
+                ranges = <0x2000000 0x0 0x80000000 0 0x80000000 0x0 0x20000000
+                          0x1000000 0x0 0x00000000 0 0xffc00000 0x0 0x10000>;
+                reg = <0 0xffe0a000 0 0x1000>;
+                pcie@0 {
+                        ranges = <0x2000000 0x0 0x80000000
+                                  0x2000000 0x0 0x80000000
+                                  0x0 0x20000000
+
+                                  0x1000000 0x0 0x0
+                                  0x1000000 0x0 0x0
+                                  0x0 0x10000>;
+                };
+        };
+
+};
+
+/include/ "fsl/p2020si-post.dtsi"

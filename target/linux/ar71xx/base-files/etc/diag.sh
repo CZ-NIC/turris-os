@@ -12,6 +12,10 @@ get_status_led() {
 	all0305)
 		status_led="eap7660d:green:ds4"
 		;;
+	antminer-s1|\
+	antminer-s3)
+		status_led="bitmain:green:system"
+		;;
 	ap132)
 		status_led="ap132:green:status"
 		;;
@@ -34,7 +38,10 @@ get_status_led() {
 	aw-nr580)
 		status_led="aw-nr580:green:ready"
 		;;
-	bullet-m | rocket-m | nano-m | nanostation-m | nanostation-m-xw)
+	bsb)
+		status_led="bsb:red:sys"
+		;;
+	bullet-m | rocket-m | rocket-m-xw | nano-m | nanostation-m | nanostation-m-xw | loco-m-xw)
 		status_led="ubnt:green:link4"
 		;;
 	bxu2000n-2-a1)
@@ -43,9 +50,14 @@ get_status_led() {
 	cap4200ag)
 		status_led="senao:green:pwr"
 		;;
+	cpe510)
+		status_led="tp-link:green:link4"
+		;;
 	db120)
 		status_led="db120:green:status"
 		;;
+	dgl-5500-a1 |\
+	dhp-1565-a1|\
 	dir-505-a1 |\
 	dir-600-a1 |\
 	dir-615-e1 |\
@@ -62,6 +74,12 @@ get_status_led() {
 	dir-835-a1)
 		status_led="d-link:amber:power"
 		;;
+	dlan-pro-500-wp)
+		status_led="devolo:green:wlan-2g"
+		;;
+	dlan-pro-1200-ac)
+		status_led="devolo:status:wlan"
+		;;
 	dragino2)
 		status_led="dragino2:red:system"
 		;;
@@ -73,10 +91,19 @@ get_status_led() {
 		;;
 	el-mini | \
 	el-m150)
-		status_led="EasyLink:green:system"
+		status_led="easylink:green:system"
+		;;
+	ew-dorin | ew-dorin-router)
+		status_led="dorin:green:status"
+		;;
+	f9k1115v2)
+		status_led="belkin:blue:status"
 		;;
 	gl-inet)
 		status_led="gl-connect:green:lan"
+		;;
+	epg5000)
+		status_led="epg5000:amber:power"
 		;;
 	esr1750)
 		status_led="esr1750:amber:power"
@@ -87,7 +114,8 @@ get_status_led() {
 	hiwifi-hc6361)
 		status_led="hiwifi:blue:system"
 		;;
-	hornet-ub)
+	hornet-ub | \
+	hornet-ub-x2)
 		status_led="alfa:blue:wps"
 		;;
 	ja76pf | \
@@ -97,11 +125,24 @@ get_status_led() {
 	ls-sr71)
 		status_led="ubnt:green:d22"
 		;;
+	mc-mac1200r)
+		status_led="mercury:green:system"
+		;;
+	mr12)
+		status_led="mr12:green:power"
+		;;
+	mr16)
+		status_led="mr16:green:power"
+		;;
 	mr600)
 		status_led="mr600:orange:power"
 		;;
 	mr600v2)
 		status_led="mr600:blue:power"
+		;;
+	mr900 | \
+	mr900v2)
+		status_led="mr900:blue:power"
 		;;
 	mynet-n600 | \
 	mynet-n750)
@@ -118,7 +159,7 @@ get_status_led() {
 		status_led="nbg460n:green:power"
 		;;
 	nbg6716)
-		status_led="nbg6716:white:power"
+		status_led="zyxel:white:power"
 		;;
 	om2p | \
 	om2pv2 | \
@@ -127,8 +168,12 @@ get_status_led() {
 	om2p-lc)
 		status_led="om2p:blue:power"
 		;;
-	om5p)
+	om5p | \
+	om5p-an)
 		status_led="om5p:blue:power"
+		;;
+	onion-omega)
+		status_led="onion:amber:system"
 		;;
 	pb44)
 		status_led="pb44:amber:jump1"
@@ -145,6 +190,7 @@ get_status_led() {
 		status_led="rb750:green:act"
 		;;
 	rb-911g-2hpnd|\
+	rb-911g-5hpacd|\
 	rb-911g-5hpnd|\
 	rb-912uag-2hpnd|\
 	rb-912uag-5hpnd)
@@ -168,6 +214,9 @@ get_status_led() {
 		;;
 	oolite)
 		status_led="oolite:red:system"
+		;;
+	qihoo-c301)
+		status_led="qihoo:green:status"
 		;;
 	tew-632brp)
 		status_led="tew-632brp:green:status"
@@ -211,13 +260,15 @@ get_status_led() {
 	tl-wr841n-v8 | \
 	tl-wa830re-v2 | \
 	tl-wr842n-v2 | \
-	tl-wr941nd)
+	tl-wr941nd | \
+	tl-wr941nd-v5)
 		status_led="tp-link:green:system"
 		;;
 	archer-c5 | \
 	archer-c7 | \
 	tl-wdr4900-v2 | \
 	tl-mr10u | \
+	tl-mr12u | \
 	tl-mr13u | \
 	tl-wdr4300 | \
 	tl-wr703n | \
@@ -240,6 +291,9 @@ get_status_led() {
 	uap-pro)
 		status_led="ubnt:white:dome"
 		;;
+	unifi-outdoor-plus)
+		status_led="ubnt:white:front"
+		;;
 	airgateway)
 		status_led="ubnt:white:status"
 		;;
@@ -256,17 +310,28 @@ get_status_led() {
 	wzr-hp-g300nh2)
 		status_led="buffalo:red:diag"
 		;;
+	r6100 | \
 	wndap360 | \
 	wndr3700 | \
 	wndr3700v4 | \
 	wndr4300 | \
 	wnr2000 | \
 	wnr2200 |\
-	wnr612-v2)
+	wnr612-v2 |\
+	wnr1000-v2)
 		status_led="netgear:green:power"
 		;;
 	wp543)
 		status_led="wp543:green:diag"
+		;;
+	wpj344)
+		status_led="wpj344:green:status"
+		;;
+	wpj531)
+		status_led="wpj531:green:sig3"
+		;;
+	wpj558)
+		status_led="wpj558:green:sig3"
 		;;
 	wrt400n)
 		status_led="wrt400n:blue:wps"
@@ -293,8 +358,17 @@ set_state() {
 	failsafe)
 		status_led_blink_failsafe
 		;;
+	preinit_regular)
+		status_led_blink_preinit_regular
+		;;
 	done)
 		status_led_on
+		case $(ar71xx_board_name) in
+		qihoo-c301)
+			local n=$(fw_printenv activeregion | cut -d = -f 2)
+			fw_setenv "image${n}trynum" 0
+			;;
+		esac
 		;;
 	esac
 }

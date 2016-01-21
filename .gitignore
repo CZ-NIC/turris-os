@@ -9,11 +9,12 @@
 /build_dir
 /staging_dir
 /tmp
-/logs
+/logs*
 /feeds
 /feeds.conf
 /package/feeds
 /package/openwrt-packages
+key-build*
 *.orig
 *.rej
 *~

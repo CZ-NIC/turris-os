@@ -18,6 +18,7 @@ PKG_MD5SUM:=394c119363dd8b469fb898442a6764b8
 PKG_BUILD_DIR:=$(BUILD_DIR)/uClibc++-$(PKG_VERSION)
 PKG_BUILD_PARALLEL:=1
 PKG_USE_MIPS16:=0
+PKG_LICENSE:=LGPL-2.1+
 
 PKG_INSTALL:=1
 
@@ -41,7 +42,6 @@ UCLIBC_TARGET_ARCH:=$(shell echo $(ARCH) | sed -e s'/-.*//' \
 	-e 's/sh[234].*/sh/' \
 	-e 's/mips.*/mips/' \
 	-e 's/mipsel.*/mips/' \
-	-e 's/cris.*/cris/' \
 )
 
 TARGET_CFLAGS += $(FPIC)
@@ -74,8 +74,9 @@ define Build/InstallDev
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/bin/g++-uc $(TOOLCHAIN_DIR)/bin/
 	$(CP) $(PKG_INSTALL_DIR)/include/* $(1)/usr/include/uClibc++/
 	$(CP) $(PKG_INSTALL_DIR)/lib/libuClibc++*.{a,so}* $(1)/usr/lib/
-	$(SED) 's|-I/include/|-I$(STAGING_DIR)/usr/include/uClibc++/|g' $(TOOLCHAIN_DIR)/bin/g++-uc
-	$(SED) 's|-L/lib/|-L$(STAGING_DIR)/usr/lib/|g' $(TOOLCHAIN_DIR)/bin/g++-uc
+	$(SED) 's!\(^\|[[:space:]]\)-[IL]$(TOOLCHAIN_DIR)/[^[:space:]]*!!g' $(TOOLCHAIN_DIR)/bin/g++-uc
+	$(SED) 's|-I/include/|-I$$$${STAGING_DIR:-$(STAGING_DIR)}/usr/include/uClibc++/|g' $(TOOLCHAIN_DIR)/bin/g++-uc
+	$(SED) 's|-L/lib/|-L$$$${STAGING_DIR:-$(STAGING_DIR)}/lib/|g' $(TOOLCHAIN_DIR)/bin/g++-uc
 # add another wrapper which links against both uClibc++ and libstdc++ 
 	$(INSTALL_BIN) $(TOOLCHAIN_DIR)/bin/g++-uc $(TOOLCHAIN_DIR)/bin/g++-uc+std
 	$(SED) 's|^WRAPPER_INCLUDEDIR=.*||g' $(TOOLCHAIN_DIR)/bin/g++-uc+std

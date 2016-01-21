@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=ltq-adsl-mei
-PKG_RELEASE:=1-$(LINUX_VERMAGIC)
+PKG_RELEASE:=1
 PKG_BUILD_DIR:=$(KERNEL_BUILD_DIR)/ltq-adsl-mei-$(BUILD_VARIANT)/
 
 PKG_MAINTAINER:=John Crispin <blogic@openwrt.org>

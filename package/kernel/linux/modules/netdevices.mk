@@ -13,7 +13,7 @@ define KernelPackage/sis190
   DEPENDS:=@PCI_SUPPORT +kmod-mii
   KCONFIG:=CONFIG_SIS190
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/sis/sis190.ko
-  AUTOLOAD:=$(call AutoLoad,27,sis190)
+  AUTOLOAD:=$(call AutoProbe,sis190)
 endef
 
 $(eval $(call KernelPackage,sis190))
@@ -27,7 +27,7 @@ define KernelPackage/skge
 	CONFIG_SKGE_DEBUG=n \
 	CONFIG_SKGE_GENESIS=n
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/marvell/skge.ko
-  AUTOLOAD:=$(call AutoLoad,27,skge)
+  AUTOLOAD:=$(call AutoProbe,skge)
 endef
 
 $(eval $(call KernelPackage,skge))
@@ -39,7 +39,7 @@ define KernelPackage/atl2
   DEPENDS:=@PCI_SUPPORT
   KCONFIG:=CONFIG_ATL2
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/atheros/atlx/atl2.ko
-  AUTOLOAD:=$(call AutoLoad,27,atl2)
+  AUTOLOAD:=$(call AutoProbe,atl2)
 endef
 
 $(eval $(call KernelPackage,atl2))
@@ -51,7 +51,7 @@ define KernelPackage/atl1
   DEPENDS:=@PCI_SUPPORT +kmod-mii
   KCONFIG:=CONFIG_ATL1
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/atheros/atlx/atl1.ko
-  AUTOLOAD:=$(call AutoLoad,27,atl1)
+  AUTOLOAD:=$(call AutoProbe,atl1)
 endef
 
 $(eval $(call KernelPackage,atl1))
@@ -63,7 +63,7 @@ define KernelPackage/atl1c
   DEPENDS:=@PCI_SUPPORT
   KCONFIG:=CONFIG_ATL1C
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/atheros/atl1c/atl1c.ko
-  AUTOLOAD:=$(call AutoLoad,27,atl1c)
+  AUTOLOAD:=$(call AutoProbe,atl1c)
 endef
 
 $(eval $(call KernelPackage,atl1c))
@@ -75,7 +75,7 @@ define KernelPackage/atl1e
   DEPENDS:=@PCI_SUPPORT
   KCONFIG:=CONFIG_ATL1E
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/atheros/atl1e/atl1e.ko
-  AUTOLOAD:=$(call AutoLoad,27,atl1e)
+  AUTOLOAD:=$(call AutoProbe,atl1e)
 endef
 
 $(eval $(call KernelPackage,atl1e))
@@ -114,12 +114,13 @@ define KernelPackage/et131x
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   TITLE:=Agere ET131x Gigabit Ethernet driver
   URL:=http://sourceforge.net/projects/et131x
-  FILES:=$(LINUX_DIR)/drivers/staging/et131x/et131x.$(LINUX_KMOD_SUFFIX)
+  FILES:= \
+	$(LINUX_DIR)/drivers/net/ethernet/agere/et131x.ko
   KCONFIG:= \
 	CONFIG_ET131X \
 	CONFIG_ET131X_DEBUG=n
   DEPENDS:=@PCI_SUPPORT +kmod-libphy
-  AUTOLOAD:=$(call AutoLoad,27,et131x)
+  AUTOLOAD:=$(call AutoProbe,et131x)
 endef
 
 define KernelPackage/et131x/description
@@ -127,6 +128,41 @@ define KernelPackage/et131x/description
 endef
 
 $(eval $(call KernelPackage,et131x))
+
+
+define KernelPackage/gw16083
+  SUBMENU:=$(NETWORK_DEVICES_MENU)
+  TITLE:=Gateworks Ventana Ethernet Expansion Mezzanine driver
+  URL:=http://www.gateworks.com
+  FILES:=$(LINUX_DIR)/drivers/net/phy/gw16083.ko
+  KCONFIG:=CONFIG_GATEWORKS_GW16083
+  DEPENDS:=@TARGET_imx6 @PCI_SUPPORT +kmod-libphy +kmod-igb
+  AUTOLOAD:=$(call AutoLoad,36,gw16083)
+endef
+
+define KernelPackage/gw16083/description
+ This package contains the gw16083 kernel module for supporting the Gateworks
+ Ventana Ethernet Expansion Mezzanine.
+endef
+
+$(eval $(call KernelPackage,gw16083))
+
+
+define KernelPackage/phy-broadcom
+   SUBMENU:=$(NETWORK_DEVICES_MENU)
+   TITLE:=Broadcom Ethernet PHY driver
+   KCONFIG:=CONFIG_BROADCOM_PHY
+   DEPENDS:=+kmod-libphy @!LINUX_4_4
+   FILES:=$(LINUX_DIR)/drivers/net/phy/broadcom.ko
+   AUTOLOAD:=$(call AutoLoad,18,broadcom)
+endef
+
+define KernelPackage/phy-broadcom/description
+   Currently supports the BCM5411, BCM5421, BCM5461, BCM5464, BCM5481,
+   BCM5482 and BCM57780 PHYs.
+endef
+
+$(eval $(call KernelPackage,phy-broadcom))
 
 
 define KernelPackage/swconfig
@@ -144,6 +180,20 @@ endef
 
 $(eval $(call KernelPackage,swconfig))
 
+define KernelPackage/switch-mvsw61xx
+  SUBMENU:=$(NETWORK_DEVICES_MENU)
+  TITLE:=Marvell 88E61xx switch support
+  DEPENDS:=+kmod-swconfig
+  KCONFIG:=CONFIG_MVSW61XX_PHY
+  FILES:=$(LINUX_DIR)/drivers/net/phy/mvsw61xx.ko
+  AUTOLOAD:=$(call AutoLoad,42,mvsw61xx)
+endef
+
+define KernelPackage/switch-mvsw61xx/description
+ Marvell 88E61xx switch support
+endef
+
+$(eval $(call KernelPackage,switch-mvsw61xx))
 
 define KernelPackage/switch-ip17xx
   SUBMENU:=$(NETWORK_DEVICES_MENU)
@@ -233,7 +283,7 @@ define KernelPackage/r6040
   KCONFIG:=CONFIG_R6040 \
 		CONFIG_R6040_NAPI=y
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/rdc/r6040.ko
-  AUTOLOAD:=$(call AutoLoad,27,r6040)
+  AUTOLOAD:=$(call AutoProbe,r6040)
 endef
 
 define KernelPackage/r6040/description
@@ -249,7 +299,7 @@ define KernelPackage/sis900
   DEPENDS:=@PCI_SUPPORT +kmod-mii
   KCONFIG:=CONFIG_SIS900
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/sis/sis900.ko
-  AUTOLOAD:=$(call AutoLoad,27,sis900)
+  AUTOLOAD:=$(call AutoProbe,sis900)
 endef
 
 define KernelPackage/sis900/description
@@ -265,7 +315,7 @@ define KernelPackage/sky2
   DEPENDS:=@PCI_SUPPORT
   KCONFIG:=CONFIG_SKY2
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/marvell/sky2.ko
-  AUTOLOAD:=$(call AutoLoad,27,sky2)
+  AUTOLOAD:=$(call AutoProbe,sky2)
 endef
 
 define KernelPackage/sky2/description
@@ -288,7 +338,7 @@ define KernelPackage/via-rhine
   KCONFIG:=CONFIG_VIA_RHINE \
     CONFIG_VIA_RHINE_MMIO=y
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/via/via-rhine.ko
-  AUTOLOAD:=$(call AutoLoad,27,via-rhine)
+  AUTOLOAD:=$(call AutoProbe,via-rhine)
 endef
 
 define KernelPackage/via-rhine/description
@@ -304,7 +354,7 @@ define KernelPackage/via-velocity
   DEPENDS:=@TARGET_ixp4xx||TARGET_mpc83xx||PCI_SUPPORT +kmod-lib-crc-ccitt
   KCONFIG:=CONFIG_VIA_VELOCITY
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/via/via-velocity.ko
-  AUTOLOAD:=$(call AutoLoad,27,via-velocity)
+  AUTOLOAD:=$(call AutoProbe,via-velocity)
 endef
 
 define KernelPackage/via-velocity/description
@@ -324,7 +374,7 @@ define KernelPackage/8139too
     CONFIG_8139TOO_8129=n \
     CONFIG_8139_OLD_RX_RESET=n
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/realtek/8139too.ko
-  AUTOLOAD:=$(call AutoLoad,27,8139too)
+  AUTOLOAD:=$(call AutoProbe,8139too)
 endef
 
 define KernelPackage/8139too/description
@@ -340,7 +390,7 @@ define KernelPackage/8139cp
   DEPENDS:=@PCI_SUPPORT +kmod-mii
   KCONFIG:=CONFIG_8139CP
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/realtek/8139cp.ko
-  AUTOLOAD:=$(call AutoLoad,27,8139cp)
+  AUTOLOAD:=$(call AutoProbe,8139cp)
 endef
 
 define KernelPackage/8139cp/description
@@ -358,7 +408,7 @@ define KernelPackage/r8169
     CONFIG_R8169_NAPI=y \
     CONFIG_R8169_VLAN=n
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/realtek/r8169.ko
-  AUTOLOAD:=$(call AutoLoad,27,r8169)
+  AUTOLOAD:=$(call AutoProbe,r8169)
 endef
 
 define KernelPackage/r8169/description
@@ -376,7 +426,7 @@ define KernelPackage/ne2k-pci
   FILES:= \
 	$(LINUX_DIR)/drivers/net/ethernet/8390/ne2k-pci.ko \
 	$(LINUX_DIR)/drivers/net/ethernet/8390/8390.ko
-  AUTOLOAD:=$(call AutoLoad,27,8390 ne2k-pci)
+  AUTOLOAD:=$(call AutoProbe,8390 ne2k-pci)
 endef
 
 define KernelPackage/ne2k-pci/description
@@ -392,7 +442,7 @@ define KernelPackage/e100
   DEPENDS:=@PCI_SUPPORT +kmod-mii
   KCONFIG:=CONFIG_E100
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/intel/e100.ko
-  AUTOLOAD:=$(call AutoLoad,27,e100)
+  AUTOLOAD:=$(call AutoProbe,e100)
 endef
 
 define KernelPackage/e100/description
@@ -430,10 +480,10 @@ $(eval $(call KernelPackage,e1000))
 define KernelPackage/e1000e
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   TITLE:=Intel(R) PRO/1000 PCIe cards kernel support
-  DEPENDS:=@PCIE_SUPPORT +(!LINUX_3_3&&!LINUX_3_6):kmod-ptp
+  DEPENDS:=@PCIE_SUPPORT +kmod-ptp
   KCONFIG:=CONFIG_E1000E
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/intel/e1000e/e1000e.ko
-  AUTOLOAD:=$(call AutoLoad,27,e1000e)
+  AUTOLOAD:=$(call AutoProbe,e1000e)
 endef
 
 define KernelPackage/e1000e/description
@@ -464,7 +514,7 @@ $(eval $(call KernelPackage,igb))
 define KernelPackage/b44
   TITLE:=Broadcom 44xx driver
   KCONFIG:=CONFIG_B44
-  DEPENDS:=@PCI_SUPPORT @!TARGET_brcm47xx_mips74k +!TARGET_brcm47xx:kmod-ssb +kmod-mii +LINUX_3_14:kmod-libphy
+  DEPENDS:=@PCI_SUPPORT @!TARGET_brcm47xx_mips74k +!TARGET_brcm47xx:kmod-ssb +kmod-mii +kmod-libphy
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/broadcom/b44.ko
   AUTOLOAD:=$(call AutoLoad,19,b44,1)
@@ -483,7 +533,7 @@ define KernelPackage/3c59x
   DEPENDS:=@PCI_SUPPORT +kmod-mii
   KCONFIG:=CONFIG_VORTEX
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/3com/3c59x.ko
-  AUTOLOAD:=$(call AutoLoad,27,3c59x)
+  AUTOLOAD:=$(call AutoProbe,3c59x)
 endef
 
 define KernelPackage/3c59x/description
@@ -505,7 +555,7 @@ define KernelPackage/pcnet32
   DEPENDS:=@(PCI_SUPPORT||TARGET_malta) +kmod-mii
   KCONFIG:=CONFIG_PCNET32
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/amd/pcnet32.ko
-  AUTOLOAD:=$(call AutoLoad,27,pcnet32)
+  AUTOLOAD:=$(call AutoProbe,pcnet32)
 endef
 
 define KernelPackage/pcnet32/description
@@ -518,7 +568,7 @@ $(eval $(call KernelPackage,pcnet32))
 define KernelPackage/tg3
   TITLE:=Broadcom Tigon3 Gigabit Ethernet
   KCONFIG:=CONFIG_TIGON3
-  DEPENDS:=+!TARGET_brcm47xx:kmod-libphy +!LINUX_3_3:kmod-hwmon-core +(!LINUX_3_3&&!LINUX_3_6):kmod-ptp
+  DEPENDS:=+!TARGET_brcm47xx:kmod-libphy +kmod-hwmon-core +kmod-ptp
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/broadcom/tg3.ko
   AUTOLOAD:=$(call AutoLoad,19,tg3,1)
@@ -582,7 +632,7 @@ define KernelPackage/gigaset
     $(LINUX_DIR)/drivers/isdn/gigaset/bas_gigaset.ko \
     $(LINUX_DIR)/drivers/isdn/gigaset/ser_gigaset.ko \
     $(LINUX_DIR)/drivers/isdn/gigaset/usb_gigaset.ko
-  AUTOLOAD:=$(call AutoLoad,27,gigaset bas_gigaset ser_gigaset usb_gigaset)
+  AUTOLOAD:=$(call AutoProbe,gigaset bas_gigaset ser_gigaset usb_gigaset)
 endef
 
 define KernelPackage/gigaset/description
@@ -600,7 +650,7 @@ define KernelPackage/macvlan
   TITLE:=MAC-VLAN support
   KCONFIG:=CONFIG_MACVLAN
   FILES:=$(LINUX_DIR)/drivers/net/macvlan.ko
-  AUTOLOAD:=$(call AutoLoad,27,macvlan)
+  AUTOLOAD:=$(call AutoProbe,macvlan)
 endef
 
 define KernelPackage/macvlan/description
@@ -634,7 +684,7 @@ define KernelPackage/tulip
 	$(LINUX_DIR)/drivers/net/ethernet/dec/tulip/dmfe.ko \
 	$(LINUX_DIR)/drivers/net/ethernet/dec/tulip/uli526x.ko \
 	$(LINUX_DIR)/drivers/net/ethernet/dec/tulip/winbond-840.ko
-  AUTOLOAD:=$(call AutoLoad,27,tulip)
+  AUTOLOAD:=$(call AutoProbe,tulip)
 endef
 
 define KernelPackage/tulip/description
@@ -652,7 +702,7 @@ define KernelPackage/solos-pci
   DEPENDS:=@PCI_SUPPORT +kmod-atm
   KCONFIG:=CONFIG_ATM_SOLOS
   FILES:=$(LINUX_DIR)/drivers/atm/solos-pci.ko
-  AUTOLOAD:=$(call AutoLoad,27,solos-pci)
+  AUTOLOAD:=$(call AutoProbe,solos-pci)
 endef
 
 define KernelPackage/solos-pci/description
@@ -719,7 +769,7 @@ define KernelPackage/forcedeth
   DEPENDS:=@PCI_SUPPORT
   KCONFIG:=CONFIG_FORCEDETH
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/nvidia/forcedeth.ko
-  AUTOLOAD:=$(call AutoLoad,27,forcedeth)
+  AUTOLOAD:=$(call AutoProbe,forcedeth)
 endef
 
 define KernelPackage/forcedeth/description
@@ -766,7 +816,7 @@ define KernelPackage/gianfar
   DEPENDS:=@TARGET_mpc85xx +kmod-fsl-pq-mdio
   KCONFIG:=CONFIG_GIANFAR
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/freescale/gianfar_driver.ko
-  AUTOLOAD:=$(call AutoLoad,27,gianfar_driver)
+  AUTOLOAD:=$(call AutoProbe,gianfar_driver)
 endef
 
 define KernelPackage/gianfar/description
@@ -790,3 +840,20 @@ define KernelPackage/vmxnet3/description
 endef
 
 $(eval $(call KernelPackage,vmxnet3))
+
+
+define KernelPackage/spi-ks8995
+  SUBMENU:=$(NETWORK_DEVICES_MENU)
+  TITLE:=Micrel/Kendin KS8995 Ethernet switch control
+  FILES:=$(LINUX_DIR)/drivers/net/phy/spi_ks8995.ko
+  KCONFIG:=CONFIG_MICREL_KS8995MA \
+	CONFIG_SPI=y \
+	CONFIG_SPI_MASTER=y
+  AUTOLOAD:=$(call AutoLoad,50,spi_ks8995)
+endef
+
+define KernelPackage/spi-ks8995/description
+  Kernel module for Micrel/Kendin KS8995 ethernet switch
+endef
+
+$(eval $(call KernelPackage,spi-ks8995))

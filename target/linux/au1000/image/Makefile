@@ -55,7 +55,7 @@ define Image/Build/Initramfs
 endef
 
 define Image/Build
-	$(TARGET_CROSS)objcopy -O srec -I binary --adjust-vma $(FLASH_FS) $(KDIR)/root.$(1) $(KDIR)/root.$(1).srec
+	$(SCRIPT_DIR)/srecimage.pl $(KDIR)/root.$(1) $(KDIR)/root.$(1).srec $(FLASH_FS)
 	grep -v S7 $(KDIR)/root.$(1).srec > $(BIN_DIR)/$(IMG_PREFIX)-$(1).srec
 	grep -v S0 $(KDIR)/kernel.flash.srec >> $(BIN_DIR)/$(IMG_PREFIX)-$(1).srec
 	$(INSTALL_BIN) $(KDIR)/kernel.flash.bin $(BIN_DIR)/$(IMG_PREFIX)-vmlinux.bin
@@ -65,10 +65,6 @@ define Image/Build
 	$(CP) $(BIN_DIR)/$(IMG_PREFIX)-$(1).fs $(TMP_DIR)/$(IMG_PREFIX)-root.fs
 	tar -C $(BIN_DIR) -cvzf $(BIN_DIR)/$(IMG_PREFIX)-$(1)-sysupgrade.bin \
 		$(IMG_PREFIX)-vmlinux.bin -C $(TMP_DIR) $(IMG_PREFIX)-root.fs
-	# backwards compatible image for upgrade from Attitude Adjustment (12.09)
-	$(CP) $(BIN_DIR)/$(IMG_PREFIX)-$(1).fs $(TMP_DIR)/$(IMG_PREFIX)-jffs2-128k.fs
-	tar -C $(BIN_DIR) -cvzf $(BIN_DIR)/$(IMG_PREFIX)-$(1)-sysupgrade-from-12.09.bin \
-		$(IMG_PREFIX)-vmlinux.bin -C $(TMP_DIR) $(IMG_PREFIX)-jffs2-128k.fs
 ifeq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),y)
 	$(call Image/Build/Initramfs)
 endif

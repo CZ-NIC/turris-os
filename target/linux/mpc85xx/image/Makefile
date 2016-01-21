@@ -6,7 +6,6 @@
 #
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/image.mk
-#JFFS2_BLOCKSIZE = 64k 128k
 
 define imgname
 $(BIN_DIR)/$(IMG_PREFIX)-$(2)-$(patsubst jffs2-%,jffs2,$(patsubst squashfs-%,squashfs,$(1)))
@@ -52,6 +51,11 @@ ifneq ($(CONFIG_TARGET_ROOTFS_INCLUDE_ZIMAGE),)
 	ln -sf $(IMG_PREFIX)-zImage $(TARGET_DIR)/boot/zImage
 endif
 endif
+endef
+
+define Image/BuildKernel/Initramfs
+	cp $(KDIR)/zImage-initramfs $(BIN_DIR)/$(IMG_PREFIX)-initramfs-zImage
+	cp $(KDIR)/cuImage.tl-wdr4900-v1-initramfs $(BIN_DIR)/$(IMG_PREFIX)-tl-wdr4900-v1-initramfs.uImage
 endef
 
 define Image/Build/TPLINK

@@ -145,6 +145,48 @@ endef
 $(eval $(call KernelPackage,8021q))
 
 
+define KernelPackage/udptunnel4
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=IPv4 UDP tunneling support
+  KCONFIG:=CONFIG_NET_UDP_TUNNEL
+  FILES:=$(LINUX_DIR)/net/ipv4/udp_tunnel.ko
+  AUTOLOAD:=$(call AutoLoad,32,udp_tunnel)
+endef
+
+
+$(eval $(call KernelPackage,udptunnel4))
+
+define KernelPackage/udptunnel6
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=IPv6 UDP tunneling support
+  DEPENDS:=@IPV6
+  KCONFIG:=CONFIG_NET_UDP_TUNNEL
+  FILES:=$(LINUX_DIR)/net/ipv6/ip6_udp_tunnel.ko
+  AUTOLOAD:=$(call AutoLoad,32,ip6_udp_tunnel)
+endef
+
+$(eval $(call KernelPackage,udptunnel6))
+
+
+define KernelPackage/vxlan
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=Native VXLAN Kernel support
+  DEPENDS:= \
+	+kmod-iptunnel \
+	+kmod-udptunnel4 \
+	+IPV6:kmod-udptunnel6
+  KCONFIG:=CONFIG_VXLAN
+  FILES:=$(LINUX_DIR)/drivers/net/vxlan.ko
+  AUTOLOAD:=$(call AutoLoad,13,vxlan)
+endef
+
+define KernelPackage/vxlan/description
+ Kernel module for supporting VXLAN in the Kernel.
+ Requires Kernel 3.12 or newer.
+endef
+
+$(eval $(call KernelPackage,vxlan))
+
 define KernelPackage/capi
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=CAPI (ISDN) Support
@@ -236,7 +278,7 @@ $(eval $(call KernelPackage,ipip))
 
 
 IPSEC-m:= \
-	$(if $(CONFIG_LINUX_3_3),,xfrm/xfrm_algo) \
+	xfrm/xfrm_algo \
 	xfrm/xfrm_ipcomp \
 	xfrm/xfrm_user \
 	key/af_key \
@@ -362,6 +404,22 @@ endef
 $(eval $(call KernelPackage,iptunnel))
 
 
+define KernelPackage/ipvti
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=IP VTI (Virtual Tunnel Interface)
+  DEPENDS:=+kmod-iptunnel +kmod-iptunnel4 +kmod-ipsec4
+  KCONFIG:=CONFIG_NET_IPVTI
+  FILES:=$(LINUX_DIR)/net/ipv4/ip_vti.ko
+  AUTOLOAD:=$(call AutoLoad,33,ip_vti)
+endef
+
+define KernelPackage/ipvti/description
+ Kernel modules for IP VTI (Virtual Tunnel Interface)
+endef
+
+$(eval $(call KernelPackage,ipvti))
+
+
 define KernelPackage/iptunnel4
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=IPv4 tunneling
@@ -382,7 +440,7 @@ $(eval $(call KernelPackage,iptunnel4))
 define KernelPackage/iptunnel6
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=IPv6 tunneling
-  DEPENDS:= +kmod-ipv6
+  DEPENDS:=@IPV6
   KCONFIG:= \
 	CONFIG_INET6_TUNNEL
   FILES:=$(LINUX_DIR)/net/ipv6/tunnel6.ko
@@ -396,30 +454,9 @@ endef
 $(eval $(call KernelPackage,iptunnel6))
 
 
-define KernelPackage/ipv6
-  SUBMENU:=$(NETWORK_SUPPORT_MENU)
-  TITLE:=IPv6 support
-  KCONFIG:= \
-	CONFIG_IPV6 \
-	CONFIG_IPV6_PRIVACY=y \
-	CONFIG_IPV6_MULTIPLE_TABLES=y \
-	CONFIG_IPV6_MROUTE=y \
-	CONFIG_IPV6_PIMSM_V2=n \
-	CONFIG_IPV6_SUBTREES=y
-  FILES:=$(LINUX_DIR)/net/ipv6/ipv6.ko
-  AUTOLOAD:=$(call AutoLoad,20,ipv6)
-endef
-
-define KernelPackage/ipv6/description
- Kernel modules for IPv6 support
-endef
-
-$(eval $(call KernelPackage,ipv6))
-
-
 define KernelPackage/sit
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
-  DEPENDS:=+kmod-ipv6 +kmod-iptunnel +kmod-iptunnel4
+  DEPENDS:=@IPV6 +kmod-iptunnel +kmod-iptunnel4
   TITLE:=IPv6-in-IPv4 tunnel
   KCONFIG:=CONFIG_IPV6_SIT \
 	CONFIG_IPV6_SIT_6RD=y
@@ -437,7 +474,7 @@ $(eval $(call KernelPackage,sit))
 define KernelPackage/ip6-tunnel
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=IP-in-IPv6 tunnelling
-  DEPENDS:= +kmod-ipv6 +kmod-iptunnel6
+  DEPENDS:=@IPV6 +kmod-iptunnel6
   KCONFIG:= CONFIG_IPV6_TUNNEL
   FILES:=$(LINUX_DIR)/net/ipv6/ip6_tunnel.ko
   AUTOLOAD:=$(call AutoLoad,32,ip6_tunnel)
@@ -453,7 +490,7 @@ $(eval $(call KernelPackage,ip6-tunnel))
 define KernelPackage/gre
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=GRE support
-  DEPENDS:=+PACKAGE_kmod-ipv6:kmod-ipv6 +kmod-iptunnel
+  DEPENDS:=+kmod-iptunnel
   KCONFIG:=CONFIG_NET_IPGRE CONFIG_NET_IPGRE_DEMUX
   FILES:=$(LINUX_DIR)/net/ipv4/ip_gre.ko $(LINUX_DIR)/net/ipv4/gre.ko
   AUTOLOAD:=$(call AutoLoad,39,gre ip_gre)
@@ -469,7 +506,7 @@ $(eval $(call KernelPackage,gre))
 define KernelPackage/gre6
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=GRE support over IPV6
-  DEPENDS:=+kmod-ipv6 +kmod-iptunnel +kmod-ip6-tunnel @!LINUX_3_3 @!LINUX_3_6
+  DEPENDS:=@IPV6 +kmod-iptunnel +kmod-ip6-tunnel
   KCONFIG:=CONFIG_IPV6_GRE
   FILES:=$(LINUX_DIR)/net/ipv6/ip6_gre.ko
   AUTOLOAD:=$(call AutoLoad,39,ip6_gre)
@@ -536,7 +573,7 @@ define KernelPackage/ppp
   FILES:= \
 	$(LINUX_DIR)/drivers/net/ppp/ppp_async.ko \
 	$(LINUX_DIR)/drivers/net/ppp/ppp_generic.ko
-  AUTOLOAD:=$(call AutoLoad,27,ppp_async)
+  AUTOLOAD:=$(call AutoProbe,ppp_async)
 endef
 
 define KernelPackage/ppp/description
@@ -552,7 +589,7 @@ define KernelPackage/ppp-synctty
   DEPENDS:=kmod-ppp
   KCONFIG:=CONFIG_PPP_SYNC_TTY
   FILES:=$(LINUX_DIR)/drivers/net/ppp/ppp_synctty.ko
-  AUTOLOAD:=$(call AutoLoad,27,ppp_synctty)
+  AUTOLOAD:=$(call AutoProbe,ppp_synctty)
 endef
 
 define KernelPackage/ppp-synctty/description
@@ -583,7 +620,7 @@ define KernelPackage/pppoe
   DEPENDS:=kmod-ppp +kmod-pppox
   KCONFIG:=CONFIG_PPPOE
   FILES:=$(LINUX_DIR)/drivers/net/ppp/pppoe.ko
-  AUTOLOAD:=$(call AutoLoad,27,pppoe)
+  AUTOLOAD:=$(call AutoProbe,pppoe)
 endef
 
 define KernelPackage/pppoe/description
@@ -615,7 +652,7 @@ define KernelPackage/pptp
   DEPENDS:=kmod-ppp +kmod-gre +kmod-pppox
   KCONFIG:=CONFIG_PPTP
   FILES:=$(LINUX_DIR)/drivers/net/ppp/pptp.ko
-  AUTOLOAD:=$(call AutoLoad,27,pptp)
+  AUTOLOAD:=$(call AutoProbe,pptp)
 endef
 
 $(eval $(call KernelPackage,pptp))
@@ -627,7 +664,7 @@ define KernelPackage/pppol2tp
   DEPENDS:=kmod-ppp +kmod-pppox +kmod-l2tp
   KCONFIG:=CONFIG_PPPOL2TP
   FILES:=$(LINUX_DIR)/net/l2tp/l2tp_ppp.ko
-  AUTOLOAD:=$(call AutoLoad,27,l2tp_ppp)
+  AUTOLOAD:=$(call AutoProbe,l2tp_ppp)
 endef
 
 define KernelPackage/pppol2tp/description
@@ -643,7 +680,7 @@ define KernelPackage/ipoa
   DEPENDS:=kmod-atm
   KCONFIG:=CONFIG_ATM_CLIP
   FILES:=$(LINUX_DIR)/net/atm/clip.ko
-  AUTOLOAD:=$(call AutoLoad,27,clip)
+  AUTOLOAD:=$(call AutoProbe,clip)
 endef
 
 define KernelPackage/ipoa/description
@@ -656,12 +693,12 @@ $(eval $(call KernelPackage,ipoa))
 define KernelPackage/mppe
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=Microsoft PPP compression/encryption
-  DEPENDS:=kmod-ppp +kmod-crypto-core +kmod-crypto-arc4 +kmod-crypto-sha1 +kmod-crypto-ecb
+  DEPENDS:=kmod-ppp +kmod-crypto-sha1 +kmod-crypto-ecb
   KCONFIG:= \
 	CONFIG_PPP_MPPE_MPPC \
 	CONFIG_PPP_MPPE
   FILES:=$(LINUX_DIR)/drivers/net/ppp/ppp_mppe.ko
-  AUTOLOAD:=$(call AutoLoad,27,ppp_mppe)
+  AUTOLOAD:=$(call AutoProbe,ppp_mppe)
 endef
 
 define KernelPackage/mppe/description
@@ -673,7 +710,7 @@ $(eval $(call KernelPackage,mppe))
 
 SCHED_MODULES = $(patsubst $(LINUX_DIR)/net/sched/%.ko,%,$(wildcard $(LINUX_DIR)/net/sched/*.ko))
 SCHED_MODULES_CORE = sch_ingress sch_fq_codel sch_hfsc cls_fw cls_route cls_flow cls_tcindex cls_u32 em_u32 act_mirred act_skbedit
-SCHED_MODULES_FILTER = $(SCHED_MODULES_CORE) act_connmark sch_esfq sch_netem
+SCHED_MODULES_FILTER = $(SCHED_MODULES_CORE) act_connmark sch_esfq
 SCHED_MODULES_EXTRA = $(filter-out $(SCHED_MODULES_FILTER),$(SCHED_MODULES))
 SCHED_FILES = $(patsubst %,$(LINUX_DIR)/net/sched/%.ko,$(filter $(SCHED_MODULES_CORE),$(SCHED_MODULES)))
 SCHED_FILES_EXTRA = $(patsubst %,$(LINUX_DIR)/net/sched/%.ko,$(SCHED_MODULES_EXTRA))
@@ -745,6 +782,8 @@ define KernelPackage/sched
 	CONFIG_NET_SCH_TBF \
 	CONFIG_NET_SCH_SFQ \
 	CONFIG_NET_SCH_TEQL \
+	CONFIG_NET_SCH_FQ \
+	CONFIG_NET_SCH_PIE \
 	CONFIG_NET_CLS_BASIC \
 	CONFIG_NET_ACT_POLICE \
 	CONFIG_NET_ACT_IPT \
@@ -766,14 +805,15 @@ $(eval $(call KernelPackage,sched))
 define KernelPackage/ax25
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=AX25 support
+  DEPENDS:=+kmod-lib-crc16
   KCONFIG:= \
+	CONFIG_HAMRADIO=y \
 	CONFIG_AX25 \
 	CONFIG_MKISS
   FILES:= \
 	$(LINUX_DIR)/net/ax25/ax25.ko \
 	$(LINUX_DIR)/drivers/net/hamradio/mkiss.ko
   AUTOLOAD:=$(call AutoLoad,80,ax25 mkiss)
-  $(call AddDepends/crc16)
 endef
 
 define KernelPackage/ax25/description
@@ -781,33 +821,6 @@ define KernelPackage/ax25/description
 endef
 
 $(eval $(call KernelPackage,ax25))
-
-
-define KernelPackage/mp-alg
-  SUBMENU:=$(NETWORK_SUPPORT_MENU)
-  TITLE:=ECMP caching algorithms
-  KCONFIG:= \
-	CONFIG_IP_ROUTE_MULTIPATH_RR \
-	CONFIG_IP_ROUTE_MULTIPATH_RANDOM \
-	CONFIG_IP_ROUTE_MULTIPATH_WRANDOM \
-	CONFIG_IP_ROUTE_MULTIPATH_DRR
-  FILES:= \
-	$(LINUX_DIR)/net/ipv4/multipath_rr.ko \
-	$(LINUX_DIR)/net/ipv4/multipath_random.ko \
-	$(LINUX_DIR)/net/ipv4/multipath_wrandom.ko \
-	$(LINUX_DIR)/net/ipv4/multipath_drr.ko
-  AUTOLOAD:=$(call AutoLoad,35,multipath_rr multipath_random multipath_wrandom multipath_drr)
-endef
-
-define KernelPackage/mp-alg/description
- Kernel modules that provide several different algorithms for multipath
- route selection from the route cache. The iproute "mpath" argument allows
- specifying which algorithm to use for routes.
- quagga (at least <=0.99.6) requires a multipath patch to support this
- cached mp route feature.
-endef
-
-$(eval $(call KernelPackage,mp-alg))
 
 
 define KernelPackage/pktgen
@@ -828,7 +841,9 @@ $(eval $(call KernelPackage,pktgen))
 define KernelPackage/l2tp
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=Layer Two Tunneling Protocol (L2TP)
-  DEPENDS:=+IPV6:kmod-ipv6
+  DEPENDS:= \
+	+kmod-udptunnel4 \
+	+IPV6:kmod-udptunnel6
   KCONFIG:=CONFIG_L2TP \
 	CONFIG_L2TP_V3=y \
 	CONFIG_L2TP_DEBUGFS=n
@@ -864,8 +879,10 @@ define KernelPackage/l2tp-ip
   TITLE:=L2TP IP encapsulation for L2TPv3
   DEPENDS:=+kmod-l2tp
   KCONFIG:=CONFIG_L2TP_IP
-  FILES:=$(LINUX_DIR)/net/l2tp/l2tp_ip.ko
-  AUTOLOAD:=$(call AutoLoad,33,l2tp_ip)
+  FILES:= \
+	$(LINUX_DIR)/net/l2tp/l2tp_ip.ko \
+	$(if $(CONFIG_IPV6),$(LINUX_DIR)/net/l2tp/l2tp_ip6.ko)
+  AUTOLOAD:=$(call AutoLoad,33,l2tp_ip $(if $(CONFIG_IPV6),l2tp_ip6))
 endef
 
 define KernelPackage/l2tp-ip/description
@@ -892,7 +909,7 @@ define KernelPackage/sctp
      CONFIG_SCTP_DEFAULT_COOKIE_HMAC_MD5=y
   FILES:= $(LINUX_DIR)/net/sctp/sctp.ko
   AUTOLOAD:= $(call AutoLoad,32,sctp)
-  DEPENDS:=+kmod-lib-crc32c +kmod-crypto-md5 +kmod-crypto-hmac +IPV6:kmod-ipv6
+  DEPENDS:=+kmod-lib-crc32c +kmod-crypto-md5 +kmod-crypto-hmac
 endef
 
 define KernelPackage/sctp/description
@@ -962,8 +979,8 @@ define KernelPackage/rxrpc
   FILES:= \
 	$(LINUX_DIR)/net/rxrpc/af-rxrpc.ko \
 	$(LINUX_DIR)/net/rxrpc/rxkad.ko
-  AUTOLOAD:=$(call AutoLoad,30,af-rxrpc rxkad)
-  DEPENDS:=+kmod-crypto-core +kmod-crypto-manager +kmod-crypto-pcbc +kmod-crypto-fcrypt
+  AUTOLOAD:=$(call AutoLoad,30,rxkad af-rxrpc)
+  DEPENDS:= +kmod-crypto-manager +kmod-crypto-pcbc +kmod-crypto-fcrypt
 endef
 
 define KernelPackage/rxrpc/description

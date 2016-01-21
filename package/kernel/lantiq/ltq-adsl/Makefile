@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=ltq-adsl
 PKG_VERSION:=3.24.4.4
-PKG_RELEASE:=1-$(LINUX_VERMAGIC)
+PKG_RELEASE:=1
 PKG_SOURCE:=drv_dsl_cpe_api_danube-$(PKG_VERSION).tar.gz
 PKG_BUILD_DIR:=$(KERNEL_BUILD_DIR)/ltq-dsl-$(BUILD_VARIANT)/drv_dsl_cpe_api-$(PKG_VERSION)
 PKG_SOURCE_URL:=http://mirror2.openwrt.org/sources/
@@ -19,6 +19,7 @@ PKG_MAINTAINER:=John Crispin <blogic@openwrt.org>
 
 PKG_USE_MIPS16:=0
 PKG_CHECK_FORMAT_SECURITY:=0
+PKG_FIXUP:=autoreconf
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -83,11 +84,6 @@ EXTRA_CFLAGS += -DDEBUG
 endif
 
 EXTRA_CFLAGS = -fno-pic -mno-abicalls -mlong-calls -G 0
-
-define Build/Configure
-	(cd $(PKG_BUILD_DIR); aclocal && autoconf && automake)
-	$(call Build/Configure/Default)
-endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/adsl

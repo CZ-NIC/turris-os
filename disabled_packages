@@ -1,3 +1,20 @@
-krb5-server
-debootstrap
-mjpg-streamer
+node  # cant't be built on PPC
+node-arduino-firmata  # depends on node
+node-cylon  # depends on node
+node-hid  # depends on node
+node-serialport  # depends on node
+libseccomp  # PPC not supported in v2.2.1 yet
+micropython  # incompatible with PPC
+gcc  # broken in upstream
+gpsd  # broken in upstream
+grilo-plugins  # broken in upstream
+lcdgrilo  # broken in upstream
+libmraa  # broken in upstream
+libtorrent  # broken in upstream
+libupm  # broken in upstream
+mpg123  # broken in upstream
+ola  # broken in upstream
+python-psycopg2  # broken in upstream
+rtorrent  # broken in upstream
+smstools3  # broken in upstream
+upmpdcli  # broken in upstream

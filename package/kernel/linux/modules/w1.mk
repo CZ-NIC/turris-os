@@ -37,7 +37,7 @@ define KernelPackage/w1-master-gpio
   DEPENDS:=@GPIO_SUPPORT
   KCONFIG:=CONFIG_W1_MASTER_GPIO
   FILES:=$(W1_MASTERS_DIR)/w1-gpio.ko
-  AUTOLOAD:=$(call AutoLoad,27,w1-gpio)
+  AUTOLOAD:=$(call AutoProbe,w1-gpio)
   $(call AddDepends/w1)
 endef
 
@@ -51,7 +51,7 @@ define KernelPackage/w1-master-ds2482
   TITLE:=DS2482 1-wire i2c bus master driver
   KCONFIG:=CONFIG_W1_MASTER_DS2482
   FILES:=$(W1_MASTERS_DIR)/ds2482.ko
-  AUTOLOAD:=$(call AutoLoad,27,ds2482)
+  AUTOLOAD:=$(call AutoProbe,ds2482)
   $(call AddDepends/w1,+kmod-i2c-core)
 endef
 
@@ -69,7 +69,7 @@ define KernelPackage/w1-master-ds2490
   DEPENDS:=@USB_SUPPORT +kmod-usb-core
   KCONFIG:=CONFIG_W1_MASTER_DS2490
   FILES:=$(W1_MASTERS_DIR)/ds2490.ko
-  AUTOLOAD:=$(call AutoLoad,27,ds2490)
+  AUTOLOAD:=$(call AutoProbe,ds2490)
   $(call AddDepends/w1)
 endef
 
@@ -85,7 +85,7 @@ define KernelPackage/w1-master-mxc
   DEPENDS:=@(TARGET_mxs||TARGET_imx6)
   KCONFIG:=CONFIG_W1_MASTER_MXC
   FILES:=$(W1_MASTERS_DIR)/mxc_w1.ko
-  AUTOLOAD:=$(call AutoLoad,27,mxc_w1)
+  AUTOLOAD:=$(call AutoProbe,mxc_w1)
   $(call AddDepends/w1)
 endef
 
@@ -103,7 +103,7 @@ define KernelPackage/w1-slave-therm
   TITLE:=Thermal family implementation
   KCONFIG:=CONFIG_W1_SLAVE_THERM
   FILES:=$(W1_SLAVES_DIR)/w1_therm.ko
-  AUTOLOAD:=$(call AutoLoad,27,w1_therm)
+  AUTOLOAD:=$(call AutoProbe,w1_therm)
   $(call AddDepends/w1)
 endef
 
@@ -118,7 +118,7 @@ define KernelPackage/w1-slave-smem
   TITLE:=Simple 64bit memory family implementation
   KCONFIG:=CONFIG_W1_SLAVE_SMEM
   FILES:=$(W1_SLAVES_DIR)/w1_smem.ko
-  AUTOLOAD:=$(call AutoLoad,27,w1_smem)
+  AUTOLOAD:=$(call AutoProbe,w1_smem)
   $(call AddDepends/w1)
 endef
 
@@ -132,7 +132,7 @@ define KernelPackage/w1-slave-ds2431
   TITLE:=DS2431 1kb EEPROM driver
   KCONFIG:= CONFIG_W1_SLAVE_DS2431
   FILES:=$(W1_SLAVES_DIR)/w1_ds2431.ko
-  AUTOLOAD:=$(call AutoLoad,27,w1_ds2431)
+  AUTOLOAD:=$(call AutoProbe,w1_ds2431)
   $(call AddDepends/w1)
 endef
 
@@ -148,7 +148,7 @@ define KernelPackage/w1-slave-ds2433
 	CONFIG_W1_SLAVE_DS2433 \
 	CONFIG_W1_SLAVE_DS2433_CRC=n
   FILES:=$(W1_SLAVES_DIR)/w1_ds2433.ko
-  AUTOLOAD:=$(call AutoLoad,27,w1_ds2433)
+  AUTOLOAD:=$(call AutoProbe,w1_ds2433)
   $(call AddDepends/w1)
 endef
 
@@ -165,7 +165,7 @@ define KernelPackage/w1-slave-ds2760
 	CONFIG_W1_SLAVE_DS2760 \
 	CONFIG_W1_SLAVE_DS2433_CRC=n
   FILES:=$(W1_SLAVES_DIR)/w1_ds2760.ko
-  AUTOLOAD:=$(call AutoLoad,27,w1_ds2760)
+  AUTOLOAD:=$(call AutoProbe,w1_ds2760)
   $(call AddDepends/w1)
 endef
 
@@ -174,3 +174,19 @@ define KernelPackage/w1-slave-ds2760/description
 endef
 
 $(eval $(call KernelPackage,w1-slave-ds2760))
+
+
+define KernelPackage/w1-slave-ds2413
+  TITLE:=DS2413 2 Ch. Addressable Switch
+  KCONFIG:= \
+	CONFIG_W1_SLAVE_DS2413
+  FILES:=$(W1_SLAVES_DIR)/w1_ds2413.ko
+  AUTOLOAD:=$(call AutoProbe,w1_ds2413)
+  $(call AddDepends/w1)
+endef
+
+define KernelPackage/w1-slave-ds2413/description
+ Kernel module for 1-wire DS2413 Dual Channel Addressable Switch support
+endef
+
+$(eval $(call KernelPackage,w1-slave-ds2413))

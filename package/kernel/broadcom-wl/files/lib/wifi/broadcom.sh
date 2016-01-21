@@ -101,7 +101,7 @@ disable_broadcom() {
 		for dev in /sys/class/net/wds${device##wl}-* /sys/class/net/${device}-* /sys/class/net/${device}; do
 			if [ -e "$dev" ]; then
 				ifname=${dev##/sys/class/net/}
-				ifconfig "$ifname" down
+				ip link set dev "$ifname" down
 				unbridge "$ifname"
 			fi
 		done
@@ -199,17 +199,26 @@ enable_broadcom() {
 	}
 
 	# Use 'chanspec' instead of 'channel' for 'N' modes (See bcmwifi.h)
-	[ ${nmode:-0} -ne 0 -a -n "$band" -a -n "$channel" ] && {
+	[ -n "$nmode" -a -n "$band" -a -n "$channel" ] && {
 		case "$htmode" in
-			HT40-)	chanspec=$(printf 0x%x%x%02x $band 0xe $(($channel - 2))); channel=;;
-			HT40+)	chanspec=$(printf 0x%x%x%02x $band 0xd $(($channel + 2))); channel=;;
-			HT20)	chanspec=$(printf 0x%x%x%02x $band 0xb $channel); channel=;;
+			HT40)
+				if [ -n "$gmode" ]; then
+					[ $channel -lt 7 ] && htmode="HT40+" || htmode="HT40-"
+				else
+					[ $(( ($channel / 4) % 2 )) -eq 1 ] && htmode="HT40+" || htmode="HT40-"
+				fi
+			;;
+		esac
+		case "$htmode" in
+			HT40-)	chanspec=$(printf 0x%x%x%02x $band 0xe $(($channel - 2))); nmode=1; channel=;;
+			HT40+)	chanspec=$(printf 0x%x%x%02x $band 0xd $(($channel + 2))); nmode=1; channel=;;
+			HT20)	chanspec=$(printf 0x%x%x%02x $band 0xb $channel); nmode=1; channel=;;
 			*) ;;
 		esac
 	}
 
 	local leddc=$(wlc ifname "$device" leddc)
-	[ "$leddc" -eq 0xffff ] || {
+	[ $((leddc)) -eq $((0xffff)) ] && {
 		leddc=0x005a000a;
 	}
 
@@ -363,11 +372,12 @@ enable_broadcom() {
 		local if_cmd="if_pre_up"
 		[ "$ifname" != "${ifname##${device}-}" ] && if_cmd="if_up"
 		append $if_cmd "macaddr=\$(wlc ifname '$ifname' cur_etheraddr)" ";$N"
-		append $if_cmd "ifconfig '$ifname' \${macaddr:+hw ether \$macaddr}" ";$N"
-		append if_up "ifconfig '$ifname' up" ";$N"
+		append $if_cmd "ip link set dev '$ifname' address \$macaddr" ";$N"
+		append if_up "ip link set dev '$ifname' up" ";$N"
 
 		local net_cfg="$(find_net_config "$vif")"
 		[ -z "$net_cfg" ] || {
+			ubus -t 30 wait_for network.interface."$net_cfg"
 			append if_up "set_wifi_up '$vif' '$ifname'" ";$N"
 			append if_up "start_net '$ifname' '$net_cfg'" ";$N"
 		}

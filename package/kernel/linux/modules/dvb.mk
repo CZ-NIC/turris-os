@@ -223,7 +223,7 @@ define KernelPackage/dvb-usb-it913x
   KCONFIG:=CONFIG_DVB_USB_IT913X
   FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb-v2/dvb-usb-it913x.ko
   AUTOLOAD:=$(call AutoLoad,62,dvb-usb-it913x)
-  $(call AddDepends/dvb-usb-v2,+kmod-dvb-it913x-fe)
+  $(call AddDepends/dvb-usb-v2,+kmod-dvb-it913x-fe @(LINUX_3_10||LINUX_3_13||LINUX_3_14))
 endef
 
 define KernelPackage/dvb-usb-it913x/description
@@ -315,6 +315,7 @@ $(eval $(call KernelPackage,dvb-pll))
 define KernelPackage/dvb-it913x-fe
   TITLE:=it913x frontend and it9137 tuner
   $(call DvbFrontend,it913x-fe,CONFIG_DVB_IT913X_FE)
+  DEPENDS+=@(LINUX_3_10||LINUX_3_13||LINUX_3_14)
 endef
 
 define KernelPackage/dvb-it913x-fe/description
@@ -337,6 +338,7 @@ $(eval $(call KernelPackage,dvb-rtl2830))
 define KernelPackage/dvb-rtl2832
   TITLE:=Realtek RTL2832 DVB-T
   $(call DvbFrontend,rtl2832,CONFIG_DVB_RTL2832)
+  DEPENDS+=+kmod-i2c-mux
 endef
 
 define KernelPackage/dvb-rtl2832/description
@@ -513,7 +515,7 @@ define MediaTuner
 	CONFIG_MEDIA_SUPPORT=m \
 	CONFIG_MEDIA_DIGITAL_TV_SUPPORT=m \
 	$2
-  DEPENDS:=+kmod-i2c-core
+  DEPENDS:=+kmod-i2c-core @!LINUX_4_4
   FILES:=$(LINUX_DIR)/drivers/media/tuners/$1.ko
   AUTOLOAD:=$(call AutoLoad,60,$1)
 endef
@@ -521,6 +523,7 @@ endef
 define KernelPackage/media-tuner-e4000
   TITLE:=Elonics E4000 silicon tuner
   $(call MediaTuner,e4000,CONFIG_MEDIA_TUNER_E4000)
+  DEPENDS+=+kmod-regmap +kmod-video-core
 endef
 
 define KernelPackage/media-tuner-e4000/description
@@ -576,6 +579,7 @@ $(eval $(call KernelPackage,media-tuner-fc2580))
 define KernelPackage/media-tuner-it913x
   TITLE:=ITE Tech IT913x silicon tuner
   $(call MediaTuner,tuner_it913x,CONFIG_MEDIA_TUNER_IT913X)
+  DEPENDS+=@(LINUX_3_10||LINUX_3_13||LINUX_3_14)
 endef
 
 define KernelPackage/media-tuner-it913x/description
@@ -727,6 +731,7 @@ $(eval $(call KernelPackage,media-tuner-simple))
 define KernelPackage/media-tuner-tda18212
   TITLE:=NXP TDA18212 silicon tuner
   $(call MediaTuner,tda18212,CONFIG_MEDIA_TUNER_TDA18212)
+  DEPENDS+=+kmod-regmap
 endef
 
 define KernelPackage/media-tuner-tda18212/description

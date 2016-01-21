@@ -1,0 +1,240 @@
+/dts-v1/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+#include "armada-385.dtsi"
+
+/ {
+	model = "Turris Omnia";
+	compatible = "marvell,armada385","marvell,armada380";
+
+	chosen {
+		bootargs = "console=ttyS0,115200";
+		stdout-path = &uart0;
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x00000000 0x40000000>; /* 1024 MB */
+	};
+
+	soc {
+		ranges = <MBUS_ID(0xf0, 0x01) 0 0xf1000000 0x100000
+			  MBUS_ID(0x01, 0x1d) 0 0xfff00000 0x100000>;
+
+		internal-regs {
+			spi@10600 {
+				status = "okay";
+				spi-nor@0 {
+					compatible = "spansion,s25fl164k", "jedec,spi-nor";
+					#address-cells = <1>;
+					#size-cells = <1>;
+					reg = <0>;
+					spi-max-frequency = <40000000>;
+
+					partition@0 {
+						reg = <0x0 0x00800000>;
+                                		label = "SPI flash";
+                        		};
+				};
+				spi-nor@1 {
+					/* Test */
+					compatible = "spansion,s25fl164k", "jedec,spi-nor";
+					#address-cells = <1>;
+					#size-cells = <1>;
+					reg = <2>;
+					spi-max-frequency = <40000000>;
+
+					partition@0 {
+						reg = <0x0 0x00800000>;
+                                		label = "SPI flash test";
+                        		};
+				};
+			};
+
+			i2c@11000 {
+				pinctrl-names = "default";
+				pinctrl-0 = <&i2c0_pins>;
+				status = "okay";
+
+				i2cmux@70 {
+					compatible = "nxp,pca9547";
+					#address-cells = <1>;
+					#size-cells = <0>;
+					reg = <0x70>;
+					status = "okay";
+					i2c@0 {
+						/* Config memory */
+						#address-cells = <1>;
+						#size-cells = <0>;
+						reg = <0>;
+						status = "okay";
+						eeprom@54 {
+							compatible = "at,24c64";
+							reg = <0x54>;
+						};
+
+						/* Additional device: STM-32, address 0x55.*/
+      					};
+					i2c@1 {
+						/* SATA */
+						#address-cells = <1>;
+						#size-cells = <0>;
+						reg = <1>;
+					};
+					i2c@2 {
+						/* PCI 1 */
+						#address-cells = <1>;
+						#size-cells = <0>;
+						reg = <2>;
+					};
+					i2c@3 {
+						/* PCI 0 */
+						#address-cells = <1>;
+						#size-cells = <0>;
+						reg = <3>;
+					};
+					i2c@4 {
+						/* SFP */
+						#address-cells = <1>;
+						#size-cells = <0>;
+						reg = <4>;
+					};
+					i2c@5 {
+						/* ATSHA */
+						#address-cells = <1>;
+						#size-cells = <0>;
+						reg = <5>;
+      					};
+					i2c@6 {
+						/* User GPIO header */
+						#address-cells = <1>;
+						#size-cells = <0>;
+						reg = <6>;
+						eeprom@50 {
+							/* Test */
+							compatible = "at,24c04";
+							reg = <0x50>;
+						};
+      					};
+				};
+			};
+
+			serial@12000 {
+				pinctrl-names = "default";
+				pinctrl-0 = <&uart0_pins>;
+				status = "okay";
+			};
+			
+			serial@12100 {
+				pinctrl-names = "default";
+				pinctrl-0 = <&uart1_pins>;
+				status = "okay";
+			};
+
+			mdio: mdio@72004 {
+				status = "okay";
+				phy1: phy@1 {
+					status = "okay";
+					compatible = "marvell,88E1514", "marvell,88E1510", "ethernet-phy-ieee802.3-c22";
+					reg = <1>;
+				};
+			};
+ 
+			ethernet@70000 {
+				status = "okay";
+				phy-mode = "rgmii-id";
+				fixed-link {
+					speed = <1000>;
+					full-duplex;
+				};
+			};
+
+			ethernet@30000 {
+				status = "okay";
+				phy-mode = "rgmii-id";
+				fixed-link {
+					speed = <1000>;
+					full-duplex;
+				};
+			};
+
+			ethernet@34000 {
+				status = "okay";
+				phy-mode = "sgmii";
+				phy-handle = <&phy1>;
+				phy = <&phy1>;
+			};
+
+			sdhci@d8000 {
+				status = "okay";
+				bus-width = <8>;
+				no-1-8-v;
+				non-removable;
+			};
+
+			sata@a8000 {
+				status = "okay";
+			};
+
+			/* USB part of the eSATA/USB 2.0 port */
+			usb@58000 {
+				status = "okay";
+			};
+
+			/* 2x external USB3 */
+			usb3@f0000 {
+				status = "okay";
+			};
+
+			usb3@f8000 {
+				status = "okay";
+			};
+
+		};
+
+		pcie-controller {
+			status = "okay";
+
+			pcie@1,0 {
+				/* Port 0, Lane 0 */
+				status = "okay";
+			};
+
+			pcie@2,0 {
+				/* Port 2, Lane 0 */
+				status = "okay";
+			};
+
+			pcie@3,0 {
+				/* Port 3, Lane 0 */
+				status = "okay";
+			};
+
+			pcie@4,0 {
+				/* Port 4, Lane 0 */
+				status = "okay";
+			};
+
+		};
+	};
+
+	mvsw61xx {
+		status = "okay";
+		compatible = "marvell,88e6176";
+		reg = <0x10>;
+		is-indirect;
+		mii-bus = <&mdio>;
+		cpu-port-0 = <5>;
+		cpu-port-1 = <6>;
+	};
+};
+
+&pinctrl {
+	user_pin: user-pin {
+		marvell,pins = "mpp18", "mpp33", "mpp34", "mpp35", "mpp36",
+				"mpp42", "mpp44", "mpp47", "mpp51", "mpp56";
+		marvell,function = "gpio";
+	};
+};
+

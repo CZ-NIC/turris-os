@@ -27,7 +27,8 @@
  WDIRS=  windows
  LIBS=   libcrypto.a libssl.a
  SHARED_CRYPTO=libcrypto$(SHLIB_EXT)
-@@ -272,7 +272,7 @@ reflect:
+@@ -271,7 +271,7 @@ reflect:
+ 	@[ -n "$(THIS)" ] && $(CLEARENV) && $(MAKE) $(THIS) -e $(BUILDENV)
  
  sub_all: build_all
  

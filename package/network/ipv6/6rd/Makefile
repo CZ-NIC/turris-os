@@ -8,17 +8,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=6rd
-PKG_VERSION:=7
-PKG_RELEASE:=1
+PKG_VERSION:=9
+PKG_RELEASE:=2
+PKG_LICENSE:=GPL-2.0
 
 include $(INCLUDE_DIR)/package.mk
 
 define Package/6rd
   SECTION:=net
   CATEGORY:=Network
-  DEPENDS:=+kmod-ipv6 +kmod-sit
+  DEPENDS:=@IPV6 +kmod-sit
   TITLE:=6rd configuration support
-  MAINTAINER:=Stéphan Kochen <stephan@kochen.nl>
+  MAINTAINER:=Steven Barth <cyrus@openwrt.org>
   PKGARCH:=all
 endef
 

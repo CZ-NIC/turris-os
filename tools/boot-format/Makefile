@@ -30,7 +30,7 @@ define Host/Install
 endef
 
 define Host/Clean
-	 $(MAKE) -C $(HOST_BUILD_DIR) clean
+	 $(MAKE) -C $(HOST_BUILD_DIR) clean || true
 endef
 
 $(eval $(call HostBuild))

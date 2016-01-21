@@ -1,8 +1,12 @@
 #!/bin/bash -xe
 
-# Cleaning 
+# Cleaning
 [ -d ./tmp ] && rm -rf ./tmp
 [ -d ./bin ] && rm -rf ./bin
+[ -d ./logs ] && rm -rf ./logs
+[ -d ./logs-nand ] && rm -rf ./logs-nand
+[ -d ./logs-nor ] && rm -rf ./logs-nor
+[ -d ./logs-initram ] && rm -rf ./logs-initram
 
 # Clean feeds
 ./scripts/feeds clean
@@ -12,7 +16,7 @@
 ./scripts/feeds install -a
 
 # Uninstall broken pkgs
-for pkg in $(cat ./disabled_packages); do ./scripts/feeds uninstall $pkg; done
+for pkg in $(cut -d '#' -f1 ./disabled_packages); do ./scripts/feeds uninstall $pkg; done
 
 # Build NAND FW
 cp configs/config-turris-nand .config
@@ -25,11 +29,13 @@ if [ -d .git ] ; then
 fi
 make clean
 make "$@"
+mv ./logs ./logs-nand
 
 #Build initramfs
 echo -e "CONFIG_TARGET_ROOTFS_INITRAMFS=y\nCONFIG_TARGET_INITRAMFS_COMPRESSION_XZ=y" >> .config
 make defconfig
 make target/linux/compile "$@"
+mv ./logs ./logs-initram
 cp build_dir/target-powerpc_*/linux-mpc85xx_p2020-nand/zImage-initramfs bin/mpc85xx/turris-initramfs-zimage
 
 # Preserve the uncompressed image too
@@ -50,8 +56,7 @@ cp configs/config-turris-nor .config
 make defconfig
 make clean
 make "$@"
+mv ./logs ./logs-nor
 [ -d ./bin/mpc85xx/packages ] && rm -rf ./bin/mpc85xx/packages
 [ -d ./bin-nor ] && rm -rf ./bin-nor
 mv ./bin ./bin-nor
-
-

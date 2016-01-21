@@ -7,14 +7,14 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=polarssl
-PKG_VERSION:=1.3.9
-PKG_RELEASE:=2
+PKG_NAME:=mbedtls
+PKG_VERSION:=1.3.11
+PKG_RELEASE:=1
 PKG_USE_MIPS16:=0
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-gpl.tgz
-PKG_SOURCE_URL:=https://polarssl.org/code/releases
-PKG_MD5SUM:=48af7d1f0d5de512cbd6dacf5407884c
+PKG_SOURCE_URL:=https://polarssl.org/download/
+PKG_MD5SUM:=c02ce2e54862d678604794ee484fb59e
 
 PKG_BUILD_PARALLEL:=1
 PKG_LICENSE:=GPL-2.0+
@@ -38,7 +38,7 @@ $(call Package/polarssl/Default)
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE+= (library)
-  ABI_VERSION:=$(PKG_VERSION)
+  ABI_VERSION:=$(PKG_VERSION)-$(PKG_RELEASE)
 endef
 
 define Package/libpolarssl/description
@@ -50,7 +50,7 @@ PKG_INSTALL:=1
 
 CMAKE_OPTIONS += \
 	-DCMAKE_BUILD_TYPE:String="Release" \
-	-DUSE_SHARED_POLARSSL_LIBRARY:Bool=ON \
+	-DUSE_SHARED_MBEDTLS_LIBRARY:Bool=ON \
 	-DENABLE_TESTING:Bool=OFF \
 	-DENABLE_PROGRAMS:Bool=OFF \
 
@@ -58,12 +58,14 @@ define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/polarssl $(1)/usr/include/
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libpolarssl.so* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libmbedtls.so* $(1)/usr/lib/
+	$(LN) libmbedtls.so $(1)/usr/lib/libpolarssl.so
 endef
 
 define Package/libpolarssl/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libpolarssl.so* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libmbedtls.so* $(1)/usr/lib/
+	$(LN) libmbedtls.so $(1)/usr/lib/libpolarssl.so
 endef
 
 $(eval $(call BuildPackage,libpolarssl))

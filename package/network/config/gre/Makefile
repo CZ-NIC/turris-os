@@ -9,7 +9,8 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gre
 PKG_VERSION:=1
-PKG_RELEASE:=2
+PKG_RELEASE:=3
+PKG_LICENSE:=GPL-2.0
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -41,7 +42,7 @@ endef
 define Package/grev6
 $(call Package/gre/Default)
   TITLE:=Generic Routing Encapsulation (IPv6) config support
-  DEPENDS:=@(PACKAGE_gre) +kmod-ipv6 +kmod-ip6-gre
+  DEPENDS:=@(PACKAGE_gre) @IPV6 +kmod-ip6-gre
 endef
 
 define Package/grev6/description

@@ -62,7 +62,7 @@ $(eval $(call KernelPackage,fs-autofs4))
 define KernelPackage/fs-btrfs
   SUBMENU:=$(FS_MENU)
   TITLE:=BTRFS filesystem support
-  DEPENDS:=+kmod-lib-crc32c +kmod-lib-lzo +kmod-lib-zlib +(!LINUX_3_3&&!LINUX_3_6&&!LINUX_3_8):kmod-lib-raid6 +(!LINUX_3_3&&!LINUX_3_6&&!LINUX_3_8):kmod-lib-xor
+  DEPENDS:=+kmod-lib-crc32c +kmod-lib-lzo +kmod-lib-zlib +kmod-lib-raid6 +kmod-lib-xor
   KCONFIG:=\
 	CONFIG_BTRFS_FS \
 	CONFIG_BTRFS_FS_POSIX_ACL=n \
@@ -90,13 +90,12 @@ define KernelPackage/fs-cifs
   AUTOLOAD:=$(call AutoLoad,30,cifs)
   $(call AddDepends/nls)
   DEPENDS+= \
-    +kmod-crypto-arc4 \
     +kmod-crypto-hmac \
     +kmod-crypto-md5 \
     +kmod-crypto-md4 \
     +kmod-crypto-des \
     +kmod-crypto-ecb \
-    +!LINUX_3_3&&!LINUX_3_6:kmod-crypto-sha256
+    +kmod-crypto-sha256
 endef
 
 define KernelPackage/fs-cifs/description
@@ -155,15 +154,20 @@ $(eval $(call KernelPackage,fs-exportfs))
 define KernelPackage/fs-ext4
   SUBMENU:=$(FS_MENU)
   TITLE:=EXT4 filesystem support
+  DEPENDS := \
+    +kmod-lib-crc16 \
+    +kmod-crypto-hash
   KCONFIG:= \
+	CONFIG_EXT4_FS_SECURITY=y \
+	CONFIG_EXT4_FS_POSIX_ACL=y \
 	CONFIG_EXT4_FS \
+	CONFIG_EXT4_ENCRYPTION=n \
 	CONFIG_JBD2
   FILES:= \
 	$(LINUX_DIR)/fs/ext4/ext4.ko \
 	$(LINUX_DIR)/fs/jbd2/jbd2.ko \
 	$(LINUX_DIR)/fs/mbcache.ko
   AUTOLOAD:=$(call AutoLoad,30,mbcache jbd2 ext4,1)
-  $(call AddDepends/crc16, +!LINUX_3_3:kmod-crypto-hash)
 endef
 
 define KernelPackage/fs-ext4/description
@@ -171,6 +175,27 @@ define KernelPackage/fs-ext4/description
 endef
 
 $(eval $(call KernelPackage,fs-ext4))
+
+
+define KernelPackage/fs-f2fs
+  SUBMENU:=$(FS_MENU)
+  TITLE:=F2FS filesystem support
+  KCONFIG:= \
+	CONFIG_F2FS_FS \
+	CONFIG_F2FS_STAT_FS=y \
+	CONFIG_F2FS_FS_XATTR=y \
+	CONFIG_F2FS_FS_POSIX_ACL=n \
+	CONFIG_F2FS_FS_SECURITY=n \
+	CONFIG_F2FS_CHECK_FS=n
+  FILES:=$(LINUX_DIR)/fs/f2fs/f2fs.ko
+  AUTOLOAD:=$(call AutoLoad,30,f2fs,1)
+endef
+
+define KernelPackage/fs-f2fs/description
+ Kernel module for F2FS filesystem support
+endef
+
+$(eval $(call KernelPackage,fs-f2fs))
 
 
 define KernelPackage/fuse
@@ -277,30 +302,14 @@ define KernelPackage/fs-nfs
 	CONFIG_NFS_FS \
 	CONFIG_NFS_USE_LEGACY_DNS=n \
 	CONFIG_NFS_USE_NEW_IDMAPPER=n
-ifeq ($(strip $(call CompareKernelPatchVer,$(KERNEL_PATCHVER),ge,3.6.0)),1)
   FILES:= \
 	$(LINUX_DIR)/fs/nfs/nfs.ko \
 	$(LINUX_DIR)/fs/nfs/nfsv3.ko
-else
-  FILES:= \
-	$(LINUX_DIR)/fs/nfs/nfs.ko
-endif
   AUTOLOAD:=$(call AutoLoad,40,nfs nfsv3)
 endef
 
 define KernelPackage/fs-nfs/description
  Kernel module for NFS support
-endef
-
-define KernelPackage/fs-nfs/config
-  if PACKAGE_kmod-fs-nfs
-       config KERNEL_NFS_V4
-               bool "Support NFSv4 in NFS client"
-               depends on PACKAGE_kmod-fs-sunrpc-auth-rpcgss
-               default n
-               help
-                 Select this option to support NFSv4 in the NFS server
-  endif
 endef
 
 $(eval $(call KernelPackage,fs-nfs))
@@ -309,51 +318,48 @@ $(eval $(call KernelPackage,fs-nfs))
 define KernelPackage/fs-nfs-common
   SUBMENU:=$(FS_MENU)
   TITLE:=Common NFS filesystem modules
-  DEPENDS:=+kmod-lib-oid-registry
   KCONFIG:= \
 	CONFIG_LOCKD \
-	CONFIG_SUNRPC
+	CONFIG_SUNRPC \
+	CONFIG_GRACE_PERIOD
   FILES:= \
 	$(LINUX_DIR)/fs/lockd/lockd.ko \
-	$(LINUX_DIR)/net/sunrpc/sunrpc.ko
-  AUTOLOAD:=$(call AutoLoad,30,sunrpc lockd)
+	$(LINUX_DIR)/net/sunrpc/sunrpc.ko \
+	$(LINUX_DIR)/fs/nfs_common/grace.ko
+  AUTOLOAD:=$(call AutoLoad,30,grace sunrpc lockd)
 endef
 
 $(eval $(call KernelPackage,fs-nfs-common))
 
 
-define KernelPackage/fs-sunrpc-auth-rpcgss
+define KernelPackage/fs-nfs-common-v4
   SUBMENU:=$(FS_MENU)
-  TITLE:=GSS authentication for SUN RPC
-  DEPENDS:=+kmod-fs-nfs-common
-  KCONFIG:=CONFIG_SUNRPC_GSS
-  FILES:= \
-       $(LINUX_DIR)/net/sunrpc/auth_gss/auth_rpcgss.ko
-  AUTOLOAD:=$(call AutoLoad,30,auth_rpcgss)
+  TITLE:=Common NFS V4 filesystem modules
+  KCONFIG+=\
+	CONFIG_SUNRPC_GSS\
+	CONFIG_NFS_V4=y\
+	CONFIG_NFSD_V4=y
+  DEPENDS:= @BROKEN
+  FILES+=$(LINUX_DIR)/net/sunrpc/auth_gss/auth_rpcgss.ko
+  AUTOLOAD=$(call AutoLoad,30,auth_rpcgss)
 endef
 
-$(eval $(call KernelPackage,fs-sunrpc-auth-rpcgss))
+define KernelPackage/fs-nfs-common-v4/description
+ Kernel modules for NFS V4 & NFSD V4 kernel support
+endef
+
+$(eval $(call KernelPackage,fs-nfs-common-v4))
+
 
 define KernelPackage/fs-nfsd
   SUBMENU:=$(FS_MENU)
   TITLE:=NFS kernel server support
-  DEPENDS:=+kmod-fs-nfs-common +kmod-fs-exportfs +kmod-fs-sunrpc-auth-rpcgss
-  KCONFIG= \
+  DEPENDS:=+kmod-fs-nfs-common +kmod-fs-exportfs
+  KCONFIG:= \
 	CONFIG_NFSD \
 	CONFIG_NFSD_FAULT_INJECTION=n
   FILES:=$(LINUX_DIR)/fs/nfsd/nfsd.ko
   AUTOLOAD:=$(call AutoLoad,40,nfsd)
-endef
-
-define KernelPackage/fs-nfsd/config
-  if PACKAGE_kmod-fs-nfsd
-       config KERNEL_NFSD_V4
-               bool "Support NFSv4 in NFS server"
-               depends on PACKAGE_kmod-fs-sunrpc-auth-rpcgss
-               default n
-               help
-                 Select this option to support NFSv4 in the NFS server
-  endif
 endef
 
 define KernelPackage/fs-nfsd/description
@@ -435,7 +441,7 @@ define KernelPackage/fs-xfs
   SUBMENU:=$(FS_MENU)
   TITLE:=XFS filesystem support
   KCONFIG:=CONFIG_XFS_FS
-  DEPENDS:= +kmod-fs-exportfs +kmod-lib-crc32c @!avr32
+  DEPENDS:= +kmod-fs-exportfs +kmod-lib-crc32c
   FILES:=$(LINUX_DIR)/fs/xfs/xfs.ko
   AUTOLOAD:=$(call AutoLoad,30,xfs,1)
 endef

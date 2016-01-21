@@ -9,6 +9,10 @@
 		};
 	};
 
+	memory@0 {
+		device_type = "memory";
+	};
+
 	biu@1F800000 {
 		#address-cells = <1>;
 		#size-cells = <1>;
@@ -62,14 +66,6 @@
 		dcdc@106a00 {
 			compatible = "lantiq,dcdc-xrx200";
 			reg = <0x106a00 0x200>;
-		};
-
-		vmmc@107000 {
-			status = "disabled";
-			compatible = "lantiq,vmmc";
-			reg = <0x103000 0x400>;
-			interrupt-parent = <&icu0>;
-			interrupts = <150 151 152 153 154 155>;
 		};
 
 		rcu0: rcu@203000 {
@@ -142,11 +138,19 @@
 
 		ifxhcd@E101000 {
 			status = "disabled";
-			compatible = "lantiq,ifxhcd-xrx200";
+			compatible = "lantiq,ifxhcd-xrx200", "lantiq,ifxhcd-xrx200-dwc2";
 			reg = <0xE101000 0x1000
 				0xE120000 0x3f000>;
 			interrupt-parent = <&icu0>;
 			interrupts = <62 91>;
+		};
+
+		ifxhcd@E106000 {
+			status = "disabled";
+			compatible = "lantiq,ifxhcd-xrx200-dwc2";
+			reg = <0xE106000 0x1000>;
+			interrupt-parent = <&icu0>;
+			interrupts = <91>;
 		};
 
 		mei@E116000 {

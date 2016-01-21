@@ -1,0 +1,171 @@
+--- a/drivers/rtc/rtc-armada38x.c	2015-08-17 05:52:51.000000000 +0200
++++ b/drivers/rtc/rtc-armada38x.c	2015-10-25 03:12:09.153556473 +0100
+@@ -26,8 +26,12 @@
+ #define RTC_IRQ1_AL_EN		    BIT(0)
+ #define RTC_IRQ1_FREQ_EN	    BIT(1)
+ #define RTC_IRQ1_FREQ_1HZ	    BIT(2)
++#define RTC_IRQ2_CONF	    0x8
+ #define RTC_TIME	    0xC
+ #define RTC_ALARM1	    0x10
++#define RTC_ALARM2	    0x14
++#define RTC_CLOCK_CORR	    0x18
++#define RTC_TEST_CONFIG	    0x1C
+ 
+ #define SOC_RTC_INTERRUPT   0x8
+ #define SOC_RTC_ALARM1		BIT(0)
+@@ -35,18 +39,15 @@
+ #define SOC_RTC_ALARM1_MASK	BIT(2)
+ #define SOC_RTC_ALARM2_MASK	BIT(3)
+ 
++#define RTC_NOMINAL_TIMING 0x0
++#define RTC_SZ_STATUS_ALARM1_MASK	0x1
++#define RTC_SZ_STATUS_ALARM2_MASK	0x2
++
+ struct armada38x_rtc {
+ 	struct rtc_device   *rtc_dev;
+ 	void __iomem	    *regs;
+ 	void __iomem	    *regs_soc;
+ 	spinlock_t	    lock;
+-	/*
+-	 * While setting the time, the RTC TIME register should not be
+-	 * accessed. Setting the RTC time involves sleeping during
+-	 * 100ms, so a mutex instead of a spinlock is used to protect
+-	 * it
+-	 */
+-	struct mutex	    mutex_time;
+ 	int		    irq;
+ };
+ 
+@@ -64,9 +65,9 @@
+ static int armada38x_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
+-	unsigned long time, time_check;
++	unsigned long time, time_check, flags;
+ 
+-	mutex_lock(&rtc->mutex_time);
++	spin_lock_irqsave(&rtc->lock, flags);
+ 	time = readl(rtc->regs + RTC_TIME);
+ 	/*
+ 	 * WA for failing time set attempts. As stated in HW ERRATA if
+@@ -77,7 +78,7 @@
+ 	if ((time_check - time) > 1)
+ 		time_check = readl(rtc->regs + RTC_TIME);
+ 
+-	mutex_unlock(&rtc->mutex_time);
++	spin_unlock_irqrestore(&rtc->lock, flags);
+ 
+ 	rtc_time_to_tm(time_check, tm);
+ 
+@@ -95,16 +96,16 @@
+ 	if (ret)
+ 		goto out;
+ 	/*
+-	 * Setting the RTC time not always succeeds. According to the
+-	 * errata we need to first write on the status register and
+-	 * then wait for 100ms before writing to the time register to be
+-	 * sure that the data will be taken into account.
++	 * According to errata FE-3124064, Write to RTC TIME register
++	 * may fail. As a workaround, after writing to RTC TIME
++	 * register, issue a dummy write of 0x0 twice to RTC Status
++	 * register.
+ 	 */
+-	mutex_lock(&rtc->mutex_time);
+-	rtc_delayed_write(0, rtc, RTC_STATUS);
+-	msleep(100);
++	spin_lock_irqsave(&rtc->lock, flags);
+ 	rtc_delayed_write(time, rtc, RTC_TIME);
+-	mutex_unlock(&rtc->mutex_time);
++	rtc_delayed_write(0, rtc, RTC_STATUS);
++	rtc_delayed_write(0, rtc, RTC_STATUS);
++	spin_unlock_irqrestore(&rtc->lock, flags);
+ 
+ out:
+ 	return ret;
+@@ -209,6 +210,47 @@
+ 	return IRQ_HANDLED;
+ }
+ 
++static bool rtc_init_state(struct armada38x_rtc *rtc)
++{
++	uint32_t stat, alrm1, alrm2, int1, int2, tstcfg;
++
++	/* Update RTC-MBUS bridge timing parameters */
++	writel(0xFD4D4CFA, rtc->regs_soc);
++
++	/* Make sure we are not in any test mode */
++	writel(0, rtc->regs + RTC_TEST_CONFIG);
++	msleep_interruptible(500);
++
++	/* Setup nominal register access timing */
++	writel(RTC_NOMINAL_TIMING, rtc->regs + RTC_CLOCK_CORR);
++
++	/* Turn off Int1 sources & clear the Alarm count */
++	writel(0, rtc->regs + RTC_IRQ1_CONF);
++	writel(0, rtc->regs + RTC_ALARM1);
++
++	/* Turn off Int2 sources & clear the Periodic count */
++	writel(0, rtc->regs + RTC_IRQ2_CONF);
++	writel(0, rtc->regs + RTC_ALARM2);
++
++	/* Clear any pending Status bits */
++	writel((RTC_SZ_STATUS_ALARM1_MASK | RTC_SZ_STATUS_ALARM2_MASK), rtc->regs + RTC_STATUS);
++
++	stat   = readl(rtc->regs + RTC_STATUS) & 0xFF;
++	alrm1  = readl(rtc->regs + RTC_ALARM1);
++	int1   = readl(rtc->regs + RTC_IRQ1_CONF) & 0xFF;
++	alrm2  = readl(rtc->regs + RTC_ALARM2);
++	int2   = readl(rtc->regs + RTC_IRQ2_CONF) & 0xFF;
++	tstcfg = readl(rtc->regs + RTC_TEST_CONFIG) & 0xFF;
++
++	if ((0xFC == stat) && (0 == alrm1) && (0xC0 == int1) &&
++	    (0 == alrm2) && (0xC0 == int2) && (0 == tstcfg)) {
++		return true;
++	} else {
++		return false;
++	}
++}
++
++
+ static struct rtc_class_ops armada38x_rtc_ops = {
+ 	.read_time = armada38x_rtc_read_time,
+ 	.set_time = armada38x_rtc_set_time,
+@@ -222,6 +264,7 @@
+ 	struct resource *res;
+ 	struct armada38x_rtc *rtc;
+ 	int ret;
++	uint32_t init_count = 3;
+ 
+ 	rtc = devm_kzalloc(&pdev->dev, sizeof(struct armada38x_rtc),
+ 			    GFP_KERNEL);
+@@ -229,7 +272,6 @@
+ 		return -ENOMEM;
+ 
+ 	spin_lock_init(&rtc->lock);
+-	mutex_init(&rtc->mutex_time);
+ 
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "rtc");
+ 	rtc->regs = devm_ioremap_resource(&pdev->dev, res);
+@@ -268,6 +310,14 @@
+ 		dev_err(&pdev->dev, "Failed to register RTC device: %d\n", ret);
+ 		return ret;
+ 	}
++
++	while (!rtc_init_state(rtc) && --init_count);
++
++	if (init_count == 0) {
++		dev_err(&pdev->dev, "%probe: Error in rtc_init_state\n", __func__);
++		return -ENODEV;
++	}
++
+ 	return 0;
+ }
+ 
+@@ -303,6 +353,7 @@
+ 	{ .compatible = "marvell,armada-380-rtc", },
+ 	{}
+ };
++MODULE_DEVICE_TABLE(of, armada38x_rtc_of_match_table);
+ #endif
+ 
+ static struct platform_driver armada38x_rtc_driver = {
