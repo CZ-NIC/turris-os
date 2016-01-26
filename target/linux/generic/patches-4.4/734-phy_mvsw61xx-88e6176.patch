@@ -1,6 +1,6 @@
---- a/drivers/net/phy/mvsw61xx.c	2015-09-15 10:58:04.305185015 +0200
-+++ b/drivers/net/phy/mvsw61xx.c	2015-09-22 12:44:45.596709963 +0200
-@@ -566,6 +566,106 @@
+--- a/drivers/net/phy/mvsw61xx.c	2016-01-17 22:19:39.644231765 +0100
++++ b/drivers/net/phy/mvsw61xx.c	2016-01-26 13:54:28.225141054 +0100
+@@ -566,6 +566,104 @@
  	return mvsw61xx_update_state(dev);
  }
  
@@ -80,8 +80,6 @@
 +		copperreg=smisr16(dev, PHY_ADDR(i, PHY_CONTROL_REG));
 +		copperreg&=~PHY_CONTROL_PWR;
 +		smisw16(dev, PHY_ADDR(i, PHY_CONTROL_REG), copperreg);
-+
-+		printk("mvsw debug: i=%d pagereg=0x%04x, copperreg=0x%04x\n, cospcreg=0x%04x\n", i, pagereg, copperreg, copperspecreg);
 +	}
 +
 +	/* Enable forwarding (STP mode) */
@@ -107,7 +105,7 @@
  static int mvsw61xx_reset(struct switch_dev *dev)
  {
  	struct mvsw61xx_state *state = get_state(dev);
-@@ -613,11 +713,33 @@
+@@ -613,6 +711,10 @@
  
  	mvsw61xx_update_state(dev);
  
@@ -118,30 +116,7 @@
  	/* Re-enable ports */
  	for (i = 0; i < dev->ports; i++) {
  		reg = sr16(dev, MV_PORTREG(CONTROL, i)) |
- 			MV_PORTCTRL_FORWARDING;
- 		sw16(dev, MV_PORTREG(CONTROL, i), reg);
-+
-+		/* debug debug debug */
-+		int j;
-+		for(j=0; j<=0x1b; j++) {
-+		reg=sr16(dev, 0x10+i, j);
-+		printk("mvsw debug: port=%d port_status_%02x=0x%04x\n", i, j, reg);
-+		}
-+
-+	}
-+
-+	// debug debug debug
-+	for (i=0;i<=0xf;i++) {
-+		reg=sr16(dev, MV_SWITCH_GLOBAL, i);
-+		printk("mvsw debug: global_%02x=0x%04x\n", i, reg);
-+	}
-+	for (i=0;i<=0x1d;i++) {
-+		reg=sr16(dev, MV_SWITCH_GLOBAL2, i);
-+		printk("mvsw debug: global2_%02x=0x%04x\n", i, reg);
- 	}
- 
- 	return 0;
-@@ -798,6 +920,9 @@
+@@ -798,6 +900,9 @@
  	state->dev.ops = &mvsw61xx_ops;
  	state->dev.alias = dev_name(&pdev->dev);
  
