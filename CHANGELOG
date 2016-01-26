@@ -1,3 +1,4 @@
+* OpenSSH: oprava CVE-2016-0777 a CVE-2016-0778 (vypnut roaming).
 ===================== 2.8 =======================
 * user_notify: lokalizace všech textů.
 * foris-tls-plugin: nový plugin - GUI pro nuci-tls.
