@@ -1,5 +1,5 @@
 * dnsmasq-dhcpv6: Podpora pro dhcpv6, aby nebyl potřeba 6relayd
-* ip-full: Plnější ip
+* ip: Plnější ip (efektivně ip-full)
 * ucollect-fwup: Poradí si se změnou velikosti ipsetu
 * nuci-tls: Posluchá i na IPv6
 * unbound: Pokus obnovit rozbitou kořenovou kotvu
