@@ -1,0 +1,22 @@
+--- a/drivers/mmc/card/block.c	2016-01-11 00:01:32.000000000 +0100
++++ b/drivers/mmc/card/block.c	2016-01-26 13:54:20.665128846 +0100
+@@ -65,8 +65,7 @@
+ #define MMC_SANITIZE_REQ_TIMEOUT 240000
+ #define MMC_EXTRACT_INDEX_FROM_ARG(x) ((x & 0x00FF0000) >> 16)
+ 
+-#define mmc_req_rel_wr(req)	((req->cmd_flags & REQ_FUA) && \
+-				  (rq_data_dir(req) == WRITE))
++#define mmc_req_rel_wr(req)	  (rq_data_dir(req) == WRITE)
+ #define PACKED_CMD_VER	0x01
+ #define PACKED_CMD_WR	0x02
+ 
+@@ -1468,8 +1467,7 @@
+ 	 * Reliable writes are used to implement Forced Unit Access and
+ 	 * are supported only on MMCs.
+ 	 */
+-	bool do_rel_wr = (req->cmd_flags & REQ_FUA) &&
+-		(rq_data_dir(req) == WRITE) &&
++	bool do_rel_wr = (rq_data_dir(req) == WRITE) &&
+ 		(md->flags & MMC_BLK_REL_WR);
+ 
+ 	memset(brq, 0, sizeof(struct mmc_blk_request));
