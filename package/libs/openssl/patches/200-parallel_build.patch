@@ -34,8 +34,8 @@
  lint:
  	@set -e; target=lint; $(RECURSIVE_BUILD_CMD)
 @@ -522,9 +522,9 @@ dist:
- dist_pem_h:
- 	(cd crypto/pem; $(MAKE) -e $(BUILDENV) pem.h; $(MAKE) clean)
+ 	@$(MAKE) SDIRS='$(SDIRS)' clean
+ 	@$(MAKE) TAR='$(TAR)' TARFLAGS='$(TARFLAGS)' $(DISTTARVARS) tar
  
 -install: all install_sw
 +install: install_sw
