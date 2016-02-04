@@ -1,5 +1,7 @@
---- a/Makefile
-+++ b/Makefile
+Index: openssl-1.0.2f/Makefile
+===================================================================
+--- openssl-1.0.2f.orig/Makefile
++++ openssl-1.0.2f/Makefile
 @@ -138,7 +138,7 @@ FIPSCANLIB=
  
  BASEADDR=0xFB00000
@@ -27,8 +29,7 @@
  WDIRS=  windows
  LIBS=   libcrypto.a libssl.a
  SHARED_CRYPTO=libcrypto$(SHLIB_EXT)
-@@ -271,7 +271,7 @@ reflect:
- 	@[ -n "$(THIS)" ] && $(CLEARENV) && $(MAKE) $(THIS) -e $(BUILDENV)
+@@ -273,7 +273,7 @@ reflect:
  
  sub_all: build_all
  
@@ -37,20 +38,22 @@
  
  build_libs: build_libcrypto build_libssl openssl.pc
  
-@@ -529,7 +529,7 @@ dist:
- dist_pem_h:
- 	(cd crypto/pem; $(MAKE) -e $(BUILDENV) pem.h; $(MAKE) clean)
+@@ -530,7 +530,7 @@ dist:
+ 	@$(MAKE) SDIRS='$(SDIRS)' clean
+ 	@$(MAKE) TAR='$(TAR)' TARFLAGS='$(TARFLAGS)' $(DISTTARVARS) tar
  
 -install: all install_docs install_sw
 +install: all install_sw
  
  install_sw:
  	@$(PERL) $(TOP)/util/mkdir-p.pl $(INSTALL_PREFIX)$(INSTALLTOP)/bin \
---- a/Makefile.org
-+++ b/Makefile.org
-@@ -527,7 +527,7 @@ dist:
- dist_pem_h:
- 	(cd crypto/pem; $(MAKE) -e $(BUILDENV) pem.h; $(MAKE) clean)
+Index: openssl-1.0.2f/Makefile.org
+===================================================================
+--- openssl-1.0.2f.orig/Makefile.org
++++ openssl-1.0.2f/Makefile.org
+@@ -528,7 +528,7 @@ dist:
+ 	@$(MAKE) SDIRS='$(SDIRS)' clean
+ 	@$(MAKE) TAR='$(TAR)' TARFLAGS='$(TARFLAGS)' $(DISTTARVARS) tar
  
 -install: all install_docs install_sw
 +install: all install_sw

@@ -1,5 +1,6 @@
 #
 # Copyright (C) 2006-2015 OpenWrt.org
+# Copyright (C) 2016 CZ.NIC
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=iproute2
 PKG_VERSION:=4.0.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=http://kernel.org/pub/linux/utils/net/iproute2/
@@ -33,7 +34,7 @@ define Package/iproute2/Default
 endef
 
 define Package/ip
-$(call Package/iproute2/Default,tiny,Minimal)
+$(call Package/iproute2/Default,tiny,Also full)
   CONFLICTS:=ip-full
 endef
 
@@ -68,9 +69,12 @@ $(call Package/iproute2/Default)
   TITLE:=Socket statistics utility
 endef
 
-ifeq ($(BUILD_VARIANT),tiny)
-  IP_CONFIG_TINY:=y
-endif
+# We want a full-featured ip command on turris routers. But attempts to
+# use ip-full fail miserably, because just everything out there depends
+# on ip. So we make ip mean the same as ip-full.
+#ifeq ($(BUILD_VARIANT),tiny)
+#  IP_CONFIG_TINY:=y
+#endif
 
 define Build/Configure
 	$(SED) "s,-I/usr/include/db3,," $(PKG_BUILD_DIR)/Makefile

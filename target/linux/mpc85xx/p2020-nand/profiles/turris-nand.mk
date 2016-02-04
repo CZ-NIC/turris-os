@@ -27,7 +27,7 @@ define Profile/TURRISNAND
 		luci luci-i18n-czech cert-backup foris update_mac wget \
 		userspace_time_sync openssh-moduli watchdog_adjust \
 		ucollect-config rainbow turris-version \
-		spidev-test i2c-tools -dropbear
+		spidev-test i2c-tools -dropbear -dnsmasq dnsmasq-dhcpv6
 endef
 
 define Profile/TURRISNAND/Description
