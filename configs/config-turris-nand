@@ -48,7 +48,9 @@ CONFIG_KERNEL_CPUSETS=y
 CONFIG_KERNEL_RESOURCE_COUNTERS=y
 CONFIG_KERNEL_MEMCG=y
 CONFIG_KERNEL_MEMCG_SWAP=y
-#CONFIG_DISPLAY_SUPPORT=y
+CONFIG_LXC_BUSYBOX_OPTIONS=y
+CONFIG_LXC_KERNEL_OPTIONS=y
+
 # Make sure we use real strip, that one leaves the debug link in
 CONFIG_USE_STRIP=y
 # These are needed as packages for updater
