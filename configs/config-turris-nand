@@ -132,3 +132,8 @@ CONFIG_PACKAGE_kmod-mmc=m
 CONFIG_PACKAGE_kmod-mmc-fsl-p2020=m
 CONFIG_PACKAGE_smrt=m
 CONFIG_PACKAGE_smrt-image=m
+
+# Package eudev conflicts with udev - we want to keep udev
+CONFIG_PACKAGE_eudev=n
+CONFIG_PACKAGE_usbip=n
+CONFIG_PACKAGE_libinput=n
