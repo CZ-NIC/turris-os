@@ -1,3 +1,4 @@
+* c_rehash: Fix removal of dangling symlinks
 * dnsmasq-dhcpv6: Podpora pro dhcpv6, aby nebyl potřeba 6relayd
 * ip: Plnější ip (efektivně ip-full)
 * ucollect-fwup: Poradí si se změnou velikosti ipsetu
