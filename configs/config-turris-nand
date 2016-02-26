@@ -91,7 +91,6 @@ CONFIG_PACKAGE_knot-host=m
 CONFIG_PACKAGE_knot-nsupdate=m
 CONFIG_PACKAGE_knot-nsec3hash=m
 CONFIG_PACKAGE_knot-tests=m
-CONFIG_PACKAGE_knot-resolver=m
 CONFIG_PACKAGE_oneshot=y
 CONFIG_PACKAGE_foris-oldconfig=m
 CONFIG_PACKAGE_foris-tls-plugin=m
