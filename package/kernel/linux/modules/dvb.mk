@@ -488,7 +488,7 @@ define MediaTuner
 	CONFIG_MEDIA_SUPPORT=m \
 	CONFIG_MEDIA_DIGITAL_TV_SUPPORT=m \
 	$2
-  DEPENDS:=+kmod-i2c-core @!LINUX_4_4
+  DEPENDS:=+kmod-i2c-core
   FILES:=$(LINUX_DIR)/drivers/media/tuners/$1.ko
   AUTOLOAD:=$(call AutoLoad,60,$1)
 endef
@@ -541,6 +541,7 @@ $(eval $(call KernelPackage,media-tuner-fc0013))
 define KernelPackage/media-tuner-fc2580
   TITLE:=FCI FC2580 silicon tuner
   $(call MediaTuner,fc2580,CONFIG_MEDIA_TUNER_FC2580)
+  DEPENDS+=+LINUX_4_4:kmod-regmap +LINUX_4_4:kmod-video-core
 endef
 
 define KernelPackage/media-tuner-fc2580/description
@@ -795,6 +796,7 @@ $(eval $(call KernelPackage,media-tuner-tea5767))
 define KernelPackage/media-tuner-tua9001
   TITLE:=Infineon TUA 9001 silicon tuner
   $(call MediaTuner,tua9001,CONFIG_MEDIA_TUNER_TUA9001)
+DEPENDS+=+LINUX_4_4:kmod-regmap
 endef
 
 define KernelPackage/media-tuner-tua9001/description
