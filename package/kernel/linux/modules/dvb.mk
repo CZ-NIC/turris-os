@@ -551,8 +551,8 @@ $(eval $(call KernelPackage,media-tuner-fc2580))
 
 define KernelPackage/media-tuner-it913x
   TITLE:=ITE Tech IT913x silicon tuner
-  $(call MediaTuner,tuner_it913x,CONFIG_MEDIA_TUNER_IT913X)
-  DEPENDS+=@(LINUX_3_10||LINUX_3_13||LINUX_3_14)
+  $(call MediaTuner,it913x,CONFIG_MEDIA_TUNER_IT913X)
+  DEPENDS+=+kmod-regmap
 endef
 
 define KernelPackage/media-tuner-it913x/description
