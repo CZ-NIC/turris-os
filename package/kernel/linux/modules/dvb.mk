@@ -218,21 +218,6 @@ define AddDepends/dvb-usb-v2
   DEPENDS+=+kmod-dvb-usb-v2 $1
 endef
 
-define KernelPackage/dvb-usb-it913x
-  TITLE:=ITE IT913X DVB-T USB2.0 support
-  KCONFIG:=CONFIG_DVB_USB_IT913X
-  FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb-v2/dvb-usb-it913x.ko
-  AUTOLOAD:=$(call AutoLoad,62,dvb-usb-it913x)
-  $(call AddDepends/dvb-usb-v2,+kmod-dvb-it913x-fe @(LINUX_3_10||LINUX_3_13||LINUX_3_14))
-endef
-
-define KernelPackage/dvb-usb-it913x/description
- Support for the ITE IT913X DVB-T USB2.0.
-endef
-
-$(eval $(call KernelPackage,dvb-usb-it913x))
-
-
 define KernelPackage/dvb-usb-rtl28xxu
   TITLE:=Realtek RTL28xxU DVB USB support
   KCONFIG:=CONFIG_DVB_USB_RTL28XXU
@@ -311,18 +296,6 @@ define KernelPackage/dvb-pll/description
 endef
 
 $(eval $(call KernelPackage,dvb-pll))
-
-define KernelPackage/dvb-it913x-fe
-  TITLE:=it913x frontend and it9137 tuner
-  $(call DvbFrontend,it913x-fe,CONFIG_DVB_IT913X_FE)
-  DEPENDS+=@(LINUX_3_10||LINUX_3_13||LINUX_3_14)
-endef
-
-define KernelPackage/dvb-it913x-fe/description
- A DVB-T tuner module.
-endef
-
-$(eval $(call KernelPackage,dvb-it913x-fe))
 
 define KernelPackage/dvb-rtl2830
   TITLE:=Realtek RTL2830 DVB-T
@@ -515,7 +488,7 @@ define MediaTuner
 	CONFIG_MEDIA_SUPPORT=m \
 	CONFIG_MEDIA_DIGITAL_TV_SUPPORT=m \
 	$2
-  DEPENDS:=+kmod-i2c-core @!LINUX_4_4
+  DEPENDS:=+kmod-i2c-core
   FILES:=$(LINUX_DIR)/drivers/media/tuners/$1.ko
   AUTOLOAD:=$(call AutoLoad,60,$1)
 endef
@@ -568,6 +541,7 @@ $(eval $(call KernelPackage,media-tuner-fc0013))
 define KernelPackage/media-tuner-fc2580
   TITLE:=FCI FC2580 silicon tuner
   $(call MediaTuner,fc2580,CONFIG_MEDIA_TUNER_FC2580)
+  DEPENDS+=+LINUX_4_4:kmod-regmap +LINUX_4_4:kmod-video-core
 endef
 
 define KernelPackage/media-tuner-fc2580/description
@@ -578,8 +552,8 @@ $(eval $(call KernelPackage,media-tuner-fc2580))
 
 define KernelPackage/media-tuner-it913x
   TITLE:=ITE Tech IT913x silicon tuner
-  $(call MediaTuner,tuner_it913x,CONFIG_MEDIA_TUNER_IT913X)
-  DEPENDS+=@(LINUX_3_10||LINUX_3_13||LINUX_3_14)
+  $(call MediaTuner,it913x,CONFIG_MEDIA_TUNER_IT913X)
+  DEPENDS+=+kmod-regmap
 endef
 
 define KernelPackage/media-tuner-it913x/description
@@ -822,6 +796,7 @@ $(eval $(call KernelPackage,media-tuner-tea5767))
 define KernelPackage/media-tuner-tua9001
   TITLE:=Infineon TUA 9001 silicon tuner
   $(call MediaTuner,tua9001,CONFIG_MEDIA_TUNER_TUA9001)
+DEPENDS+=+LINUX_4_4:kmod-regmap
 endef
 
 define KernelPackage/media-tuner-tua9001/description
