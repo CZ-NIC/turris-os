@@ -6,7 +6,7 @@ define Profile/Turris-Omnia
 	kmod-thermal-armada kmod-ath9k kmod-ath10k ath10k-firmware-qca988x \
 	swconfig btrfs-progs turris-version updater \
 	foris ucollect-config openssh-server wpad \
-	-dropbear -dnsmasq dnsmasq-dhcpv6
+	-dropbear rainbow-omnia
 endef
 
 define Profile/Turris-Omnia/Description
