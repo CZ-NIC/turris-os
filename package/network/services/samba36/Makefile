@@ -127,7 +127,7 @@ define Package/samba36-server/postinst
 #!/bin/sh
 # check if we are on real system
 if [ -z "$${IPKG_INSTROOT}" ]; then
-        if [ -e /etc/rc.d/S[0-9][0-9]samba ]; then
+        if /etc/init.d/samba enabled; then
                 echo "Reloading samba"
                 /etc/init.d/samba restart
         fi
