@@ -218,13 +218,6 @@ default_postinst() {
 	[ -f ${IPKG_INSTROOT}/usr/lib/opkg/info/${pkgname}.postinst-pkg ] && ( . ${IPKG_INSTROOT}/usr/lib/opkg/info/${pkgname}.postinst-pkg )
 	[ -n "${IPKG_INSTROOT}" ] || rm -f /tmp/luci-indexcache 2>/dev/null
 
-	[ "$PKG_UPGRADE" = "1" ] || for i in `cat ${IPKG_INSTROOT}/usr/lib/opkg/info/${pkgname}.list | grep "^/etc/init.d/"`; do
-		[ -n "${IPKG_INSTROOT}" ] && $(which bash) ${IPKG_INSTROOT}/etc/rc.common ${IPKG_INSTROOT}$i enable; \
-		[ -n "${IPKG_INSTROOT}" ] || {
-			$i enable
-			$i start
-		}
-	done
 	return 0
 }
 
