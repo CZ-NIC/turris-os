@@ -70,6 +70,7 @@ CONFIG_PACKAGE_luci-app-rainbow=m
 CONFIG_PACKAGE_daemon-watchdog=m
 CONFIG_PACKAGE_updater-testkey=m
 CONFIG_PACKAGE_updater-consolidator=m
+CONFIG_PACKAGE_updater-deps=m
 CONFIG_PACKAGE_updater-hash-check=m
 CONFIG_PACKAGE_openssh-server=m
 CONFIG_PACKAGE_openssh_server_nuci_support=y
