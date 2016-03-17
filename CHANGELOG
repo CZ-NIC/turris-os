@@ -1,3 +1,5 @@
+* automatic restart of enabled services on update
+* enabled some basic hardening - FORTIFY_SOURCES=2 and RELRO
 * user_notify: Less chance of stray lock
 * c_rehash: Fix removal of dangling symlinks
 * ip: Plnější ip (efektivně ip-full)
