@@ -195,9 +195,14 @@ $(_endef)
 		chmod 644 control; \
 		( \
 			echo "#!/bin/sh"; \
+			echo "pkgname=\$$$$(basename \$$$${0%.*})"; \
 			echo "[ \"\$$$${IPKG_NO_SCRIPT}\" = \"1\" ] && exit 0"; \
 			echo ". \$$$${IPKG_INSTROOT}/lib/functions.sh"; \
-			echo "( type default_postinst > /dev/null ) && default_postinst \$$$$0 \$$$$@ || true"; \
+			echo "if type default_postinst > /dev/null; then"; \
+			echo "	default_postinst \$$$$0 \$$$$@ || true"; \
+			echo "elif [ -f \$$$${IPKG_INSTROOT}/usr/lib/opkg/info/\$$$${pkgname}.postinst-pkg ]; then"; \
+			echo "	. \$$$${IPKG_INSTROOT}/usr/lib/opkg/info/\$$$${pkgname}.postinst-pkg"; \
+			echo "fi"; \
 		) > postinst; \
 		( \
 			echo "#!/bin/sh"; \
