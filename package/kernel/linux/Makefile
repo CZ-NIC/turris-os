@@ -16,6 +16,7 @@ SCAN_DEPS=modules/*.mk $(TOPDIR)/target/linux/*/modules.mk $(TOPDIR)/include/net
 PKG_LICENSE:=GPLv2
 PKG_LICENSE_FILES:=
 PKG_VERSION:=10
+PKG_RELEASE:=2
 
 export SHELL:=/bin/sh
 .ONESHELL:
