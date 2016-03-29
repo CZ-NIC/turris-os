@@ -1,3 +1,4 @@
+* updater: Don't reinstall everything if list-opkg fails
 * updater: Integrate opkg update
 * automatic restart of enabled services on update
 * enabled some basic hardening - FORTIFY_SOURCES=2 and RELRO
