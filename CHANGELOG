@@ -1,3 +1,4 @@
+* syslog-ng: Default to dgram instead of stream
 * updater: Don't reinstall everything if list-opkg fails
 * updater: Integrate opkg update
 * automatic restart of enabled services on update
