@@ -17,7 +17,7 @@ git log -n1 --format='%H' >files/etc/git-version
 git clone git@git.nic.cz:turris/misc-internal
 # If the revision is marked, it is propagation of deploy into current stable. In that case, we clean up. Otherwise, just try to recompile it as fast as possible, as it is just some small fix.
 if grep -qFf files/etc/git-version misc-internal/updater/deploy ; then
-	make clean
+	make dirclean
 fi
 rm -rf misc-internal
 make "$@"

@@ -7,6 +7,7 @@
 [ -d ./logs-nand ] && rm -rf ./logs-nand
 [ -d ./logs-nor ] && rm -rf ./logs-nor
 [ -d ./logs-initram ] && rm -rf ./logs-initram
+[ -z "$BUILD_ALL" ] || make dirclean
 
 # Clean feeds
 ./scripts/feeds clean

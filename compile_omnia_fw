@@ -2,6 +2,7 @@
 
 # Cleaning
 rm -rf ./tmp ./bin ./logs*
+[ -z "$BUILD_ALL" ] || make dirclean
 
 # Clean feeds
 ./scripts/feeds clean
