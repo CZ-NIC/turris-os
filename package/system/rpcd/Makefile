@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rpcd
 PKG_VERSION:=2015-05-17
-PKG_RELEASE=$(PKG_SOURCE_VERSION)
+PKG_RELEASE=$(PKG_SOURCE_VERSION)-1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git://nbd.name/luci2/rpcd.git
@@ -64,6 +64,12 @@ define Package/rpcd/install
 	$(INSTALL_CONF) ./files/rpcd.config $(1)/etc/config/rpcd
 endef
 
+define Package/rpcd/postinst
+#!/bin/sh
+[ -n "$$IPKG_INSTROOT" ] || {
+	/etc/init.d/rpcd enable
+}
+endef
 
 # 1: plugin name
 # 2: extra dependencies
