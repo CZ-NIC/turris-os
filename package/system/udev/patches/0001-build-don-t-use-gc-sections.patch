@@ -8,8 +8,6 @@ somehow won't work with the wrt toolchain
  Makefile.am |    5 +----
  1 files changed, 1 insertions(+), 4 deletions(-)
 
-diff --git a/Makefile.am b/Makefile.am
-index a0c007a..3d8ce92 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -18,12 +18,9 @@ AM_CPPFLAGS = \
@@ -26,6 +24,3 @@ index a0c007a..3d8ce92 100644
  	-Wl,--as-needed
  
  DISTCHECK_CONFIGURE_FLAGS = \
--- 
-1.7.6
-

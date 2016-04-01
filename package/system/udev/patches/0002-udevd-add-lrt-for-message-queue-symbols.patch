@@ -7,8 +7,6 @@ Subject: [PATCH 2/2] udevd: add -lrt for message queue symbols
  Makefile.am |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/Makefile.am b/Makefile.am
-index 3d8ce92..7d8a4b6 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -164,7 +164,7 @@ udev_udevd_SOURCES = \
@@ -20,6 +18,3 @@ index 3d8ce92..7d8a4b6 100644
  
  udev_udevadm_SOURCES = \
  	$(udev_common_sources) \
--- 
-1.7.6
-
