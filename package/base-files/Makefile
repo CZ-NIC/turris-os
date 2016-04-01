@@ -11,7 +11,7 @@ include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/version.mk
 
 PKG_NAME:=base-files
-PKG_RELEASE:=157
+PKG_RELEASE:=158
 
 PKG_FILE_DEPENDS:=$(PLATFORM_DIR)/ $(GENERIC_PLATFORM_DIR)/base-files/
 PKG_BUILD_DEPENDS:=opkg/host usign/host
@@ -175,6 +175,15 @@ define Package/base-files/install
 	echo "#!/bin/sh" > $(1)/CONTROL/postinst	
 	echo -e "if [ -z "\$$$$IPKG_INSTROOT" ]; then rm -f `ls $(1)/etc/uci-defaults | awk '{ printf "/etc/uci-defaults/%s ", $$$$0 }'`; fi" >> $(1)/CONTROL/postinst;
 	echo -e "if [ -z "\$$$$IPKG_INSTROOT" ]; then for i in `ls $(1)/etc/init.d/ | awk '{ printf "/etc/init.d/%s ", $$$$0 }'`; do "\$$$$i" enable || true; done; fi" >> $(1)/CONTROL/postinst
+endef
+
+define Package/base-files/postinst
+#!/bin/sh
+[ -n "$$IPKG_INSTROOT" ] || {
+	grep etc/init.d /usr/lib/opkg/info/base-files.list | while read service; do
+       /$$service enable
+	done
+}
 endef
 
 ifneq ($(DUMP),1)
