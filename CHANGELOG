@@ -1,3 +1,4 @@
+* Foris (v64): Add background color to fix legibility with dark system themes.
 * syslog-ng: Default to dgram instead of stream
 * updater: Don't reinstall everything if list-opkg fails
 * updater: Integrate opkg update
