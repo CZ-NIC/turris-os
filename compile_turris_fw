@@ -3,7 +3,7 @@
 # FIXME: remove this hack once the new staging_dir structure changes get merged from trunk
 mimic_new_staging_dir_host ()
 {
-	mkdir -p staging_dir/ || true
+	mkdir -p staging_dir/target-powerpc_8540_uClibc-0.9.33.2 || true
 	ln -sf ../host staging_dir/target-powerpc_8540_uClibc-0.9.33.2/host
 }
 
