@@ -1,12 +1,5 @@
 #!/bin/bash -xe
 
-# FIXME: remove this hack once the new staging_dir structure changes get merged from trunk
-mimic_new_staging_dir_host ()
-{
-	mkdir -p staging_dir/target-powerpc_8540_uClibc-0.9.33.2 || true
-	ln -sf ../host staging_dir/target-powerpc_8540_uClibc-0.9.33.2/host
-}
-
 # Cleaning
 [ -d ./tmp ] && rm -rf ./tmp
 [ -d ./bin ] && rm -rf ./bin
@@ -36,7 +29,6 @@ if [ -d .git ] ; then
 	git log -n1 --format='%H' >files/etc/git-version
 fi
 make clean
-mimic_new_staging_dir_host
 make "$@"
 mv ./logs ./logs-nand
 
@@ -64,7 +56,6 @@ cp configs/config-turris-nor .config
 [ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
 make defconfig
 make clean
-mimic_new_staging_dir_host
 make "$@"
 mv ./logs ./logs-nor
 [ -d ./bin/mpc85xx/packages ] && rm -rf ./bin/mpc85xx/packages

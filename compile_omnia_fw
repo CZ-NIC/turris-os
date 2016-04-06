@@ -1,12 +1,5 @@
 #!/bin/bash -xe
 
-# FIXME: remove this hack once the new staging_dir structure changes get merged from trunk
-mimic_new_staging_dir_host ()
-{
-    mkdir -p staging_dir/target-arm_cortex-a9+vfpv3_musl-1.1.11_eabi || true
-    ln -sf ../host staging_dir/target-arm_cortex-a9+vfpv3_musl-1.1.11_eabi/host
-}
-
 # Cleaning
 rm -rf ./tmp ./bin ./logs*
 [ -z "$BUILD_ALL" ] || make dirclean
@@ -31,7 +24,6 @@ if [ -d .git ] ; then
 	git log -n1 --format='%H' >files/etc/git-version
 fi
 make clean
-mimic_new_staging_dir_host
 make "$@"
 mv ./logs ./logs-nand
 
