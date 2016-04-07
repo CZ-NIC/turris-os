@@ -3,6 +3,7 @@
 # Cleaning
 [ -d ./tmp ] && rm -rf ./tmp
 [ -d ./bin ] && rm -rf ./bin
+[ -d ./bin-nor ] && rm -rf ./bin-nor
 [ -d ./logs ] && rm -rf ./logs
 [ -d ./logs-nand ] && rm -rf ./logs-nand
 [ -d ./logs-nor ] && rm -rf ./logs-nor
@@ -42,28 +43,22 @@ make clean
 make "$@"
 mv ./logs ./logs-nand
 
-#Build initramfs
-echo -e "CONFIG_TARGET_ROOTFS_INITRAMFS=y\nCONFIG_TARGET_INITRAMFS_COMPRESSION_XZ=y" >> .config
-make defconfig
-make target/linux/compile "$@"
-mv ./logs ./logs-initram
-
 if [ "$TARGET_BOARD" = turris ]; then
+	#Build initramfs
+	echo -e "CONFIG_TARGET_ROOTFS_INITRAMFS=y\nCONFIG_TARGET_INITRAMFS_COMPRESSION_XZ=y" >> .config
+	make defconfig
+	make target/linux/compile "$@"
+	mv ./logs ./logs-initram
+
 	cp build_dir/target-powerpc_*/linux-mpc85xx_p2020-nand/zImage-initramfs bin/mpc85xx/turris-initramfs-zimage
 
 	# Preserve the uncompressed image too
 	mv build_dir/target-powerpc_*/root-mpc85xx bin/mpc85xx/root
 	cd bin/mpc85xx/root
-elif [ "$TARGET_BOARD" = omnia ]; then
-	cp build_dir/target-arm_*/linux-mvebu/zImage-initramfs bin/mvebu-musl/omnia-initramfs-zimage
-
-	# Preserve the uncompressed image too
-	mv build_dir/target-arm_*/root-mvebu bin/mvebu-musl/root
-	cd bin/mvebu-musl/root
+	rm var
+	find -type l ! -exec test -r {} \; -delete
+	cd ../../..
 fi
-rm var
-find -type l ! -exec test -r {} \; -delete
-cd ../../..
 
 # Clean
 [ -d ./bin-nand ] && rm -rf ./bin-nand
@@ -81,4 +76,23 @@ if [ "$TARGET_BOARD" = turris ]; then
 	[ -d ./bin/mpc85xx/packages ] && rm -rf ./bin/mpc85xx/packages
 	[ -d ./bin-nor ] && rm -rf ./bin-nor
 	mv ./bin ./bin-nor
+elif [ "$TARGET_BOARD" = omnia ]; then
+	cp configs/config-omnia-rescue .config
+	[ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
+	make defconfig
+	make clean
+	make "$@"
+	echo -e "CONFIG_TARGET_ROOTFS_INITRAMFS=y\nCONFIG_TARGET_INITRAMFS_COMPRESSION_XZ=y" >> .config
+	sed -i 's/^TARGET_ROOTFS_INCLUDE_KERNEL=.*/# TARGET_ROOTFS_INCLUDE_KERNEL is not set/' .config
+	sed -i 's/^CONFIG_TARGET_ROOTFS_INCLUDE_DTB.*/# CONFIG_TARGET_ROOTFS_INCLUDE_DTB is not set/' .config
+	make defconfig
+	rm -f build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/root-mvebu/boot/* build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/root-mvebu/etc/rc.d/*rainbow
+	# echo -e "#!/bin/sh\nexit 0" > `ls -d build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/root-mvebu/etc`/preinit
+	# chmod a+rx build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/root-mvebu/etc/preinit
+	make target/linux/compile "$@"
+	cp `ls -d build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/linux-mvebu`/{zImage-initramfs,zImage-initramfs-armada-385-turris-omnia}
+	cat build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/linux-mvebu/linux-4.4/arch/arm/boot/dts/armada-385-turris-omnia.dtb >> `ls -d build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/linux-mvebu`/zImage-initramfs-armada-385-turris-omnia
+	mv ./logs ./logs-initram
+	cp build_dir/target-arm_*/linux-mvebu/zImage-initramfs-armada-385-turris-omnia bin/mvebu-musl/omnia-initramfs-zimage
+	mv bin bin-nor
 fi
