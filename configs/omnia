@@ -1,0 +1,25 @@
+CONFIG_TARGET_mvebu=y
+CONFIG_TARGET_mvebu_Turris-Omnia=y
+# CONFIG_TARGET_BOARD="mvebu"
+# CONFIG_TARGET_ARCH_PACKAGES="mvebu"
+CONFIG_TARGET_ROOTFS_EXT4FS=y
+CONFIG_TARGET_ROOTFS_TARGZ=y
+CONFIG_TARGET_ROOTFS_PARTSIZE=64
+CONFIG_TARGET_ROOTFS_INCLUDE_KERNEL=y
+CONFIG_TARGET_ROOTFS_INCLUDE_DTB=y
+CONFIG_TARGET_ROOTFS_INCLUDE_ZIMAGE=y
+CONFIG_TARGET_OPTIMIZATION="-O2 -pipe -march=armv7-a -mtune=cortex-a9 -mfpu=vfpv3-d16"
+CONFIG_SOFT_FLOAT=n
+
+# Disable package signing for now (we don't preserve signing key)
+
+# Use musl for Omnia
+CONFIG_LIBC_USE_MUSL=y
+CONFIG_USE_MUSL=y
+CONFIG_MUSL_VERSION="1.1.11"
+
+# Other needed packages
+CONFIG_PACKAGE_cert-backup=y
+CONFIG_PACKAGE_unbound-anchor=y
+CONFIG_PACKAGE_wireless-tools=y
+CONFIG_PACKAGE_openssh-server=y

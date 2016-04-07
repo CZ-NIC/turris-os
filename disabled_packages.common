@@ -1,10 +1,3 @@
-node  # cant't be built on PPC
-node-arduino-firmata  # depends on node
-node-cylon  # depends on node
-node-hid  # depends on node
-node-serialport  # depends on node
-libseccomp  # PPC not supported in v2.2.1 yet
-micropython  # incompatible with PPC
 gcc  # broken in upstream
 gpsd  # broken in upstream
 grilo-plugins  # broken in upstream

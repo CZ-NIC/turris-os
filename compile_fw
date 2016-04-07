@@ -1,0 +1,84 @@
+#!/bin/bash -xe
+
+# Cleaning
+[ -d ./tmp ] && rm -rf ./tmp
+[ -d ./bin ] && rm -rf ./bin
+[ -d ./logs ] && rm -rf ./logs
+[ -d ./logs-nand ] && rm -rf ./logs-nand
+[ -d ./logs-nor ] && rm -rf ./logs-nor
+[ -d ./logs-initram ] && rm -rf ./logs-initram
+[ -z "$BUILD_ALL" ] || make dirclean
+
+if [ "$1" = turris ] || [ "$1" = omnia ]; then
+	export TARGET_BOARD="$1"
+	shift
+fi
+
+if [ -z "$TARGET_BOARD" ]; then
+	echo "You have to specify target board - options are 'turris' or 'omnia'"
+	exit 1
+fi
+# Clean feeds
+./scripts/feeds clean
+
+# Install luci feed
+./scripts/feeds update -a
+./scripts/feeds install -a
+
+# Uninstall broken pkgs
+[ \! -f ./disabled_packages.common ]        || ./scripts/feeds uninstall $(echo $(cut -d '#' -f1 ./disabled_packages.common))
+[ \! -f ./disabled_packages.$TARGET_BOARD ] || ./scripts/feeds uninstall $(echo $(cut -d '#' -f1 ./disabled_packages.$TARGET_BOARD))
+
+# Build NAND FW
+[ -z "$OPENWRT_BRANCH" ] || PKG_BRANCH="-$OPENWRT_BRANCH"
+cat configs/common configs/$TARGET_BOARD | sed -e "s|@BOARD@|$TARGET_BOARD|" -e "s|@BRANCH@|$PKG_BRANCH|" > .config
+[ -n "$BUILD_ALL" ] && echo "CONFIG_ALL=y" >> .config && echo "CONFIG_SDK=y" >> .config
+[ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
+make defconfig
+if [ -d .git ] ; then
+	git log -n1 --format='%H' >files/etc/git-version
+fi
+make clean
+make "$@"
+mv ./logs ./logs-nand
+
+#Build initramfs
+echo -e "CONFIG_TARGET_ROOTFS_INITRAMFS=y\nCONFIG_TARGET_INITRAMFS_COMPRESSION_XZ=y" >> .config
+make defconfig
+make target/linux/compile "$@"
+mv ./logs ./logs-initram
+
+if [ "$TARGET_BOARD" = turris ]; then
+	cp build_dir/target-powerpc_*/linux-mpc85xx_p2020-nand/zImage-initramfs bin/mpc85xx/turris-initramfs-zimage
+
+	# Preserve the uncompressed image too
+	mv build_dir/target-powerpc_*/root-mpc85xx bin/mpc85xx/root
+	cd bin/mpc85xx/root
+elif [ "$TARGET_BOARD" = omnia ]; then
+	cp build_dir/target-arm_*/linux-mvebu/zImage-initramfs bin/mvebu-musl/omnia-initramfs-zimage
+
+	# Preserve the uncompressed image too
+	mv build_dir/target-arm_*/root-mvebu bin/mvebu-musl/root
+	cd bin/mvebu-musl/root
+fi
+rm var
+find -type l ! -exec test -r {} \; -delete
+cd ../../..
+
+# Clean
+[ -d ./bin-nand ] && rm -rf ./bin-nand
+mv ./bin ./bin-nand
+[ -d ./tmp ] && rm -rf ./tmp
+
+if [ "$TARGET_BOARD" = turris ]; then
+	# Build NOR FW
+	cp configs/config-turris-nor .config
+	[ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
+	make defconfig
+	make clean
+	make "$@"
+	mv ./logs ./logs-nor
+	[ -d ./bin/mpc85xx/packages ] && rm -rf ./bin/mpc85xx/packages
+	[ -d ./bin-nor ] && rm -rf ./bin-nor
+	mv ./bin ./bin-nor
+fi
