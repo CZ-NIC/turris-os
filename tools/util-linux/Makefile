@@ -30,6 +30,7 @@ HOST_CONFIGURE_ARGS += \
 	--without-python	\
 	--without-udev		\
 	--without-ncurses	\
+	--disable-more		\
 	--disable-makeinstall-chown
 
 HOST_TARGET_CFLAGS += $(FPIC) -std=gnu99
