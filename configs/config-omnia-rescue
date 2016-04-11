@@ -334,7 +334,7 @@ CONFIG_OPKGSMIME_PASSPHRASE=y
 #
 # Base system
 #
-CONFIG_PACKAGE_base-files=y
+# CONFIG_PACKAGE_base-files is not set
 # CONFIG_PACKAGE_block-mount is not set
 # CONFIG_PACKAGE_bridge is not set
 CONFIG_PACKAGE_busybox=y
@@ -1354,7 +1354,7 @@ CONFIG_BUSYBOX_CONFIG_IOCTL_HEX2STR_ERROR=y
 #
 CONFIG_BUSYBOX_CONFIG_FEATURE_SEAMLESS_XZ=y
 # CONFIG_BUSYBOX_CONFIG_FEATURE_SEAMLESS_LZMA is not set
-# CONFIG_BUSYBOX_CONFIG_FEATURE_SEAMLESS_BZ2 is not set
+CONFIG_BUSYBOX_CONFIG_FEATURE_SEAMLESS_BZ2=y
 CONFIG_BUSYBOX_CONFIG_FEATURE_SEAMLESS_GZ=y
 # CONFIG_BUSYBOX_CONFIG_FEATURE_SEAMLESS_Z is not set
 # CONFIG_BUSYBOX_CONFIG_AR is not set
@@ -1423,7 +1423,7 @@ CONFIG_BUSYBOX_CONFIG_CP=y
 CONFIG_BUSYBOX_CONFIG_CUT=y
 CONFIG_BUSYBOX_CONFIG_DD=y
 CONFIG_BUSYBOX_CONFIG_FEATURE_DD_SIGNAL_HANDLING=y
-# CONFIG_BUSYBOX_CONFIG_FEATURE_DD_THIRD_STATUS_LINE is not set
+CONFIG_BUSYBOX_CONFIG_FEATURE_DD_THIRD_STATUS_LINE=y
 CONFIG_BUSYBOX_CONFIG_FEATURE_DD_IBS_OBS=y
 CONFIG_BUSYBOX_CONFIG_DF=y
 # CONFIG_BUSYBOX_CONFIG_FEATURE_DF_FANCY is not set
@@ -1476,7 +1476,7 @@ CONFIG_BUSYBOX_CONFIG_RMDIR=y
 # CONFIG_BUSYBOX_CONFIG_FEATURE_RMDIR_LONG_OPTIONS is not set
 CONFIG_BUSYBOX_CONFIG_SEQ=y
 # CONFIG_BUSYBOX_CONFIG_SHA1SUM is not set
-# CONFIG_BUSYBOX_CONFIG_SHA256SUM is not set
+CONFIG_BUSYBOX_CONFIG_SHA256SUM=y
 # CONFIG_BUSYBOX_CONFIG_SHA512SUM is not set
 # CONFIG_BUSYBOX_CONFIG_SHA3SUM is not set
 CONFIG_BUSYBOX_CONFIG_SLEEP=y
@@ -1509,7 +1509,7 @@ CONFIG_BUSYBOX_CONFIG_YES=y
 #
 # Common options
 #
-# CONFIG_BUSYBOX_CONFIG_FEATURE_VERBOSE is not set
+CONFIG_BUSYBOX_CONFIG_FEATURE_VERBOSE=y
 
 #
 # Common options for cp and mv
@@ -1557,9 +1557,7 @@ CONFIG_BUSYBOX_CONFIG_RESET=y
 CONFIG_BUSYBOX_CONFIG_MKTEMP=y
 # CONFIG_BUSYBOX_CONFIG_PIPE_PROGRESS is not set
 # CONFIG_BUSYBOX_CONFIG_RUN_PARTS is not set
-CONFIG_BUSYBOX_CONFIG_START_STOP_DAEMON=y
-# CONFIG_BUSYBOX_CONFIG_FEATURE_START_STOP_DAEMON_FANCY is not set
-# CONFIG_BUSYBOX_CONFIG_FEATURE_START_STOP_DAEMON_LONG_OPTIONS is not set
+# CONFIG_BUSYBOX_CONFIG_START_STOP_DAEMON is not set
 CONFIG_BUSYBOX_CONFIG_WHICH=y
 
 #
@@ -1587,7 +1585,9 @@ CONFIG_BUSYBOX_CONFIG_FEATURE_VI_SETOPTS=y
 CONFIG_BUSYBOX_CONFIG_FEATURE_VI_SET=y
 CONFIG_BUSYBOX_CONFIG_FEATURE_VI_WIN_RESIZE=y
 CONFIG_BUSYBOX_CONFIG_FEATURE_VI_ASK_TERMINAL=y
-# CONFIG_BUSYBOX_CONFIG_FEATURE_VI_UNDO is not set
+CONFIG_BUSYBOX_CONFIG_FEATURE_VI_UNDO=y
+CONFIG_BUSYBOX_CONFIG_FEATURE_VI_UNDO_QUEUE=y
+CONFIG_BUSYBOX_CONFIG_FEATURE_VI_UNDO_QUEUE_MAX=32
 CONFIG_BUSYBOX_CONFIG_FEATURE_ALLOW_EXEC=y
 
 #
@@ -1595,13 +1595,13 @@ CONFIG_BUSYBOX_CONFIG_FEATURE_ALLOW_EXEC=y
 #
 CONFIG_BUSYBOX_CONFIG_FIND=y
 CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_PRINT0=y
-# CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_MTIME is not set
+CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_MTIME=y
 # CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_MMIN is not set
 CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_PERM=y
 CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_TYPE=y
 CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_XDEV=y
 CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_MAXDEPTH=y
-# CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_NEWER is not set
+CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_NEWER=y
 # CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_INUM is not set
 CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_EXEC=y
 # CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_EXEC_PLUS is not set
@@ -1612,7 +1612,7 @@ CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_DEPTH=y
 CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_PAREN=y
 CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_SIZE=y
 CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_PRUNE=y
-# CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_DELETE is not set
+CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_DELETE=y
 CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_PATH=y
 CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_REGEX=y
 # CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_LINKS is not set
@@ -1631,8 +1631,7 @@ CONFIG_BUSYBOX_CONFIG_FEATURE_XARGS_SUPPORT_ZERO_TERM=y
 # Init Utilities
 #
 # CONFIG_BUSYBOX_CONFIG_BOOTCHARTD is not set
-CONFIG_BUSYBOX_CONFIG_HALT=y
-# CONFIG_BUSYBOX_CONFIG_FEATURE_CALL_TELINIT is not set
+# CONFIG_BUSYBOX_CONFIG_HALT is not set
 # CONFIG_BUSYBOX_CONFIG_INIT is not set
 # CONFIG_BUSYBOX_CONFIG_MESG is not set
 
@@ -1668,25 +1667,27 @@ CONFIG_BUSYBOX_CONFIG_FEATURE_SHADOWPASSWDS=y
 #
 # Linux Module Utilities
 #
-# CONFIG_BUSYBOX_CONFIG_MODINFO is not set
-# CONFIG_BUSYBOX_CONFIG_MODPROBE_SMALL is not set
-# CONFIG_BUSYBOX_CONFIG_INSMOD is not set
-# CONFIG_BUSYBOX_CONFIG_RMMOD is not set
-# CONFIG_BUSYBOX_CONFIG_LSMOD is not set
-# CONFIG_BUSYBOX_CONFIG_MODPROBE is not set
-# CONFIG_BUSYBOX_CONFIG_DEPMOD is not set
+CONFIG_BUSYBOX_CONFIG_MODINFO=y
+CONFIG_BUSYBOX_CONFIG_MODPROBE_SMALL=y
+CONFIG_BUSYBOX_CONFIG_FEATURE_MODPROBE_SMALL_OPTIONS_ON_CMDLINE=y
+CONFIG_BUSYBOX_CONFIG_FEATURE_MODPROBE_SMALL_CHECK_ALREADY_LOADED=y
 
 #
 # Options common to multiple modutils
 #
+# CONFIG_BUSYBOX_CONFIG_FEATURE_INSMOD_TRY_MMAP is not set
+CONFIG_BUSYBOX_CONFIG_DEFAULT_MODULES_DIR="/lib/modules"
+CONFIG_BUSYBOX_CONFIG_DEFAULT_DEPMOD_FILE="modules.dep"
 
 #
 # Linux System Utilities
 #
 # CONFIG_BUSYBOX_CONFIG_BLOCKDEV is not set
 # CONFIG_BUSYBOX_CONFIG_FATATTR is not set
-# CONFIG_BUSYBOX_CONFIG_FSTRIM is not set
-# CONFIG_BUSYBOX_CONFIG_MDEV is not set
+CONFIG_BUSYBOX_CONFIG_FSTRIM=y
+CONFIG_BUSYBOX_CONFIG_MDEV=y
+# CONFIG_BUSYBOX_CONFIG_FEATURE_MDEV_CONF is not set
+# CONFIG_BUSYBOX_CONFIG_FEATURE_MDEV_LOAD_FIRMWARE is not set
 # CONFIG_BUSYBOX_CONFIG_REV is not set
 # CONFIG_BUSYBOX_CONFIG_ACPID is not set
 # CONFIG_BUSYBOX_CONFIG_BLKID is not set
@@ -1695,7 +1696,14 @@ CONFIG_BUSYBOX_CONFIG_FEATURE_DMESG_PRETTY=y
 # CONFIG_BUSYBOX_CONFIG_FBSET is not set
 # CONFIG_BUSYBOX_CONFIG_FDFLUSH is not set
 # CONFIG_BUSYBOX_CONFIG_FDFORMAT is not set
-# CONFIG_BUSYBOX_CONFIG_FDISK is not set
+CONFIG_BUSYBOX_CONFIG_FDISK=y
+CONFIG_BUSYBOX_CONFIG_FEATURE_FDISK_WRITABLE=y
+# CONFIG_BUSYBOX_CONFIG_FEATURE_AIX_LABEL is not set
+# CONFIG_BUSYBOX_CONFIG_FEATURE_SGI_LABEL is not set
+# CONFIG_BUSYBOX_CONFIG_FEATURE_SUN_LABEL is not set
+# CONFIG_BUSYBOX_CONFIG_FEATURE_OSF_LABEL is not set
+CONFIG_BUSYBOX_CONFIG_FEATURE_GPT_LABEL=y
+CONFIG_BUSYBOX_CONFIG_FEATURE_FDISK_ADVANCED=y
 # CONFIG_BUSYBOX_CONFIG_FINDFS is not set
 # CONFIG_BUSYBOX_CONFIG_FLOCK is not set
 # CONFIG_BUSYBOX_CONFIG_FREERAMDISK is not set
@@ -1714,8 +1722,8 @@ CONFIG_BUSYBOX_CONFIG_HWCLOCK=y
 # CONFIG_BUSYBOX_CONFIG_IPCRM is not set
 # CONFIG_BUSYBOX_CONFIG_IPCS is not set
 # CONFIG_BUSYBOX_CONFIG_LOSETUP is not set
-# CONFIG_BUSYBOX_CONFIG_LSPCI is not set
-# CONFIG_BUSYBOX_CONFIG_LSUSB is not set
+CONFIG_BUSYBOX_CONFIG_LSPCI=y
+CONFIG_BUSYBOX_CONFIG_LSUSB=y
 # CONFIG_BUSYBOX_CONFIG_MKSWAP is not set
 # CONFIG_BUSYBOX_CONFIG_MORE is not set
 CONFIG_BUSYBOX_CONFIG_MOUNT=y
@@ -1787,12 +1795,14 @@ CONFIG_BUSYBOX_CONFIG_DEVMEM=y
 # CONFIG_BUSYBOX_CONFIG_FLASHCP is not set
 # CONFIG_BUSYBOX_CONFIG_FLASH_LOCK is not set
 # CONFIG_BUSYBOX_CONFIG_FLASH_UNLOCK is not set
-# CONFIG_BUSYBOX_CONFIG_FLASH_ERASEALL is not set
+CONFIG_BUSYBOX_CONFIG_FLASH_ERASEALL=y
 # CONFIG_BUSYBOX_CONFIG_IONICE is not set
 # CONFIG_BUSYBOX_CONFIG_INOTIFYD is not set
 # CONFIG_BUSYBOX_CONFIG_HDPARM is not set
 CONFIG_BUSYBOX_CONFIG_LOCK=y
-# CONFIG_BUSYBOX_CONFIG_MAKEDEVS is not set
+CONFIG_BUSYBOX_CONFIG_MAKEDEVS=y
+# CONFIG_BUSYBOX_CONFIG_FEATURE_MAKEDEVS_LEAF is not set
+CONFIG_BUSYBOX_CONFIG_FEATURE_MAKEDEVS_TABLE=y
 # CONFIG_BUSYBOX_CONFIG_MAN is not set
 # CONFIG_BUSYBOX_CONFIG_MICROCOM is not set
 # CONFIG_BUSYBOX_CONFIG_MOUNTPOINT is not set
@@ -1813,7 +1823,10 @@ CONFIG_BUSYBOX_CONFIG_TIME=y
 #
 # CONFIG_BUSYBOX_CONFIG_NAMEIF is not set
 # CONFIG_BUSYBOX_CONFIG_NBDCLIENT is not set
-# CONFIG_BUSYBOX_CONFIG_NC is not set
+CONFIG_BUSYBOX_CONFIG_NC=y
+CONFIG_BUSYBOX_CONFIG_NC_SERVER=y
+# CONFIG_BUSYBOX_CONFIG_NC_EXTRA is not set
+# CONFIG_BUSYBOX_CONFIG_NC_110_COMPAT is not set
 CONFIG_BUSYBOX_CONFIG_PING=y
 CONFIG_BUSYBOX_CONFIG_PING6=y
 CONFIG_BUSYBOX_CONFIG_FEATURE_FANCY_PING=y
@@ -1829,9 +1842,10 @@ CONFIG_BUSYBOX_CONFIG_ARPING=y
 # CONFIG_BUSYBOX_CONFIG_ETHER_WAKE is not set
 # CONFIG_BUSYBOX_CONFIG_FAKEIDENTD is not set
 # CONFIG_BUSYBOX_CONFIG_FTPD is not set
-# CONFIG_BUSYBOX_CONFIG_FTPGET is not set
+CONFIG_BUSYBOX_CONFIG_FTPGET=y
 # CONFIG_BUSYBOX_CONFIG_FTPPUT is not set
-# CONFIG_BUSYBOX_CONFIG_HOSTNAME is not set
+# CONFIG_BUSYBOX_CONFIG_FEATURE_FTPGETPUT_LONG_OPTIONS is not set
+CONFIG_BUSYBOX_CONFIG_HOSTNAME=y
 # CONFIG_BUSYBOX_CONFIG_HTTPD is not set
 # CONFIG_BUSYBOX_CONFIG_IFCONFIG is not set
 # CONFIG_BUSYBOX_CONFIG_IFENSLAVE is not set
@@ -1854,7 +1868,7 @@ CONFIG_BUSYBOX_CONFIG_NETMSG=y
 # CONFIG_BUSYBOX_CONFIG_NETSTAT is not set
 CONFIG_BUSYBOX_CONFIG_NSLOOKUP=y
 CONFIG_BUSYBOX_CONFIG_NTPD=y
-CONFIG_BUSYBOX_CONFIG_FEATURE_NTPD_SERVER=y
+# CONFIG_BUSYBOX_CONFIG_FEATURE_NTPD_SERVER is not set
 # CONFIG_BUSYBOX_CONFIG_FEATURE_NTPD_CONF is not set
 # CONFIG_BUSYBOX_CONFIG_PSCAN is not set
 # CONFIG_BUSYBOX_CONFIG_ROUTE is not set
@@ -1862,18 +1876,26 @@ CONFIG_BUSYBOX_CONFIG_FEATURE_NTPD_SERVER=y
 # CONFIG_BUSYBOX_CONFIG_TCPSVD is not set
 # CONFIG_BUSYBOX_CONFIG_TELNET is not set
 # CONFIG_BUSYBOX_CONFIG_TELNETD is not set
-# CONFIG_BUSYBOX_CONFIG_TFTP is not set
+CONFIG_BUSYBOX_CONFIG_TFTP=y
 # CONFIG_BUSYBOX_CONFIG_TFTPD is not set
+
+#
+# Common options for tftp/tftpd
+#
+CONFIG_BUSYBOX_CONFIG_FEATURE_TFTP_GET=y
+CONFIG_BUSYBOX_CONFIG_FEATURE_TFTP_PUT=y
+# CONFIG_BUSYBOX_CONFIG_FEATURE_TFTP_BLOCKSIZE is not set
+# CONFIG_BUSYBOX_CONFIG_TFTP_DEBUG is not set
 CONFIG_BUSYBOX_CONFIG_TRACEROUTE=y
 # CONFIG_BUSYBOX_CONFIG_TRACEROUTE6 is not set
 CONFIG_BUSYBOX_CONFIG_FEATURE_TRACEROUTE_VERBOSE=y
 # CONFIG_BUSYBOX_CONFIG_FEATURE_TRACEROUTE_SOURCE_ROUTE is not set
 # CONFIG_BUSYBOX_CONFIG_FEATURE_TRACEROUTE_USE_ICMP is not set
 # CONFIG_BUSYBOX_CONFIG_TUNCTL is not set
-# CONFIG_BUSYBOX_CONFIG_UDHCPC6 is not set
+CONFIG_BUSYBOX_CONFIG_UDHCPC6=y
 # CONFIG_BUSYBOX_CONFIG_UDHCPD is not set
 CONFIG_BUSYBOX_CONFIG_UDHCPC=y
-# CONFIG_BUSYBOX_CONFIG_FEATURE_UDHCPC_ARPING is not set
+CONFIG_BUSYBOX_CONFIG_FEATURE_UDHCPC_ARPING=y
 # CONFIG_BUSYBOX_CONFIG_FEATURE_UDHCPC_SANITIZEOPT is not set
 # CONFIG_BUSYBOX_CONFIG_FEATURE_UDHCP_PORT is not set
 CONFIG_BUSYBOX_CONFIG_UDHCP_DEBUG=0
@@ -1996,7 +2018,7 @@ CONFIG_BUSYBOX_CONFIG_LOGGER=y
 # CONFIG_PACKAGE_ead is not set
 # CONFIG_PACKAGE_firewall is not set
 # CONFIG_PACKAGE_fstools is not set
-CONFIG_PACKAGE_jsonfilter=y
+# CONFIG_PACKAGE_jsonfilter is not set
 # CONFIG_PACKAGE_libatomic is not set
 CONFIG_PACKAGE_libc=y
 CONFIG_PACKAGE_libgcc=y
@@ -2005,25 +2027,19 @@ CONFIG_PACKAGE_libpthread=y
 # CONFIG_PACKAGE_libstdcpp is not set
 # CONFIG_PACKAGE_mksh is not set
 CONFIG_PACKAGE_mtd=y
-CONFIG_PACKAGE_netifd=y
+# CONFIG_PACKAGE_netifd is not set
 # CONFIG_PACKAGE_om-watchdog is not set
 # CONFIG_PACKAGE_opkg is not set
 # CONFIG_PACKAGE_opkg-smime is not set
-CONFIG_PACKAGE_procd=y
-
-#
-# Configuration
-#
-CONFIG_PROCD_SHOW_BOOT=y
-# CONFIG_PROCD_ZRAM_TMPFS is not set
+# CONFIG_PACKAGE_procd is not set
 # CONFIG_PACKAGE_qos-scripts is not set
 # CONFIG_PACKAGE_resolveip is not set
 # CONFIG_PACKAGE_rpcd is not set
 # CONFIG_PACKAGE_sqm-scripts is not set
 CONFIG_PACKAGE_swconfig=y
-CONFIG_PACKAGE_ubox=y
-CONFIG_PACKAGE_ubus=y
-CONFIG_PACKAGE_ubusd=y
+# CONFIG_PACKAGE_ubox is not set
+# CONFIG_PACKAGE_ubus is not set
+# CONFIG_PACKAGE_ubusd is not set
 # CONFIG_PACKAGE_uci is not set
 # CONFIG_PACKAGE_udev is not set
 # CONFIG_PACKAGE_usign is not set
@@ -2097,7 +2113,6 @@ CONFIG_PACKAGE_ubusd=y
 CONFIG_PACKAGE_libatsha204=y
 # CONFIG_PACKAGE_libnetconf is not set
 # CONFIG_PACKAGE_logsend is not set
-# CONFIG_PACKAGE_luci-app-majordomo is not set
 # CONFIG_PACKAGE_nethist is not set
 # CONFIG_PACKAGE_nikola is not set
 # CONFIG_PACKAGE_nuci is not set
@@ -2139,11 +2154,22 @@ CONFIG_PACKAGE_update_mac=y
 # Block Devices
 #
 # CONFIG_PACKAGE_kmod-aoe is not set
-# CONFIG_PACKAGE_kmod-ata-core is not set
-# CONFIG_PACKAGE_kmod-block2mtd is not set
+CONFIG_PACKAGE_kmod-ata-core=y
+# CONFIG_PACKAGE_kmod-ata-ahci is not set
+CONFIG_PACKAGE_kmod-ata-ahci-platform=y
+# CONFIG_PACKAGE_kmod-ata-artop is not set
+# CONFIG_PACKAGE_kmod-ata-marvell-sata is not set
+CONFIG_PACKAGE_kmod-ata-mvebu-ahci=y
+# CONFIG_PACKAGE_kmod-ata-nvidia-sata is not set
+# CONFIG_PACKAGE_kmod-ata-pdc202xx-old is not set
+# CONFIG_PACKAGE_kmod-ata-piix is not set
+# CONFIG_PACKAGE_kmod-ata-sil is not set
+# CONFIG_PACKAGE_kmod-ata-sil24 is not set
+# CONFIG_PACKAGE_kmod-ata-via-sata is not set
+CONFIG_PACKAGE_kmod-block2mtd=y
 # CONFIG_PACKAGE_kmod-dm is not set
 # CONFIG_PACKAGE_kmod-ide-core is not set
-# CONFIG_PACKAGE_kmod-loop is not set
+CONFIG_PACKAGE_kmod-loop=y
 # CONFIG_PACKAGE_kmod-md-mod is not set
 # CONFIG_PACKAGE_kmod-nbd is not set
 # CONFIG_PACKAGE_kmod-scsi-cdrom is not set
@@ -2159,7 +2185,7 @@ CONFIG_PACKAGE_kmod-scsi-core=y
 #
 # Cryptographic API modules
 #
-# CONFIG_PACKAGE_kmod-crypto-aead is not set
+CONFIG_PACKAGE_kmod-crypto-aead=y
 # CONFIG_PACKAGE_kmod-crypto-authenc is not set
 # CONFIG_PACKAGE_kmod-crypto-cbc is not set
 # CONFIG_PACKAGE_kmod-crypto-ccm is not set
@@ -2180,16 +2206,16 @@ CONFIG_PACKAGE_kmod-crypto-hash=y
 # CONFIG_PACKAGE_kmod-crypto-hw-padlock is not set
 # CONFIG_PACKAGE_kmod-crypto-hw-talitos is not set
 # CONFIG_PACKAGE_kmod-crypto-iv is not set
-# CONFIG_PACKAGE_kmod-crypto-manager is not set
+CONFIG_PACKAGE_kmod-crypto-manager=y
 # CONFIG_PACKAGE_kmod-crypto-md4 is not set
 # CONFIG_PACKAGE_kmod-crypto-md5 is not set
 # CONFIG_PACKAGE_kmod-crypto-michael-mic is not set
 # CONFIG_PACKAGE_kmod-crypto-misc is not set
 # CONFIG_PACKAGE_kmod-crypto-mv-cesa is not set
-# CONFIG_PACKAGE_kmod-crypto-null is not set
+CONFIG_PACKAGE_kmod-crypto-null=y
 # CONFIG_PACKAGE_kmod-crypto-ocf is not set
 # CONFIG_PACKAGE_kmod-crypto-pcbc is not set
-# CONFIG_PACKAGE_kmod-crypto-pcompress is not set
+CONFIG_PACKAGE_kmod-crypto-pcompress=y
 # CONFIG_PACKAGE_kmod-crypto-rng is not set
 # CONFIG_PACKAGE_kmod-crypto-rng-jitterentropy is not set
 # CONFIG_PACKAGE_kmod-crypto-seqiv is not set
@@ -2243,7 +2269,7 @@ CONFIG_PACKAGE_kmod-fs-btrfs=y
 # CONFIG_PACKAGE_kmod-fs-cifs is not set
 # CONFIG_PACKAGE_kmod-fs-configfs is not set
 # CONFIG_PACKAGE_kmod-fs-cramfs is not set
-# CONFIG_PACKAGE_kmod-fs-exfat is not set
+CONFIG_PACKAGE_kmod-fs-exfat=y
 # CONFIG_PACKAGE_kmod-fs-exportfs is not set
 CONFIG_PACKAGE_kmod-fs-ext4=y
 # CONFIG_PACKAGE_kmod-fs-f2fs is not set
@@ -2257,7 +2283,7 @@ CONFIG_PACKAGE_kmod-fs-ext4=y
 # CONFIG_PACKAGE_kmod-fs-nfs is not set
 # CONFIG_PACKAGE_kmod-fs-nfs-common is not set
 # CONFIG_PACKAGE_kmod-fs-nfsd is not set
-# CONFIG_PACKAGE_kmod-fs-ntfs is not set
+CONFIG_PACKAGE_kmod-fs-ntfs=y
 # CONFIG_PACKAGE_kmod-fs-reiserfs is not set
 # CONFIG_PACKAGE_kmod-fs-udf is not set
 CONFIG_PACKAGE_kmod-fs-vfat=y
@@ -2532,7 +2558,7 @@ CONFIG_PACKAGE_kmod-nls-base=y
 #
 # Network Support
 #
-# CONFIG_PACKAGE_kmod-8021q is not set
+CONFIG_PACKAGE_kmod-8021q=y
 # CONFIG_PACKAGE_kmod-appletalk is not set
 # CONFIG_PACKAGE_kmod-atm is not set
 # CONFIG_PACKAGE_kmod-ax25 is not set
@@ -2605,7 +2631,7 @@ CONFIG_PACKAGE_kmod-mvsdio=y
 # CONFIG_PACKAGE_kmod-random-core is not set
 # CONFIG_PACKAGE_kmod-regmap is not set
 # CONFIG_PACKAGE_kmod-rotary-gpio-custom is not set
-# CONFIG_PACKAGE_kmod-rtc-armada38x is not set
+CONFIG_PACKAGE_kmod-rtc-armada38x=y
 # CONFIG_PACKAGE_kmod-rtc-ds1307 is not set
 # CONFIG_PACKAGE_kmod-rtc-ds1672 is not set
 # CONFIG_PACKAGE_kmod-rtc-isl1208 is not set
@@ -2613,7 +2639,7 @@ CONFIG_PACKAGE_kmod-mvsdio=y
 # CONFIG_PACKAGE_kmod-rtc-pcf2123 is not set
 # CONFIG_PACKAGE_kmod-rtc-pcf8563 is not set
 # CONFIG_PACKAGE_kmod-rtc-pt7c4338 is not set
-# CONFIG_PACKAGE_kmod-sdhci is not set
+CONFIG_PACKAGE_kmod-sdhci=y
 # CONFIG_PACKAGE_kmod-serial-8250 is not set
 # CONFIG_PACKAGE_kmod-softdog is not set
 # CONFIG_PACKAGE_kmod-ssb is not set
@@ -3067,7 +3093,7 @@ CONFIG_OPENSSL_WITH_EC=y
 # CONFIG_PACKAGE_libavl is not set
 # CONFIG_PACKAGE_libbfd is not set
 CONFIG_PACKAGE_libblkid=y
-CONFIG_PACKAGE_libblobmsg-json=y
+# CONFIG_PACKAGE_libblobmsg-json is not set
 # CONFIG_PACKAGE_libcanfestival is not set
 # CONFIG_PACKAGE_libcap is not set
 # CONFIG_PACKAGE_libcares is not set
@@ -3138,7 +3164,7 @@ CONFIG_PACKAGE_libblobmsg-json=y
 # CONFIG_PACKAGE_libiw is not set
 # CONFIG_PACKAGE_libiwinfo is not set
 # CONFIG_PACKAGE_libjpeg is not set
-CONFIG_PACKAGE_libjson-c=y
+# CONFIG_PACKAGE_libjson-c is not set
 # CONFIG_PACKAGE_libkmod is not set
 CONFIG_PACKAGE_libldns=y
 # CONFIG_PACKAGE_libltdl is not set
@@ -3239,7 +3265,7 @@ CONFIG_PACKAGE_libnl-tiny=y
 # CONFIG_PACKAGE_libtiffxx is not set
 CONFIG_PACKAGE_libubox=y
 # CONFIG_PACKAGE_libubox-lua is not set
-CONFIG_PACKAGE_libubus=y
+# CONFIG_PACKAGE_libubus is not set
 # CONFIG_PACKAGE_libubus-lua is not set
 CONFIG_PACKAGE_libuci=y
 # CONFIG_PACKAGE_libuci-lua is not set
@@ -3379,7 +3405,6 @@ CONFIG_PACKAGE_zlib=y
 # CONFIG_PACKAGE_luci-app-openvpn is not set
 # CONFIG_PACKAGE_luci-app-p910nd is not set
 # CONFIG_PACKAGE_luci-app-pbx is not set
-# CONFIG_PACKAGE_luci-app-pbx-voicemail is not set
 # CONFIG_PACKAGE_luci-app-polipo is not set
 # CONFIG_PACKAGE_luci-app-privoxy is not set
 # CONFIG_PACKAGE_luci-app-qos is not set
@@ -3718,7 +3743,7 @@ CONFIG_PACKAGE_unbound=y
 # CONFIG_PACKAGE_igmpproxy is not set
 # CONFIG_PACKAGE_ip is not set
 # CONFIG_PACKAGE_ip-bridge is not set
-# CONFIG_PACKAGE_ip-full is not set
+CONFIG_PACKAGE_ip-full=y
 # CONFIG_PACKAGE_lldpd is not set
 # CONFIG_PACKAGE_mcproxy is not set
 # CONFIG_PACKAGE_mwan3 is not set
@@ -3950,7 +3975,6 @@ CONFIG_PACKAGE_unbound=y
 # CONFIG_PACKAGE_krb5-libs is not set
 # CONFIG_PACKAGE_krb5-server is not set
 # CONFIG_PACKAGE_lcollect is not set
-# CONFIG_PACKAGE_lcollect-majordomo is not set
 # CONFIG_PACKAGE_linknx is not set
 # CONFIG_PACKAGE_lispd is not set
 # CONFIG_PACKAGE_mac-telnet-client is not set
@@ -3982,7 +4006,6 @@ CONFIG_PACKAGE_unbound=y
 # CONFIG_PACKAGE_openldap-server is not set
 # CONFIG_PACKAGE_oping is not set
 # CONFIG_PACKAGE_pen is not set
-# CONFIG_PACKAGE_pimbd is not set
 # CONFIG_PACKAGE_pingcheck is not set
 # CONFIG_PACKAGE_port-mirroring is not set
 # CONFIG_PACKAGE_portmap is not set
@@ -4248,107 +4271,7 @@ CONFIG_PACKAGE_btrfs-progs=y
 # CONFIG_PACKAGE_comgt is not set
 # CONFIG_PACKAGE_comgt-directip is not set
 # CONFIG_PACKAGE_comgt-ncm is not set
-CONFIG_PACKAGE_coreutils=y
-CONFIG_PACKAGE_coreutils-base64=y
-# CONFIG_PACKAGE_coreutils-basename is not set
-# CONFIG_PACKAGE_coreutils-cat is not set
-# CONFIG_PACKAGE_coreutils-chcon is not set
-# CONFIG_PACKAGE_coreutils-chgrp is not set
-# CONFIG_PACKAGE_coreutils-chmod is not set
-# CONFIG_PACKAGE_coreutils-chown is not set
-# CONFIG_PACKAGE_coreutils-chroot is not set
-# CONFIG_PACKAGE_coreutils-cksum is not set
-# CONFIG_PACKAGE_coreutils-comm is not set
-# CONFIG_PACKAGE_coreutils-cp is not set
-# CONFIG_PACKAGE_coreutils-csplit is not set
-# CONFIG_PACKAGE_coreutils-cut is not set
-# CONFIG_PACKAGE_coreutils-date is not set
-# CONFIG_PACKAGE_coreutils-dd is not set
-# CONFIG_PACKAGE_coreutils-dir is not set
-# CONFIG_PACKAGE_coreutils-dircolors is not set
-# CONFIG_PACKAGE_coreutils-dirname is not set
-# CONFIG_PACKAGE_coreutils-du is not set
-# CONFIG_PACKAGE_coreutils-echo is not set
-# CONFIG_PACKAGE_coreutils-env is not set
-# CONFIG_PACKAGE_coreutils-expand is not set
-# CONFIG_PACKAGE_coreutils-expr is not set
-# CONFIG_PACKAGE_coreutils-factor is not set
-# CONFIG_PACKAGE_coreutils-false is not set
-# CONFIG_PACKAGE_coreutils-fmt is not set
-# CONFIG_PACKAGE_coreutils-fold is not set
-# CONFIG_PACKAGE_coreutils-groups is not set
-# CONFIG_PACKAGE_coreutils-head is not set
-# CONFIG_PACKAGE_coreutils-hostid is not set
-# CONFIG_PACKAGE_coreutils-id is not set
-# CONFIG_PACKAGE_coreutils-install is not set
-# CONFIG_PACKAGE_coreutils-join is not set
-# CONFIG_PACKAGE_coreutils-kill is not set
-# CONFIG_PACKAGE_coreutils-link is not set
-# CONFIG_PACKAGE_coreutils-ln is not set
-# CONFIG_PACKAGE_coreutils-logname is not set
-# CONFIG_PACKAGE_coreutils-ls is not set
-# CONFIG_PACKAGE_coreutils-md5sum is not set
-# CONFIG_PACKAGE_coreutils-mkdir is not set
-# CONFIG_PACKAGE_coreutils-mkfifo is not set
-# CONFIG_PACKAGE_coreutils-mknod is not set
-# CONFIG_PACKAGE_coreutils-mktemp is not set
-# CONFIG_PACKAGE_coreutils-mv is not set
-# CONFIG_PACKAGE_coreutils-nice is not set
-# CONFIG_PACKAGE_coreutils-nl is not set
-# CONFIG_PACKAGE_coreutils-nohup is not set
-# CONFIG_PACKAGE_coreutils-nproc is not set
-# CONFIG_PACKAGE_coreutils-od is not set
-# CONFIG_PACKAGE_coreutils-paste is not set
-# CONFIG_PACKAGE_coreutils-pathchk is not set
-# CONFIG_PACKAGE_coreutils-pinky is not set
-# CONFIG_PACKAGE_coreutils-pr is not set
-# CONFIG_PACKAGE_coreutils-printenv is not set
-# CONFIG_PACKAGE_coreutils-printf is not set
-# CONFIG_PACKAGE_coreutils-ptx is not set
-# CONFIG_PACKAGE_coreutils-pwd is not set
-# CONFIG_PACKAGE_coreutils-readlink is not set
-# CONFIG_PACKAGE_coreutils-realpath is not set
-# CONFIG_PACKAGE_coreutils-rm is not set
-# CONFIG_PACKAGE_coreutils-rmdir is not set
-# CONFIG_PACKAGE_coreutils-runcon is not set
-# CONFIG_PACKAGE_coreutils-seq is not set
-# CONFIG_PACKAGE_coreutils-sha1sum is not set
-# CONFIG_PACKAGE_coreutils-sha224sum is not set
-# CONFIG_PACKAGE_coreutils-sha256sum is not set
-# CONFIG_PACKAGE_coreutils-sha384sum is not set
-# CONFIG_PACKAGE_coreutils-sha512sum is not set
-# CONFIG_PACKAGE_coreutils-shred is not set
-# CONFIG_PACKAGE_coreutils-shuf is not set
-# CONFIG_PACKAGE_coreutils-sleep is not set
-# CONFIG_PACKAGE_coreutils-sort is not set
-# CONFIG_PACKAGE_coreutils-split is not set
-# CONFIG_PACKAGE_coreutils-stat is not set
-# CONFIG_PACKAGE_coreutils-stdbuf is not set
-# CONFIG_PACKAGE_coreutils-stty is not set
-# CONFIG_PACKAGE_coreutils-sum is not set
-# CONFIG_PACKAGE_coreutils-sync is not set
-# CONFIG_PACKAGE_coreutils-tac is not set
-# CONFIG_PACKAGE_coreutils-tail is not set
-# CONFIG_PACKAGE_coreutils-tee is not set
-# CONFIG_PACKAGE_coreutils-test is not set
-# CONFIG_PACKAGE_coreutils-timeout is not set
-# CONFIG_PACKAGE_coreutils-touch is not set
-# CONFIG_PACKAGE_coreutils-tr is not set
-# CONFIG_PACKAGE_coreutils-true is not set
-# CONFIG_PACKAGE_coreutils-truncate is not set
-# CONFIG_PACKAGE_coreutils-tsort is not set
-# CONFIG_PACKAGE_coreutils-tty is not set
-# CONFIG_PACKAGE_coreutils-uname is not set
-# CONFIG_PACKAGE_coreutils-unexpand is not set
-# CONFIG_PACKAGE_coreutils-uniq is not set
-# CONFIG_PACKAGE_coreutils-unlink is not set
-# CONFIG_PACKAGE_coreutils-uptime is not set
-# CONFIG_PACKAGE_coreutils-users is not set
-# CONFIG_PACKAGE_coreutils-vdir is not set
-# CONFIG_PACKAGE_coreutils-wc is not set
-# CONFIG_PACKAGE_coreutils-who is not set
-# CONFIG_PACKAGE_coreutils-whoami is not set
-# CONFIG_PACKAGE_coreutils-yes is not set
+# CONFIG_PACKAGE_coreutils is not set
 # CONFIG_PACKAGE_crelay is not set
 # CONFIG_PACKAGE_cryptsetup is not set
 # CONFIG_PACKAGE_cryptsetup-openssl is not set
@@ -4387,7 +4310,7 @@ CONFIG_PACKAGE_i2c-tools=y
 # CONFIG_PACKAGE_iwcap is not set
 # CONFIG_PACKAGE_iwinfo is not set
 # CONFIG_PACKAGE_jpeg-tools is not set
-CONFIG_PACKAGE_jshn=y
+# CONFIG_PACKAGE_jshn is not set
 # CONFIG_PACKAGE_kmod is not set
 # CONFIG_PACKAGE_lcd4linux-custom is not set
 # CONFIG_PACKAGE_lcd4linux-full is not set
@@ -4395,7 +4318,7 @@ CONFIG_PACKAGE_jshn=y
 # CONFIG_PACKAGE_less-wide is not set
 # CONFIG_PACKAGE_libhavege is not set
 # CONFIG_PACKAGE_libimobiledevice-utils is not set
-CONFIG_PACKAGE_libjson-script=y
+# CONFIG_PACKAGE_libjson-script is not set
 # CONFIG_PACKAGE_libplist-utils is not set
 # CONFIG_PACKAGE_libusbmuxd-utils is not set
 # CONFIG_PACKAGE_lm-sensors is not set
@@ -4473,8 +4396,7 @@ CONFIG_PACKAGE_openssl-util=y
 # CONFIG_PACKAGE_pciutils is not set
 # CONFIG_PACKAGE_pcscd is not set
 # CONFIG_PACKAGE_pps-tools is not set
-CONFIG_PACKAGE_procd-nand=y
-# CONFIG_PACKAGE_procd-nand-firstboot is not set
+# CONFIG_PACKAGE_procd-nand is not set
 # CONFIG_PACKAGE_procps-ng is not set
 # CONFIG_PACKAGE_psmisc is not set
 # CONFIG_PACKAGE_pv is not set
