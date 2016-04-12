@@ -80,7 +80,6 @@ CONFIG_PACKAGE_nikola=m
 CONFIG_PACKAGE_nuci-nethist=m
 CONFIG_PACKAGE_nuci-securris=m
 CONFIG_PACKAGE_nuci-tls=m
-CONFIG_PACKAGE_nuci-smrt=m
 CONFIG_PACKAGE_getbranch-test=m
 CONFIG_PACKAGE_turris-firewall-rules=m
 CONFIG_PACKAGE_https-cert=m
@@ -121,8 +120,6 @@ CONFIG_PACKAGE_mtd-utils-nanddump=m
 CONFIG_PACKAGE_kmod-usb-storage-extras=m
 CONFIG_PACKAGE_kmod-mmc=m
 CONFIG_PACKAGE_kmod-mmc-fsl-p2020=m
-CONFIG_PACKAGE_smrt=m
-CONFIG_PACKAGE_smrt-image=m
 
 # Little hardening
 CONFIG_NEED_TOOLCHAIN=y
