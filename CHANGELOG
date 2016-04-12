@@ -1,3 +1,6 @@
+* knot: update to 2.1.1
+* tvheadend: update to 4.0.9.
+===================== 3.0 =======================
 * python-turris-gpio: Updated pin numbers for Linux >= 3.18.
 * Foris (v64): Add background color to fix legibility with dark system themes.
 * syslog-ng: Default to dgram instead of stream
