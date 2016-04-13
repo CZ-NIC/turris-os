@@ -8,7 +8,6 @@
 [ -d ./logs-nand ] && rm -rf ./logs-nand
 [ -d ./logs-nor ] && rm -rf ./logs-nor
 [ -d ./logs-initram ] && rm -rf ./logs-initram
-[ -z "$BUILD_ALL" ] || make dirclean
 
 if [ "$1" = turris ] || [ "$1" = omnia ]; then
 	export TARGET_BOARD="$1"
@@ -40,6 +39,7 @@ if [ -d .git ] ; then
 	git log -n1 --format='%H' >files/etc/git-version
 fi
 make clean
+[ -z "$BUILD_ALL" ] || make dirclean
 make "$@"
 mv ./logs ./logs-nand
 
