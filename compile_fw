@@ -79,18 +79,20 @@ if [ "$TARGET_BOARD" = turris ]; then
 elif [ "$TARGET_BOARD" = omnia ]; then
 	cp configs/config-omnia-rescue .config
 	[ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
-	make defconfig
+	make defconfig CONFDEFAULT=n
 	make clean
 	make "$@"
 	echo -e "CONFIG_TARGET_ROOTFS_INITRAMFS=y\nCONFIG_TARGET_INITRAMFS_COMPRESSION_XZ=y" >> .config
 	sed -i 's/^TARGET_ROOTFS_INCLUDE_KERNEL=.*/# TARGET_ROOTFS_INCLUDE_KERNEL is not set/' .config
 	sed -i 's/^CONFIG_TARGET_ROOTFS_INCLUDE_DTB.*/# CONFIG_TARGET_ROOTFS_INCLUDE_DTB is not set/' .config
 	make defconfig
+	cp build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/root-mvebu/boot/uboot* build_dir
 	rm -f build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/root-mvebu/boot/* build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/root-mvebu/etc/rc.d/*rainbow
 	make target/linux/compile "$@"
 	cp `ls -d build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/linux-mvebu`/{zImage-initramfs,zImage-initramfs-armada-385-turris-omnia}
 	cat build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/linux-mvebu/linux-4.4/arch/arm/boot/dts/armada-385-turris-omnia.dtb >> `ls -d build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/linux-mvebu`/zImage-initramfs-armada-385-turris-omnia
 	mv ./logs ./logs-initram
 	cp build_dir/target-arm_*/linux-mvebu/zImage-initramfs-armada-385-turris-omnia bin/mvebu-musl/omnia-initramfs-zimage
+	mv build_dir/uboot* bin/mvebu-musl
 	mv bin bin-nor
 fi
