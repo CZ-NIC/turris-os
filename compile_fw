@@ -94,5 +94,7 @@ elif [ "$TARGET_BOARD" = omnia ]; then
 	mv ./logs ./logs-initram
 	cp build_dir/target-arm_*/linux-mvebu/zImage-initramfs-armada-385-turris-omnia bin/mvebu-musl/omnia-initramfs-zimage
 	mv build_dir/uboot* bin/mvebu-musl
+	mkdir -p bin/mvebu-musl/x86-64
+	cp build_dir/host/uboot-turris-omnia*/turris-omnia-uboot/* bin/mvebu-musl/x86-64
 	mv bin bin-nor
 fi
