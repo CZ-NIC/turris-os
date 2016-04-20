@@ -171,10 +171,6 @@ define Package/base-files/install
 				echo "$$$${conffile##$(1)}" >> $(1)/CONTROL/conffiles; \
 		fi \
 	done
-
-	echo "#!/bin/sh" > $(1)/CONTROL/postinst	
-	echo -e "if [ -z "\$$$$IPKG_INSTROOT" ]; then rm -f `ls $(1)/etc/uci-defaults | awk '{ printf "/etc/uci-defaults/%s ", $$$$0 }'`; fi" >> $(1)/CONTROL/postinst;
-	echo -e "if [ -z "\$$$$IPKG_INSTROOT" ]; then for i in `ls $(1)/etc/init.d/ | awk '{ printf "/etc/init.d/%s ", $$$$0 }'`; do "\$$$$i" enable || true; done; fi" >> $(1)/CONTROL/postinst
 endef
 
 define Package/base-files/postinst
@@ -182,6 +178,9 @@ define Package/base-files/postinst
 [ -n "$$IPKG_INSTROOT" ] || {
 	grep etc/init.d /usr/lib/opkg/info/base-files.list | while read service; do
        /$$service enable
+	done
+	grep etc/uci-defaults /usr/lib/opkg/info/base-files.list | while read default_script; do
+       rm -f /$$default_script
 	done
 }
 endef
