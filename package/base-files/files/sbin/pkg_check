@@ -67,6 +67,7 @@ while [ "$1" ]; do
 		else
 			MISSING="$MISSING, $1"
 		fi
+		shift
 		continue
 	fi
 	[ $QUIET = yes ] || echo " * Checking package $1:"
