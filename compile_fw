@@ -98,7 +98,7 @@ elif [ "$TARGET_BOARD" = omnia ]; then
 	rm -f build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/root-mvebu/boot/* build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/root-mvebu/etc/rc.d/*rainbow
 	make target/linux/compile "$@"
 	cp `ls -d build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/linux-mvebu`/{zImage-initramfs,zImage-initramfs-armada-385-turris-omnia}
-	cat build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/linux-mvebu/linux-4.4/arch/arm/boot/dts/armada-385-turris-omnia.dtb >> `ls -d build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/linux-mvebu`/zImage-initramfs-armada-385-turris-omnia
+	cat build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/linux-mvebu/linux-4.4*/arch/arm/boot/dts/armada-385-turris-omnia.dtb >> `ls -d build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/linux-mvebu`/zImage-initramfs-armada-385-turris-omnia
 	mv ./logs ./logs-initram
 	cp build_dir/target-arm_*/linux-mvebu/zImage-initramfs-armada-385-turris-omnia bin/mvebu-musl/omnia-initramfs-zimage
 	mv build_dir/uboot* bin/mvebu-musl
