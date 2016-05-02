@@ -59,7 +59,7 @@ if [ "$TARGET_BOARD" = turris ]; then
 	find -type l ! -exec test -r {} \; -delete
 	cd ../../..
 elif [ "$TARGET_BOARD" = omnia ]; then
-	mv bin/mvebu-musl/openwrt-mvebu-Turris-Omnia-rootfs.tar.gz bin/mvebu-musl/omnia-medkit.tar.gz
+	mv bin/mvebu-musl/openwrt-mvebu-Turris-Omnia-rootfs.tar.gz bin/mvebu-musl/omnia-medkit-`date +%Y%m%d%H%M`.tar.gz
 	# Preserve the uncompressed image too
 	mv build_dir/target-arm_*/root-mvebu* bin/mvebu-musl/root
 	cd bin/mvebu-musl/root
