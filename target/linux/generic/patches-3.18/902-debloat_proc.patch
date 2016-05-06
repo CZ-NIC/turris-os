@@ -1,6 +1,6 @@
 --- a/fs/locks.c
 +++ b/fs/locks.c
-@@ -2611,6 +2611,8 @@ static const struct file_operations proc
+@@ -2620,6 +2620,8 @@ static const struct file_operations proc
  
  static int __init proc_locks_init(void)
  {
@@ -79,17 +79,17 @@
  }
 --- a/kernel/irq/proc.c
 +++ b/kernel/irq/proc.c
-@@ -328,6 +328,9 @@ void register_irq_proc(unsigned int irq,
- {
+@@ -330,6 +330,9 @@ void register_irq_proc(unsigned int irq,
+ 	static DEFINE_MUTEX(register_lock);
  	char name [MAX_NAMELEN];
  
 +	if (IS_ENABLED(CONFIG_PROC_STRIPPED) && !IS_ENABLED(CONFIG_SMP))
 +		return;
 +
- 	if (!root_irq_dir || (desc->irq_data.chip == &no_irq_chip) || desc->dir)
+ 	if (!root_irq_dir || (desc->irq_data.chip == &no_irq_chip))
  		return;
  
-@@ -364,6 +367,9 @@ void unregister_irq_proc(unsigned int ir
+@@ -379,6 +382,9 @@ void unregister_irq_proc(unsigned int ir
  {
  	char name [MAX_NAMELEN];
  
@@ -99,7 +99,7 @@
  	if (!root_irq_dir || !desc->dir)
  		return;
  #ifdef CONFIG_SMP
-@@ -399,6 +405,9 @@ void init_irq_proc(void)
+@@ -414,6 +420,9 @@ void init_irq_proc(void)
  	unsigned int irq;
  	struct irq_desc *desc;
  
@@ -173,7 +173,7 @@
  		goto err;
 --- a/net/core/sock.c
 +++ b/net/core/sock.c
-@@ -2934,6 +2934,8 @@ static __net_initdata struct pernet_oper
+@@ -2933,6 +2933,8 @@ static __net_initdata struct pernet_oper
  
  static int __init proto_init(void)
  {
