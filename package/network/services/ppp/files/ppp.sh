@@ -119,6 +119,7 @@ ppp_generic_setup() {
 	[ "${keepalive_adaptive:-1}" -lt 1 ] && lcp_adaptive=""
 	[ -n "$connect" ] || json_get_var connect connect
 	[ -n "$disconnect" ] || json_get_var disconnect disconnect
+	sleep 10
 
 	proto_run_command "$config" /usr/sbin/pppd \
 		nodetach ipparam "$config" \
