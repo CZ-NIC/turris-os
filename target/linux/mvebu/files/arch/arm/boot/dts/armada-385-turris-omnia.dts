@@ -20,7 +20,9 @@
 
 	soc {
 		ranges = <MBUS_ID(0xf0, 0x01) 0 0xf1000000 0x100000
-			  MBUS_ID(0x01, 0x1d) 0 0xfff00000 0x100000>;
+			  MBUS_ID(0x01, 0x1d) 0 0xfff00000 0x100000
+			  MBUS_ID(0x09, 0x19) 0 0xf1100000 0x10000
+			  MBUS_ID(0x09, 0x15) 0 0xf1110000 0x10000>;
 
 		internal-regs {
 			spi@10600 {
@@ -33,22 +35,14 @@
 					spi-max-frequency = <40000000>;
 
 					partition@0 {
-						reg = <0x0 0x00800000>;
-                                		label = "SPI flash";
-                        		};
-				};
-				spi-nor@1 {
-					/* Test */
-					compatible = "spansion,s25fl164k", "jedec,spi-nor";
-					#address-cells = <1>;
-					#size-cells = <1>;
-					reg = <2>;
-					spi-max-frequency = <40000000>;
+						reg = <0x0 0x00100000>;
+						label = "U-Boot";
+					};
+					partition@1 {
+						reg = <0x00100000 0x00700000>;
+						label = "Rescue system";
+					};
 
-					partition@0 {
-						reg = <0x0 0x00800000>;
-                                		label = "SPI flash test";
-                        		};
 				};
 			};
 
@@ -56,6 +50,7 @@
 				pinctrl-names = "default";
 				pinctrl-0 = <&i2c0_pins>;
 				status = "okay";
+				clock-frequency = <100000>;
 
 				i2cmux@70 {
 					compatible = "nxp,pca9547";
@@ -64,17 +59,18 @@
 					reg = <0x70>;
 					status = "okay";
 					i2c@0 {
-						/* Config memory */
 						#address-cells = <1>;
 						#size-cells = <0>;
 						reg = <0>;
 						status = "okay";
+
+						/* Config memory */
 						eeprom@54 {
 							compatible = "at,24c64";
 							reg = <0x54>;
 						};
 
-						/* Additional device: STM-32, address 0x55.*/
+						/* Additional device: STM-32, address 0x2a, INT on 43. */
       					};
 					i2c@1 {
 						/* SATA */
@@ -111,14 +107,10 @@
 						#address-cells = <1>;
 						#size-cells = <0>;
 						reg = <6>;
-						eeprom@50 {
-							/* Test */
-							compatible = "at,24c04";
-							reg = <0x50>;
-						};
       					};
 				};
 			};
+
 
 			serial@12000 {
 				pinctrl-names = "default";
@@ -134,15 +126,20 @@
 
 			mdio: mdio@72004 {
 				status = "okay";
+
 				phy1: phy@1 {
 					status = "okay";
 					compatible = "marvell,88E1514", "marvell,88E1510", "ethernet-phy-ieee802.3-c22";
 					reg = <1>;
+					/* IRQ connected to MPP46. */
+				/*	interrupt-parent = <&gpio1>;
+					interrupts = <14 IRQ_TYPE_LEVEL_LOW>; */
 				};
 			};
  
 			ethernet@70000 {
 				status = "okay";
+				pinctrl-0 = <&ge0_rgmii_pins>;
 				phy-mode = "rgmii-id";
 				fixed-link {
 					speed = <1000>;
@@ -152,6 +149,7 @@
 
 			ethernet@30000 {
 				status = "okay";
+				pinctrl-0 = <&ge1_rgmii_pins>;
 				phy-mode = "rgmii-id";
 				fixed-link {
 					speed = <1000>;
@@ -162,7 +160,14 @@
 			ethernet@34000 {
 				status = "okay";
 				phy-mode = "sgmii";
-				phy-handle = <&phy1>;
+			/*	managed = "in-band-status";
+
+				fixed-link {
+					speed = <1000>;
+					full-duplex;
+				};
+			*/
+
 				phy = <&phy1>;
 			};
 
@@ -211,11 +216,6 @@
 				status = "okay";
 			};
 
-			pcie@4,0 {
-				/* Port 4, Lane 0 */
-				status = "okay";
-			};
-
 		};
 	};
 
@@ -227,7 +227,24 @@
 		mii-bus = <&mdio>;
 		cpu-port-0 = <5>;
 		cpu-port-1 = <6>;
+
+		/* IRQ connected to MPP45. */
+	/*	interrupt-parent = <&gpio1>;
+		interrupts = <13 IRQ_TYPE_LEVEL_LOW>; */
 	};
+
+        gpio-keys {
+                compatible = "gpio-keys";
+                #address-cells = <1>;
+                #size-cells = <0>;
+
+                button@212 {
+                        label = "mcuint";
+                        linux,code = <BTN_MISC>;
+			gpios = <&gpio1 11 GPIO_ACTIVE_LOW>;
+			debounce-interval = <0>;
+                };
+        };
 };
 
 &pinctrl {
