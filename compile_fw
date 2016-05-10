@@ -41,14 +41,14 @@ fi
 make clean
 [ -z "$BUILD_ALL" ] || make dirclean
 make "$@"
-mv ./logs ./logs-nand
+[ \! -d ./logs ] || mv ./logs ./logs-nand
 
 if [ "$TARGET_BOARD" = turris ]; then
 	#Build initramfs
 	echo -e "CONFIG_TARGET_ROOTFS_INITRAMFS=y\nCONFIG_TARGET_INITRAMFS_COMPRESSION_XZ=y" >> .config
 	make defconfig
 	make target/linux/compile "$@"
-	mv ./logs ./logs-initram
+	[ \! -d ./logs ] || mv ./logs ./logs-initram
 
 	cp build_dir/target-powerpc_*/linux-mpc85xx_p2020-nand/zImage-initramfs bin/mpc85xx/turris-initramfs-zimage
 
@@ -80,7 +80,7 @@ if [ "$TARGET_BOARD" = turris ]; then
 	make defconfig
 	make clean
 	make "$@"
-	mv ./logs ./logs-nor
+	[ \! -d ./logs ] || mv ./logs ./logs-nor
 	[ -d ./bin/mpc85xx/packages ] && rm -rf ./bin/mpc85xx/packages
 	[ -d ./bin-nor ] && rm -rf ./bin-nor
 	mv ./bin ./bin-nor
@@ -99,7 +99,7 @@ elif [ "$TARGET_BOARD" = omnia ]; then
 	make target/linux/compile "$@"
 	cp `ls -d build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/linux-mvebu`/{zImage-initramfs,zImage-initramfs-armada-385-turris-omnia}
 	cat build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/linux-mvebu/linux-4.4*/arch/arm/boot/dts/armada-385-turris-omnia.dtb >> `ls -d build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/linux-mvebu`/zImage-initramfs-armada-385-turris-omnia
-	mv ./logs ./logs-initram
+	[ \! -d ./logs ] || mv ./logs ./logs-initram
 	cp build_dir/target-arm_*/linux-mvebu/zImage-initramfs-armada-385-turris-omnia bin/mvebu-musl/omnia-initramfs-zimage
 	mv build_dir/uboot* bin/mvebu-musl
 	mkdir -p bin/mvebu-musl/x86-64
