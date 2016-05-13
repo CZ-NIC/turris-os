@@ -673,7 +673,7 @@ define KernelPackage/crypto-marvell-cesa
 	CONFIG_CRYPTO_HW=y
   FILES:=$(LINUX_DIR)/drivers/crypto/marvell/marvell-cesa.ko
   AUTOLOAD:=$(call AutoLoad,09,marvell-cesa)
-  $(call AddDepends/crypto)
+  $(call AddDepends/crypto,+kmod-crypto-des)
 endef
 
 $(eval $(call KernelPackage,crypto-marvell-cesa))
