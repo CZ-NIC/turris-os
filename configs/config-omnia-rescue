@@ -2275,6 +2275,7 @@ CONFIG_PACKAGE_kmod-crypto-hmac=y
 # CONFIG_PACKAGE_kmod-crypto-hw-talitos is not set
 # CONFIG_PACKAGE_kmod-crypto-iv is not set
 CONFIG_PACKAGE_kmod-crypto-manager=y
+CONFIG_PACKAGE_kmod-crypto-marvell-cesa=y
 CONFIG_PACKAGE_kmod-crypto-md4=y
 CONFIG_PACKAGE_kmod-crypto-md5=y
 # CONFIG_PACKAGE_kmod-crypto-michael-mic is not set

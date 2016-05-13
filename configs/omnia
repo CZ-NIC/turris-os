@@ -25,3 +25,4 @@ CONFIG_PACKAGE_wireless-tools=y
 CONFIG_PACKAGE_openssh-server=y
 CONFIG_PACKAGE_kmod-wdt-orion=y
 CONFIG_PACKAGE_schnapps=y
+CONFIG_PACKAGE_kmod-crypto-marvell-cesa=m
