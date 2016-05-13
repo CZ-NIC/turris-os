@@ -112,6 +112,11 @@ define Package/busybox/install
 	$(INSTALL_BIN) ./files/telnet $(1)/etc/init.d/telnet
 	$(INSTALL_BIN) ./files/sysntpd $(1)/etc/init.d/sysntpd
 	$(INSTALL_BIN) ./files/ntpd-hotplug $(1)/usr/sbin/ntpd-hotplug
+	$(INSTALL_DIR) $(1)/etc/init.d
+ ifeq ($(CONFIG_BUSYBOX_CONFIG_UDHCP_INSTALL_SIMPLE_SCRIPT),y)
+	$(INSTALL_DIR) $(1)$(shell dirname $(CONFIG_BUSYBOX_CONFIG_UDHCPC_DEFAULT_SCRIPT))
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/examples/udhcp/simple.script $(1)$(CONFIG_BUSYBOX_CONFIG_UDHCPC_DEFAULT_SCRIPT)
+ endif
 	-rm -rf $(1)/lib64
 endef
 

@@ -147,6 +147,13 @@ config BUSYBOX_CONFIG_UDHCPC_DEFAULT_SCRIPT
 	  examples/udhcp for a working example. Normally it is safe
 	  to leave this untouched.
 
+config BUSYBOX_CONFIG_UDHCP_INSTALL_SIMPLE_SCRIPT
+	bool "Install simple config script"
+	default n
+	depends on BUSYBOX_CONFIG_UDHCPC
+	help
+	  Installs example configuration script so udhcpc can be used out of the box.
+
 config BUSYBOX_CONFIG_UDHCPC_SLACK_FOR_BUGGY_SERVERS
 	int "DHCP options slack buffer size"
 	default BUSYBOX_DEFAULT_UDHCPC_SLACK_FOR_BUGGY_SERVERS
