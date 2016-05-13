@@ -26,6 +26,13 @@ define Package/ca-certificates
   DEPENDS:=+c-rehash
 endef
 
+define Package/ca-bundle
+  SECTION:=base
+  CATEGORY:=Base system
+  TITLE:=System CA certificates as a bundle
+  PKGARCH:=all
+endef
+
 define Build/Install
 	mkdir -p \
 		$(PKG_INSTALL_DIR)/usr/sbin \
@@ -50,4 +57,9 @@ define Package/$(PKG_NAME)/postrm
 ( cd /etc/ssl/certs && c_rehash . ) || true
 endef
 
+define Package/ca-bundle/install
+	$(INSTALL_DIR) $(1)/etc/ssl/certs
+	cat $(PKG_INSTALL_DIR)/usr/share/ca-certificates/*/*.crt >$(1)/etc/ssl/certs/ca-certificates.crt
+endef
 $(eval $(call BuildPackage,ca-certificates))
+$(eval $(call BuildPackage,ca-bundle))
