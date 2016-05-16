@@ -31,3 +31,5 @@ CONFIG_PACKAGE_kmod-crypto-cbc=m
 CONFIG_PACKAGE_kmod-crypto-iv=m
 CONFIG_PACKAGE_kmod-crypto-seqiv=m
 CONFIG_PACKAGE_kmod-crypto-xts=m
+CONFIG_PACKAGE_kmod-crypto-user=m
+CONFIG_PACKAGE_kmod-dm=m
