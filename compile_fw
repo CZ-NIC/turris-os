@@ -101,6 +101,7 @@ elif [ "$TARGET_BOARD" = omnia ]; then
 	cat build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/linux-mvebu/linux-4.4*/arch/arm/boot/dts/armada-385-turris-omnia.dtb >> `ls -d build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/linux-mvebu`/zImage-initramfs-armada-385-turris-omnia
 	[ \! -d ./logs ] || mv ./logs ./logs-initram
 	cp build_dir/target-arm_*/linux-mvebu/zImage-initramfs-armada-385-turris-omnia bin/mvebu-musl/omnia-initramfs-zimage
+	[ "`du -b bin/mvebu-musl/omnia-initramfs-zimage | sed 's|[[:blank:]].*||'`" -lt 7000000 ] || exit 1
 	mv build_dir/uboot* bin/mvebu-musl
 	mkdir -p bin/mvebu-musl/x86-64
 	cp build_dir/host/uboot-turris-omnia*/turris-omnia-uboot/* bin/mvebu-musl/x86-64
