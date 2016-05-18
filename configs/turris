@@ -12,20 +12,7 @@ CONFIG_TARGET_ROOTFS_INCLUDE_DTB=n
 CONFIG_TARGET_OPTIMIZATION="-O2 -pipe -mcpu=8540"
 
 # Packages built as modules all the time
-CONFIG_PACKAGE_ucollect-badconf=m
-CONFIG_PACKAGE_ucollect-buckets=m
-CONFIG_PACKAGE_ucollect-prog=m
-CONFIG_PACKAGE_ucollect-count=m
-CONFIG_PACKAGE_ucollect-sniff=m
-CONFIG_PACKAGE_ucollect-bandwidth=m
-CONFIG_PACKAGE_ucollect-flow=m
-CONFIG_PACKAGE_ucollect-fwup=m
-CONFIG_PACKAGE_ucollect-meta=m
-CONFIG_PACKAGE_ucollect-fake=m
-CONFIG_PACKAGE_lcollect-majordomo=m
-CONFIG_PACKAGE_luci-app-majordomo=m
 CONFIG_PACKAGE_luci-app-rainbow=m
-CONFIG_PACKAGE_nikola=m
 CONFIG_PACKAGE_turris-firewall-rules=m
 CONFIG_PACKAGE_kmod-fs-ext4=m
 CONFIG_PACKAGE_ouidb=m

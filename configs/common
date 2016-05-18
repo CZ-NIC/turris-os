@@ -113,3 +113,18 @@ CONFIG_KERNEL_BLK_DEV_BSG=y
 # Few handy customizations
 CONFIG_BUSYBOX_CONFIG_FEATURE_FLOAT_SLEEP=y
 CONFIG_BUSYBOX_CONFIG_UDHCP_INSTALL_SIMPLE_SCRIPT=n
+
+# Ucollect and stuff
+CONFIG_PACKAGE_ucollect-badconf=m
+CONFIG_PACKAGE_ucollect-buckets=m
+CONFIG_PACKAGE_ucollect-prog=m
+CONFIG_PACKAGE_ucollect-count=m
+CONFIG_PACKAGE_ucollect-sniff=m
+CONFIG_PACKAGE_ucollect-bandwidth=m
+CONFIG_PACKAGE_ucollect-flow=m
+CONFIG_PACKAGE_ucollect-fwup=m
+CONFIG_PACKAGE_ucollect-meta=m
+CONFIG_PACKAGE_ucollect-fake=m
+CONFIG_PACKAGE_lcollect-majordomo=m
+CONFIG_PACKAGE_luci-app-majordomo=m
+CONFIG_PACKAGE_nikola=m
