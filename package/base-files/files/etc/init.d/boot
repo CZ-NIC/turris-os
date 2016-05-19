@@ -46,10 +46,16 @@ boot() {
 	grep -q debugfs /proc/filesystems && /bin/mount -o noatime -t debugfs debugfs /sys/kernel/debug
 	[ "$FAILSAFE" = "true" ] && touch /tmp/.failsafe
 
+	REG="`sed -n 's|.*cfg80211.freg=\([A-Z][A-Z]\).*|\1|p' /proc/cmdline`"
+	if [ -f /lib/wifi/mac80211.sh ] && [ "$REG" ] &&\
+	   [ "`sed -n 's|.*freg=||p' /etc/modules.d/00-wireless`" \!= "$REG" ]; then
+		echo "cfg80211 freg=$REG" > /etc/modules.d/00-wireless
+	fi
 	/sbin/kmodloader
 
 	# allow wifi modules time to settle
 	sleep 1
+	[ -z "$REG" ] || iw reg set $REG
 
 	/sbin/wifi detect > /tmp/wireless.tmp
 	[ -s /tmp/wireless.tmp ] && {
