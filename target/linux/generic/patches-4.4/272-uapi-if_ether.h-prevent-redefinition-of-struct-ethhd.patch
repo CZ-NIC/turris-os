@@ -14,7 +14,7 @@ Signed-off-by: Jonas Gorski <jogo@openwrt.org>
  include/uapi/linux/libc-compat.h | 11 +++++++++++
  2 files changed, 14 insertions(+)
 
---- a/include/uapi/linux/if_ether.h
+--- a/include/uapi/linux/if_ether.h.orig
 +++ b/include/uapi/linux/if_ether.h
 @@ -22,6 +22,7 @@
  #define _UAPI_LINUX_IF_ETHER_H
@@ -38,7 +38,7 @@ Signed-off-by: Jonas Gorski <jogo@openwrt.org>
  
  
  #endif /* _UAPI_LINUX_IF_ETHER_H */
---- a/include/uapi/linux/libc-compat.h
+--- a/include/uapi/linux/libc-compat.h.orig
 +++ b/include/uapi/linux/libc-compat.h
 @@ -51,6 +51,14 @@
  /* We have included libc headers... */
@@ -52,12 +52,12 @@ Signed-off-by: Jonas Gorski <jogo@openwrt.org>
 +#define __UAPI_DEF_ETHHDR		1
 +#endif
 +
- /* Coordinate with libc netinet/in.h header. */
- #if defined(_NETINET_IN_H)
+ /* Coordinate with libc net/if.h header. */
+ #if defined(_NET_IF_H)
  
-@@ -117,6 +125,9 @@
-  * that we need. */
- #else /* defined(__KERNEL__) */
+@@ -161,6 +169,9 @@
+ /* For the future if glibc adds IFF_LOWER_UP, IFF_DORMANT and IFF_ECHO */
+ #define __UAPI_DEF_IF_NET_DEVICE_FLAGS_LOWER_UP_DORMANT_ECHO 1
  
 +/* Definitions for if_ether.h */
 +#define __UAPI_DEF_ETHHDR 		1
