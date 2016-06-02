@@ -1,3 +1,4 @@
+* logrotate: add missing dependencies and cron script.
 * nuci: ntpdate is used for time synchronization.
 * updater: Use opkg-trans backend for testing
 ===================== 3.0 =======================
