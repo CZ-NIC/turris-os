@@ -34,10 +34,9 @@ fi
 cat configs/common configs/$TARGET_BOARD | sed -e "s|@BOARD@|$TARGET_BOARD|" -e "s|@BRANCH@|$PKG_BRANCH|" > .config
 [ -n "$BUILD_ALL" ] && echo "CONFIG_ALL=y" >> .config && echo "CONFIG_SDK=y" >> .config
 [ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
-KEY=""
 if [ -f "$HOME"/mime.key ]; then
 	echo "CONFIG_SIGNED_PACKAGES=y" >> .config
-	KEY="BUILD_KEY=$HOME/mime.key"
+	ln -sr "$HOME/mime.key" key-build
 fi
 make defconfig
 if [ -d .git ] ; then
@@ -45,7 +44,7 @@ if [ -d .git ] ; then
 fi
 make clean
 [ -z "$BUILD_ALL" ] || make dirclean
-make "$@" $KEY
+make "$@"
 [ \! -d ./logs ] || mv ./logs ./logs-nand
 
 if [ "$TARGET_BOARD" = turris ]; then
