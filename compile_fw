@@ -36,7 +36,9 @@ cat configs/common configs/$TARGET_BOARD | sed -e "s|@BOARD@|$TARGET_BOARD|" -e 
 [ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
 if [ -f "$HOME"/mime.key ]; then
 	echo "CONFIG_SIGNED_PACKAGES=y" >> .config
-	ln -sr "$HOME/mime.key" key-build
+	rm key-build key-build.pub
+	cp "$HOME/mime.key" key-build
+	cp "$HOME/mime.pub" key-build.pub
 fi
 make defconfig
 if [ -d .git ] ; then
