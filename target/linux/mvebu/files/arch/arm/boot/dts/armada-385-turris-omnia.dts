@@ -108,6 +108,22 @@
 						#size-cells = <0>;
 						reg = <6>;
       					};
+
+					i2c@7 {
+						/* SFP+ GPIO expander */
+						#address-cells = <1>;
+						#size-cells = <0>;
+						reg = <7>;
+
+						sfpgpio: gpio@71 {
+							compatible = "nxp,pca9538";
+							reg = <0x71>;
+							interrupt-parent = <&gpio1>;
+							interrupts = <14 IRQ_TYPE_LEVEL_LOW>;
+							gpio-controller;
+							#gpio-cells = <2>;
+						};
+					};
 				};
 			};
 
@@ -159,16 +175,21 @@
 
 			ethernet@34000 {
 				status = "okay";
-				phy-mode = "sgmii";
-			/*	managed = "in-band-status";
+ 
+				phy-def {
+					phy-mode = "sgmii";
+					phy = <&phy1>;
+ 				};
 
-				fixed-link {
-					speed = <1000>;
-					full-duplex;
+				phy-sfp {
+					phy-mode = "sgmii";
+                                	managed = "1000base-x";
+ 
+					fixed-link {
+						speed = <1000>;
+						full-duplex;
+					};
 				};
-			*/
-
-				phy = <&phy1>;
 			};
 
 			sdhci@d8000 {
