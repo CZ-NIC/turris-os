@@ -1,0 +1,55 @@
+--- a/drivers/net/phy/mvsw61xx.c
++++ b/drivers/net/phy/mvsw61xx.c
+@@ -812,6 +812,30 @@ static const struct switch_dev_ops mvsw6
+ 
+ /* end swconfig stuff */
+ 
++#define TEMP_PAGE 6
++#define TEMP_REG 0x1b
++
++static int mvsw6176_temp(struct switch_dev *dev)
++{
++	u16 pagereg, reg;
++
++	pagereg=smisr16(dev, 0, PHY_PAGE_REG);
++	smisw16(dev, 0, PHY_PAGE_REG, TEMP_PAGE);
++	reg = smisr16(dev, 0, TEMP_REG);
++	smisw16(dev, 0, PHY_PAGE_REG, pagereg);
++
++	return ((reg&0xFF)-25);
++}
++
++static ssize_t temp_show(struct device *d,
++                struct device_attribute *attr, char *buf)
++{
++        struct mvsw61xx_state *state = dev_get_drvdata(d);
++	int temp = mvsw6176_temp(&state->dev);
++        return scnprintf(buf, PAGE_SIZE, "%d", temp);
++}
++static DEVICE_ATTR_RO(temp);
++
+ static int mvsw61xx_probe(struct platform_device *pdev)
+ {
+ 	struct mvsw61xx_state *state;
+@@ -903,6 +927,12 @@ static int mvsw61xx_probe(struct platfor
+ 	if (state->model == MV_IDENT_VALUE_6176)
+ 		mvsw6176_quirks(&state->dev);
+ 
++	err = device_create_file(&pdev->dev, &dev_attr_temp);
++        if (err < 0) {
++                dev_err(&pdev->dev, "failed to create attribute temp\n");
++                goto out_err;
++        }
++
+ 	err = register_switch(&state->dev, NULL);
+ 	if (err < 0)
+ 		goto out_err;
+@@ -920,6 +950,8 @@ mvsw61xx_remove(struct platform_device *
+ {
+ 	struct mvsw61xx_state *state = platform_get_drvdata(pdev);
+ 
++	device_remove_file(&pdev->dev, &dev_attr_temp);
++
+ 	if (state->registered)
+ 		unregister_switch(&state->dev);
+ 
