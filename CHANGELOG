@@ -1,8 +1,12 @@
+* unbound: fix regexp in anchor recovery script
+* hostapd: Version bump/security fixes
+* nginx: More modules
+* minidlna: Fix linker errors
+* ucollect: Fix segfault in fwup
 * syslog-ng3: use dgram only on musl.
 * ddns-scripts: update to version 2.7.1-2, which should be compatible with current luci-app-ddns
 * logrotate: add missing dependencies and cron script.
 * nuci: ntpdate is used for time synchronization.
-* updater: Use opkg-trans backend for testing
 ===================== 3.0 =======================
 * knot: update to 2.1.1
 * tvheadend: update to 4.0.9.
