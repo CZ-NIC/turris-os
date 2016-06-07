@@ -47,6 +47,34 @@ fi
 make clean
 [ -z "$BUILD_ALL" ] || make dirclean
 make "$@"
+# Nice junit export
+cat > logs/junit.xml << EOF
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites errors='`cat logs/package/error.txt | wc -l`' tests='`find logs/package/ -name compile.txt | wc -l`'>
+EOF
+(cd logs; find package/ -name compile.txt; cd ..) | while read log; do
+PKG_NAME="`dirname $log`"
+if grep "ERROR: $PKG_NAME failed" logs/package/error.txt; then
+cat >> logs/junit.xml << EOF
+<testsuite errors='1' name='$PKG_NAME' tests='1'>
+<testcase name='compile'>
+<error message='$PKG_NAME failed to compile' type='error'><![CDATA[
+`cat logs/$log`
+]]></error>
+</testcase>
+</testsuite>
+EOF
+else
+cat >> logs/junit.xml << EOF
+<testsuite errors='0' failures='0' name='$PKG_NAME' tests='1'>
+<testcase name='compile'/>
+</testsuite>
+EOF
+fi
+done
+cat >> logs/junit.xml << EOF
+</testsuites>
+EOF
 [ \! -d ./logs ] || mv ./logs ./logs-nand
 
 if [ "$TARGET_BOARD" = turris ]; then
