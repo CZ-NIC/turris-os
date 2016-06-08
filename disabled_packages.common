@@ -14,3 +14,4 @@ upmpdcli  # broken in upstream
 eudev  # conflicts with udev
 libinput # doesn't make sense on Turris
 flashrom # doesn't make sense on Turris
+usbip # depends on eudev
