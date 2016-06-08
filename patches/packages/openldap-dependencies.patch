@@ -1,0 +1,13 @@
+diff --git a/libs/openldap/Makefile b/libs/openldap/Makefile
+index f9a8347..645cd0b 100644
+--- a/libs/openldap/Makefile
++++ b/libs/openldap/Makefile
+@@ -37,7 +37,7 @@ define Package/libopenldap
+   $(call Package/openldap/Default)
+   SECTION:=libs
+   CATEGORY:=Libraries
+-  DEPENDS:=+libopenssl +libsasl2 +libpthread
++  DEPENDS:=+libopenssl +libsasl2 +libpthread +libicu
+   TITLE+= (libraries)
+ endef
+ 
