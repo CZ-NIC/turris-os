@@ -23,6 +23,18 @@ fi
 
 # Install luci feed
 ./scripts/feeds update -a
+# Patch feeds
+pushd patches
+for feed in *; do
+	pushd $feed
+	for patch in *; do
+		pushd ../../feeds/$feed
+		patch -p1 < ../../patches/$feed/$patch
+		popd
+	done
+	popd
+done
+popd
 ./scripts/feeds install -a
 
 # Uninstall broken pkgs
