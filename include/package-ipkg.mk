@@ -188,8 +188,8 @@ $(_endef)
 
 	$(RSTRIP) $$(IDIR_$(1))
 	(cd $$(IDIR_$(1)); \
-		find . -type f \! -path ./CONTROL/\* -exec md5sum \{\} \; | \
-		sed 's|\([[:blank:]]\)\./|\1/|' > $$(IDIR_$(1))/CONTROL/files-md5sum )
+		find . -type f \! -path ./CONTROL/\* -exec md5sum \{\} \; 2> /dev/null | \
+		sed 's|\([[:blank:]]\)\./|\1/|' > $$(IDIR_$(1))/CONTROL/files-md5sum ) || true
 	(cd $$(IDIR_$(1))/CONTROL; \
 		( \
 			echo "$$$$CONTROL"; \
