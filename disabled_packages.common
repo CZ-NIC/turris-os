@@ -12,3 +12,5 @@ rtorrent  # broken in upstream
 smstools3  # broken in upstream
 upmpdcli  # broken in upstream
 eudev  # conflicts with udev
+libinput # doesn't make sense on Turris
+flashrom # doesn't make sense on Turris
