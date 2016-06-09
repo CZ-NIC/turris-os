@@ -16,4 +16,6 @@ libinput # doesn't make sense on Turris
 flashrom # doesn't make sense on Turris
 usbip # depends on eudev
 libcanfestival # broken
+fossil # broken
+protobuf # broken
 grilo # dependencies not in the tree at the moment
