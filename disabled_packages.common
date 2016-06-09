@@ -20,5 +20,4 @@ fossil # broken
 protobuf # broken
 luarocks # broken
 crtmpserver # broken
-mplayer # obsolete and broken
 grilo # dependencies not in the tree at the moment
