@@ -11,3 +11,22 @@ index cf11d9d..27ce013 100644
  define Package/gstreamer1/Default
    CATEGORY:=Multimedia
    SECTION:=multimedia
+diff --git a/multimedia/gstreamer1/patches/020-gstplugin-have-strsignal.patch b/multimedia/gstreamer1/patches/020-gstplugin-have-strsignal.patch
+new file mode 100644
+index 0000000..17352ab
+--- /dev/null
++++ b/multimedia/gstreamer1/patches/020-gstplugin-have-strsignal.patch
+@@ -0,0 +1,13 @@
++--- a/libs/gst/check/libcheck/libcompat.h
+++++ b/libs/gst/check/libcheck/libcompat.h
++@@ -100,10 +100,6 @@ CK_DLL_EXP char *strdup (const char *str
++ #define strdup _strdup
++ #endif /* !HAVE_DECL_STRDUP && HAVE__STRDUP */
++ 
++-#if !HAVE_DECL_STRSIGNAL
++-CK_DLL_EXP const char *strsignal (int sig);
++-#endif /* !HAVE_DECL_STRSIGNAL */
++-
++ /*
++  * On systems where clock_gettime() is not available, or
++  * on systems where some clocks may not be supported, the
