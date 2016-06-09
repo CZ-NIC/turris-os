@@ -7,7 +7,7 @@ index f9a8347..b7412e6 100644
    SECTION:=libs
    CATEGORY:=Libraries
 -  DEPENDS:=+libopenssl +libsasl2 +libpthread
-+  DEPENDS:=+libopenssl +libsasl2 +libpthread +libicu
++  DEPENDS:=+libopenssl +libsasl2 +libpthread +icu
    TITLE+= (libraries)
  endef
  
@@ -16,7 +16,7 @@ index f9a8347..b7412e6 100644
    SECTION:=net
    CATEGORY:=Network
 -  DEPENDS:=+libopenldap +libuuid
-+  DEPENDS:=+libopenldap +libuuid +libicu
++  DEPENDS:=+libopenldap +libuuid +icu
    TITLE+= (server)
  endef
  
