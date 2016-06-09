@@ -15,3 +15,5 @@ eudev  # conflicts with udev
 libinput # doesn't make sense on Turris
 flashrom # doesn't make sense on Turris
 usbip # depends on eudev
+libcanfestival # broken
+grilo # dependencies not in the tree at the moment
