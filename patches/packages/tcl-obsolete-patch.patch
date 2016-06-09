@@ -1,0 +1,41 @@
+From 0610df7a0f37acfcf82786edca97ad56c99de8f5 Mon Sep 17 00:00:00 2001
+From: Michal Hrusecky <michal.hrusecky@nic.cz>
+Date: Thu, 9 Jun 2016 10:38:25 +0200
+Subject: [PATCH] Drop obsolete patch
+
+---
+ .../100-disable_tzdata_and_msgs_install.patch      | 22 ----------------------
+ 1 file changed, 22 deletions(-)
+ delete mode 100644 lang/tcl/patches/100-disable_tzdata_and_msgs_install.patch
+
+diff --git a/lang/tcl/patches/100-disable_tzdata_and_msgs_install.patch b/lang/tcl/patches/100-disable_tzdata_and_msgs_install.patch
+deleted file mode 100644
+index 1db8f07..0000000
+--- a/lang/tcl/patches/100-disable_tzdata_and_msgs_install.patch
++++ /dev/null
+@@ -1,22 +0,0 @@
+---- a/unix/Makefile.in
+-+++ b/unix/Makefile.in
+-@@ -817,15 +817,15 @@ install-tzdata: tclsh
+- 	@echo "Installing time zone data"
+- 	@@LD_LIBRARY_PATH_VAR@="`pwd`:$${@LD_LIBRARY_PATH_VAR@}"; export @LD_LIBRARY_PATH_VAR@; \
+- 	TCL_LIBRARY="${TCL_BUILDTIME_LIBRARY}"; export TCL_LIBRARY; \
+--	./tclsh $(TOOL_DIR)/installData.tcl \
+--	    $(TOP_DIR)/library/tzdata "$(SCRIPT_INSTALL_DIR)"/tzdata
+-+	#./tclsh $(TOOL_DIR)/installData.tcl \
+-+	#    $(TOP_DIR)/library/tzdata "$(SCRIPT_INSTALL_DIR)"/tzdata
+- 
+- install-msgs: tclsh
+- 	@echo "Installing message catalogs"
+- 	@@LD_LIBRARY_PATH_VAR@="`pwd`:$${@LD_LIBRARY_PATH_VAR@}"; export @LD_LIBRARY_PATH_VAR@; \
+- 	TCL_LIBRARY="${TCL_BUILDTIME_LIBRARY}"; export TCL_LIBRARY; \
+--	./tclsh $(TOOL_DIR)/installData.tcl \
+--	    $(TOP_DIR)/library/msgs "$(SCRIPT_INSTALL_DIR)"/msgs
+-+	#./tclsh $(TOOL_DIR)/installData.tcl \
+-+	#    $(TOP_DIR)/library/msgs "$(SCRIPT_INSTALL_DIR)"/msgs
+- 
+- install-doc: doc
+- 	@for i in "$(MAN_INSTALL_DIR)" "$(MAN1_INSTALL_DIR)" "$(MAN3_INSTALL_DIR)" "$(MANN_INSTALL_DIR)" ; \
+-- 
+2.8.3
+
