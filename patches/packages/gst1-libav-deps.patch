@@ -1,0 +1,13 @@
+diff --git a/multimedia/gst1-libav/Makefile b/multimedia/gst1-libav/Makefile
+index 4bbd23c..a45dff6 100644
+--- a/multimedia/gst1-libav/Makefile
++++ b/multimedia/gst1-libav/Makefile
+@@ -121,7 +121,7 @@ define Package/gst1-libav
+   URL:=http://www.gstreamer.net/modules/gst-libav.html
+   DEPENDS:= +libgstreamer1 +gstreamer1-plugins-base \
+ 	    +gst1-mod-alsa +libgst1audio +libgst1pbutils +libgst1video \
+-	    +libbz2
++	    +libbz2 +liblzma
+ endef
+ 
+ define Package/gst1-libav/description
