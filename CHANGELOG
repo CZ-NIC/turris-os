@@ -1,3 +1,6 @@
+* dejavu-fonts-ttf, mplayer, fbida, fontconfig: removed
+* mwan3: fixed path to the ip command
+* multiwan: completely removed
 * unbound: fix regexp in anchor recovery script
 * hostapd: Version bump/security fixes
 * nginx: More modules

@@ -1,0 +1,35 @@
+diff --git a/mcproxy/patches/0003-add-sourcefilter.patch b/mcproxy/patches/0003-add-sourcefilter.patch
+index 2f64975..a98bffe 100644
+--- a/mcproxy/patches/0003-add-sourcefilter.patch
++++ b/mcproxy/patches/0003-add-sourcefilter.patch
+@@ -1,12 +1,10 @@
+ --- a/mcproxy/src/utils/mc_socket.cpp
+ +++ b/mcproxy/src/utils/mc_socket.cpp
+-@@ -37,6 +37,10 @@
++@@ -37,6 +37,8 @@
+  #include <numeric>
+  #include <unistd.h>
+  
+-+#ifndef __GLIBC__
+ +#include "sourcefilter.cpp"
+-+#endif /* __GLIBC__ */
+ +
+  std::string ipAddrResolver(std::string ipAddr)
+  {
+diff --git a/mcproxy/patches/0004-add-defs.patch b/mcproxy/patches/0004-add-defs.patch
+index a1105c9..d0fefab 100644
+--- a/mcproxy/patches/0004-add-defs.patch
++++ b/mcproxy/patches/0004-add-defs.patch
+@@ -1,11 +1,9 @@
+ --- a/mcproxy/src/utils/mc_socket.cpp
+ +++ b/mcproxy/src/utils/mc_socket.cpp
+-@@ -38,6 +38,8 @@
++@@ -38,4 +38,6 @@
+  #include <unistd.h>
+  
+- #ifndef __GLIBC__
+ +#define IP_MULTICAST_ALL 49
+ +
+  #include "sourcefilter.cpp"
+- #endif /* __GLIBC__ */
+  

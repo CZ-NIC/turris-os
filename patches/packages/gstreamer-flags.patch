@@ -1,0 +1,41 @@
+diff --git a/multimedia/gstreamer1/Makefile b/multimedia/gstreamer1/Makefile
+index cf11d9d..44506f9 100644
+--- a/multimedia/gstreamer1/Makefile
++++ b/multimedia/gstreamer1/Makefile
+@@ -29,6 +29,8 @@ PKG_INSTALL:=1
+ include $(INCLUDE_DIR)/package.mk
+ include $(INCLUDE_DIR)/nls.mk
+ 
++TARGET_CFLAGS+= -std=gnu99
++
+ define Package/gstreamer1/Default
+   CATEGORY:=Multimedia
+   SECTION:=multimedia
+@@ -102,7 +104,7 @@ endef
+ define Package/libgstreamer1
+   $(call Package/gstreamer1/Default)
+   TITLE+= library (core)
+-  DEPENDS+= +glib2 +libpthread +libxml2
++  DEPENDS+= +glib2 +libpthread +libxml2 +librt
+   HIDDEN:=1
+ endef
+ 
+diff --git a/multimedia/gstreamer1/patches/020-gstplugin-have-strsignal.patch b/multimedia/gstreamer1/patches/020-gstplugin-have-strsignal.patch
+new file mode 100644
+index 0000000..17352ab
+--- /dev/null
++++ b/multimedia/gstreamer1/patches/020-gstplugin-have-strsignal.patch
+@@ -0,0 +1,13 @@
++--- a/libs/gst/check/libcheck/libcompat.h
+++++ b/libs/gst/check/libcheck/libcompat.h
++@@ -100,10 +100,6 @@ CK_DLL_EXP char *strdup (const char *str
++ #define strdup _strdup
++ #endif /* !HAVE_DECL_STRDUP && HAVE__STRDUP */
++ 
++-#if !HAVE_DECL_STRSIGNAL
++-CK_DLL_EXP const char *strsignal (int sig);
++-#endif /* !HAVE_DECL_STRSIGNAL */
++-
++ /*
++  * On systems where clock_gettime() is not available, or
++  * on systems where some clocks may not be supported, the
