@@ -21,4 +21,6 @@ protobuf # broken
 luarocks # broken
 crtmpserver # broken
 tcl # broken
+libextractor # broken
+python-cryptography # broken
 grilo # dependencies not in the tree at the moment
