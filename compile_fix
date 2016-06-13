@@ -1,5 +1,10 @@
 #!/bin/bash -xe
 
+make_defconfig() {
+	make defconfig
+	egrep '^(#[[:space:]]+)?CONFIG_KERNEL' configs/common configs/$TARGET_BOARD >> ./.config
+}
+
 if [ "$1" = turris ] || [ "$1" = omnia ]; then
 	export TARGET_BOARD="$1"
 	shift
@@ -37,7 +42,7 @@ popd
 cat configs/common configs/$TARGET_BOARD | sed -e "s|@BOARD@|$TARGET_BOARD|" -e "s|@BRANCH@||" > .config
 [ -n "$BUILD_ALL" ] && echo "CONFIG_ALL=y" >> .config && echo "CONFIG_SDK=y" >> .config
 [ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
-make defconfig
+make_defconfig
 git log -n1 --format='%H' >files/etc/git-version
 git clone git@git.nic.cz:turris/misc-internal
 # If the revision is marked, it is propagation of deploy into current stable. In that case, we clean up. Otherwise, just try to recompile it as fast as possible, as it is just some small fix.

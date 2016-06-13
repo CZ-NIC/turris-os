@@ -9,6 +9,11 @@
 [ -d ./logs-nor ] && rm -rf ./logs-nor
 [ -d ./logs-initram ] && rm -rf ./logs-initram
 
+make_defconfig() {
+	make defconfig
+	egrep '^(#[[:space:]]+)?CONFIG_KERNEL' configs/common configs/$TARGET_BOARD >> ./.config
+}
+
 if [ "$1" = turris ] || [ "$1" = omnia ]; then
 	export TARGET_BOARD="$1"
 	shift
@@ -52,7 +57,7 @@ if [ -f "$HOME"/mime.key ]; then
 	cp "$HOME/mime.key" key-build
 	cp "$HOME/mime.pub" key-build.pub
 fi
-make defconfig
+make_defconfig
 if [ -d .git ] ; then
 	git log -n1 --format='%H' >files/etc/git-version
 fi
@@ -92,7 +97,7 @@ EOF
 if [ "$TARGET_BOARD" = turris ]; then
 	#Build initramfs
 	echo -e "CONFIG_TARGET_ROOTFS_INITRAMFS=y\nCONFIG_TARGET_INITRAMFS_COMPRESSION_XZ=y" >> .config
-	make defconfig
+	make_defconfig
 	make target/linux/compile "$@"
 	[ \! -d ./logs ] || mv ./logs ./logs-initram
 
