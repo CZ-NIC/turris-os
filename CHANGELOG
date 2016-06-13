@@ -1,3 +1,4 @@
+* thermometer: different versions for Turris and Omnia
 * dejavu-fonts-ttf, mplayer, fbida, fontconfig: removed
 * mwan3: fixed path to the ip command
 * multiwan: completely removed
