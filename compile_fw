@@ -11,7 +11,7 @@
 
 make_defconfig() {
 	make defconfig
-	egrep '^(#[[:space:]]+)?CONFIG_KERNEL' configs/common configs/$TARGET_BOARD >> ./.config
+	egrep '^(#[[:space:]]+)?CONFIG_KERNEL' configs/common configs/$TARGET_BOARD | sed 's|.*:||' >> ./.config
 }
 
 if [ "$1" = turris ] || [ "$1" = omnia ]; then
