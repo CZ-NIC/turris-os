@@ -125,7 +125,6 @@ ifeq ($(DUMP),)
     $(FixupDependencies)
     $(FixupReverseDependencies)
 
-    $(eval $(call BuildIPKGVariable,$(1),conffiles))
     $(eval $(call BuildIPKGVariable,$(1),preinst,,1))
     $(eval $(call BuildIPKGVariable,$(1),postinst,-pkg,1))
     $(eval $(call BuildIPKGVariable,$(1),prerm,-pkg,1))
@@ -219,8 +218,10 @@ $(_endef)
     ifneq ($$(KEEP_$(1)),)
 		@( \
 			keepfiles=""; \
+			rm -f $$(IDIR_$(1))/CONTROL/conffiles; \
 			for x in $$(KEEP_$(1)); do \
 				[ -f "$$(IDIR_$(1))/$$$$x" ] || keepfiles="$$$${keepfiles:+$$$$keepfiles }$$$$x"; \
+				echo "$$$$x" >> $$(IDIR_$(1))/CONTROL/conffiles; \
 			done; \
 			[ -z "$$$$keepfiles" ] || { \
 				mkdir -p $$(IDIR_$(1))/lib/upgrade/keep.d; \
