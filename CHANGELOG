@@ -1,3 +1,4 @@
+* kernel: fixed loading of DVB modules on the system start (by using of AutoProbe instead of AutoLoad)
 * motion: correctly define conffiles (do not overwrite config file on reinstallation)
 * thermometer: different versions for Turris and Omnia
 * dejavu-fonts-ttf, mplayer, fbida, fontconfig: removed

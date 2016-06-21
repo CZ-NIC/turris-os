@@ -17,7 +17,7 @@ define KernelPackage/rc-core
 	CONFIG_MEDIA_RC_SUPPORT=y \
 	CONFIG_RC_CORE
   FILES:=$(LINUX_DIR)/drivers/media/rc/rc-core.ko
-  AUTOLOAD:=$(call AutoLoad,50,rc-core)
+  AUTOLOAD:=$(call AutoProbe,rc-core)
   DEPENDS:=+kmod-input-core
 endef
 
@@ -43,7 +43,7 @@ define KernelPackage/dvb-core
 	CONFIG_DVB_MAX_ADAPTERS=8 \
 	CONFIG_DVB_CORE
   FILES:=$(LINUX_DIR)/drivers/media/dvb-core/dvb-core.ko
-  AUTOLOAD:=$(call AutoLoad,50,dvb-core)
+  AUTOLOAD:=$(call AutoProbe,dvb-core)
 endef
 
 define KernelPackage/dvb-core/description
@@ -69,7 +69,7 @@ define KernelPackage/dvb-usb
 	CONFIG_DVB_USB
   FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb/dvb-usb.ko
   DEPENDS:=+kmod-usb-core +kmod-i2c-core +kmod-rc-core +kmod-dvb-core
-  AUTOLOAD:=$(call AutoLoad,50,dvb-usb)
+  AUTOLOAD:=$(call AutoProbe,dvb-usb)
 endef
 
 define KernelPackage/dvb-usb/description
@@ -93,7 +93,7 @@ define KernelPackage/dvb-usb-dib0700
   TITLE:=DiBcom DiB0700 USB DVB devices
   KCONFIG:=CONFIG_DVB_USB_DIB0700
   FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb/dvb-usb-dib0700.ko
-  AUTOLOAD:=$(call AutoLoad,61,dvb-usb-dib0700)
+  AUTOLOAD:=$(call AutoProbe,dvb-usb-dib0700)
   DEPENDS:= \
 	+PACKAGE_kmod-dvb-tuner-dib0070:kmod-dvb-tuner-dib0070 \
 	+PACKAGE_kmod-dvb-tuner-dib0090:kmod-dvb-tuner-dib0090 \
@@ -124,7 +124,7 @@ $(eval $(call KernelPackage,dvb-usb-dib0700))
 define KernelPackage/dvb-usb-dibusb-common
   TITLE:=Common library for DiBcom USB drivers
   FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb/dvb-usb-dibusb-common.ko
-  AUTOLOAD:=$(call AutoLoad,62,dvb-usb-dibusb-common)
+  AUTOLOAD:=$(call AutoProbe,dvb-usb-dibusb-common)
   $(call AddDepends/dvb-usb,+PACKAGE_kmod-dvb-dib3000mc:kmod-dvb-dib3000mc)
 endef
 
@@ -134,7 +134,7 @@ define KernelPackage/dvb-usb-a800
   TITLE:=AVerMedia AverTV DVB-T USB 2.0 (A800)
   KCONFIG:=CONFIG_DVB_USB_A800
   FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb/dvb-usb-a800.ko
-  AUTOLOAD:=$(call AutoLoad,63,dvb-usb-a800)
+  AUTOLOAD:=$(call AutoProbe,dvb-usb-a800)
   $(call AddDepends/dvb-usb,+kmod-dvb-dib3000mc +kmod-dvb-usb-dibusb-common)
 endef
 
@@ -150,7 +150,7 @@ define KernelPackage/dvb-usb-dibusb-mb
 	CONFIG_DVB_USB_DIBUSB_MB_FAULTY=y \
 	CONFIG_DVB_USB_DIBUSB_MB
   FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb/dvb-usb-dibusb-mb.ko
-  AUTOLOAD:=$(call AutoLoad,63,dvb-usb-dibusb-mb)
+  AUTOLOAD:=$(call AutoProbe,dvb-usb-dibusb-mb)
   $(call AddDepends/dvb-usb,+kmod-dvb-dib3000mb +kmod-dvb-usb-dibusb-common)
 endef
 
@@ -171,7 +171,7 @@ define KernelPackage/dvb-usb-dibusb-mc
   TITLE:=DiBcom USB DVB-T devices (DiB3000M-C/P based)
   KCONFIG:=CONFIG_DVB_USB_DIBUSB_MC
   FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb/dvb-usb-dibusb-mc.ko
-  AUTOLOAD:=$(call AutoLoad,63,dvb-usb-dibusb-mc)
+  AUTOLOAD:=$(call AutoProbe,dvb-usb-dibusb-mc)
   $(call AddDepends/dvb-usb,+kmod-dvb-dib3000mc +kmod-dvb-usb-dibusb-common)
 endef
 
@@ -196,7 +196,7 @@ define KernelPackage/dvb-usb-v2
 	CONFIG_MEDIA_USB_SUPPORT=y \
 	CONFIG_DVB_USB_V2
   FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb-v2/dvb_usb_v2.ko
-  AUTOLOAD:=$(call AutoLoad,61,dvb_usb_v2)
+  AUTOLOAD:=$(call AutoProbe,dvb_usb_v2)
   DEPENDS:=+PACKAGE_kmod-rc-core:kmod-rc-core
   $(call AddDepends/dvb-core,+kmod-usb-core)
 endef
@@ -222,7 +222,7 @@ define KernelPackage/dvb-usb-rtl28xxu
   TITLE:=Realtek RTL28xxU DVB USB support
   KCONFIG:=CONFIG_DVB_USB_RTL28XXU
   FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb-v2/dvb-usb-rtl28xxu.ko
-  AUTOLOAD:=$(call AutoLoad,62,dvb-usb-rtl28xxu)
+  AUTOLOAD:=$(call AutoProbe,dvb-usb-rtl28xxu)
   $(call AddDepends/dvb-usb-v2,+kmod-dvb-rtl2830 +kmod-dvb-rtl2832)
 endef
 
@@ -236,7 +236,7 @@ define KernelPackage/dvb-usb-anysee
   TITLE:=Anysee DVB-T/C USB2.0 support
   KCONFIG:=CONFIG_DVB_USB_ANYSEE
   FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb-v2/dvb-usb-anysee.ko
-  AUTOLOAD:=$(call AutoLoad,60,dvb-usb-anysee)
+  AUTOLOAD:=$(call AutoProbe,dvb-usb-anysee)
   $(call AddDepends/dvb-usb-v2)
 endef
 
@@ -250,7 +250,7 @@ define KernelPackage/dvb-usb-af9015
   TITLE:=Afatech AF9015 DVB-T USB2.0 support
   KCONFIG:=CONFIG_DVB_USB_AF9015
   FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb-v2/dvb-usb-af9015.ko
-  AUTOLOAD:=$(call AutoLoad,60,dvb-usb-af9015)
+  AUTOLOAD:=$(call AutoProbe,dvb-usb-af9015)
   $(call AddDepends/dvb-usb-v2,+kmod-dvb-af9013)
 endef
 
@@ -264,7 +264,7 @@ define KernelPackage/dvb-usb-af9035
   TITLE:=Afatech AF9035 DVB-T USB2.0 support
   KCONFIG:=CONFIG_DVB_USB_AF9035
   FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb-v2/dvb-usb-af9035.ko
-  AUTOLOAD:=$(call AutoLoad,60,dvb-usb-af9035)
+  AUTOLOAD:=$(call AutoProbe,dvb-usb-af9035)
   $(call AddDepends/dvb-usb-v2,+kmod-dvb-af9033)
 endef
 
@@ -282,7 +282,7 @@ define DvbFrontend
 	$2
   DEPENDS:=+kmod-i2c-core +kmod-dvb-core
   FILES:=$(LINUX_DIR)/drivers/media/dvb-frontends/$1.ko
-  AUTOLOAD:=$(call AutoLoad,61,$1)
+  AUTOLOAD:=$(call AutoProbe,$1)
 endef
 
 define KernelPackage/dvb-pll
@@ -406,7 +406,7 @@ define KernelPackage/dvb-dibx000-common
   SUBMENU:=$(DVB_MENU)
   TITLE:=Common library for DiBX000 drivers
   FILES:=$(LINUX_DIR)/drivers/media/dvb-frontends/dibx000_common.ko
-  AUTOLOAD:=$(call AutoLoad,61,dibx000_common)
+  AUTOLOAD:=$(call AutoProbe,dibx000_common)
 endef
 
 $(eval $(call KernelPackage,dvb-dibx000-common))
@@ -490,7 +490,7 @@ define MediaTuner
 	$2
   DEPENDS:=+kmod-i2c-core
   FILES:=$(LINUX_DIR)/drivers/media/tuners/$1.ko
-  AUTOLOAD:=$(call AutoLoad,60,$1)
+  AUTOLOAD:=$(call AutoProbe,$1)
 endef
 
 define KernelPackage/media-tuner-e4000
@@ -693,7 +693,7 @@ define KernelPackage/media-tuner-simple
   FILES:= \
 	$(LINUX_DIR)/drivers/media/tuners/tuner-simple.ko \
 	$(LINUX_DIR)/drivers/media/tuners/tuner-types.ko
-  AUTOLOAD:=$(call AutoLoad,60,tuner-simple tuner-types)
+  AUTOLOAD:=$(call AutoProbe,tuner-simple tuner-types)
 endef
 
 define KernelPackage/media-tuner-simple/description
