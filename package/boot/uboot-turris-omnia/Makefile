@@ -9,11 +9,11 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=uboot-turris-omnia
 PKG_VERSION:=2015.10
-PKG_RELEASE:=2
+PKG_RELEASE:=4
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://gitlab.labs.nic.cz/turris/turris-omnia-uboot.git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
-PKG_SOURCE_VERSION:=6a2e01dc016441c9816ae512cc3af5bc61903c4d
+PKG_SOURCE_VERSION:=acf78d360e3c3ff32c890c279114e9df10f91b78
 PKG_SOURCE_SUBDIR:=turris-omnia-uboot
 PKG_MAINTAINER:=Michal Hrusecky <MichalHrusecky@nic.cz>
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_SOURCE_SUBDIR)
