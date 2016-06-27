@@ -1,3 +1,5 @@
+* oprava init scriptu lcollectu - Majordomo začal od blíže nespecifikované verze ukazovat i přenosy v lokální síti
+===================== 3.1 =======================
 * kernel: fixed loading of DVB modules on the system start (by using of AutoProbe instead of AutoLoad)
 * motion: correctly define conffiles (do not overwrite config file on reinstallation)
 * thermometer: different versions for Turris and Omnia
