@@ -1,48 +1,32 @@
 --- a/drivers/leds/Kconfig
 +++ b/drivers/leds/Kconfig
-@@ -52,6 +52,7 @@ config LEDS_AAT1290
- config LEDS_BCM6328
- 	tristate "LED Support for Broadcom BCM6328"
- 	depends on LEDS_CLASS
-+	depends on HAS_IOMEM
- 	depends on OF
- 	help
- 	  This option enables support for LEDs connected to the BCM6328
-@@ -60,6 +61,7 @@ config LEDS_BCM6328
- config LEDS_BCM6358
- 	tristate "LED Support for Broadcom BCM6358"
- 	depends on LEDS_CLASS
-+	depends on HAS_IOMEM
- 	depends on OF
- 	help
- 	  This option enables support for LEDs connected to the BCM6358
-@@ -566,6 +568,13 @@ config LEDS_SEAD3
- 	  This driver can also be built as a module. If so the module
- 	  will be called leds-sead3.
+@@ -568,6 +568,13 @@ config LEDS_SEAD3
  
-+config LEDS_OMNIA
-+	tristate "LED support for the Turris Omnia board"
-+	depends on LEDS_CLASS
-+	help
-+	  Say Y here to include support for the LED driver on Turris Omnia
-+	  board.
-+
  comment "LED driver for blink(1) USB RGB LED is under Special HID drivers (HID_THINGM)"
  
++config LEDS_OMNIA
++       tristate "LED support for the Turris Omnia board"
++       depends on LEDS_CLASS
++       help
++         Say Y here to include support for the LED driver on Turris Omnia
++         board.
++
  config LEDS_BLINKM
+ 	tristate "LED support for the BlinkM I2C RGB LED"
+ 	depends on LEDS_CLASS
 --- a/drivers/leds/Makefile
 +++ b/drivers/leds/Makefile
 @@ -66,6 +66,7 @@ obj-$(CONFIG_LEDS_MENF21BMC)		+= leds-me
  obj-$(CONFIG_LEDS_KTD2692)		+= leds-ktd2692.o
  obj-$(CONFIG_LEDS_POWERNV)		+= leds-powernv.o
  obj-$(CONFIG_LEDS_SEAD3)		+= leds-sead3.o
-+obj-$(CONFIG_LEDS_OMNIA)		+= leds-omnia.o
++obj-$(CONFIG_LEDS_OMNIA)               += leds-omnia.o
  
  # LED SPI Drivers
  obj-$(CONFIG_LEDS_DAC124S085)		+= leds-dac124s085.o
 --- /dev/null
 +++ b/drivers/leds/leds-omnia.c
-@@ -0,0 +1,444 @@
+@@ -0,0 +1,457 @@
 +/*
 + * Copyright 2016 CZ.NIC, z.s.p.o.
 + *
@@ -62,6 +46,7 @@
 +#include <linux/i2c.h>
 +#include <linux/slab.h>
 +#include <linux/of.h>
++#include <linux/workqueue.h>
 +
 +#define MAX_LEDS 13
 +#define ALL_LEDS_INDEX 12
@@ -99,6 +84,8 @@
 +	u8 r;
 +	u8 g;
 +	u8 b;
++	struct work_struct work;
++	enum led_brightness new_brightness;
 +};
 +
 +static int omnia_led_brightness_set(struct omnia_led *led,
@@ -193,14 +180,23 @@
 +	return -(ret<=0);
 +}
 +
-+static int omnia_led_set(struct led_classdev *led_cdev,
-+	enum led_brightness value)
++static void omnia_led_set_async(struct led_classdev *led_cdev,
++        enum led_brightness value)
 +{
-+	struct omnia_led *led;
++	struct omnia_led *led =
++		container_of(led_cdev, struct omnia_led, led_cdev);
 +
-+	led = container_of(led_cdev, struct omnia_led, led_cdev);
++	led->new_brightness = value;
 +
-+	return omnia_led_brightness_set(led, value);
++	schedule_work(&led->work);
++}
++
++static void omnia_led_work(struct work_struct *work)
++{
++        struct omnia_led *led;
++        led = container_of(work, struct omnia_led, work);
++
++        omnia_led_brightness_set(led, led->new_brightness);
 +}
 +
 +static struct omnia_platform_data *
@@ -377,6 +373,7 @@
 +	for (i = 0; i < MAX_LEDS; i++) {
 +		leds[i].led_num = i;
 +		leds[i].chip = chip;
++		INIT_WORK(&leds[i].work, omnia_led_work);
 +
 +		/* Platform data can specify LED names and default triggers */
 +		if (pdata && i < pdata->leds.num_leds) {
@@ -394,7 +391,7 @@
 +				 "omnia-led:%d", i);
 +
 +		leds[i].led_cdev.name = leds[i].name;
-+		leds[i].led_cdev.brightness_set = omnia_led_set;
++		leds[i].led_cdev.brightness_set = omnia_led_set_async;
 +
 +		err = led_classdev_register(&client->dev, &leds[i].led_cdev);
 +		if (err < 0)
