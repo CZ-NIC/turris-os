@@ -92,12 +92,11 @@ Build/Compile = $(Build/Compile/Default)
 
 ifdef CONFIG_SIGNED_PACKAGES
   define Build/Configure
-	[ -s $(BUILD_KEY) -a -s $(BUILD_KEY).pub ] || \
-		$(STAGING_DIR_HOST)/bin/usign -G -s $(BUILD_KEY) -p $(BUILD_KEY).pub -c "Local build key"
-
+	[ -s $(BUILD_KEY) -a -s $(BUILD_KEY).pub ]
   endef
 
   define Package/base-files/install-key
+	rm -rf $(1)/etc/opkg/keys
 	mkdir -p $(1)/etc/opkg/keys
 	$(CP) $(BUILD_KEY).pub $(1)/etc/opkg/keys/`$(STAGING_DIR_HOST)/bin/usign -F -p $(BUILD_KEY).pub`
 
