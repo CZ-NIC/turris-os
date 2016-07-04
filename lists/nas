@@ -89,8 +89,6 @@ mdadm
 mkhfs
 mountd
 mount-utils
-nfs-kernel-server
-nfs-kernel-server-utils
 ntfs-3g
 ntfs-3g-utils
 openssh-client
