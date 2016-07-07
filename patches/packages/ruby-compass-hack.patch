@@ -1,0 +1,27 @@
+diff --git a/lang/ruby/Makefile b/lang/ruby/Makefile
+index 20bfaa3..a08a512 100644
+--- a/lang/ruby/Makefile
++++ b/lang/ruby/Makefile
+@@ -625,6 +625,22 @@ endef
+ RUBY_FILES = $(strip $(call Package/ruby-$(1)/files))
+ RUBY_FILES_EXCLUDED = $(strip $(call Package/ruby-$(1)/files-excluded))
+ 
++# gems that should be installed to host environment
++GEM_LIST:=compass breakpoint
++GEM_compass_VERSION:=1.0.1
++GEM_breakpoint_VERSION:=2.5.0
++
++define Host/Install
++	$(call Host/Install/Default)
++
++	$(foreach gem,$(GEM_LIST),$(STAGING_DIR_HOST)/bin/gem install $(gem) -v $(GEM_$(gem)_VERSION);)
++endef
++
++define Host/Clean
++	$(RM) -rf $(STAGING_DIR_HOST)/lib/ruby
++	$(RM) -rf $(STAGING_DIR_HOST)/share/ri
++endef
++
+ # 1: short name
+ # 2: install dir
+ define RubyBuildPackage/install
