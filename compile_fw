@@ -89,7 +89,7 @@ for i in lists/*; do
 		if expr "$PKG" : CONFIG_;then
 			echo "$PKG" >> .config
 		elif [ -n "$PKG" ]; then
-			echo "CONFIG_PACKAGE_$PKG=y" >> .config
+			[ -z "$BUILD_ALL" ] || echo "CONFIG_PACKAGE_$PKG=y" >> .config
 		fi
 	done < "$i"
 done
