@@ -52,7 +52,7 @@ cat configs/common configs/$TARGET_BOARD | sed -e "s|@BOARD@|$TARGET_BOARD|" -e 
 [ -n "$BUILD_ALL" ] && echo "CONFIG_ALL=y" >> .config && echo "CONFIG_SDK=y" >> .config
 
 # Include important userlists
-echo "Install " `sed -n 's|^CONFIG_PACKAGE_\([^=]*\)=.*|"\1"|p' .config` > base.lua
+echo "Install " `sed -n 's|^CONFIG_PACKAGE_\([^=]*\)=y|"\1"|p' .config` > base.lua
 if [ "$TARGET_BOARD" = omnia ]; then
 for i in lists/*; do
 	while read PKG; do
