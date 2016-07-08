@@ -57,7 +57,7 @@ echo ALL_KMODS=y >> .config
 cat > base.lua << EOF
 -- The basic repository
 Repository 'turris' 'https://api.turris.cz/openwrt-repo/${TARGET_BOARD}${PKG_BRANCH}/packages' {
-	subdirs = {'base', 'lucics', 'management', 'packages', 'routing', 'turrispackages'},
+	subdirs = {$(echo $(sed -n 's|^src-git[[:blank:]]\+\([^[:blank:]]*\)[[:blank:]]\+http.*|\1|p' ./feeds.conf.default) | sed -e 's|\([^[:blank:]]\+\)|'"'\\1'|g" -e 's|\ |,\ |g')},
 	verification = 'cert'
 }
 EOF
@@ -66,7 +66,7 @@ cat >> base.lua << EOF
 
 -- The fallback repository
 Repository 'turris-fallback' 'https://api.turris.cz/openwrt-repo/${TARGET_BOARD}-nightly/packages' {
-	subdirs = {'base', 'lucics', 'management', 'packages', 'routing', 'turrispackages'},
+	subdirs = {$(echo $(sed -n 's|^src-git[[:blank:]]\+\([^[:blank:]]*\)[[:blank:]]\+http.*|\1|p' ./feeds.conf.default) | sed -e 's|\([^[:blank:]]\+\)|'"'\\1'|g" -e 's|\ |,\ |g')},
 	verification = 'cert',
 	priority = 40
 }
