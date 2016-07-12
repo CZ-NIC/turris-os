@@ -2,6 +2,7 @@ luci-app-ahcp
 luci-app-commands
 luci-app-firewall
 luci-app-ntpc
+luci-app-ddns
 luci-app-statistics
 luci-app-tinyproxy
 luci-app-transmission
@@ -9,6 +10,9 @@ luci-app-upnp
 luci-app-wol
 luci-app-wshaper
 luci-app-ddns
+luci-app-minidlna
+luci-app-mjpg-streamer
+luci-app-watchcat
 luci-i18n-base-cs
 luci-i18n-base-en
 luci-app-rainbow
@@ -34,6 +38,14 @@ luci-i18n-upnp-en
 luci-i18n-wol-en
 luci-i18n-wshaper-en
 luci-i18n-ddns-en
+luci-i18n-ddns-cs
+luci-i18n-ddns-en
+luci-i18n-watchcat-cs
+luci-i18n-watchcat-en
+luci-i18n-minidlna-cs
+luci-i18n-mjpg-streamer-cs
+luci-i18n-minidlna-en
+luci-i18n-mjpg-streamer-en
 luci-proto-3g
 luci-proto-ipv6
 luci-proto-openconnect
