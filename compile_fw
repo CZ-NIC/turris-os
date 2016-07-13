@@ -91,7 +91,7 @@ cat >> logs/junit.xml << EOF
 <testsuite errors='1' name='$PKG_NAME' tests='1'>
 <testcase name='compile'>
 <error message='$PKG_NAME failed to compile' type='error'><![CDATA[
-`cat logs/$log`
+`tail -n 100 logs/$log | sed 's|\]\]>|\]\] >|g'`
 ]]></error>
 </testcase>
 </testsuite>
