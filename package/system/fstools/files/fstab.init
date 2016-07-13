@@ -3,14 +3,10 @@
 
 START=40
 
-boot() {
+start() {                            
 	/sbin/block mount
 }
 
-start() {
-	echo "this file has been obsoleted. please call \"/sbin/block mount\" directly"
-}
-
-stop() {
+stop() {                            
 	/sbin/block umount
 }
