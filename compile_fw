@@ -50,16 +50,46 @@ popd
 [ -z "$OPENWRT_BRANCH" ] || PKG_BRANCH="-$OPENWRT_BRANCH"
 cat configs/common configs/$TARGET_BOARD | sed -e "s|@BOARD@|$TARGET_BOARD|" -e "s|@BRANCH@|$PKG_BRANCH|" > .config
 [ -n "$BUILD_ALL" ] && echo "CONFIG_ALL=y" >> .config && echo "CONFIG_SDK=y" >> .config
+echo ALL_KMODS=y >> .config
 
 # Include important userlists
-echo "Install " `sed -n 's|^CONFIG_PACKAGE_\([^=]*\)=.*|"\1"|p' .config` > base.lua
+# Base list generation
+cat > base.lua << EOF
+-- The basic repository
+Repository 'turris' 'https://api.turris.cz/openwrt-repo/${TARGET_BOARD}${PKG_BRANCH}/packages' {
+	subdirs = {$(echo $(sed -n 's|^src-git[[:blank:]]\+\([^[:blank:]]*\)[[:blank:]]\+http.*|\1|p' ./feeds.conf.default) | sed -e 's|\([^[:blank:]]\+\)|'"'\\1'|g" -e 's|\ |,\ |g')},
+	verification = 'cert'
+}
+EOF
+if [ -z "$BUILD_ALL" ]; then
+cat >> base.lua << EOF
+
+-- The fallback repository
+Repository 'turris-fallback' 'https://api.turris.cz/openwrt-repo/${TARGET_BOARD}-nightly/packages' {
+	subdirs = {$(echo $(sed -n 's|^src-git[[:blank:]]\+\([^[:blank:]]*\)[[:blank:]]\+http.*|\1|p' ./feeds.conf.default) | sed -e 's|\([^[:blank:]]\+\)|'"'\\1'|g" -e 's|\ |,\ |g')},
+	verification = 'cert',
+	priority = 40
+}
+EOF
+fi
+cat >> base.lua << EOF
+
+-- Make sure the updater is up to date before continuing
+Package 'opkg-trans' { replan = true }
+Install 'opkg-trans' 'updater-ng'
+Install 'userlists' { ignore = { 'missing' } }
+
+-- Some packages from the basic system.
+Install $(echo $(sed -n 's|^CONFIG_PACKAGE_\([^=]*\)=y|"\1"|p' .config))
+EOF
+# Other lists
 if [ "$TARGET_BOARD" = omnia ]; then
 for i in lists/*; do
 	while read PKG; do
 		if expr "$PKG" : CONFIG_;then
 			echo "$PKG" >> .config
 		elif [ -n "$PKG" ]; then
-			echo "CONFIG_PACKAGE_$PKG=y" >> .config
+			[ -z "$BUILD_ALL" ] || echo "CONFIG_PACKAGE_$PKG=y" >> .config
 		fi
 	done < "$i"
 done

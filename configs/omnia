@@ -48,22 +48,6 @@ CONFIG_PACKAGE_shadow-userdel=y
 CONFIG_PACKAGE_shadow-usermod=y
 CONFIG_PACKAGE_shadow-utils=y
 CONFIG_PACKAGE_updater-migrate=y
+CONFIG_PACKAGE_i2c-tools=y
 CONFIG_shadow-all=y
-
-# LuCI
-CONFIG_PACKAGE_luci-app-ahcp=y
-CONFIG_PACKAGE_luci-app-commands=y
-CONFIG_PACKAGE_luci-app-ddns=y
-CONFIG_PACKAGE_luci-app-minidlna=y
-CONFIG_PACKAGE_luci-app-mjpg-streamer=y
-CONFIG_PACKAGE_luci-app-ntpc=y
-CONFIG_PACKAGE_luci-app-tinyproxy=y
-CONFIG_PACKAGE_luci-app-transmission=y
-CONFIG_PACKAGE_luci-app-upnp=y
-CONFIG_PACKAGE_luci-app-watchcat=y
-CONFIG_PACKAGE_luci-app-wshaper=y
-CONFIG_PACKAGE_luci-proto-3g=y
-CONFIG_PACKAGE_luci-proto-openconnect=y
-CONFIG_PACKAGE_luci-proto-relay=y
-CONFIG_PACKAGE_luci-proto-vpnc=y
 
