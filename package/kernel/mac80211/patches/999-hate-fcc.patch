@@ -4,7 +4,7 @@
  	REG_REQ_ALREADY_SET,
  };
  
-+static char* freg = "  ";
++static char* freg = "**";
 +module_param(freg, charp, 0644);
 +MODULE_PARM_DESC(freg,
 +		 "Ignores users requests to set any other regulatory domain");
@@ -17,7 +17,7 @@
  	request->wiphy_idx = WIPHY_IDX_INVALID;
 -	request->alpha2[0] = alpha2[0];
 -	request->alpha2[1] = alpha2[1];
-+	if(freg[0] != ' ') { printk("REG domain set to %c%c instead of %c%c\n", freg[0], freg[1], alpha2[0], alpha2[1]);
++	if(freg[0] != '*') { printk("REG domain set to %c%c instead of %c%c\n", freg[0], freg[1], alpha2[0], alpha2[1]);
 +		request->alpha2[0] = freg[0];
 +		request->alpha2[1] = freg[1];
 +	} else { printk("REG domain set to %c%c (freg = %c%c)\n", alpha2[0], alpha2[1], freg[0], freg[1]);
