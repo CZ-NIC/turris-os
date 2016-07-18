@@ -98,8 +98,9 @@ ifdef CONFIG_SIGNED_PACKAGES
   define Package/base-files/install-key
 	rm -rf $(1)/etc/opkg/keys
 	mkdir -p $(1)/etc/opkg/keys
+ifndef CONFIG_PACKAGE_cznic-repo-keys
 	$(CP) $(BUILD_KEY).pub $(1)/etc/opkg/keys/`$(STAGING_DIR_HOST)/bin/usign -F -p $(BUILD_KEY).pub`
-
+endif
   endef
 endif
 
