@@ -80,6 +80,11 @@ Install 'userlists' { ignore = { 'missing' } }
 -- Some packages from the basic system.
 Install $(echo $(sed -n 's|^CONFIG_PACKAGE_\([^=]*\)=y|"\1"|p' .config))
 EOF
+if [ -z "${PKG_BRANCH}" ]; then
+	echo cznic-repo-keys-test >> lists/base.list
+else
+	echo CONFIG_PACKAGE_cznic-repo-keys-test=m >> .config
+fi
 # Other lists
 for i in lists/*.list; do
 	cat "$i" "${i/list/${TARGET_BOARD}}" 2> /dev/null | while read PKG; do
@@ -155,9 +160,11 @@ for i in lists/*.list; do
 	fi
 done
 for i in lists/*.lua; do
-	cp $i $PUB_BIN_DIR/lists
-	if [ -f "$HOME"/mime.key ]; then
-		staging_dir/host/bin/usign -S -m $PUB_BIN_DIR/lists/$(basename $i).lua -s "$HOME"/mime.key
+	if [ -r "$i" ]; then
+		cp $i $PUB_BIN_DIR/lists
+		if [ -f "$HOME"/mime.key ]; then
+			staging_dir/host/bin/usign -S -m $PUB_BIN_DIR/lists/$(basename $i).lua -s "$HOME"/mime.key
+		fi
 	fi
 done
 
