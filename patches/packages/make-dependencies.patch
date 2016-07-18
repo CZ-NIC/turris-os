@@ -1,0 +1,12 @@
+diff --git a/devel/make/Makefile b/devel/make/Makefile
+index 65079c5..5e8c466 100644
+--- a/devel/make/Makefile
++++ b/devel/make/Makefile
+@@ -25,6 +25,7 @@ define Package/make
+   SECTION:=devel
+   CATEGORY:=Development
+   TITLE:=make
++  DEPENDS:=+libelf1
+   URL:=https://www.gnu.org/software/make/
+ endef
+ 
