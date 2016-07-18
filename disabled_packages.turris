@@ -5,3 +5,4 @@ node-hid  # depends on node
 node-serialport  # depends on node
 libseccomp  # PPC not supported in v2.2.1 yet
 micropython  # incompatible with PPC
+vala

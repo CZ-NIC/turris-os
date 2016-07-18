@@ -1,0 +1,13 @@
+diff --git a/libs/libv4l/Makefile b/libs/libv4l/Makefile
+index b6fda69..b82fe3b 100644
+--- a/libs/libv4l/Makefile
++++ b/libs/libv4l/Makefile
+@@ -76,7 +76,7 @@ define Package/v4l-utils/description
+   This package contains the video4linux utilities.
+ endef
+ 
+-TARGET_CFLAGS += $(FPIC)
++TARGET_CFLAGS += $(FPIC) -std=c99
+ TARGET_LDFLAGS += -largp
+ 
+ CONFIGURE_ARGS+= \

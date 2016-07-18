@@ -1,0 +1,46 @@
+From f99ad235f4c6033bd9f249b6a76cf9149e424637 Mon Sep 17 00:00:00 2001
+From: Konstantin Shalygin <k0ste@cn.ru>
+Date: Tue, 10 May 2016 09:20:27 +0600
+Subject: [PATCH] glib2: Fix build on GCC6.
+
+Signed-off-by: Konstantin Shalygin <k0ste@cn.ru>
+---
+ libs/glib2/Makefile                      |  2 +-
+ libs/glib2/patches/002-gcc6-compat.patch | 15 +++++++++++++++
+ 2 files changed, 16 insertions(+), 1 deletion(-)
+ create mode 100644 libs/glib2/patches/002-gcc6-compat.patch
+
+diff --git a/libs/glib2/Makefile b/libs/glib2/Makefile
+index 583828b..b149711 100644
+--- a/libs/glib2/Makefile
++++ b/libs/glib2/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=glib2
+ PKG_VERSION:=2.46.2
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=glib-$(PKG_VERSION).tar.xz
+ PKG_BUILD_DIR:=$(BUILD_DIR)/glib-$(PKG_VERSION)
+diff --git a/libs/glib2/patches/002-gcc6-compat.patch b/libs/glib2/patches/002-gcc6-compat.patch
+new file mode 100644
+index 0000000..59d266e
+--- /dev/null
++++ b/libs/glib2/patches/002-gcc6-compat.patch
+@@ -0,0 +1,15 @@
++diff --git a/glib/gdate.c b/glib/gdate.c
++index 4aece02..cdc735c 100644
++--- a/glib/gdate.c
+++++ b/glib/gdate.c
++@@ -2494,7 +2494,10 @@ g_date_strftime (gchar       *s,
++        * recognize whether strftime actually failed or just returned "".
++        */
++       tmpbuf[0] = '\1';
+++      #pragma GCC diagnostic push
+++      #pragma GCC diagnostic ignored "-Wformat-nonliteral"
++       tmplen = strftime (tmpbuf, tmpbufsize, locale_format, &tm);
+++      #pragma GCC diagnostic pop
++ 
++       if (tmplen == 0 && tmpbuf[0] != '\0')
++         {

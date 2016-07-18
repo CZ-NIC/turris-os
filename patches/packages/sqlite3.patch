@@ -1,0 +1,13 @@
+diff --git a/libs/sqlite3/Makefile b/libs/sqlite3/Makefile
+index 9d3700f..c481f5d 100644
+--- a/libs/sqlite3/Makefile
++++ b/libs/sqlite3/Makefile
+@@ -57,7 +57,7 @@ define Package/sqlite3-cli
+   $(call Package/sqlite3/Default)
+   SECTION:=utils
+   CATEGORY:=Utilities
+-  DEPENDS:=+libsqlite3 +libncurses +libreadline
++  DEPENDS:=+libsqlite3 +libncurses +libreadline +libedit
+   TITLE+= (cli)
+ endef
+ 

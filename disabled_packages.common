@@ -1,27 +1,5 @@
-gcc  # broken in upstream
-gpsd  # broken in upstream
-grilo-plugins  # broken in upstream
-lcdgrilo  # broken in upstream
-libmraa  # broken in upstream
-libtorrent  # broken in upstream
-libupm  # broken in upstream
-mpg123  # broken in upstream
-ola  # broken in upstream
-python-psycopg2  # broken in upstream
-rtorrent  # broken in upstream
-smstools3  # broken in upstream
-upmpdcli  # broken in upstream
 eudev  # conflicts with udev
 libinput # doesn't make sense on Turris
 flashrom # doesn't make sense on Turris
 usbip # depends on eudev
-libcanfestival # broken
-fossil # broken
-protobuf # broken
-luarocks # broken
-crtmpserver # broken
-tcl # broken
-miniupnpd # currently broken
-libextractor # broken
-python-cryptography # broken
-grilo # dependencies not in the tree at the moment
+python-cffi
