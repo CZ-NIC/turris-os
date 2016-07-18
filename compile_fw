@@ -81,17 +81,19 @@ Install 'userlists' { ignore = { 'missing' } }
 Install $(echo $(sed -n 's|^CONFIG_PACKAGE_\([^=]*\)=y|"\1"|p' .config))
 EOF
 # Other lists
-if [ "$TARGET_BOARD" = omnia ]; then
-for i in lists/*; do
-	while read PKG; do
+for i in lists/*.list; do
+	cat "$i" "${i/list/${TARGET_BOARD}}" 2> /dev/null | while read PKG; do
 		if expr "$PKG" : CONFIG_;then
 			echo "$PKG" >> .config
 		elif [ -n "$PKG" ]; then
-			[ -z "$BUILD_ALL" ] || echo "CONFIG_PACKAGE_$PKG=y" >> .config
+			if [ "$TARGET_BOARD" = omnia ] || [ "$i" = lists/base.list ]; then
+				[ -z "$BUILD_ALL" ] || echo "CONFIG_PACKAGE_$PKG=y" >> .config
+			else
+				[ -z "$BUILD_ALL" ] || echo "CONFIG_PACKAGE_$PKG=m" >> .config
+			fi
 		fi
-	done < "$i"
+	done
 done
-fi
 
 [ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
 if [ -f "$HOME"/mime.key ]; then
@@ -141,15 +143,19 @@ EOF
 PUB_BIN_DIR="`ls -1d bin/* | head -n1`"
 mkdir -p $PUB_BIN_DIR/lists
 mv base.lua $PUB_BIN_DIR/lists
-if [ -f "$HOME"/mime.key ]; then
-	staging_dir/host/bin/usign -S -m $PUB_BIN_DIR/lists/base.lua -s "$HOME"/mime.key
-fi
-for i in lists/*; do
-	echo -n "Install" > $PUB_BIN_DIR/lists/$(basename $i).lua
-	grep -v CONFIG_ "$i" | grep .  | while read pkg; do
+for i in lists/*.list; do
+	[ "$i" = lists/base ] || rm -f $PUB_BIN_DIR/lists/$(basename $i).lua
+	echo -n "Install" >> $PUB_BIN_DIR/lists/$(basename $i).lua
+	grep -v CONFIG_ "$i" "${i/list/${TARGET_BOARD}}" 2> /dev/null | grep .  | while read pkg; do
 		echo -n " \"$pkg\"" >> $PUB_BIN_DIR/lists/$(basename $i).lua
 	done
 	echo >> $PUB_BIN_DIR/lists/$(basename $i).lua
+	if [ -f "$HOME"/mime.key ]; then
+		staging_dir/host/bin/usign -S -m $PUB_BIN_DIR/lists/$(basename $i).lua -s "$HOME"/mime.key
+	fi
+done
+for i in lists/*.lua; do
+	cp $i $PUB_BIN_DIR/lists
 	if [ -f "$HOME"/mime.key ]; then
 		staging_dir/host/bin/usign -S -m $PUB_BIN_DIR/lists/$(basename $i).lua -s "$HOME"/mime.key
 	fi
