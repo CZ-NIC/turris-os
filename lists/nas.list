@@ -29,7 +29,6 @@ kmod-crypto-hash
 kmod-crypto-hmac
 kmod-crypto-iv
 kmod-crypto-manager
-kmod-crypto-marvell-cesa
 kmod-crypto-md4
 kmod-crypto-md5
 kmod-crypto-null

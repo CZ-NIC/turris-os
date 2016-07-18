@@ -87,7 +87,7 @@ else
 fi
 # Other lists
 for i in lists/*.list; do
-	cat "$i" "${i/list/${TARGET_BOARD}}" 2> /dev/null | while read PKG; do
+	cat "$i" "${i/%list/${TARGET_BOARD}}" 2> /dev/null | while read PKG; do
 		if expr "$PKG" : CONFIG_;then
 			echo "$PKG" >> .config
 		elif [ -n "$PKG" ]; then
@@ -151,7 +151,7 @@ mv base.lua $PUB_BIN_DIR/lists
 for i in lists/*.list; do
 	[ "$i" = lists/base ] || rm -f $PUB_BIN_DIR/lists/$(basename $i).lua
 	echo -n "Install" >> $PUB_BIN_DIR/lists/$(basename $i).lua
-	grep -v CONFIG_ "$i" "${i/list/${TARGET_BOARD}}" 2> /dev/null | grep .  | while read pkg; do
+	grep -v CONFIG_ "$i" "${i/%list/${TARGET_BOARD}}" 2> /dev/null | grep .  | while read pkg; do
 		echo -n " \"$pkg\"" >> $PUB_BIN_DIR/lists/$(basename $i).lua
 	done
 	echo >> $PUB_BIN_DIR/lists/$(basename $i).lua
