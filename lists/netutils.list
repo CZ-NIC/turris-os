@@ -2,8 +2,6 @@ kmod-tun
 openvpn-openssl
 ppp-mod-pppoa
 comgt
-# TODO: Missing package
-#pptpd
 6in4
 6to4
 6rd
@@ -12,7 +10,6 @@ relayd
 br2684ctl
 kmod-usb-core
 kmod-usb-serial
-luci-(app|i18n)-ddns(-cs|-en)?$	X
 kmod-usb-net
 kmod-usb-net-rndis
 kmod-usb-net-cdc-ether
