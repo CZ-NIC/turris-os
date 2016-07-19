@@ -149,21 +149,21 @@ PUB_BIN_DIR="`ls -1d bin/* | head -n1`"
 mkdir -p $PUB_BIN_DIR/lists
 mv base.lua $PUB_BIN_DIR/lists
 for i in lists/*.list; do
-	[ "$i" = lists/base ] || rm -f $PUB_BIN_DIR/lists/$(basename $i).lua
-	echo -n "Install" >> $PUB_BIN_DIR/lists/$(basename $i).lua
+	[ "$i" = lists/base ] || rm -f $PUB_BIN_DIR/lists/$(basename $i .list).lua
+	echo -n "Install" >> $PUB_BIN_DIR/lists/$(basename $i .list).lua
 	grep -v CONFIG_ "$i" "${i/%list/${TARGET_BOARD}}" 2> /dev/null | grep .  | while read pkg; do
-		echo -n " \"$pkg\"" >> $PUB_BIN_DIR/lists/$(basename $i).lua
+		echo -n " \"$pkg\"" >> $PUB_BIN_DIR/lists/$(basename $i .list).lua
 	done
-	echo >> $PUB_BIN_DIR/lists/$(basename $i).lua
+	echo >> $PUB_BIN_DIR/lists/$(basename $i .list).lua
 	if [ -f "$HOME"/mime.key ]; then
-		staging_dir/host/bin/usign -S -m $PUB_BIN_DIR/lists/$(basename $i).lua -s "$HOME"/mime.key
+		staging_dir/host/bin/usign -S -m $PUB_BIN_DIR/lists/$(basename $i .list).lua -s "$HOME"/mime.key
 	fi
 done
 for i in lists/*.lua; do
 	if [ -r "$i" ]; then
 		cp $i $PUB_BIN_DIR/lists
 		if [ -f "$HOME"/mime.key ]; then
-			staging_dir/host/bin/usign -S -m $PUB_BIN_DIR/lists/$(basename $i).lua -s "$HOME"/mime.key
+			staging_dir/host/bin/usign -S -m $PUB_BIN_DIR/lists/$(basename $i) -s "$HOME"/mime.key
 		fi
 	fi
 done
