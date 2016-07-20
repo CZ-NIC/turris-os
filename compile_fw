@@ -46,6 +46,13 @@ popd
 [ \! -f ./disabled_packages.common ]        || ./scripts/feeds uninstall $(echo $(cut -d '#' -f1 ./disabled_packages.common))
 [ \! -f ./disabled_packages.$TARGET_BOARD ] || ./scripts/feeds uninstall $(echo $(cut -d '#' -f1 ./disabled_packages.$TARGET_BOARD))
 
+# Bump release numbers when asked for
+while read pkg release; do
+	sed -i 's|^PKG_RELEASE\(:\?\)=[0-9]\+$|PKG_RELEASE\1='"$release"'|' "$pkg"/Makefile
+	sed -i 's|^PKG_RELEASE\(:\?\)=\$(PKG_SOURCE_VERSION)$|PKG_RELEASE\1=\$(PKG_SOURCE_VERSION)-'"$release"'|' "$pkg"/Makefile
+	sed -i 's|^PKG_RELEASE\(:\?\)=\$(PKG_SOURCE_VERSION)-[0-9]\+$|PKG_RELEASE\1=\$(PKG_SOURCE_VERSION)-'"$release"'|' "$pkg"/Makefile
+done < release-override
+
 # Build NAND FW
 [ -z "$OPENWRT_BRANCH" ] || PKG_BRANCH="-$OPENWRT_BRANCH"
 cat configs/common configs/$TARGET_BOARD | sed -e "s|@BOARD@|$TARGET_BOARD|" -e "s|@BRANCH@|$PKG_BRANCH|" > .config
