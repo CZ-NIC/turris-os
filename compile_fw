@@ -212,7 +212,7 @@ if [ "$TARGET_BOARD" = turris ]; then
 elif [ "$TARGET_BOARD" = omnia ]; then
 	cp configs/config-omnia-rescue .config
 	[ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
-	make_defconfig CONFDEFAULT=n
+	make defconfig CONFDEFAULT=n
 	make clean
 	make "$@"
 	echo -e "CONFIG_TARGET_ROOTFS_INITRAMFS=y\nCONFIG_TARGET_INITRAMFS_COMPRESSION_XZ=y" >> .config
