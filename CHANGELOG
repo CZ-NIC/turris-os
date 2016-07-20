@@ -1,3 +1,4 @@
+* nuci: query www.turris.cz whether the router is registered
 * Foris: experimental version for Omnia. Please do not deploy until this line is removed.
 * rainbow pro Turris Omnia používá rozhraní v /sys poskytované kernelem namísto přímé komunikace po I2C
 * oprava init scriptu lcollectu - Majordomo začal od blíže nespecifikované verze ukazovat i přenosy v lokální síti
