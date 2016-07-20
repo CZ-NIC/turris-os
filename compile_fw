@@ -10,7 +10,7 @@
 [ -d ./logs-initram ] && rm -rf ./logs-initram
 
 make_defconfig() {
-	make defconfig
+	make defconfig "$@"
 	egrep '^(#[[:space:]]+)?CONFIG_KERNEL' configs/common configs/$TARGET_BOARD | sed 's|.*:||' >> ./.config
 }
 
@@ -212,10 +212,8 @@ if [ "$TARGET_BOARD" = turris ]; then
 elif [ "$TARGET_BOARD" = omnia ]; then
 	cp configs/config-omnia-rescue .config
 	[ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
-	make defconfig CONFDEFAULT=n
+	make_defconfig CONFDEFAULT=n
 	make clean
-	# Ugly hack, make python compile first to avoid possible race
-	./scripts/feeds uninstall python
 	make "$@"
 	echo -e "CONFIG_TARGET_ROOTFS_INITRAMFS=y\nCONFIG_TARGET_INITRAMFS_COMPRESSION_XZ=y" >> .config
 	sed -i 's/^TARGET_ROOTFS_INCLUDE_KERNEL=.*/# TARGET_ROOTFS_INCLUDE_KERNEL is not set/' .config
