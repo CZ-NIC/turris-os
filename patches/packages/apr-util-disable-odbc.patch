@@ -1,0 +1,13 @@
+diff --git a/libs/apr-util/Makefile b/libs/apr-util/Makefile
+index 97d377c..818cd97 100644
+--- a/libs/apr-util/Makefile
++++ b/libs/apr-util/Makefile
+@@ -41,7 +41,7 @@ CONFIGURE_ARGS += \
+ 	--with-apr="$(STAGING_DIR)/usr/bin/apr-1-config" \
+ 	--with-expat="$(STAGING_DIR)/usr" \
+ 	--without-sqlite2 \
+-	--with-sqlite3="$(STAGING_DIR)/usr"
++	--with-sqlite3="$(STAGING_DIR)/usr" --without-odbc
+ 
+ ifdef $(CONFIG_BUILD_NLS)
+ 	CONFIGURE_ARGS += --with-iconv="$(ICONV_PREFIX)"
