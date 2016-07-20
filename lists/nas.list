@@ -106,7 +106,7 @@ smartmontools
 sshfs
 swap-utils
 tar
-transmission-daemon
+transmission-daemon-openssl
 tune2fs
 wget
 xfs-fsck
