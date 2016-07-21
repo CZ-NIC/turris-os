@@ -157,6 +157,7 @@ for i in lists/*.list; do
 		echo -n " \"$pkg\"" >> $PUB_BIN_DIR/lists/$(basename $i .list).lua
 	done
 	echo >> $PUB_BIN_DIR/lists/$(basename $i .list).lua
+	sed -i '/^Install[[:blank:]]*$/ d' $PUB_BIN_DIR/lists/$(basename $i .list).lua
 	if [ -f "$HOME"/mime.key ]; then
 		staging_dir/host/bin/usign -S -m $PUB_BIN_DIR/lists/$(basename $i .list).lua -s "$HOME"/mime.key
 	fi
