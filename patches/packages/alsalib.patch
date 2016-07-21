@@ -1,0 +1,32 @@
+From 8f3b36310413a132fdda04fbc189ebcb6eadcb6c Mon Sep 17 00:00:00 2001
+From: Michal Hrusecky <michal.hrusecky@nic.cz>
+Date: Thu, 21 Jul 2016 10:52:16 +0200
+Subject: [PATCH] Add missing headers
+
+---
+ libs/alsa-lib/patches/010-alsa-lib-includes.patch | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+ create mode 100644 libs/alsa-lib/patches/010-alsa-lib-includes.patch
+
+diff --git a/libs/alsa-lib/patches/010-alsa-lib-includes.patch b/libs/alsa-lib/patches/010-alsa-lib-includes.patch
+new file mode 100644
+index 0000000..aa69718
+--- /dev/null
++++ b/libs/alsa-lib/patches/010-alsa-lib-includes.patch
+@@ -0,0 +1,13 @@
++--- a/src/topology/parser.c
+++++ b/src/topology/parser.c
++@@ -19,6 +19,10 @@
++ #include "list.h"
++ #include "tplg_local.h"
++ 
+++#include <sys/types.h>
+++#include <sys/stat.h>
+++#include <unistd.h>
+++
++ /*
++  * Parse compound
++  */
+-- 
+2.9.2
+
