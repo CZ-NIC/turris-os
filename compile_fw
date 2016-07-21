@@ -212,6 +212,8 @@ if [ "$TARGET_BOARD" = turris ]; then
 elif [ "$TARGET_BOARD" = omnia ]; then
 	cp configs/config-omnia-rescue .config
 	[ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
+    # Ugly hack, make python compile first to avoid possible race
+    ./scripts/feeds uninstall python
 	make defconfig CONFDEFAULT=n
 	make clean
 	make "$@"
