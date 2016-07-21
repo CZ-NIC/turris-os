@@ -49,8 +49,8 @@ popd
 # Build NAND FW
 [ -z "$OPENWRT_BRANCH" ] || PKG_BRANCH="-$OPENWRT_BRANCH"
 cat configs/common configs/$TARGET_BOARD | sed -e "s|@BOARD@|$TARGET_BOARD|" -e "s|@BRANCH@|$PKG_BRANCH|" > .config
-[ -n "$BUILD_ALL" ] && echo "CONFIG_ALL=y" >> .config && echo "CONFIG_SDK=y" >> .config
 echo ALL_KMODS=y >> .config
+make_defconfig
 
 # Include important userlists
 # Base list generation
@@ -100,6 +100,7 @@ for i in lists/*.list; do
 	done
 done
 
+[ -n "$BUILD_ALL" ] && echo "CONFIG_ALL=y" >> .config && echo "CONFIG_SDK=y" >> .config
 [ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
 if [ -f "$HOME"/mime.key ]; then
 	echo "CONFIG_SIGNED_PACKAGES=y" >> .config
