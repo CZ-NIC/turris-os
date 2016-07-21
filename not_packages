@@ -2,3 +2,5 @@
 "MAC80211_MESH"
 "MAC80211_DEBUGFS"
 "ATH_DFS"
+"odhcp6c_ext_cer_id"
+"odhcpd_ext_cer_id"
