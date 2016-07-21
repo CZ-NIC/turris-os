@@ -78,10 +78,11 @@ Install 'opkg-trans' 'updater-ng'
 Install 'userlists' { ignore = { 'missing' } }
 
 -- Some packages from the basic system.
-Install $(echo $(sed -n 's|^CONFIG_PACKAGE_\([^=]*\)=.*|"\1"|p' .config | grep -v [A-Z]))
+Install $(echo $(sed -n 's|^CONFIG_PACKAGE_\([^=]*\)=.*|"\1"|p' .config | grep -v -F -f not_packages))
 EOF
 if [ -z "${PKG_BRANCH}" ]; then
-	echo cznic-repo-keys-test >> lists/base.list
+	echo 'Install "cznic-repo-keys-test"' >> base.lua
+	echo CONFIG_PACKAGE_cznic-repo-keys-test=y >> .config
 else
 	echo CONFIG_PACKAGE_cznic-repo-keys-test=m >> .config
 fi
