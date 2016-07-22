@@ -15,6 +15,8 @@ CONFIG_BUSYBOX_CONFIG_SYSLOGD=n
 CONFIG_BUSYBOX_CONFIG_STTY=y
 CONFIG_VERSION_REPO="https://api.turris.cz/openwrt-repo/@BOARD@@BRANCH@/packages/"
 CONFIG_VERSION_NICK="@BOARD@"
+CONFIG_DEFAULT_updater=n
+# CONFIG_PACKAGE_updater is not set
 
 # Disable package signing for now (we don't preserve signing key)
 CONFIG_SIGNED_PACKAGES=n
