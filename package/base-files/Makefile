@@ -11,7 +11,7 @@ include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/version.mk
 
 PKG_NAME:=base-files
-PKG_RELEASE:=161
+PKG_RELEASE:=162
 
 PKG_FILE_DEPENDS:=$(PLATFORM_DIR)/ $(GENERIC_PLATFORM_DIR)/base-files/
 PKG_BUILD_DEPENDS:=opkg/host usign/host
@@ -98,9 +98,6 @@ ifdef CONFIG_SIGNED_PACKAGES
   define Package/base-files/install-key
 	rm -rf $(1)/etc/opkg/keys
 	mkdir -p $(1)/etc/opkg/keys
-ifndef CONFIG_PACKAGE_cznic-repo-keys
-	$(CP) $(BUILD_KEY).pub $(1)/etc/opkg/keys/`$(STAGING_DIR_HOST)/bin/usign -F -p $(BUILD_KEY).pub`
-endif
   endef
 endif
 
