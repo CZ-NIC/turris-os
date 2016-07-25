@@ -2427,7 +2427,7 @@ config BUSYBOX_DEFAULT_KILL
 	default y
 config BUSYBOX_DEFAULT_KILLALL
 	bool
-	default y
+	default n
 config BUSYBOX_DEFAULT_KILLALL5
 	bool
 	default n
