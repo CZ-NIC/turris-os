@@ -57,7 +57,7 @@ done < release-override
 [ -z "$OPENWRT_BRANCH" ] || PKG_BRANCH="-$OPENWRT_BRANCH"
 cat configs/common configs/$TARGET_BOARD | sed -e "s|@BOARD@|$TARGET_BOARD|" -e "s|@BRANCH@|$PKG_BRANCH|" > .config
 [ -n "$BUILD_ALL" ] && echo "CONFIG_ALL=y" >> .config && echo "CONFIG_SDK=y" >> .config
-echo ALL_KMODS=y >> .config
+echo CONFIG_ALL_KMODS=y >> .config
 
 # Include important userlists
 # Base list generation
