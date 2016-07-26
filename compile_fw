@@ -115,7 +115,7 @@ if [ -f "$HOME"/mime.key ]; then
 	cp "$HOME/mime.key" key-build
 	cp "$HOME/mime.pub" key-build.pub
 fi
-echo "CONFIG_PACKAGE_updater-ng=m" >> ./.config
+[ "${TARGET_BOARD}" = omnia ] || echo "CONFIG_PACKAGE_updater-ng=m" >> ./.config
 make_defconfig
 if [ -d .git ] ; then
 	git log -n1 --format='%H' >files/etc/git-version
