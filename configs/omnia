@@ -25,3 +25,24 @@ CONFIG_OPENSSL_ENGINE_DIGEST=y
 
 CONFIG_PACKAGE_updater-ng=y
 CONFIG_PACKAGE_updater-migrate=y
+
+# Packages that used to be built as modules all the time
+CONFIG_PACKAGE_daemon-watchdog=y
+CONFIG_PACKAGE_watchdog_adjust=y
+CONFIG_PACKAGE_openssh-server=y
+CONFIG_PACKAGE_ca-certificates=y
+CONFIG_PACKAGE_conntrack-tools=y
+CONFIG_PACKAGE_ebtables=y
+CONFIG_PACKAGE_openssh-client-utils=y
+CONFIG_PACKAGE_openssh-client=y
+CONFIG_PACKAGE_openssh-moduli=y
+CONFIG_PACKAGE_openssh-sftp-server=y
+CONFIG_PACKAGE_openssh-sftp-client=y
+CONFIG_PACKAGE_bash=y
+CONFIG_PACKAGE_vim-full=y
+CONFIG_PACKAGE_psmisc=y
+CONFIG_PACKAGE_htop=y
+CONFIG_PACKAGE_logrotate=y
+CONFIG_PACKAGE_https-cert=y
+CONFIG_PACKAGE_userlists=y
+

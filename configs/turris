@@ -43,7 +43,24 @@ CONFIG_KERNEL_STOP_MACHINE=y
 CONFIG_KERNEL_TREE_RCU=y
 CONFIG_KERNEL_XPS=y
 
-
-CONFIG_PACKAGE_updater-testkey=y
 CONFIG_PACKAGE_updater-consolidator=y
 CONFIG_PACKAGE_updater-deps=y
+
+# Packages that are compiled in on Omnia
+CONFIG_PACKAGE_daemon-watchdog=m
+CONFIG_PACKAGE_watchdog_adjust=m
+CONFIG_PACKAGE_openssh-server=m
+CONFIG_PACKAGE_ca-certificates=m
+CONFIG_PACKAGE_ebtables=m
+CONFIG_PACKAGE_openssh-client-utils=m
+CONFIG_PACKAGE_openssh-client=m
+CONFIG_PACKAGE_openssh-moduli=m
+CONFIG_PACKAGE_openssh-sftp-server=m
+CONFIG_PACKAGE_openssh-sftp-client=m
+CONFIG_PACKAGE_bash=m
+CONFIG_PACKAGE_vim-full=m
+CONFIG_PACKAGE_psmisc=m
+CONFIG_PACKAGE_htop=m
+CONFIG_PACKAGE_logrotate=m
+CONFIG_PACKAGE_https-cert=m
+CONFIG_PACKAGE_userlists=m
