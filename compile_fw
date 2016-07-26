@@ -92,7 +92,7 @@ EOF
 # Include stuff from defconfig and list
 echo Install $(echo $(cat lists/base.list lists/base.${TARGET_BOARD} | grep -v CONFIG | sed -n 's|^\(..*\)$|"\1"|p')) >> base.lua
 mv .config-wip .config
-if [ -z "${PKG_BRANCH}" ]; then
+if [ -n "${PKG_BRANCH}" ]; then
 	echo 'Install "cznic-repo-keys-test"' >> base.lua
 	echo CONFIG_PACKAGE_cznic-repo-keys-test=y >> .config
 else
