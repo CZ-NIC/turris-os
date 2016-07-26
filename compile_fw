@@ -61,6 +61,8 @@ echo CONFIG_ALL_KMODS=y >> .config
 
 # Include important userlists
 # Base list generation
+cp .config .config-wip
+make_defconfig
 cat > base.lua << EOF
 -- The basic repository
 Repository 'turris' 'https://api.turris.cz/openwrt-repo/${TARGET_BOARD}${PKG_BRANCH}/packages' {
@@ -87,6 +89,9 @@ Install 'userlists' { ignore = { 'missing' } }
 -- Some packages from the basic system.
 Install $(echo $(sed -n 's|^CONFIG_PACKAGE_\([^=]*\)=.*|"\1"|p' .config | grep -v -F -f not_packages))
 EOF
+# Include stuff from defconfig and list
+echo Install $(echo $(cat lists/base.list lists/base.${TARGET_BOARD} | grep -v CONFIG | sed -n 's|^\(..*\)$|"\1"|p')) >> base.lua
+mv .config-wip .config
 if [ -z "${PKG_BRANCH}" ]; then
 	echo 'Install "cznic-repo-keys-test"' >> base.lua
 	echo CONFIG_PACKAGE_cznic-repo-keys-test=y >> .config
