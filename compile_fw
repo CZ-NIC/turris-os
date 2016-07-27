@@ -123,7 +123,7 @@ if [ -d .git ] ; then
 fi
 make clean
 [ -z "$BUILD_ALL" ] || make dirclean
-make "$@"
+make "$@" PKG_BRANCH=${PKG_BRANCH/-/}
 # Nice junit export
 cat > logs/junit.xml << EOF
 <?xml version='1.0' encoding='utf-8'?>
