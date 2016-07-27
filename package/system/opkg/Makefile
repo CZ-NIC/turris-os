@@ -159,6 +159,7 @@ endef
 define Package/opkg/install
 	$(call Package/opkg/Default/install,$(1),)
   ifneq ($(CONFIG_SIGNED_PACKAGES),)
+	echo "# To disable signature checking DELETE the following line" >> $(1)/etc/opkg.conf
 	echo "option check_signature 1" >> $(1)/etc/opkg.conf
   endif
 	mkdir $(1)/usr/sbin
