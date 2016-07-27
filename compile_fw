@@ -61,8 +61,6 @@ echo CONFIG_ALL_KMODS=y >> .config
 
 # Include important userlists
 # Base list generation
-cp .config .config-wip
-make_defconfig
 cat > base.lua << EOF
 -- The basic repository
 Repository 'turris' 'https://api.turris.cz/openwrt-repo/${TARGET_BOARD}${PKG_BRANCH}/packages' {
@@ -86,12 +84,8 @@ Package 'opkg-trans' { replan = true }
 Install 'opkg-trans' 'updater-ng'
 Install 'userlists' { ignore = { 'missing' } }
 
--- Some packages from the basic system.
-Install $(echo $(sed -n 's|^CONFIG_PACKAGE_\([^=]*\)=.*|"\1"|p' .config | grep -v -F -f not_packages))
+-- Install everything that was in the image
 EOF
-# Include stuff from defconfig and list
-echo Install $(echo $(cat lists/base.list lists/base.${TARGET_BOARD} | grep -v CONFIG | sed -n 's|^\(..*\)$|"\1"|p')) >> base.lua
-mv .config-wip .config
 if [ -n "${PKG_BRANCH}" ]; then
 	echo 'Install "cznic-repo-keys-test"' >> base.lua
 	echo CONFIG_PACKAGE_cznic-repo-keys-test=y >> .config
@@ -160,31 +154,6 @@ cat >> logs/junit.xml << EOF
 EOF
 [ \! -d ./logs ] || mv ./logs ./logs-nand
 
-# Generate lists
-PUB_BIN_DIR="`ls -1d bin/* | head -n1`"
-mkdir -p $PUB_BIN_DIR/lists
-mv base.lua $PUB_BIN_DIR/lists
-for i in lists/*.list; do
-	[ "$i" = lists/base.list ] || rm -f $PUB_BIN_DIR/lists/$(basename $i .list).lua
-	echo -n "Install" >> $PUB_BIN_DIR/lists/$(basename $i .list).lua
-	grep -h -v CONFIG_ "$i" "${i/%list/${TARGET_BOARD}}" 2> /dev/null | grep .  | while read pkg; do
-		echo -n " \"$pkg\"" >> $PUB_BIN_DIR/lists/$(basename $i .list).lua
-	done
-	echo >> $PUB_BIN_DIR/lists/$(basename $i .list).lua
-	sed -i '/^Install[[:blank:]]*$/ d' $PUB_BIN_DIR/lists/$(basename $i .list).lua
-	if [ -f "$HOME"/mime.key ]; then
-		staging_dir/host/bin/usign -S -m $PUB_BIN_DIR/lists/$(basename $i .list).lua -s "$HOME"/mime.key
-	fi
-done
-for i in lists/*.lua; do
-	if [ -r "$i" ]; then
-		cp $i $PUB_BIN_DIR/lists
-		if [ -f "$HOME"/mime.key ]; then
-			staging_dir/host/bin/usign -S -m $PUB_BIN_DIR/lists/$(basename $i) -s "$HOME"/mime.key
-		fi
-	fi
-done
-
 if [ "$TARGET_BOARD" = turris ]; then
 	#Build initramfs
 	echo -e "CONFIG_TARGET_ROOTFS_INITRAMFS=y\nCONFIG_TARGET_INITRAMFS_COMPRESSION_XZ=y" >> .config
@@ -209,6 +178,33 @@ elif [ "$TARGET_BOARD" = omnia ]; then
 	find -type l ! -exec test -r {} \; -delete
 	cd ../../..
 fi
+
+# Generate lists
+PUB_BIN_DIR="`ls -1d bin/* | head -n1`"
+mkdir -p $PUB_BIN_DIR/lists
+echo Install $(sed -n 's|Package: \(.*\)|"\1"|p' bin/*/root/usr/lib/opkg/status) >> base.lua
+mv base.lua $PUB_BIN_DIR/lists
+for i in lists/*.list; do
+	[ "$i" = lists/base.list ] || rm -f $PUB_BIN_DIR/lists/$(basename $i .list).lua
+	echo -n "Install" >> $PUB_BIN_DIR/lists/$(basename $i .list).lua
+	grep -h -v CONFIG_ "$i" "${i/%list/${TARGET_BOARD}}" 2> /dev/null | grep .  | while read pkg; do
+		echo -n " \"$pkg\"" >> $PUB_BIN_DIR/lists/$(basename $i .list).lua
+	done
+	echo >> $PUB_BIN_DIR/lists/$(basename $i .list).lua
+	sed -i '/^Install[[:blank:]]*$/ d' $PUB_BIN_DIR/lists/$(basename $i .list).lua
+	if [ -f "$HOME"/mime.key ]; then
+		staging_dir/host/bin/usign -S -m $PUB_BIN_DIR/lists/$(basename $i .list).lua -s "$HOME"/mime.key
+	fi
+done
+for i in lists/*.lua; do
+	if [ -r "$i" ]; then
+		cp $i $PUB_BIN_DIR/lists
+		if [ -f "$HOME"/mime.key ]; then
+			staging_dir/host/bin/usign -S -m $PUB_BIN_DIR/lists/$(basename $i) -s "$HOME"/mime.key
+		fi
+	fi
+done
+
 
 # Clean
 [ -d ./bin-nand ] && rm -rf ./bin-nand
