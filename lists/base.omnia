@@ -2,7 +2,6 @@ cert-backup
 unbound-anchor
 wireless-tools
 openssh-server
-kmod-wdt-orion
 schnapps
 sfpswitch
 opkg-trans
