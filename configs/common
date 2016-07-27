@@ -84,6 +84,7 @@ CONFIG_PKG_RELRO_FULL=y
 
 # Opkg configuration
 CONFIG_OPKG_SUPPORT_MD5=y
+CONFIG_PACKAGE_updater-migrate=m
 
 # Few useful kernel options
 CONFIG_KERNEL_AIO=y

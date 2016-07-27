@@ -25,7 +25,6 @@ CONFIG_OPENSSL_ENGINE_DIGEST=y
 
 # Important packages
 CONFIG_PACKAGE_updater-ng=y
-CONFIG_PACKAGE_updater-migrate=y
 CONFIG_PACKAGE_kmod-wdt-orion=y
 
 # Packages that used to be built as modules all the time
