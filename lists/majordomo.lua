@@ -1,1 +1,1 @@
--- TODO: Fill in some data
+Install "luci-app-majordomo"

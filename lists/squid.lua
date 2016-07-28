@@ -1,1 +1,1 @@
--- TODO: Fill in some data
+Install "squid" "iptables-mod-tproxy" "ip6tables-mod-nat"
