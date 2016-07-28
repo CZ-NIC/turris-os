@@ -85,7 +85,6 @@ kmod-md-raid1
 kmod-md-raid10
 kmod-md-raid456
 kmod-mmc
-kmod-mmc-fsl-p2020
 kmod-nls-base
 kmod-nls-cp1250
 kmod-nls-cp1251
