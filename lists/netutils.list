@@ -7,12 +7,14 @@ kmod-usb-core
 kmod-usb-net
 kmod-usb-net-cdc-ether
 kmod-usb-net-rndis
+kmod-usb-net-qmi-wwan
 kmod-usb-serial
 kmod-usb-serial-option
 kmod-usb-serial-wwan
 kmod-usb-uhci
 luci-app-ddns
 luci-i18n-ddns-cs
+luci-proto-3g
 openvpn-openssl
 ppp-mod-pppoa
 pptpd
@@ -22,6 +24,7 @@ tcpdump
 udev
 usb-modeswitch
 usbutils
+uqmi
 wol
 6in4
 6rd
