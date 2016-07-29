@@ -2,6 +2,7 @@ acl
 attr
 badblocks
 blkid
+block-mount
 btrfs-progs
 cfdisk
 cifsmount
