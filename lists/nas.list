@@ -65,7 +65,6 @@ kmod-fs-nfs
 kmod-fs-nfs-common
 kmod-fs-nfsd
 kmod-fs-ntfs
-kmod-fs-reiserfs
 kmod-fs-udf
 kmod-fs-vfat
 kmod-fs-xfs
@@ -131,7 +130,6 @@ openssh-client-utils
 openssh-sftp-client
 openssh-sftp-server
 partx-utils
-reiserfsprogs
 resize2fs
 rsync
 rsyncd
