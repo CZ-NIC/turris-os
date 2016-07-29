@@ -62,3 +62,16 @@ index 5572c73..b0e90f7 100644
  config lxc 'lxc'
 -	option url 'virtualwrt.org/containers/'
 +	option url 'api.turris.cz/lxc'
+diff --git a/utils/luci-app-lxc/Makefile b/utils/luci-app-lxc/Makefile
+index 210f030..b1d16a4 100644
+--- a/utils/luci-app-lxc/Makefile
++++ b/utils/luci-app-lxc/Makefile
+@@ -21,7 +21,7 @@ define Package/luci-app-lxc
+   CATEGORY:=LuCI
+   SUBMENU:=3. Applications
+   TITLE:=LXC management Web UI
+-  DEPENDS:=+luci-mod-admin-full +lxc +lxc-create +liblxc +rpcd-mod-lxc
++  DEPENDS:=+luci-mod-admin-full +lxc +lxc-create +liblxc +rpcd-mod-lxc +getopt +xz +gnupg +gnupg-utils
+   MAINTAINER:=Petar Koretic <petar.koretic@sartura.hr>
+ endef
+ 
