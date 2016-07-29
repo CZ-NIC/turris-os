@@ -110,6 +110,8 @@ lsblk
 luci-app-hd-idle
 luci-app-minidlna
 luci-app-samba
+luci-app-transmission
+luci-mod-admin-full
 luci-i18n-hd-idle-cs
 luci-i18n-hd-idle-en
 luci-i18n-minidlna-cs
