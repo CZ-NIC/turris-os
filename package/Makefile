@@ -114,14 +114,16 @@ $(curdir)/install: $(TMP_DIR)/.build
 		done; \
 		for script in ./etc/init.d/*; do \
 			grep '#!/bin/sh /etc/rc.common' $$script >/dev/null || continue; \
+			grep "^`basename $$script`$$" ./etc/services_wanted >/dev/null || \
+			grep "^/etc/init.d/`basename $$script`$$" ./usr/lib/opkg/info/base-files.list >/dev/null || continue; \
 			IPKG_INSTROOT=$(TARGET_DIR) $$(which bash) ./etc/rc.common $$script enable; \
 		done || true \
 	)
 	@-find $(TARGET_DIR) -name CVS   | $(XARGS) rm -rf
 	@-find $(TARGET_DIR) -name .svn  | $(XARGS) rm -rf
 	@-find $(TARGET_DIR) -name '.#*' | $(XARGS) rm -f
-	rm -f $(TARGET_DIR)/usr/lib/opkg/info/*.postinst*
-	rm -f $(TARGET_DIR)/usr/lib/opkg/info/*.prerm*
+	$(if $(CONFIG_CLEAN_IPKG),rm -f $(TARGET_DIR)/usr/lib/opkg/info/*.postinst*)
+	$(if $(CONFIG_CLEAN_IPKG),rm -f $(TARGET_DIR)/usr/lib/opkg/info/*.prerm*)
 	$(if $(CONFIG_CLEAN_IPKG),rm -rf $(TARGET_DIR)/usr/lib/opkg)
 	$(call mklibs)
 

@@ -219,6 +219,11 @@ default_postinst() {
 	[ -n "${IPKG_INSTROOT}" ] || rm -f /tmp/luci-indexcache 2>/dev/null
 
 	[ -n "${IPKG_INSTROOT}" ] || for i in `cat ${IPKG_INSTROOT}/usr/lib/opkg/info/${pkgname}.list | grep "^/etc/init.d/"`; do
+		if grep "^`basename $i`$" ./etc/services_wanted >/dev/null || \
+		   grep "^/etc/init.d/`basename $i`$" ./usr/lib/opkg/info/base-files.list >/dev/null; then
+			$i enable
+		fi
+
 		if $i enabled && [ "$pkgname" \!= updater ]; then
 			$i restart
 		fi
