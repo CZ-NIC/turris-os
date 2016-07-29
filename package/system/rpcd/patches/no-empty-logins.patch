@@ -1,0 +1,20 @@
+Index: rpcd/session.c
+===================================================================
+--- rpcd.orig/session.c
++++ rpcd/session.c
+@@ -794,8 +794,14 @@ rpc_login_test_password(const char *hash
+ {
+ 	char *crypt_hash;
+ 
++	/* account forbidden */
++	if (!strcmp(hash, "!") || !strcmp(hash, "*") || !strcmp(hash, "x"))
++	{
++		return false;
++	}
++
+ 	/* password is not set */
+-	if (!hash || !*hash || !strcmp(hash, "!") || !strcmp(hash, "x"))
++	if (!hash || !*hash)
+ 	{
+ 		return true;
+ 	}
