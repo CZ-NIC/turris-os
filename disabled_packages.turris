@@ -6,3 +6,4 @@ node-serialport  # depends on node
 libseccomp  # PPC not supported in v2.2.1 yet
 micropython  # incompatible with PPC
 vala
+wireguard # Need kernel 4.1 at least
