@@ -3,6 +3,7 @@ unbound-anchor
 wireless-tools
 openssh-server
 schnapps
+diffutils
 sfpswitch
 opkg-trans
 updater-ng
