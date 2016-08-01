@@ -1,0 +1,13 @@
+diff --git a/utils/luci-app-lxc/files/view/lxc.htm b/utils/luci-app-lxc/files/view/lxc.htm
+index bc767f3..edfff8e 100644
+--- a/utils/luci-app-lxc/files/view/lxc.htm
++++ b/utils/luci-app-lxc/files/view/lxc.htm
+@@ -450,7 +450,7 @@ Author: Petar Koretic <petar.koretic@sartura.hr>
+ 		{
+ 			var option = document.createElement('option');
+ 			option.value = data[key];
+-			option.text = data[key].replace(/[_:]/, ' ');
++			option.text = data[key].replace(/[_:]/g, ' ');
+ 			select.add(option, -1);
+ 		}
+ 	})
