@@ -125,6 +125,7 @@ make clean
 [ -z "$BUILD_ALL" ] || make dirclean
 make "$@" PKG_BRANCH=${PKG_BRANCH/-/}
 # Nice junit export
+mkdir -p logs
 cat > logs/junit.xml << EOF
 <?xml version='1.0' encoding='utf-8'?>
 <testsuites errors='`cat logs/package/error.txt | wc -l`' tests='`find logs/package/ -name compile.txt | wc -l`'>
