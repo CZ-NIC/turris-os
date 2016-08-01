@@ -35,6 +35,8 @@ load_led() {
 	[ -e /sys/class/leds/${sysfs}/brightness ] && {
 		echo "setting up led ${name}"
 
+		[ \! -f /sys/class/leds/${sysfs}/autonomous ] || echo 0 > /sys/class/leds/${sysfs}/autonomous
+
 		[ "$default" = 0 ] &&
 			echo 0 >/sys/class/leds/${sysfs}/brightness
 

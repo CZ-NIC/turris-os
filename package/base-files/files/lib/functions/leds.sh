@@ -2,7 +2,10 @@
 # Copyright (C) 2013 OpenWrt.org
 
 led_set_attr() {
-	[ -f "/sys/class/leds/$1/$2" ] && echo "$3" > "/sys/class/leds/$1/$2"
+	if [ -f "/sys/class/leds/$1/$2" ]; then
+		[ \! -f "/sys/class/leds/$1/autonomous" ] || echo 0 > "/sys/class/leds/$1/autonomous"
+		echo "$3" > "/sys/class/leds/$1/$2"
+	fi
 }
 
 led_timer() {
