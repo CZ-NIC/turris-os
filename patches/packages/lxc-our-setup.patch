@@ -1,5 +1,18 @@
+diff --git a/utils/lxc/Makefile b/utils/lxc/Makefile
+index 0df1460..28e1703 100644
+--- a/utils/lxc/Makefile
++++ b/utils/lxc/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=lxc
+ PKG_VERSION:=1.1.5
+-PKG_RELEASE:=3
++PKG_RELEASE:=4
+ 
+ PKG_LICENSE:=LGPL-2.1+ BSD-2-Clause GPL-2.0
+ PKG_MAINTAINER:=Luka Perkov <luka@openwrt.org>
 diff --git a/utils/lxc/patches/030-lxc-download.patch b/utils/lxc/patches/030-lxc-download.patch
-index 295bae0..213fe6f 100644
+index 295bae0..b6ab523 100644
 --- a/utils/lxc/patches/030-lxc-download.patch
 +++ b/utils/lxc/patches/030-lxc-download.patch
 @@ -1,43 +1,15 @@
@@ -8,7 +21,7 @@ index 295bae0..213fe6f 100644
 -@@ -39,7 +39,7 @@ DOWNLOAD_LIST_IMAGES="false"
 +@@ -39,10 +39,10 @@ DOWNLOAD_LIST_IMAGES="false"
 +-DOWNLOAD_KEYID="0xBAEFF88C22F6E216"
-++DOWNLOAD_KEYID="0xB2EF343B"
+++DOWNLOAD_KEYID="0x96542441B2EF343B"
 + DOWNLOAD_KEYSERVER="hkp://pool.sks-keyservers.net"
 + DOWNLOAD_LIST_IMAGES="false"
   DOWNLOAD_MODE="system"
@@ -75,3 +88,23 @@ index 210f030..b1d16a4 100644
    MAINTAINER:=Petar Koretic <petar.koretic@sartura.hr>
  endef
  
+diff --git a/utils/lxc/patches/040-better-default.patch b/utils/lxc/patches/040-better-default.patch
+new file mode 100644
+index 0000000..6842ea4
+--- /dev/null
++++ b/utils/lxc/patches/040-better-default.patch
+@@ -0,0 +1,12 @@
++Index: lxc-1.1.5/config/etc/default.conf.unknown
++===================================================================
++--- lxc-1.1.5.orig/config/etc/default.conf.unknown
+++++ lxc-1.1.5/config/etc/default.conf.unknown
++@@ -1 +1,6 @@
++-lxc.network.type = empty
+++lxc.network.type = veth
+++lxc.network.link = br-lan
+++lxc.network.flags = up
+++lxc.network.name = eth0
+++lxc.tty = 4
+++lxc.pts = 1024
+-- 
+2.9.2 
