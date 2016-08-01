@@ -47,7 +47,7 @@ mvebu_board_detect() {
 		name="armada-xp-gp"
 		;;
 	*"Turris Omnia")
-		name="turris-omnia"
+		name="rtrom01"
 		;;
 	esac
 
