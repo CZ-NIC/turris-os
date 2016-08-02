@@ -1,0 +1,25 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2016 CZ.NIC
+
+START=25
+
+start() {
+	# Update LED configuration
+	cd /sys/devices/platform/soc/soc:pcie-controller/pci0000:00/
+	for i in `uci show system | sed -n 's|.*\.@led\[\([0-9][0-9]*\)\]\..*|\1|p' | uniq`; do
+		NAME="`uci get system.@led[$i].name`"
+		PCI="`echo "$NAME" | sed -n 's|Auto-configuration for PCI\([1-3]\)|\1|p'`"
+		[ -n "$PCI" ] || continue
+		REAL_PCI="`expr $PCI - 1`"
+		PHY="`ls -d 0000:00:0${REAL_PCI}.0/0000:0${REAL_PCI}:00.0/ieee80211/phy* 2> /dev/null | sed -n 's|.*/\(phy[0-9]\)|\1|p'`"
+		uci set system.@led[$i].sysfs="omnia-led:pci$PCI"
+		if [ "$PHY" ]; then
+			 uci set system.@led[$i].default="1"
+			 uci set system.@led[$i].trigger="${PHY}tpt"
+		else
+			 uci set system.@led[$i].default="0"
+			 uci set system.@led[$i].trigger="none"
+		fi
+		uci commit system
+	done
+}

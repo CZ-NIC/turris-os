@@ -1,20 +1,38 @@
 config system
         option hostname 'turris'
         option timezone 'CET-1CEST,M3.5.0,M10.5.0/3'
-	option zonename 'Europe/Prague'
-	option cronloglevel '8'
-	option conloglevel '4'
+        option zonename 'Europe/Prague'
+        option cronloglevel '8'
+        option conloglevel '4'
 
 config timeserver ntp
-	# When resolution doesn't work because of wrong time (ntp.nic.cz)
+        # When resolution doesn't work because of wrong time (ntp.nic.cz)
         list server     '217.31.202.100'
         list server     '195.113.144.201'
         list server     '195.113.144.238'
         list server     '2001:1488:ffff::100'
-        list server	'ntp.nic.cz'
+        list server	    'ntp.nic.cz'
         list server     '0.openwrt.pool.ntp.org'
         list server     '1.openwrt.pool.ntp.org'
         list server     '2.openwrt.pool.ntp.org'
         list server     '3.openwrt.pool.ntp.org'
         option enabled 1
         option enable_server '0'
+
+config led
+        option default '0'
+        option name 'Auto-configuration for PCI1'
+        option sysfs 'omnia-led:pci1'
+        option trigger 'none'
+
+config led
+        option default '0'
+        option name 'Auto-configuration for PCI2'
+        option sysfs 'omnia-led:pci1'
+        option trigger 'none'
+
+config led
+        option default '0'
+        option name 'Auto-configuration for PCI3'
+        option sysfs 'omnia-led:pci1'
+        option trigger 'none'
