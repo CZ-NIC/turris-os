@@ -94,7 +94,7 @@ else
 fi
 # Other lists
 for i in lists/*.list; do
-	cat "$i" "${i/%list/${TARGET_BOARD}}" 2> /dev/null | while read PKG; do
+	cat "$i" "${i/%list/${TARGET_BOARD}}" | sed 's|#.*||' 2> /dev/null | while read PKG; do
 		if expr "$PKG" : CONFIG_;then
 			echo "$PKG" >> .config
 		elif [ -n "$PKG" ]; then
