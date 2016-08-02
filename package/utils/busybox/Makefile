@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=busybox
 PKG_VERSION:=1.23.2
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 PKG_FLAGS:=essential
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
@@ -113,7 +113,9 @@ define Package/busybox/install
 	$(INSTALL_BIN) ./files/sysntpd $(1)/etc/init.d/sysntpd
 	$(INSTALL_BIN) ./files/ntpd-hotplug $(1)/usr/sbin/ntpd-hotplug
 	$(INSTALL_DIR) $(1)/etc/init.d
-	[ \! -s $(1)/usr/bin/passwd ] || ( rm -f $(1)/usr/bin/passwd &&	ln -s busybox $(1)/bin/passwd )
+	for i in passwd cmp; do \
+	[ \! -s $(1)/usr/bin/$$i ] || ( rm -f $(1)/usr/bin/$$i &&	ln -s busybox $(1)/bin/$$i ); \
+	done
  ifeq ($(CONFIG_BUSYBOX_CONFIG_UDHCP_INSTALL_SIMPLE_SCRIPT),y)
 	$(INSTALL_DIR) $(1)$(shell dirname $(CONFIG_BUSYBOX_CONFIG_UDHCPC_DEFAULT_SCRIPT))
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/examples/udhcp/simple.script $(1)$(CONFIG_BUSYBOX_CONFIG_UDHCPC_DEFAULT_SCRIPT)
