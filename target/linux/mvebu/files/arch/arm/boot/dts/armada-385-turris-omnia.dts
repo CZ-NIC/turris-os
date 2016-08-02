@@ -261,13 +261,24 @@
 
 				phy-sfp {
 					phy-mode = "sgmii";
-                                	managed = "1000base-x";
+					managed = "1000base-x";
  
 					fixed-link {
 						speed = <1000>;
 						full-duplex;
 					};
 				};
+
+				phy-sgmii-sfp {
+					phy-mode = "sgmii";
+					managed = "in-band-status";
+
+					fixed-link {
+						speed = <1000>;
+						full-duplex;
+					};
+				};
+
 			};
 
 			sdhci@d8000 {
