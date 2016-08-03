@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=fstools
 PKG_VERSION:=2015-05-24
 
-PKG_RELEASE=$(PKG_SOURCE_VERSION)
+PKG_RELEASE=$(PKG_SOURCE_VERSION)-1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git://nbd.name/fstools.git
