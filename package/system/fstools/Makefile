@@ -8,23 +8,24 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=fstools
-PKG_VERSION:=2016-07-02
+PKG_VERSION:=2015-05-24
 
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL=https://git.lede-project.org/project/fstools.git
+PKG_SOURCE_URL:=git://nbd.name/fstools.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=35aa20c51995e80257244790d4f058e15f29569f
+PKG_SOURCE_VERSION:=09027fc86babc3986027a0e677aca1b6999a9e14
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 CMAKE_INSTALL:=1
+PKG_CHECK_FORMAT_SECURITY:=0
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=
 
 PKG_USE_MIPS16:=0
 
-PKG_MAINTAINER:=John Crispin <john@phrozen.org>
+PKG_MAINTAINER:=John Crispin <blogic@openwrt.org>
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
@@ -50,13 +51,6 @@ define Package/fstools/config
 			This option makes it possible to use extroot functionality if the root filesystem resides on an UBIFS partition
 endef
 
-define Package/snapshot-tool
-  SECTION:=base
-  CATEGORY:=Base system
-  TITLE:=rootfs snapshoting tool
-  DEPENDS:=+libubox +fstools
-endef
-
 define Package/block-mount
   SECTION:=base
   CATEGORY:=Base system
@@ -67,16 +61,10 @@ endef
 define Package/fstools/install
 	$(INSTALL_DIR) $(1)/sbin $(1)/lib
 
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/{mount_root,jffs2reset} $(1)/sbin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/{mount_root,jffs2reset,snapshot_tool} $(1)/sbin/
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libfstools.so $(1)/lib/
-	$(LN) jffs2reset $(1)/sbin/jffs2mark
-endef
-
-define Package/snapshot-tool/install
-	$(INSTALL_DIR) $(1)/sbin
-
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/snapshot_tool $(1)/sbin/
 	$(INSTALL_BIN) ./files/snapshot $(1)/sbin/
+	$(LN) jffs2reset $(1)/sbin/jffs2mark
 endef
 
 define Package/block-mount/install
@@ -101,5 +89,4 @@ define Build/InstallDev
 endef
 
 $(eval $(call BuildPackage,fstools))
-$(eval $(call BuildPackage,snapshot-tool))
 $(eval $(call BuildPackage,block-mount))
