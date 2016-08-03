@@ -10,7 +10,7 @@ start() {
 		NAME="`uci get system.@led[$i].name`"
 		PCI="`echo "$NAME" | sed -n 's|Auto-configuration for PCI\([1-3]\)|\1|p'`"
 		[ -n "$PCI" ] || continue
-		REAL_PCI="`expr $PCI - 1`"
+		REAL_PCI="`expr 4 - $PCI`"
 		PHY="`ls -d 0000:00:0${REAL_PCI}.0/0000:0${REAL_PCI}:00.0/ieee80211/phy* 2> /dev/null | sed -n 's|.*/\(phy[0-9]\)|\1|p'`"
 		uci set system.@led[$i].sysfs="omnia-led:pci$PCI"
 		if [ "$PHY" ]; then
