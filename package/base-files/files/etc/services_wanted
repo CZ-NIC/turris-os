@@ -21,7 +21,7 @@ sshd
 syslog-ng
 dnsmasq
 ntpdate
-unbound
+resolver
 lighttpd
 mountd
 relayd
