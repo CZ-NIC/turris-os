@@ -1,4 +1,3 @@
-* majordomo: Fix crashes during work with damaged majordomo DB
 * nuci-tls: Prevent parallel CA generation during install
 * Use opkg-trans as a backend in the updater
 * nuci: query www.turris.cz whether the router is registered
