@@ -1,0 +1,283 @@
+Make a read/write/readwrite LED trigger for each block device.
+
+Use blk transferred sector statistics to trigger leds. Only sectors
+completed are taken into account.
+
+The current mmc trigger uses low-level knowledge of the driver so it can
+eg. keep the led lit when requests get stuck. The requests pending field
+could be used for similar effect but there is only one field for both
+reads and writes.
+
+Signed-off-by: Michal Suchanek <hramrach@gmail.com>
+---
+ block/genhd.c                |    9 ++
+ drivers/leds/Kconfig         |    6 ++
+ drivers/leds/Makefile        |    1 +
+ drivers/leds/ledtrig-block.c |  191 ++++++++++++++++++++++++++++++++++++++++++
+ include/linux/leds.h         |    5 ++
+ 5 files changed, 212 insertions(+)
+ create mode 100644 drivers/leds/ledtrig-block.c
+
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -20,6 +20,9 @@
+ #include <linux/idr.h>
+ #include <linux/log2.h>
+ #include <linux/pm_runtime.h>
++#ifdef CONFIG_LEDS_TRIGGER_BLOCK
++#include <linux/leds.h>
++#endif
+ 
+ #include "blk.h"
+ 
+@@ -629,6 +632,10 @@ void add_disk(struct gendisk *disk)
+ 				   "bdi");
+ 	WARN_ON(retval);
+ 
++#ifdef CONFIG_LEDS_TRIGGER_BLOCK
++	ledtrig_block_add(disk);
++#endif
++
+ 	disk_add_events(disk);
+ 	blk_integrity_add(disk);
+ }
+@@ -639,6 +646,9 @@ void del_gendisk(struct gendisk *disk)
+ 	struct disk_part_iter piter;
+ 	struct hd_struct *part;
+ 
++#ifdef CONFIG_LEDS_TRIGGER_BLOCK
++	ledtrig_block_del(disk);
++#endif
+ 	blk_integrity_del(disk);
+ 	disk_del_events(disk);
+ 
+--- /dev/null
++++ b/drivers/leds/trigger/ledtrig-block.c
+@@ -0,0 +1,191 @@
++/*
++ * Block device activity LED trigger
++ *
++ * Copyright 2013
++ *
++ * Author: Michal Suchanek <hramrach@gmail.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ */
++
++#include <linux/jiffies.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/device.h>
++#include <linux/genhd.h>
++#include <linux/timer.h>
++#include <linux/leds.h>
++#include <linux/list.h>
++#include <linux/slab.h>
++
++static void ledtrig_block_timerfunc(unsigned long data);
++
++static DEFINE_TIMER(ledtrig_block_timer, ledtrig_block_timerfunc, 0, 0);
++static DECLARE_RWSEM(trigger_list_lock);
++static LIST_HEAD(trigger_list);
++static unsigned long trigger_interval = 10; /* FIXME parameter */
++
++typedef enum {
++        BLOCKTRIG_TYPE_MIN = 1,
++        BLOCKTRIG_IO = BLOCKTRIG_TYPE_MIN,
++        BLOCKTRIG_READ,
++        BLOCKTRIG_WRITE,
++        BLOCKTRIG_TYPE_MAX = BLOCKTRIG_WRITE
++} block_trigger_type_t;
++
++struct block_trigger {
++        char * name;
++        sector_t data;
++        block_trigger_type_t type;
++        struct gendisk                *disk;
++        struct led_trigger         trigger;
++        struct list_head         trigger_list;
++};
++
++static void inline ledtrig_block_schedule_timer(int check)
++{
++        if (check && timer_pending(&ledtrig_block_timer))
++                return;
++        if (list_empty(&trigger_list))
++                return;
++        mod_timer(&ledtrig_block_timer, jiffies + msecs_to_jiffies(trigger_interval));
++}
++
++static sector_t get_disk_data(struct gendisk *disk, block_trigger_type_t type)
++{
++        switch(type) {
++                case BLOCKTRIG_READ:
++                        return part_stat_read(disk_get_part(disk,0), sectors[READ]);
++                case BLOCKTRIG_WRITE:
++                        return part_stat_read(disk_get_part(disk,0), sectors[WRITE]);
++                case BLOCKTRIG_IO:
++                        return part_stat_read(disk_get_part(disk,0), sectors[READ])+
++                                part_stat_read(disk_get_part(disk,0), sectors[WRITE]);
++        }
++        return 0; /* not reached */
++}
++
++void ledtrig_block_add(struct gendisk *disk)
++{
++        struct block_trigger * entry;
++        block_trigger_type_t type;
++        static const char _read[] = "-read";
++        static const char _write[] = "-write";
++        static const char _io[] = "";
++        const char * suffix;
++        char * name;
++        struct device *ddev = disk_to_dev(disk);
++        const char * devname = dev_name(ddev);
++
++        down_write(&trigger_list_lock);
++        for (type = BLOCKTRIG_TYPE_MIN; type <= BLOCKTRIG_TYPE_MAX; type++) {
++
++                entry = kzalloc(sizeof(struct block_trigger), GFP_KERNEL);
++                if(!entry) {
++                        pr_warn("LED triggers for device %s failed to register (no memory)\n",
++                                        devname);
++                        goto add_end;
++                }
++
++                switch(type) {
++                        case BLOCKTRIG_READ:
++                                suffix = _read;
++                                break;
++                        case BLOCKTRIG_WRITE:
++                                suffix = _write;
++                                break;
++                        case BLOCKTRIG_IO:
++                                suffix = _io;
++                                break;
++                }
++
++                name = kzalloc(strlen(devname) + strlen(suffix) + 1, GFP_KERNEL);
++                if(!name) {
++                        kfree(entry);
++                        pr_warn("LED triggers for device %s failed to register (no memory)\n",
++                                        devname);
++                        goto add_end;
++                }
++
++                sprintf(name, "%s%s", devname, suffix);
++                entry->name = name;
++                entry->type = type;
++                entry->disk = disk;
++                entry->data = get_disk_data(disk,type);
++                entry->trigger.name = name;
++                led_trigger_register(&entry->trigger);
++                list_add_tail(&entry->trigger_list, &trigger_list);
++        }
++add_end:
++        up_write(&trigger_list_lock);
++        ledtrig_block_schedule_timer(1);
++}
++
++EXPORT_SYMBOL(ledtrig_block_add);
++
++static void ledtrig_do_block_del(struct block_trigger * entry)
++{
++        led_trigger_unregister(&entry->trigger);
++        kfree(entry->name);
++        list_del(&entry->trigger_list);
++        kfree(entry);
++}
++
++void ledtrig_block_del(struct gendisk *disk)
++{
++        struct block_trigger * entry, *tmp;
++        down_write(&trigger_list_lock);
++        list_for_each_entry_safe(entry, tmp, &trigger_list, trigger_list) {
++                if (entry->disk == disk) /* multiple entries exist - r/w */
++                        ledtrig_do_block_del(entry);
++        }
++        up_write(&trigger_list_lock);
++}
++
++EXPORT_SYMBOL(ledtrig_block_del);
++
++static void ledtrig_block_timerfunc(unsigned long data)
++{
++        struct block_trigger * entry;
++        ledtrig_block_schedule_timer(0); /*FIXME is timer pending in timer func? */
++        down_read(&trigger_list_lock);
++        list_for_each_entry(entry, &trigger_list, trigger_list) {
++                sector_t new_data = get_disk_data(entry->disk, entry->type);
++
++                if (entry->data != new_data) {
++                        entry->data = new_data;
++                        led_trigger_event(&entry->trigger, LED_FULL);
++                } else {
++                        led_trigger_event(&entry->trigger, LED_OFF);
++                }
++        }
++        up_read(&trigger_list_lock);
++}
++
++static int __init ledtrig_block_init(void)
++{
++        init_rwsem(&trigger_list_lock);
++        INIT_LIST_HEAD(&trigger_list);
++        return 0;
++}
++
++static void __exit ledtrig_block_exit(void)
++{
++        struct block_trigger * entry, *tmp;
++        down_write(&trigger_list_lock);
++        list_for_each_entry_safe(entry, tmp, &trigger_list, trigger_list) {
++                ledtrig_do_block_del(entry);
++        }
++        up_write(&trigger_list_lock);
++}
++
++module_init(ledtrig_block_init);
++module_exit(ledtrig_block_exit);
++
++MODULE_AUTHOR("Michal Suchanek <hram...@gmail.com>");
++MODULE_DESCRIPTION("LED Block Device Activity Trigger");
++MODULE_LICENSE("GPL");
+--- a/include/linux/leds.h
++++ b/include/linux/leds.h
+@@ -307,6 +307,11 @@ extern void ledtrig_ide_activity(void);
+ #else
+ static inline void ledtrig_ide_activity(void) {}
+ #endif
++#ifdef CONFIG_LEDS_TRIGGER_BLOCK
++struct gendisk;
++void ledtrig_block_add(struct gendisk *disk);
++void ledtrig_block_del(struct gendisk *disk);
++#endif
+ 
+ #if defined(CONFIG_LEDS_TRIGGER_CAMERA) || defined(CONFIG_LEDS_TRIGGER_CAMERA_MODULE)
+ extern void ledtrig_flash_ctrl(bool on);
+--- a/drivers/leds/trigger/Kconfig
++++ b/drivers/leds/trigger/Kconfig
+@@ -89,6 +89,12 @@ config LEDS_TRIGGER_DEFAULT_ON
+ 	  This allows LEDs to be initialised in the ON state.
+ 	  If unsure, say Y.
+ 
++config LEDS_TRIGGER_BLOCK
++	tristate "LED Block Device Trigger"
++	depends on LEDS_TRIGGERS && BLOCK
++	help
++	  This turns LEDs on when sectors are read from or written to a block device.
++
+ comment "iptables trigger is under Netfilter config (LED target)"
+ 	depends on LEDS_TRIGGERS
+ 
+--- a/drivers/leds/trigger/Makefile
++++ b/drivers/leds/trigger/Makefile
+@@ -8,3 +8,4 @@ obj-$(CONFIG_LEDS_TRIGGER_CPU)		+= ledtr
+ obj-$(CONFIG_LEDS_TRIGGER_DEFAULT_ON)	+= ledtrig-default-on.o
+ obj-$(CONFIG_LEDS_TRIGGER_TRANSIENT)	+= ledtrig-transient.o
+ obj-$(CONFIG_LEDS_TRIGGER_CAMERA)	+= ledtrig-camera.o
++obj-$(CONFIG_LEDS_TRIGGER_BLOCK)	+= ledtrig-block.o
