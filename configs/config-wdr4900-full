@@ -3420,7 +3420,6 @@ CONFIG_PACKAGE_socat=y
 # CONFIG_PACKAGE_ttcp is not set
 # CONFIG_PACKAGE_ucarp is not set
 CONFIG_PACKAGE_ucollect-badconf=y
-CONFIG_PACKAGE_ucollect-buckets=y
 CONFIG_PACKAGE_ucollect-config=y
 CONFIG_PACKAGE_ucollect-lib=y
 CONFIG_PACKAGE_ucollect-prog=y
