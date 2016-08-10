@@ -1,7 +1,7 @@
 /*
  * ar8216.h: AR8216 switch driver
  *
- * Copyright (C) 2009 Felix Fietkau <nbd@openwrt.org>
+ * Copyright (C) 2009 Felix Fietkau <nbd@nbd.name>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,6 +32,9 @@
 #define AR8X16_MAX_VLANS	128
 #define AR8X16_PROBE_RETRIES	10
 #define AR8X16_MAX_PORTS	8
+
+#define AR8XXX_REG_ARL_CTRL_AGE_TIME_SECS	7
+#define AR8XXX_DEFAULT_ARL_AGE_TIME		300
 
 /* Atheros specific MII registers */
 #define MII_ATH_MMD_ADDR		0x0d
@@ -79,26 +82,44 @@
 #define   AR8236_VTUDATA_MEMBER		BITS(0, 7)
 #define   AR8216_VTUDATA_VALID		BIT(11)
 
-#define AR8216_REG_ATU			0x0050
+#define AR8216_REG_ATU_FUNC0		0x0050
 #define   AR8216_ATU_OP			BITS(0, 3)
 #define   AR8216_ATU_OP_NOOP		0x0
 #define   AR8216_ATU_OP_FLUSH		0x1
 #define   AR8216_ATU_OP_LOAD		0x2
 #define   AR8216_ATU_OP_PURGE		0x3
-#define   AR8216_ATU_OP_FLUSH_LOCKED	0x4
-#define   AR8216_ATU_OP_FLUSH_UNICAST	0x5
+#define   AR8216_ATU_OP_FLUSH_UNLOCKED	0x4
+#define   AR8216_ATU_OP_FLUSH_PORT	0x5
 #define   AR8216_ATU_OP_GET_NEXT	0x6
 #define   AR8216_ATU_ACTIVE		BIT(3)
 #define   AR8216_ATU_PORT_NUM		BITS(8, 4)
+#define   AR8216_ATU_PORT_NUM_S		8
 #define   AR8216_ATU_FULL_VIO		BIT(12)
-#define   AR8216_ATU_ADDR4		BITS(16, 8)
-#define   AR8216_ATU_ADDR5		BITS(24, 8)
+#define   AR8216_ATU_ADDR5		BITS(16, 8)
+#define   AR8216_ATU_ADDR5_S		16
+#define   AR8216_ATU_ADDR4		BITS(24, 8)
+#define   AR8216_ATU_ADDR4_S		24
 
-#define AR8216_REG_ATU_DATA		0x0054
+#define AR8216_REG_ATU_FUNC1		0x0054
 #define   AR8216_ATU_ADDR3		BITS(0, 8)
+#define   AR8216_ATU_ADDR3_S		0
 #define   AR8216_ATU_ADDR2		BITS(8, 8)
+#define   AR8216_ATU_ADDR2_S		8
 #define   AR8216_ATU_ADDR1		BITS(16, 8)
+#define   AR8216_ATU_ADDR1_S		16
 #define   AR8216_ATU_ADDR0		BITS(24, 8)
+#define   AR8216_ATU_ADDR0_S		24
+
+#define AR8216_REG_ATU_FUNC2		0x0058
+#define   AR8216_ATU_PORTS		BITS(0, 6)
+#define   AR8216_ATU_PORT0		BIT(0)
+#define   AR8216_ATU_PORT1		BIT(1)
+#define   AR8216_ATU_PORT2		BIT(2)
+#define   AR8216_ATU_PORT3		BIT(3)
+#define   AR8216_ATU_PORT4		BIT(4)
+#define   AR8216_ATU_PORT5		BIT(5)
+#define   AR8216_ATU_STATUS		BITS(16, 4)
+#define   AR8216_ATU_STATUS_S		16
 
 #define AR8216_REG_ATU_CTRL		0x005C
 #define   AR8216_ATU_CTRL_AGE_EN	BIT(17)
@@ -366,6 +387,8 @@ struct ar8xxx_chip {
 	unsigned reg_port_stats_start;
 	unsigned reg_port_stats_length;
 
+	unsigned reg_arl_ctrl;
+
 	int (*hw_init)(struct ar8xxx_priv *priv);
 	void (*cleanup)(struct ar8xxx_priv *priv);
 
@@ -380,6 +403,7 @@ struct ar8xxx_chip {
 	u32 (*read_port_status)(struct ar8xxx_priv *priv, int port);
 	u32 (*read_port_eee_status)(struct ar8xxx_priv *priv, int port);
 	int (*atu_flush)(struct ar8xxx_priv *priv);
+	int (*atu_flush_port)(struct ar8xxx_priv *priv, int port);
 	void (*vtu_flush)(struct ar8xxx_priv *priv);
 	void (*vtu_load_vlan)(struct ar8xxx_priv *priv, u32 vid, u32 port_mask);
 	void (*phy_fixup)(struct ar8xxx_priv *priv, int phy);
@@ -430,6 +454,7 @@ struct ar8xxx_priv {
 	u8 vlan_table[AR8X16_MAX_VLANS];
 	u8 vlan_tagged;
 	u16 pvid[AR8X16_MAX_PORTS];
+	int arl_age_time;
 
 	/* mirroring */
 	bool mirror_rx;
@@ -453,9 +478,9 @@ void
 ar8xxx_phy_dbg_write(struct ar8xxx_priv *priv, int phy_addr,
 		     u16 dbg_addr, u16 dbg_data);
 void
-ar8xxx_phy_mmd_write(struct ar8xxx_priv *priv, int phy_addr, u16 addr, u16 data);
+ar8xxx_phy_mmd_write(struct ar8xxx_priv *priv, int phy_addr, u16 addr, u16 reg, u16 data);
 u16
-ar8xxx_phy_mmd_read(struct ar8xxx_priv *priv, int phy_addr, u16 addr);
+ar8xxx_phy_mmd_read(struct ar8xxx_priv *priv, int phy_addr, u16 addr, u16 reg);
 void
 ar8xxx_phy_init(struct ar8xxx_priv *priv);
 int
@@ -520,9 +545,25 @@ ar8xxx_sw_get_port_mib(struct switch_dev *dev,
                        const struct switch_attr *attr,
                        struct switch_val *val);
 int
+ar8xxx_sw_get_arl_age_time(struct switch_dev *dev,
+			   const struct switch_attr *attr,
+			   struct switch_val *val);
+int
+ar8xxx_sw_set_arl_age_time(struct switch_dev *dev,
+			   const struct switch_attr *attr,
+			   struct switch_val *val);
+int
 ar8xxx_sw_get_arl_table(struct switch_dev *dev,
 			const struct switch_attr *attr,
 			struct switch_val *val);
+int
+ar8xxx_sw_set_flush_arl_table(struct switch_dev *dev,
+			      const struct switch_attr *attr,
+			      struct switch_val *val);
+int
+ar8xxx_sw_set_flush_port_arl_table(struct switch_dev *dev,
+				   const struct switch_attr *attr,
+				   struct switch_val *val);
 int
 ar8216_wait_bit(struct ar8xxx_priv *priv, int reg, u32 mask, u32 val);
 

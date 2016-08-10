@@ -36,6 +36,8 @@ struct b53_io_ops {
 	int (*write32)(struct b53_device *dev, u8 page, u8 reg, u32 value);
 	int (*write48)(struct b53_device *dev, u8 page, u8 reg, u64 value);
 	int (*write64)(struct b53_device *dev, u8 page, u8 reg, u64 value);
+	int (*phy_read16)(struct b53_device *dev, int addr, u8 reg, u16 *value);
+	int (*phy_write16)(struct b53_device *dev, int addr, u8 reg, u16 value);
 };
 
 enum {
@@ -301,7 +303,12 @@ static inline int b53_write64(struct b53_device *dev, u8 page, u8 reg,
 
 #ifdef CONFIG_BCM47XX
 
+#include <linux/version.h>
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0))
+#include <linux/bcm47xx_nvram.h>
+#else
 #include <bcm47xx_nvram.h>
+#endif
 #include <bcm47xx_board.h>
 static inline int b53_switch_get_reset_gpio(struct b53_device *dev)
 {
