@@ -98,7 +98,11 @@ for i in lists/*.list; do
 	echo "	list lists '`basename ${i/.list}`'" >> package/feeds/turrispackages/opkg-trans/files/updater.config
 	cat "$i" "${i/%list/${TARGET_BOARD}}" | sed 's|#.*||' 2> /dev/null | while read PKG; do
 		if expr "$PKG" : CONFIG_;then
-			echo "$PKG" >> .config
+			if [ "$TARGET_BOARD" = omnia ]; then
+				echo "$PKG" | sed 's|=m|=y|' >> .config
+			else
+				echo "$PKG" >> .config
+			fi
 		elif [ -n "$PKG" ]; then
 			if [ "$TARGET_BOARD" = omnia ] || [ "$i" = lists/base.list ]; then
 				if [ "$BUILD_ALL" ] || [ "$i" = lists/base.list ]; then

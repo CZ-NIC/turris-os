@@ -50,3 +50,6 @@ luci-proto-relay
 luci-proto-vpnc
 luci-proto-3g
 luci-theme-bootstrap
+
+CONFIG_LUCI_LANG_cs=m
+CONFIG_LUCI_LANG_en=m
