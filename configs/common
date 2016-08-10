@@ -100,7 +100,6 @@ CONFIG_BUSYBOX_CONFIG_UDHCP_INSTALL_SIMPLE_SCRIPT=n
 
 # Ucollect and stuff
 CONFIG_PACKAGE_ucollect-badconf=m
-CONFIG_PACKAGE_ucollect-buckets=m
 CONFIG_PACKAGE_ucollect-prog=m
 CONFIG_PACKAGE_ucollect-count=m
 CONFIG_PACKAGE_ucollect-sniff=m
