@@ -27,6 +27,13 @@ CONFIG_OPENSSL_ENGINE_DIGEST=y
 # Important packages
 CONFIG_PACKAGE_updater-ng=y
 CONFIG_PACKAGE_kmod-wdt-orion=y
+CONFIG_PACKAGE_ath10k-firmware-qca988x-ct=y
+CONFIG_PACKAGE_ath10k-firmware-qca9884-ct=y
+CONFIG_PACKAGE_kmod-ath10k-ct=y
+CONFIG_DEFAULT_kmod-ath10k=n
+# CONFIG_PACKAGE_kmod-ath10k is not set
+CONFIG_DEFAULT_ath10k-firmware-qca988x=n
+# CONFIG_PACKAGE_ath10k-firmware-qca988x is not set
 
 # Packages that used to be built as modules all the time
 CONFIG_PACKAGE_daemon-watchdog=y
