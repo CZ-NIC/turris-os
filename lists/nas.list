@@ -16,6 +16,8 @@ fuse-utils
 hd-idle
 hdparm
 hfsfsck
+kmod-ata-core
+kmod-ata-ahci
 kmod-crypto-aead
 kmod-crypto-authenc
 kmod-crypto-cbc
