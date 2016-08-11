@@ -111,3 +111,5 @@ CONFIG_PACKAGE_ucollect-fake=m
 CONFIG_PACKAGE_lcollect-majordomo=m
 CONFIG_PACKAGE_luci-app-majordomo=m
 CONFIG_PACKAGE_nikola=m
+CONFIG_PACKAGE_socat=m
+CONFIG_SOCAT_SSL=y
