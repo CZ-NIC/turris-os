@@ -23,6 +23,5 @@ shadow-useradd
 shadow-userdel
 shadow-usermod
 shadow-utils
-updater-migrate
 i2c-tools
 CONFIG_shadow-all=y
