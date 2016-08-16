@@ -9,10 +9,11 @@ lookup_phy() {
 	local devpath
 	config_get devpath "$device" path
 	[ -n "$devpath" ] && {
-		for phy in $(ls /sys/class/ieee80211 2>/dev/null); do
-			case "$(readlink -f /sys/class/ieee80211/$phy/device)" in
-				*$devpath) return;;
-			esac
+		for _phy in /sys/devices/$devpath/ieee80211/phy*; do
+			[ -e "$_phy" ] && {
+				phy="${_phy##*/}"
+				return
+			}
 		done
 	}
 
@@ -101,9 +102,6 @@ detect_mac80211() {
 		fi
 		if [ -n "$path" ]; then
 			path="${path##/sys/devices/}"
-			case "$path" in
-				platform*/pci*) path="${path##platform/}";;
-			esac
 			dev_id="	option path	'$path'"
 		else
 			dev_id="	option macaddr	$(cat /sys/class/ieee80211/${dev}/macaddress)"
@@ -117,6 +115,7 @@ config wifi-device  radio$devidx
 	option hwmode	11${mode_band}
 $dev_id
 $ht_capab
+	option country  CZ
 	# REMOVE THIS LINE TO ENABLE WIFI:
 	option disabled 1
 

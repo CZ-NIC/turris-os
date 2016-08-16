@@ -68,7 +68,7 @@
 #define MODE_RX   4
 
 struct led_netdev_data {
-	spinlock_t lock;
+	rwlock_t lock;
 
 	struct timer_list timer;
 	struct notifier_block notifier;
@@ -92,6 +92,8 @@ static void set_baseline_state(struct led_netdev_data *trigger_data)
 
 	if ((trigger_data->mode & (MODE_TX | MODE_RX)) != 0 && trigger_data->link_up)
 		mod_timer(&trigger_data->timer, jiffies + trigger_data->interval);
+	else
+		del_timer(&trigger_data->timer);
 }
 
 static ssize_t led_device_name_show(struct device *dev,
@@ -100,9 +102,9 @@ static ssize_t led_device_name_show(struct device *dev,
 	struct led_classdev *led_cdev = dev_get_drvdata(dev);
 	struct led_netdev_data *trigger_data = led_cdev->trigger_data;
 
-	spin_lock_bh(&trigger_data->lock);
+	read_lock(&trigger_data->lock);
 	sprintf(buf, "%s\n", trigger_data->device_name);
-	spin_unlock_bh(&trigger_data->lock);
+	read_unlock(&trigger_data->lock);
 
 	return strlen(buf) + 1;
 }
@@ -116,25 +118,21 @@ static ssize_t led_device_name_store(struct device *dev,
 	if (size < 0 || size >= IFNAMSIZ)
 		return -EINVAL;
 
-	spin_lock_bh(&trigger_data->lock);
-	del_timer_sync(&trigger_data->timer);
+	write_lock(&trigger_data->lock);
 
 	strcpy(trigger_data->device_name, buf);
 	if (size > 0 && trigger_data->device_name[size-1] == '\n')
 		trigger_data->device_name[size-1] = 0;
-	trigger_data->link_up = 0;
-	trigger_data->last_activity = 0;
 
 	if (trigger_data->device_name[0] != 0) {
 		/* check for existing device to update from */
 		trigger_data->net_dev = dev_get_by_name(&init_net, trigger_data->device_name);
 		if (trigger_data->net_dev != NULL)
 			trigger_data->link_up = (dev_get_flags(trigger_data->net_dev) & IFF_LOWER_UP) != 0;
+		set_baseline_state(trigger_data); /* updates LEDs, may start timers */
 	}
 
-	set_baseline_state(trigger_data);
-	spin_unlock_bh(&trigger_data->lock);
-
+	write_unlock(&trigger_data->lock);
 	return size;
 }
 
@@ -146,7 +144,7 @@ static ssize_t led_mode_show(struct device *dev,
 	struct led_classdev *led_cdev = dev_get_drvdata(dev);
 	struct led_netdev_data *trigger_data = led_cdev->trigger_data;
 
-	spin_lock_bh(&trigger_data->lock);
+	read_lock(&trigger_data->lock);
 
 	if (trigger_data->mode == 0) {
 		strcpy(buf, "none\n");
@@ -160,7 +158,7 @@ static ssize_t led_mode_show(struct device *dev,
 		strcat(buf, "\n");
 	}
 
-	spin_unlock_bh(&trigger_data->lock);
+	read_unlock(&trigger_data->lock);
 
 	return strlen(buf)+1;
 }
@@ -201,13 +199,10 @@ static ssize_t led_mode_store(struct device *dev,
 	if (new_mode == -1)
 		return -EINVAL;
 
-	spin_lock_bh(&trigger_data->lock);
-	del_timer_sync(&trigger_data->timer);
-
+	write_lock(&trigger_data->lock);
 	trigger_data->mode = new_mode;
-
 	set_baseline_state(trigger_data);
-	spin_unlock_bh(&trigger_data->lock);
+	write_unlock(&trigger_data->lock);
 
 	return size;
 }
@@ -220,9 +215,9 @@ static ssize_t led_interval_show(struct device *dev,
 	struct led_classdev *led_cdev = dev_get_drvdata(dev);
 	struct led_netdev_data *trigger_data = led_cdev->trigger_data;
 
-	spin_lock_bh(&trigger_data->lock);
+	read_lock(&trigger_data->lock);
 	sprintf(buf, "%u\n", jiffies_to_msecs(trigger_data->interval));
-	spin_unlock_bh(&trigger_data->lock);
+	read_unlock(&trigger_data->lock);
 
 	return strlen(buf) + 1;
 }
@@ -242,14 +237,10 @@ static ssize_t led_interval_store(struct device *dev,
 
 	/* impose some basic bounds on the timer interval */
 	if (count == size && value >= 5 && value <= 10000) {
-		spin_lock_bh(&trigger_data->lock);
-		del_timer_sync(&trigger_data->timer);
-
+		write_lock(&trigger_data->lock);
 		trigger_data->interval = msecs_to_jiffies(value);
-
 		set_baseline_state(trigger_data); /* resets timer */
-		spin_unlock_bh(&trigger_data->lock);
-
+		write_unlock(&trigger_data->lock);
 		ret = count;
 	}
 
@@ -265,20 +256,17 @@ static int netdev_trig_notify(struct notifier_block *nb,
 	struct net_device *dev = netdev_notifier_info_to_dev((struct netdev_notifier_info *) dv);
 	struct led_netdev_data *trigger_data = container_of(nb, struct led_netdev_data, notifier);
 
-	if (evt != NETDEV_UP && evt != NETDEV_DOWN && evt != NETDEV_CHANGE && evt != NETDEV_REGISTER && evt != NETDEV_UNREGISTER && evt != NETDEV_CHANGENAME)
+	if (evt != NETDEV_UP && evt != NETDEV_DOWN && evt != NETDEV_CHANGE && evt != NETDEV_REGISTER && evt != NETDEV_UNREGISTER)
 		return NOTIFY_DONE;
 
-	spin_lock_bh(&trigger_data->lock);
+	write_lock(&trigger_data->lock);
 
 	if (strcmp(dev->name, trigger_data->device_name))
 		goto done;
 
-	del_timer_sync(&trigger_data->timer);
-
-	if (evt == NETDEV_REGISTER || evt == NETDEV_CHANGENAME) {
+	if (evt == NETDEV_REGISTER) {
 		if (trigger_data->net_dev != NULL)
 			dev_put(trigger_data->net_dev);
-
 		dev_hold(dev);
 		trigger_data->net_dev = dev;
 		trigger_data->link_up = 0;
@@ -297,7 +285,7 @@ static int netdev_trig_notify(struct notifier_block *nb,
 	set_baseline_state(trigger_data);
 
 done:
-	spin_unlock_bh(&trigger_data->lock);
+	write_unlock(&trigger_data->lock);
 	return NOTIFY_DONE;
 }
 
@@ -309,10 +297,12 @@ static void netdev_trig_timer(unsigned long arg)
 	unsigned new_activity;
 	struct rtnl_link_stats64 temp;
 
+	write_lock(&trigger_data->lock);
+
 	if (!trigger_data->link_up || !trigger_data->net_dev || (trigger_data->mode & (MODE_TX | MODE_RX)) == 0) {
 		/* we don't need to do timer work, just reflect link state. */
 		led_set_brightness(trigger_data->led_cdev, ((trigger_data->mode & MODE_LINK) != 0 && trigger_data->link_up) ? LED_FULL : LED_OFF);
-		return;
+		goto no_restart;
 	}
 
 	dev_stats = dev_get_stats(trigger_data->net_dev, &temp);
@@ -344,6 +334,9 @@ static void netdev_trig_timer(unsigned long arg)
 
 	trigger_data->last_activity = new_activity;
 	mod_timer(&trigger_data->timer, jiffies + trigger_data->interval);
+
+no_restart:
+	write_unlock(&trigger_data->lock);
 }
 
 static void netdev_trig_activate(struct led_classdev *led_cdev)
@@ -355,7 +348,7 @@ static void netdev_trig_activate(struct led_classdev *led_cdev)
 	if (!trigger_data)
 		return;
 
-	spin_lock_init(&trigger_data->lock);
+	rwlock_init(&trigger_data->lock);
 
 	trigger_data->notifier.notifier_call = netdev_trig_notify;
 	trigger_data->notifier.priority = 10;
@@ -406,15 +399,16 @@ static void netdev_trig_deactivate(struct led_classdev *led_cdev)
 		device_remove_file(led_cdev->dev, &dev_attr_mode);
 		device_remove_file(led_cdev->dev, &dev_attr_interval);
 
-		spin_lock_bh(&trigger_data->lock);
-		del_timer_sync(&trigger_data->timer);
+		write_lock(&trigger_data->lock);
 
 		if (trigger_data->net_dev) {
 			dev_put(trigger_data->net_dev);
 			trigger_data->net_dev = NULL;
 		}
 
-		spin_unlock_bh(&trigger_data->lock);
+		write_unlock(&trigger_data->lock);
+
+		del_timer_sync(&trigger_data->timer);
 
 		kfree(trigger_data);
 	}

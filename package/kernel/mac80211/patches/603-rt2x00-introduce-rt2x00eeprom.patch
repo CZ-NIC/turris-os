@@ -1,6 +1,6 @@
 --- a/.local-symbols
 +++ b/.local-symbols
-@@ -331,6 +331,7 @@ RT2X00_LIB_FIRMWARE=
+@@ -329,6 +329,7 @@ RT2X00_LIB_FIRMWARE=
  RT2X00_LIB_CRYPTO=
  RT2X00_LIB_LEDS=
  RT2X00_LIB_DEBUGFS=
@@ -105,7 +105,7 @@
  	.drv_init_registers	= rt2800mmio_init_registers,
 --- a/drivers/net/wireless/ralink/rt2x00/rt2x00.h
 +++ b/drivers/net/wireless/ralink/rt2x00/rt2x00.h
-@@ -699,6 +699,7 @@ enum rt2x00_capability_flags {
+@@ -697,6 +697,7 @@ enum rt2x00_capability_flags {
  	REQUIRE_HT_TX_DESC,
  	REQUIRE_PS_AUTOWAKE,
  	REQUIRE_DELAYED_RFKILL,
@@ -113,7 +113,7 @@
  
  	/*
  	 * Capabilities
-@@ -968,6 +969,11 @@ struct rt2x00_dev {
+@@ -966,6 +967,11 @@ struct rt2x00_dev {
  	const struct firmware *fw;
  
  	/*
@@ -138,7 +138,7 @@
  	/*
  	 * Let the driver probe the device to detect the capabilities.
  	 */
-@@ -1477,6 +1481,11 @@ void rt2x00lib_remove_dev(struct rt2x00_
+@@ -1474,6 +1478,11 @@ void rt2x00lib_remove_dev(struct rt2x00_
  	 * Free the driver data.
  	 */
  	kfree(rt2x00dev->drv_data);

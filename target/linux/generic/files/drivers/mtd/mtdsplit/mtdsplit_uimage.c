@@ -95,7 +95,6 @@ static int __mtdsplit_parse_uimage(struct mtd_info *master,
 	size_t rootfs_size = 0;
 	int uimage_part, rf_part;
 	int ret;
-	enum mtdsplit_part_type type;
 
 	nr_parts = 2;
 	parts = kzalloc(nr_parts * sizeof(*parts), GFP_KERNEL);
@@ -148,8 +147,10 @@ static int __mtdsplit_parse_uimage(struct mtd_info *master,
 		rf_part = 1;
 
 		/* find the roots after the uImage */
-		ret = mtd_find_rootfs_from(master, uimage_offset + uimage_size,
-					   master->size, &rootfs_offset, &type);
+		ret = mtd_find_rootfs_from(master,
+					   uimage_offset + uimage_size,
+					   master->size,
+					   &rootfs_offset);
 		if (ret) {
 			pr_debug("no rootfs after uImage in \"%s\"\n",
 				 master->name);
@@ -163,7 +164,7 @@ static int __mtdsplit_parse_uimage(struct mtd_info *master,
 		uimage_part = 1;
 
 		/* check rootfs presence at offset 0 */
-		ret = mtd_check_rootfs_magic(master, 0, &type);
+		ret = mtd_check_rootfs_magic(master, 0);
 		if (ret) {
 			pr_debug("no rootfs before uImage in \"%s\"\n",
 				 master->name);
@@ -184,10 +185,7 @@ static int __mtdsplit_parse_uimage(struct mtd_info *master,
 	parts[uimage_part].offset = uimage_offset;
 	parts[uimage_part].size = uimage_size;
 
-	if (type == MTDSPLIT_PART_TYPE_UBI)
-		parts[rf_part].name = UBI_PART_NAME;
-	else
-		parts[rf_part].name = ROOTFS_PART_NAME;
+	parts[rf_part].name = ROOTFS_PART_NAME;
 	parts[rf_part].offset = rootfs_offset;
 	parts[rf_part].size = rootfs_size;
 
@@ -254,7 +252,6 @@ static struct mtd_part_parser uimage_generic_parser = {
 #define FW_MAGIC_WNR1000V2_VC	0x31303030
 #define FW_MAGIC_WNDR3700	0x33373030
 #define FW_MAGIC_WNDR3700V2	0x33373031
-#define FW_MAGIC_WPN824N	0x31313030
 
 static ssize_t uimage_verify_wndr3700(u_char *buf, size_t len)
 {
@@ -269,7 +266,6 @@ static ssize_t uimage_verify_wndr3700(u_char *buf, size_t len)
 	case FW_MAGIC_WNR2200:
 	case FW_MAGIC_WNDR3700:
 	case FW_MAGIC_WNDR3700V2:
-	case FW_MAGIC_WPN824N:
 		break;
 	case FW_MAGIC_WNR2000V4:
 		expected_type = IH_TYPE_KERNEL;

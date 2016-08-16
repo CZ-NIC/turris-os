@@ -20,15 +20,6 @@
 #define SWCONFIG_LED_TIMER_INTERVAL	(HZ / 10)
 #define SWCONFIG_LED_NUM_PORTS		32
 
-#define SWCONFIG_LED_PORT_SPEED_NA	0x01	/* unknown speed */
-#define SWCONFIG_LED_PORT_SPEED_10	0x02	/* 10 Mbps */
-#define SWCONFIG_LED_PORT_SPEED_100	0x04	/* 100 Mbps */
-#define SWCONFIG_LED_PORT_SPEED_1000	0x08	/* 1000 Mbps */
-#define SWCONFIG_LED_PORT_SPEED_ALL	(SWCONFIG_LED_PORT_SPEED_NA | \
-					 SWCONFIG_LED_PORT_SPEED_10 | \
-					 SWCONFIG_LED_PORT_SPEED_100 | \
-					 SWCONFIG_LED_PORT_SPEED_1000)
-
 struct switch_led_trigger {
 	struct led_trigger trig;
 	struct switch_dev *swdev;
@@ -37,7 +28,6 @@ struct switch_led_trigger {
 	u32 port_mask;
 	u32 port_link;
 	unsigned long port_traffic[SWCONFIG_LED_NUM_PORTS];
-	u8 link_speed[SWCONFIG_LED_NUM_PORTS];
 };
 
 struct swconfig_trig_data {
@@ -50,7 +40,6 @@ struct swconfig_trig_data {
 	bool prev_link;
 	unsigned long prev_traffic;
 	enum led_brightness prev_brightness;
-	u8 speed_mask;
 };
 
 static void
@@ -105,28 +94,37 @@ swconfig_trig_port_mask_store(struct device *dev, struct device_attribute *attr,
 	struct led_classdev *led_cdev = dev_get_drvdata(dev);
 	struct swconfig_trig_data *trig_data = led_cdev->trigger_data;
 	unsigned long port_mask;
-	int ret;
-	bool changed;
+	ssize_t ret = -EINVAL;
+	char *after;
+	size_t count;
 
-	ret = kstrtoul(buf, 0, &port_mask);
-	if (ret)
-		return ret;
+	port_mask = simple_strtoul(buf, &after, 16);
+	count =	after - buf;
 
-	write_lock(&trig_data->lock);
+	if (*after && isspace(*after))
+		count++;
 
-	changed = (trig_data->port_mask != port_mask);
-	if (changed) {
-		trig_data->port_mask = port_mask;
-		if (port_mask == 0)
-			swconfig_trig_set_brightness(trig_data, LED_OFF);
+	if (count == size) {
+		bool changed;
+
+		write_lock(&trig_data->lock);
+
+		changed = (trig_data->port_mask != port_mask);
+		if (changed) {
+			trig_data->port_mask = port_mask;
+			if (port_mask == 0)
+				swconfig_trig_set_brightness(trig_data, LED_OFF);
+		}
+
+		write_unlock(&trig_data->lock);
+
+		if (changed)
+			swconfig_trig_update_port_mask(led_cdev->trigger);
+
+		ret = count;
 	}
 
-	write_unlock(&trig_data->lock);
-
-	if (changed)
-		swconfig_trig_update_port_mask(led_cdev->trigger);
-
-	return size;
+	return ret;
 }
 
 static ssize_t
@@ -145,46 +143,6 @@ swconfig_trig_port_mask_show(struct device *dev, struct device_attribute *attr,
 
 static DEVICE_ATTR(port_mask, 0644, swconfig_trig_port_mask_show,
 		   swconfig_trig_port_mask_store);
-
-/* speed_mask file handler - display value */
-static ssize_t swconfig_trig_speed_mask_show(struct device *dev,
-					     struct device_attribute *attr,
-					     char *buf)
-{
-	struct led_classdev *led_cdev = dev_get_drvdata(dev);
-	struct swconfig_trig_data *trig_data = led_cdev->trigger_data;
-
-	read_lock(&trig_data->lock);
-	sprintf(buf, "%#x\n", trig_data->speed_mask);
-	read_unlock(&trig_data->lock);
-
-	return strlen(buf) + 1;
-}
-
-/* speed_mask file handler - store value */
-static ssize_t swconfig_trig_speed_mask_store(struct device *dev,
-					      struct device_attribute *attr,
-					      const char *buf, size_t size)
-{
-	struct led_classdev *led_cdev = dev_get_drvdata(dev);
-	struct swconfig_trig_data *trig_data = led_cdev->trigger_data;
-	u8 speed_mask;
-	int ret;
-
-	ret = kstrtou8(buf, 0, &speed_mask);
-	if (ret)
-		return ret;
-
-	write_lock(&trig_data->lock);
-	trig_data->speed_mask = speed_mask & SWCONFIG_LED_PORT_SPEED_ALL;
-	write_unlock(&trig_data->lock);
-
-	return size;
-}
-
-/* speed_mask special file */
-static DEVICE_ATTR(speed_mask, 0644, swconfig_trig_speed_mask_show,
-		   swconfig_trig_speed_mask_store);
 
 static void
 swconfig_trig_activate(struct led_classdev *led_cdev)
@@ -205,21 +163,13 @@ swconfig_trig_activate(struct led_classdev *led_cdev)
 	rwlock_init(&trig_data->lock);
 	trig_data->led_cdev = led_cdev;
 	trig_data->swdev = sw_trig->swdev;
-	trig_data->speed_mask = SWCONFIG_LED_PORT_SPEED_ALL;
 	led_cdev->trigger_data = trig_data;
 
 	err = device_create_file(led_cdev->dev, &dev_attr_port_mask);
 	if (err)
 		goto err_free;
 
-	err = device_create_file(led_cdev->dev, &dev_attr_speed_mask);
-	if (err)
-		goto err_dev_free;
-
 	return;
-
-err_dev_free:
-	device_remove_file(led_cdev->dev, &dev_attr_port_mask);
 
 err_free:
 	led_cdev->trigger_data = NULL;
@@ -236,7 +186,6 @@ swconfig_trig_deactivate(struct led_classdev *led_cdev)
 	trig_data = (void *) led_cdev->trigger_data;
 	if (trig_data) {
 		device_remove_file(led_cdev->dev, &dev_attr_port_mask);
-		device_remove_file(led_cdev->dev, &dev_attr_speed_mask);
 		kfree(trig_data);
 	}
 }
@@ -248,7 +197,6 @@ swconfig_trig_led_event(struct switch_led_trigger *sw_trig,
 	struct swconfig_trig_data *trig_data;
 	u32 port_mask;
 	bool link;
-	u8 speed_mask;
 
 	trig_data = led_cdev->trigger_data;
 	if (!trig_data)
@@ -256,7 +204,6 @@ swconfig_trig_led_event(struct switch_led_trigger *sw_trig,
 
 	read_lock(&trig_data->lock);
 	port_mask = trig_data->port_mask;
-	speed_mask = trig_data->speed_mask;
 	read_unlock(&trig_data->lock);
 
 	link = !!(sw_trig->port_link & port_mask);
@@ -265,28 +212,17 @@ swconfig_trig_led_event(struct switch_led_trigger *sw_trig,
 			swconfig_trig_set_brightness(trig_data, LED_OFF);
 	} else {
 		unsigned long traffic;
-		int speedok;	/* link speed flag */
 		int i;
 
 		traffic = 0;
-		speedok = 0;
 		for (i = 0; i < SWCONFIG_LED_NUM_PORTS; i++) {
 			if (port_mask & (1 << i))
-				if (sw_trig->link_speed[i] & speed_mask) {
-					traffic += sw_trig->port_traffic[i];
-					speedok = 1;
-				}
+				traffic += sw_trig->port_traffic[i];
 		}
 
-		if (speedok) {
-			/* At least one port speed matches speed_mask */
-			if (trig_data->prev_brightness != LED_FULL)
-				swconfig_trig_set_brightness(trig_data,
-							     LED_FULL);
-			else if (traffic != trig_data->prev_traffic)
-				swconfig_trig_set_brightness(trig_data,
-							     LED_OFF);
-		} else if (trig_data->prev_brightness != LED_OFF)
+		if (trig_data->prev_brightness != LED_FULL)
+			swconfig_trig_set_brightness(trig_data, LED_FULL);
+		else if (traffic != trig_data->prev_traffic)
 			swconfig_trig_set_brightness(trig_data, LED_OFF);
 
 		trig_data->prev_traffic = traffic;
@@ -331,8 +267,6 @@ swconfig_led_work_func(struct work_struct *work)
 	for (i = 0; i < SWCONFIG_LED_NUM_PORTS; i++) {
 		u32 port_bit;
 
-		sw_trig->link_speed[i] = 0;
-
 		port_bit = BIT(i);
 		if ((port_mask & port_bit) == 0)
 			continue;
@@ -343,27 +277,8 @@ swconfig_led_work_func(struct work_struct *work)
 			memset(&port_link, '\0', sizeof(port_link));
 			swdev->ops->get_port_link(swdev, i, &port_link);
 
-			if (port_link.link) {
+			if (port_link.link)
 				link |= port_bit;
-				switch (port_link.speed) {
-				case SWITCH_PORT_SPEED_UNKNOWN:
-					sw_trig->link_speed[i] =
-						SWCONFIG_LED_PORT_SPEED_NA;
-					break;
-				case SWITCH_PORT_SPEED_10:
-					sw_trig->link_speed[i] =
-						SWCONFIG_LED_PORT_SPEED_10;
-					break;
-				case SWITCH_PORT_SPEED_100:
-					sw_trig->link_speed[i] =
-						SWCONFIG_LED_PORT_SPEED_100;
-					break;
-				case SWITCH_PORT_SPEED_1000:
-					sw_trig->link_speed[i] =
-						SWCONFIG_LED_PORT_SPEED_1000;
-					break;
-				}
-			}
 		}
 
 		if (swdev->ops->get_port_stats) {

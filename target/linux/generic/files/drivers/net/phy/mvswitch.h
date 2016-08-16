@@ -1,6 +1,6 @@
 /*
  * Marvell 88E6060 switch driver
- * Copyright (c) 2008 Felix Fietkau <nbd@nbd.name>
+ * Copyright (c) 2008 Felix Fietkau <nbd@openwrt.org>
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of the GNU General Public License v2 as published by the

@@ -1,7 +1,7 @@
 /*
  * switch.h: Switch configuration API
  *
- * Copyright (C) 2008 Felix Fietkau <nbd@nbd.name>
+ * Copyright (C) 2008 Felix Fietkau <nbd@openwrt.org>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -50,7 +50,6 @@ enum {
 	SWITCH_ATTR_OP_VALUE_INT,
 	SWITCH_ATTR_OP_VALUE_STR,
 	SWITCH_ATTR_OP_VALUE_PORTS,
-	SWITCH_ATTR_OP_VALUE_LINK,
 	SWITCH_ATTR_OP_DESCRIPTION,
 	/* port lists */
 	SWITCH_ATTR_PORT,
@@ -87,7 +86,6 @@ enum switch_val_type {
 	SWITCH_TYPE_INT,
 	SWITCH_TYPE_STRING,
 	SWITCH_TYPE_PORTS,
-	SWITCH_TYPE_LINK,
 	SWITCH_TYPE_NOVAL,
 };
 
@@ -97,20 +95,6 @@ enum {
 	SWITCH_PORT_ID,
 	SWITCH_PORT_FLAG_TAGGED,
 	SWITCH_PORT_ATTR_MAX
-};
-
-/* link nested attributes */
-enum {
-	SWITCH_LINK_UNSPEC,
-	SWITCH_LINK_FLAG_LINK,
-	SWITCH_LINK_FLAG_DUPLEX,
-	SWITCH_LINK_FLAG_ANEG,
-	SWITCH_LINK_FLAG_TX_FLOW,
-	SWITCH_LINK_FLAG_RX_FLOW,
-	SWITCH_LINK_SPEED,
-	SWITCH_LINK_FLAG_EEE_100BASET,
-	SWITCH_LINK_FLAG_EEE_1000BASET,
-	SWITCH_LINK_ATTR_MAX,
 };
 
 #define SWITCH_ATTR_DEFAULTS_OFFSET	0x1000

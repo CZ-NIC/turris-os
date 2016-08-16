@@ -1,7 +1,7 @@
 /*
  * switch.h: Switch configuration API
  *
- * Copyright (C) 2008 Felix Fietkau <nbd@nbd.name>
+ * Copyright (C) 2008 Felix Fietkau <nbd@openwrt.org>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -95,13 +95,8 @@ struct switch_dev_ops {
 
 	int (*get_port_link)(struct switch_dev *dev, int port,
 			     struct switch_port_link *link);
-	int (*set_port_link)(struct switch_dev *dev, int port,
-			     struct switch_port_link *link);
 	int (*get_port_stats)(struct switch_dev *dev, int port,
 			      struct switch_port_stats *stats);
-
-	int (*phy_read16)(struct switch_dev *dev, int addr, u8 reg, u16 *value);
-	int (*phy_write16)(struct switch_dev *dev, int addr, u8 reg, u16 value);
 };
 
 struct switch_dev {
@@ -127,7 +122,6 @@ struct switch_dev {
 	struct mutex sw_mutex;
 	struct switch_port *portbuf;
 	struct switch_portmap *portmap;
-	struct switch_port_link linkbuf;
 
 	char buf[128];
 
@@ -154,7 +148,6 @@ struct switch_val {
 		const char *s;
 		u32 i;
 		struct switch_port *ports;
-		struct switch_port_link *link;
 	} value;
 };
 
@@ -172,8 +165,5 @@ struct switch_attr {
 	int ofs;
 	int max;
 };
-
-int switch_generic_set_link(struct switch_dev *dev, int port,
-			    struct switch_port_link *link);
 
 #endif /* _LINUX_SWITCH_H */
