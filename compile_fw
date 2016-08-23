@@ -189,7 +189,7 @@ fi
 # Generate lists
 PUB_BIN_DIR="`ls -1d bin/* | head -n1`"
 mkdir -p $PUB_BIN_DIR/lists
-echo Install $(sed -n 's|Package: \(.*\)|"\1"|p' bin/*/root/usr/lib/opkg/status) >> base.lua
+echo Install $(sed -n 's|Package: \(.*\)|"\1"|p' bin/*/root/usr/lib/opkg/status | grep -v '"updater"' >> base.lua
 mv base.lua $PUB_BIN_DIR/lists
 for i in lists/*.list; do
 	[ "$i" = lists/base.list ] || rm -f $PUB_BIN_DIR/lists/$(basename $i .list).lua
