@@ -20,13 +20,10 @@ luci-i18n-base-en
 luci-i18n-commands-cs
 luci-i18n-commands-en
 luci-i18n-ddns-cs
-luci-i18n-ddns-en
 luci-i18n-firewall-cs
 luci-i18n-firewall-en
 luci-i18n-minidlna-cs
 luci-i18n-minidlna-en
-luci-i18n-mjpg-streamer-cs
-luci-i18n-mjpg-streamer-en
 luci-i18n-ntpc-cs
 luci-i18n-ntpc-en
 luci-i18n-statistics-cs
