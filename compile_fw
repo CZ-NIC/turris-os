@@ -253,4 +253,5 @@ elif [ "$TARGET_BOARD" = omnia ]; then
 	mkdir -p bin/mvebu-musl/x86-64
 	cp build_dir/host/uboot-turris-omnia*/turris-omnia-uboot/* bin/mvebu-musl/x86-64
 	mv bin bin-nor
+	rm -rf bin-nor/packages
 fi
