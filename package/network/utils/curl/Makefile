@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=curl
-PKG_VERSION:=7.40.0
-PKG_RELEASE:=3
+PKG_VERSION:=7.50.1
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://curl.haxx.se/download/ \
@@ -18,7 +18,7 @@ PKG_SOURCE_URL:=http://curl.haxx.se/download/ \
 	ftp://ftp.planetmirror.com/pub/curl/ \
 	http://www.mirrormonster.com/curl/download/ \
 	http://curl.mirrors.cyberservers.net/download/
-PKG_MD5SUM:=8d30594212e65657a5c32030f0998fa9
+PKG_MD5SUM:=015f6a0217ca6f2c5442ca406476920b
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=COPYING
@@ -86,7 +86,7 @@ define Package/libcurl
   $(call Package/curl/Default)
   SECTION:=libs
   CATEGORY:=Libraries
-  DEPENDS:=+LIBCURL_POLARSSL:libpolarssl +LIBCURL_CYASSL:libcyassl +LIBCURL_AXTLS:libaxtls +LIBCURL_OPENSSL:libopenssl +LIBCURL_GNUTLS:libgnutls 
+  DEPENDS:=+LIBCURL_POLARSSL:libpolarssl +LIBCURL_CYASSL:libcyassl +LIBCURL_AXTLS:libaxtls +LIBCURL_OPENSSL:libopenssl +LIBCURL_GNUTLS:libgnutls
   DEPENDS += +LIBCURL_ZLIB:zlib +LIBCURL_THREADED_RESOLVER:libpthread +LIBCURL_LDAP:libopenldap +LIBCURL_LIBIDN:libidn +LIBCURL_SSH2:libssh2
   TITLE:=A client-side URL transfer library
   MENU:=1
