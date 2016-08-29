@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=busybox
 PKG_VERSION:=1.23.2
-PKG_RELEASE:=7
+PKG_RELEASE:=8
 PKG_FLAGS:=essential
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
@@ -115,7 +115,7 @@ define Package/busybox/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	for a in $(1)/usr/bin/*; do \
 	i="`basename "$$$$a"`"; \
-	[ \! -s $(1)/usr/bin/$$$$i ] || ( rm -f $(1)/usr/bin/$$$$i &&	ln -s busybox $(1)/bin/$$$$i ); \
+	[ \! -s $(1)/usr/bin/$$$$i ] || [ "$$$$i" = env ] || ( rm -f $(1)/usr/bin/$$$$i &&	ln -s busybox $(1)/bin/$$$$i ); \
 	done
  ifeq ($(CONFIG_BUSYBOX_CONFIG_UDHCP_INSTALL_SIMPLE_SCRIPT),y)
 	$(INSTALL_DIR) $(1)$(shell dirname $(CONFIG_BUSYBOX_CONFIG_UDHCPC_DEFAULT_SCRIPT))
