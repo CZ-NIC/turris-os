@@ -30,7 +30,6 @@ cron
 done
 smartd
 led
-sysntpd
 rainbow
 start-indicator
 setup_led
