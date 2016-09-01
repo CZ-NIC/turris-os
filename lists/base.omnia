@@ -25,3 +25,11 @@ shadow-usermod
 shadow-utils
 i2c-tools
 CONFIG_shadow-all=y
+daemon-watchdog
+nuci
+nuci-nethist
+logrotate
+foris
+nethist
+https-cert
+lm-sensors
