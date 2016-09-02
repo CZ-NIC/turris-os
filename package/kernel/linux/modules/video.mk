@@ -192,7 +192,7 @@ $(eval $(call KernelPackage,video-pwc))
 
 define KernelPackage/video-uvc
   TITLE:=USB Video Class (UVC) support
-  DEPENDS:=@USB_SUPPORT +kmod-usb-core +kmod-video-videobuf2 +kmod-input-core @!LINUX_4_4
+  DEPENDS:=@USB_SUPPORT +kmod-usb-core +kmod-video-videobuf2 +kmod-input-core
   KCONFIG:= CONFIG_USB_VIDEO_CLASS
   FILES:=$(LINUX_DIR)/drivers/media/$(V4L2_USB_DIR)/uvc/uvcvideo.ko
   AUTOLOAD:=$(call AutoProbe,uvcvideo)
