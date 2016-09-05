@@ -1,1 +1,1 @@
-Install "luci-app-majordomo"
+Install "luci-app-majordomo" { ignore = { 'missing' } }

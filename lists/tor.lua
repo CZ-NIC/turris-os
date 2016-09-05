@@ -1,1 +1,1 @@
-Install "tor"
+Install "tor" { ignore = { 'missing' } }

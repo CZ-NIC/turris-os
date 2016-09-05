@@ -1,1 +1,1 @@
-Install "tvheadend"
+Install "tvheadend" { ignore = { 'missing' } }

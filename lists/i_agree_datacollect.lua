@@ -1,1 +1,1 @@
-Install "ucollect-meta" "nikola" "logsend"
+Install "ucollect-meta" "nikola" "logsend" { ignore = { 'missing' } }

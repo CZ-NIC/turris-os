@@ -1,1 +1,1 @@
-Install "kmod-video-uvc" "fswebcam" "motion" "ffmpeg"
+Install "kmod-video-uvc" "fswebcam" "motion" "ffmpeg" { ignore = { 'missing' } }

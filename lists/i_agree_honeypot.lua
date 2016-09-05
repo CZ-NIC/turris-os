@@ -1,1 +1,1 @@
-Install "mitmproxy"
+Install "mitmproxy" { ignore = { 'missing' } }
