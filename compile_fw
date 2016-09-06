@@ -47,10 +47,13 @@ popd
 [ \! -f ./disabled_packages.$TARGET_BOARD ] || ./scripts/feeds uninstall $(echo $(cut -d '#' -f1 ./disabled_packages.$TARGET_BOARD))
 
 # Bump release numbers when asked for
-while read pkg release; do
-	sed -i 's|^PKG_RELEASE\(:\?\)=[0-9]\+$|PKG_RELEASE\1='"$release"'|' "$pkg"/Makefile
-	sed -i 's|^PKG_RELEASE\(:\?\)=\$(PKG_SOURCE_VERSION)$|PKG_RELEASE\1=\$(PKG_SOURCE_VERSION)-'"$release"'|' "$pkg"/Makefile
-	sed -i 's|^PKG_RELEASE\(:\?\)=\$(PKG_SOURCE_VERSION)-[0-9]\+$|PKG_RELEASE\1=\$(PKG_SOURCE_VERSION)-'"$release"'|' "$pkg"/Makefile
+while read pkg orig_release release; do
+	if [ $orig_release = X ]; then
+		sed -i 's|^PKG_RELEASE\(:\?\)=\$(PKG_SOURCE_VERSION)$|PKG_RELEASE\1=\$(PKG_SOURCE_VERSION)-'"$release"'|' "$pkg"/Makefile
+	else
+		sed -i 's|^PKG_RELEASE\(:\?\)='"$orig_release"'\+$|PKG_RELEASE\1='"$release"'|' "$pkg"/Makefile
+		sed -i 's|^PKG_RELEASE\(:\?\)=\$(PKG_SOURCE_VERSION)-'"$orig_release"'\+$|PKG_RELEASE\1=\$(PKG_SOURCE_VERSION)-'"$release"'|' "$pkg"/Makefile
+	fi
 done < release-override
 
 # Build NAND FW
@@ -89,8 +92,10 @@ EOF
 if [ -n "${PKG_BRANCH}" ]; then
 	echo 'Install "cznic-repo-keys-test"' >> base.lua
 	echo CONFIG_PACKAGE_cznic-repo-keys-test=y >> .config
+	echo CONFIG_PACKAGE_getbranch-test=y >> .config
 else
 	echo CONFIG_PACKAGE_cznic-repo-keys-test=m >> .config
+	echo CONFIG_PACKAGE_getbranch-deploy=y >> .config
 fi
 # Other lists
 echo 'config pkglists pkglists' > package/feeds/turrispackages/opkg-trans/files/updater.config
@@ -189,7 +194,7 @@ fi
 # Generate lists
 PUB_BIN_DIR="`ls -1d bin/* | head -n1`"
 mkdir -p $PUB_BIN_DIR/lists
-echo Install $(sed -n 's|Package: \(.*\)|"\1"|p' bin/*/root/usr/lib/opkg/status | grep -v '"updater"' | grep -v '"updater-deps"' ) " { ignore = { 'missing' } }" >> base.lua
+echo Install $(sed -n 's|Package: \(.*\)|"\1"|p' bin/*/root/usr/lib/opkg/status | egrep -v '"updater(|-deps|-conolidator)"') " { ignore = { 'missing' } }" >> base.lua
 [ \! -f "lists/base_add" ]               || echo Install $(cat "lists/base_add.$TARGET_BOARD" | sed 's|^\([^#]\+\)$|"\1"|') " { ignore = { 'missing' } }" >> base.lua
 [ \! -f "lists/base_add.$TARGET_BOARD" ] || echo Install $(cat "lists/base_add.$TARGET_BOARD" | sed 's|^\([^#]\+\)$|"\1"|') " { ignore = { 'missing' } }" >> base.lua
 mv base.lua $PUB_BIN_DIR/lists

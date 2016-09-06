@@ -1,135 +1,132 @@
-feeds/lucics/applications/luci-app-fwknopd 2
-feeds/lucics/applications/luci-app-privoxy 2
-feeds/lucics/contrib/package/community-profiles 3
-feeds/lucics/contrib/package/freifunk-gwcheck 5
-feeds/lucics/contrib/package/freifunk-policyrouting 7
-feeds/lucics/protocols/luci-proto-vpnc 2
-feeds/management/freenetconfd-plugin-examples 2
-feeds/management/shtool 2
-feeds/packages/admin/sudo 2
-feeds/packages/devel/autoconf 2
-feeds/packages/kernel/exfat-nofuse 2
-feeds/packages/lang/erlang 3
-feeds/packages/lang/luai2c 3
-feeds/packages/lang/lua-rs232 2
-feeds/packages/lang/perl-device-usb 2
-feeds/packages/lang/perl-xml-parser 2
-feeds/packages/lang/php5-pecl-libevent 3
-feeds/packages/lang/python3-bottle 2
-feeds/packages/libs/classpath 2
-feeds/packages/libs/cyrus-sasl 4
-feeds/packages/libs/engine_pkcs11 2
-feeds/packages/libs/ibrcommon 3
-feeds/packages/libs/ibrdtn 2
-feeds/packages/libs/libdbi-drivers 2
-feeds/packages/libs/libgee 2
-feeds/packages/libs/libical 2
-feeds/packages/libs/libnfc 2
-feeds/packages/libs/libsearpc 2
-feeds/packages/libs/libsigc++ 2
-feeds/packages/libs/neon 2
-feeds/packages/libs/tdb 2
-feeds/packages/libs/toxcore 2
-feeds/packages/libs/vips 2
-feeds/packages/libs/xmlrpc-c 2
-feeds/packages/mail/alpine 3
-feeds/packages/mail/fdm 2
-feeds/packages/mail/mailman 2
-feeds/packages/mail/mutt 2
-feeds/packages/multimedia/gstreamer1 2
-feeds/packages/multimedia/gst1-libav 2
-feeds/packages/multimedia/gst1-plugins-bad 2
-feeds/packages/multimedia/gst1-plugins-base 2
-feeds/packages/multimedia/gst1-plugins-good 2
-feeds/packages/multimedia/gst1-plugins-ugly 2
-feeds/packages/multimedia/ices 2
-feeds/packages/multimedia/mjpg-streamer 9
-feeds/packages/net/aircrack-ng 2
-feeds/packages/net/apache 2
-feeds/packages/net/atftp 6
-feeds/packages/net/clamav 2
-feeds/packages/net/coova-chilli 3
-feeds/packages/net/dansguardian 2
-feeds/packages/net/emailrelay 3
-feeds/packages/net/e2guardian 2
-feeds/packages/net/ibrdtnd 2
-feeds/packages/net/kismet 2
-feeds/packages/net/linknx 2
-feeds/packages/net/luci-app-e2guardian 20150521
-feeds/packages/net/mdnsresponder 2
-feeds/packages/net/netatalk 2
-feeds/packages/net/ngircd 2
-feeds/packages/net/ntripclient 2
-feeds/packages/net/ntripserver 2
-feeds/packages/net/opennhrp 3
-feeds/packages/net/polipo 2
-feeds/packages/net/privoxy 2
-feeds/packages/net/prosody 2
-feeds/packages/net/snort 5
-feeds/packages/net/sshfs 2
-feeds/packages/net/sslh 3
-feeds/packages/net/tcpproxy 2
-feeds/packages/net/uanytun 2
-feeds/packages/net/vnstat 2
-feeds/packages/net/xl2tpd 2
-feeds/packages/sound/mocp 3
-feeds/packages/sound/portaudio 2
-feeds/packages/utils/avrdude 4
-feeds/packages/utils/bandwidthd 6
-feeds/packages/utils/cmdpad 4
-feeds/packages/utils/lcd4linux 4
-feeds/packages/utils/lsof 2
-feeds/packages/utils/mbtools 2
-feeds/packages/utils/minicom 4
-feeds/packages/utils/openocd 2
-feeds/packages/utils/open-plc-utils 2
-feeds/packages/utils/screen 2
-feeds/packages/utils/sysstat 3
-feeds/packages/utils/taskwarrior 2
-feeds/packages/utils/unzip 5
-feeds/packages/utils/watchcat 6
-feeds/routing/luci-app-bmx6 4
-feeds/routing/mrd6 2
-feeds/routing/oonf-init-scripts 2
-feeds/routing/quagga 3
-feeds/routing/smcroute 2
-feeds/turrispackages/admin/syslog-ng3 4
-feeds/turrispackages/cznic/domoticz 2
-feeds/turrispackages/cznic/foris-tls-plugin 2
-feeds/turrispackages/cznic/home-assistant-turris-gadgets 2
-feeds/turrispackages/lang/perl 3
-feeds/turrispackages/libs/avahi 13
-feeds/turrispackages/libs/faad2 4
-feeds/turrispackages/libs/gd 2
-feeds/turrispackages/libs/gdbm 2
-feeds/turrispackages/libs/jpeg 2
-feeds/turrispackages/libs/libaudiofile 4
-feeds/turrispackages/libs/libgcrypt 2
-feeds/turrispackages/libs/libgpg-error 2
-feeds/turrispackages/libs/libnet-1.2.x 4
-feeds/turrispackages/multimedia/minidlna 2
-feeds/turrispackages/multimedia/tvheadend 2
-feeds/turrispackages/net/etherwake 5
-feeds/turrispackages/net/knot 2
-feeds/turrispackages/net/lighttpd 2
-feeds/turrispackages/net/net-snmp 3
-feeds/turrispackages/net/squid 2
-feeds/turrispackages/net/unbound 8
-feeds/turrispackages/utils/coreutils 2
-feeds/turrispackages/utils/hd-idle 2
-feeds/turrispackages/utils/owfs 2
-package/devel/gdb 3
-package/devel/oprofile 2
-package/devel/valgrind 2
-package/kernel/mt76 2
-package/libs/elfutils 2
-package/libs/libiconv-full 2
-package/libs/openssl 2
-package/libs/toolchain 4
-package/network/services/hostapd 2
-package/network/services/openvpn 6
-package/network/services/samba36 5
-package/network/utils/xtables-addons 2
-package/system/opkg 14
-package/utils/busybox 3
-package/utils/util-linux 5
+feeds/lucics/applications/luci-app-fwknopd 1 2
+feeds/lucics/applications/luci-app-privoxy 1 2
+feeds/lucics/contrib/package/community-profiles 2 3
+feeds/lucics/contrib/package/freifunk-gwcheck 4 5
+feeds/lucics/contrib/package/freifunk-policyrouting 6 7
+feeds/lucics/protocols/luci-proto-vpnc 1 2
+feeds/management/freenetconfd-plugin-examples X 2
+feeds/management/shtool 1 2
+feeds/packages/admin/sudo 1 2
+feeds/packages/devel/autoconf 1 2
+feeds/packages/kernel/exfat-nofuse 1 2
+feeds/packages/lang/erlang 2 3
+feeds/packages/lang/luai2c 2 3
+feeds/packages/lang/lua-rs232 1 2
+feeds/packages/lang/perl-device-usb 1 2
+feeds/packages/lang/perl-xml-parser 1 2
+feeds/packages/lang/php5-pecl-libevent 2 3
+feeds/packages/lang/python3-bottle 1 2
+feeds/packages/libs/classpath 1 2
+feeds/packages/libs/cyrus-sasl 3 4
+feeds/packages/libs/engine_pkcs11 1 2
+feeds/packages/libs/ibrcommon 2 3
+feeds/packages/libs/ibrdtn 1 2
+feeds/packages/libs/libdbi-drivers 1 2
+feeds/packages/libs/libgee 1 2
+feeds/packages/libs/libical 1 2
+feeds/packages/libs/libnfc 1 2
+feeds/packages/libs/libsearpc X 2
+feeds/packages/libs/libsigc++ 1 2
+feeds/packages/libs/neon 1 2
+feeds/packages/libs/tdb 1 2
+feeds/packages/libs/toxcore 1 2
+feeds/packages/libs/vips 1 2
+feeds/packages/libs/xmlrpc-c 1 2
+feeds/packages/mail/alpine 2 3
+feeds/packages/mail/fdm 1 2
+feeds/packages/mail/mailman 1 2
+feeds/packages/mail/mutt 1 2
+feeds/packages/multimedia/gstreamer1 1 2
+feeds/packages/multimedia/gst1-libav 1 2
+feeds/packages/multimedia/gst1-plugins-bad 1 2
+feeds/packages/multimedia/gst1-plugins-base 1 2
+feeds/packages/multimedia/gst1-plugins-good 1 2
+feeds/packages/multimedia/gst1-plugins-ugly 1 2
+feeds/packages/multimedia/ices 1 2
+feeds/packages/multimedia/mjpg-streamer 8 9
+feeds/packages/net/aircrack-ng 1 2
+feeds/packages/net/apache 1 2
+feeds/packages/net/atftp 5 6
+feeds/packages/net/clamav 1 2
+feeds/packages/net/coova-chilli 2 3
+feeds/packages/net/dansguardian 1 2
+feeds/packages/net/emailrelay 2 3
+feeds/packages/net/e2guardian 1 2
+feeds/packages/net/ibrdtnd 1 2
+feeds/packages/net/kismet 1 2
+feeds/packages/net/linknx 1 2
+feeds/packages/net/luci-app-e2guardian 20150520 20150521
+feeds/packages/net/mdnsresponder 1 2
+feeds/packages/net/netatalk 1 2
+feeds/packages/net/ngircd 1 2
+feeds/packages/net/ntripclient X 2
+feeds/packages/net/ntripserver X 2
+feeds/packages/net/opennhrp 2 3
+feeds/packages/net/polipo 1 2
+feeds/packages/net/privoxy 1 2
+feeds/packages/net/prosody 1 2
+feeds/packages/net/snort 4 5
+feeds/packages/net/sshfs 1 2
+feeds/packages/net/sslh 2 3
+feeds/packages/net/tcpproxy 1 2
+feeds/packages/net/uanytun 1 2
+feeds/packages/net/vnstat 1 2
+feeds/packages/net/xl2tpd 1 2
+feeds/packages/sound/mocp 2 3
+feeds/packages/sound/portaudio 1 2
+feeds/packages/utils/avrdude 3 4
+feeds/packages/utils/bandwidthd 5 6
+feeds/packages/utils/cmdpad 3 4
+feeds/packages/utils/lcd4linux 3 4
+feeds/packages/utils/lsof 1 2
+feeds/packages/utils/mbtools X 2
+feeds/packages/utils/minicom 3 4
+feeds/packages/utils/openocd 1 2
+feeds/packages/utils/open-plc-utils X 2
+feeds/packages/utils/screen 1 2
+feeds/packages/utils/sysstat 2 3
+feeds/packages/utils/taskwarrior 1 2
+feeds/packages/utils/unzip 4 5
+feeds/packages/utils/watchcat 5 6
+feeds/routing/luci-app-bmx6 3 4
+feeds/routing/mrd6 1 2
+feeds/routing/oonf-init-scripts 1 2
+feeds/routing/quagga 2 3
+feeds/routing/smcroute 1 2
+feeds/turrispackages/admin/syslog-ng3 3 4
+feeds/turrispackages/cznic/domoticz 1 2
+feeds/turrispackages/cznic/foris-tls-plugin 1 2
+feeds/turrispackages/cznic/home-assistant-turris-gadgets 1 2
+feeds/turrispackages/lang/perl 2 3
+feeds/turrispackages/libs/avahi 12 13
+feeds/turrispackages/libs/faad2 3 4
+feeds/turrispackages/libs/gd 1 2
+feeds/turrispackages/libs/gdbm 1 2
+feeds/turrispackages/libs/jpeg 1 2
+feeds/turrispackages/libs/libaudiofile 3 4
+feeds/turrispackages/libs/libgcrypt 1 2
+feeds/turrispackages/libs/libgpg-error 1 2
+feeds/turrispackages/libs/libnet-1.2.x 3 4
+feeds/turrispackages/multimedia/minidlna 1 2
+feeds/turrispackages/multimedia/tvheadend 1 2
+feeds/turrispackages/net/etherwake 4 5
+feeds/turrispackages/net/knot 1 2
+feeds/turrispackages/net/net-snmp 2 3
+feeds/turrispackages/net/squid 1 2
+feeds/turrispackages/utils/coreutils 1 2
+feeds/turrispackages/utils/hd-idle 1 2
+feeds/turrispackages/utils/owfs 1 2
+package/devel/gdb 2 3
+package/devel/oprofile 1 2
+package/devel/valgrind 1 2
+package/kernel/mt76 1 2
+package/libs/elfutils 1 2
+package/libs/libiconv-full 1 2
+package/libs/openssl 1 2
+package/libs/toolchain 3 4
+package/network/services/hostapd 1 2
+package/network/services/openvpn 5 6
+package/network/services/samba36 4 5
+package/network/utils/xtables-addons 1 2
+package/system/opkg 13 14
+package/utils/util-linux 4 5
