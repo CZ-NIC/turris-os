@@ -130,6 +130,16 @@ endef
 $(eval $(call KernelPackage,bluetooth-hci-h4p))
 
 
+define KernelPackage/dma-buf
+  TITLE:=DMA shared buffer support
+  HIDDEN:=1
+  KCONFIG:=CONFIG_DMA_SHARED_BUFFER
+  FILES:=$(LINUX_DIR)/drivers/dma-buf/dma-shared-buffer.ko
+  AUTOLOAD:=$(call AutoLoad,20,dma-shared-buffer)
+endef
+$(eval $(call KernelPackage,dma-buf))
+
+
 define KernelPackage/eeprom-93cx6
   SUBMENU:=$(OTHER_MENU)
   TITLE:=EEPROM 93CX6 support
@@ -144,7 +154,6 @@ endef
 
 $(eval $(call KernelPackage,eeprom-93cx6))
 
-
 define KernelPackage/eeprom-at24
   SUBMENU:=$(OTHER_MENU)
   TITLE:=EEPROM AT24 support
@@ -153,6 +162,7 @@ define KernelPackage/eeprom-at24
   FILES:=$(LINUX_DIR)/drivers/misc/eeprom/at24.ko
   AUTOLOAD:=$(call AutoProbe,at24)
 endef
+
 
 define KernelPackage/eeprom-at24/description
  Kernel module for most I2C EEPROMs
