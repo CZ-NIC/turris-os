@@ -1,3 +1,4 @@
+* ucollect-fake: http server support
 * nethist: Don't leave multiple instances running
 * ucollect-flow: Avoid infinite loop of asking for config
 * nuci-tls: Prevent parallel CA generation during install
