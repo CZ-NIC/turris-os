@@ -132,6 +132,7 @@ $(eval $(call KernelPackage,bluetooth-hci-h4p))
 
 define KernelPackage/dma-buf
   TITLE:=DMA shared buffer support
+  DEPENDS:=@LINUX_4_4
   HIDDEN:=1
   KCONFIG:=CONFIG_DMA_SHARED_BUFFER
   FILES:=$(LINUX_DIR)/drivers/dma-buf/dma-shared-buffer.ko
