@@ -92,6 +92,11 @@ done
 cat >> logs/junit.xml << EOF
 </testsuites>
 EOF
+if [ -n "`cat logs/package/error.txt 2> /dev/null`" ] && [ -z "$PKG_BRANCH" ]; then
+	echo "Following packages are failing in stable release"
+	cat logs/package/error.txt
+	exit 1
+fi
 [ \! -d ./logs ] || mv ./logs ./logs-nand
 
 if [ "$TARGET_BOARD" = turris ]; then
