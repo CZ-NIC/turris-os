@@ -134,7 +134,9 @@ if [ -d .git ] ; then
 fi
 make clean
 [ -z "$BUILD_ALL" ] || make dirclean
-make "$@" PKG_BRANCH=${PKG_BRANCH/-/}
+set -- "$@" PKG_BRANCH=${PKG_BRANCH/-/}
+[ -z "$PERSISTENT_CCACHE" ] || set -- "$@" CCACHE_DIR="`pwd`/ccache" CCACHE_HOST_DIR="`pwd`/ccache-host"
+make "$@"
 # Nice junit export
 mkdir -p logs
 cat > logs/junit.xml << EOF
