@@ -254,6 +254,16 @@ for i in lists/*.lua; do
 		fi
 	fi
 done
+if [ "$TARGET_BOARD" = "omnia" ]; then
+	rm -f $PUB_BIN_DIR/*.ext4 $PUB_BIN_DIR/*sums
+	for i in $PUB_BIN_DIR/medkit/*/*.tar.gz; do
+		staging_dir/host/bin/usign -S -m "$i" -s "$HOME"/mime.key
+		pushd "`dirname $i`"
+		md5sum "`basename $i`" > "`basename $i`".md5
+		sha256sum "`basename $i`" > "`basename $i`".sha256
+		popd
+	done
+fi
 
 if [ "$TARGET_BOARD" = turris ]; then
 	# Build NOR FW
