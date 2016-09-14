@@ -7,9 +7,9 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=hostapd
-PKG_VERSION:=2016-06-15
+PKG_VERSION:=2016-09-05
 PKG_RELEASE:=1
-PKG_REV:=31d3692fe5d56c05753ed4a70c7943979e1d29e7
+PKG_REV:=fcd85d9a3f2d9d63d0fa57e93446ad467db75b23
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://w1.fi/hostap.git
@@ -29,7 +29,6 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_kmod-cfg80211 \
 	CONFIG_PACKAGE_hostapd \
 	CONFIG_PACKAGE_hostapd-mini \
-	CONFIG_PACKAGE_kmod-hostap \
 	CONFIG_WPA_RFKILL_SUPPORT \
 	CONFIG_DRIVER_WEXT_SUPPORT \
 	CONFIG_DRIVER_11N_SUPPORT
@@ -66,7 +65,6 @@ endif
 DRIVER_MAKEOPTS= \
 	CONFIG_ACS=$(CONFIG_PACKAGE_kmod-cfg80211) \
 	CONFIG_DRIVER_NL80211=$(CONFIG_PACKAGE_kmod-cfg80211) \
-	CONFIG_DRIVER_HOSTAP=$(CONFIG_PACKAGE_kmod-hostap) \
 	CONFIG_IEEE80211N=$(HOSTAPD_IEEE80211N) \
 	CONFIG_DRIVER_WEXT=$(CONFIG_DRIVER_WEXT_SUPPORT) \
 
@@ -256,12 +254,6 @@ define Package/hostapd-common
   CATEGORY:=Network
 endef
 
-define Package/hostapd-common-old
-  TITLE:=hostapd/wpa_supplicant common support files (legacy drivers)
-  SECTION:=net
-  CATEGORY:=Network
-endef
-
 define Package/eapol-test
   TITLE:=802.1x authentication test utility
   SECTION:=net
@@ -378,12 +370,6 @@ define Package/hostapd-common/install
 	$(INSTALL_DATA) ./files/netifd.sh $(1)/lib/netifd/hostapd.sh
 endef
 
-define Package/hostapd-common-old/install
-	$(INSTALL_DIR) $(1)/lib/wifi
-	$(INSTALL_DATA) ./files/hostapd.sh $(1)/lib/wifi/hostapd.sh
-	$(INSTALL_DATA) ./files/wpa_supplicant.sh $(1)/lib/wifi/wpa_supplicant.sh
-endef
-
 define Package/hostapd/install
 	$(call Install/hostapd,$(1))
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/hostapd/hostapd $(1)/usr/sbin/
@@ -441,5 +427,4 @@ $(eval $(call BuildPackage,wpa-supplicant-p2p))
 $(eval $(call BuildPackage,wpa-cli))
 $(eval $(call BuildPackage,hostapd-utils))
 $(eval $(call BuildPackage,hostapd-common))
-$(eval $(call BuildPackage,hostapd-common-old))
 $(eval $(call BuildPackage,eapol-test))
