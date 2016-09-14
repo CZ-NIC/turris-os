@@ -168,6 +168,8 @@ cat >> logs/junit.xml << EOF
 EOF
 [ \! -d ./logs ] || mv ./logs ./logs-nand
 
+COMMIT_DATE="`git log --format=format:%cD -1`"
+
 if [ "$TARGET_BOARD" = turris ]; then
 	#Build initramfs
 	echo -e "CONFIG_TARGET_ROOTFS_INITRAMFS=y\nCONFIG_TARGET_INITRAMFS_COMPRESSION_XZ=y" >> .config
@@ -185,13 +187,14 @@ if [ "$TARGET_BOARD" = turris ]; then
 	cd ../../..
 elif [ "$TARGET_BOARD" = omnia ]; then
 	mkdir bin/mvebu-musl/medkit
+	MED_PATH="bin/mvebu-musl/medkit"
 	if [ -n "$BUILD_ALL" ]; then
-		MED_PATH="bin/mvebu-musl/medkit/full"
+		FLAVOR="full"
 	else
-		MED_PATH="bin/mvebu-musl/medkit/minimal"
+		FLAVOR="minimal"
 	fi
 	mkdir -p "$MED_PATH"
-	mv bin/mvebu-musl/openwrt-mvebu-Turris-Omnia-rootfs.tar.gz "$MED_PATH"/omnia-medkit-`date +%Y%m%d%H%M`.tar.gz
+	mv bin/mvebu-musl/openwrt-mvebu-Turris-Omnia-rootfs.tar.gz "$MED_PATH"/omnia-medkit-`date -d "$COMMIT_DATE" +%Y%m%d%H%M`-$FLAVOR.tar.gz
 	# Preserve the uncompressed image too
 	mv build_dir/target-arm_*/root-mvebu* bin/mvebu-musl/root
 	pushd bin/mvebu-musl/root
@@ -224,7 +227,7 @@ if [ -n "$BUILD_ALL" ] && [ "$TARGET_BOARD" = omnia ]; then
 	make_defconfig
 	make "$@" PKG_BRANCH=${PKG_BRANCH/-/}
 	mkdir -p bin-nand/mvebu-musl/medkit/minimal
-	mv bin/mvebu-musl/openwrt-mvebu-Turris-Omnia-rootfs.tar.gz bin-nand/mvebu-musl/medkit/minimal/omnia-medkit-`date +%Y%m%d%H%M`.tar.gz
+	mv bin/mvebu-musl/openwrt-mvebu-Turris-Omnia-rootfs.tar.gz bin-nand/mvebu-musl/medkit/omnia-medkit-`date -d "$COMMIT_DATE" +%Y%m%d%H%M`-minimal.tar.gz
 	OPKG_STATUS="`ls -1d build_dir/target-arm_*/root-mvebu*/usr/lib/opkg/status`"
 else
 	OPKG_STATUS="`ls -1d bin-nand/*/root/usr/lib/opkg/status`"
@@ -256,7 +259,7 @@ for i in lists/*.lua; do
 done
 if [ "$TARGET_BOARD" = "omnia" ]; then
 	rm -f $PUB_BIN_DIR/*.ext4 $PUB_BIN_DIR/*sums
-	for i in $PUB_BIN_DIR/medkit/*/*.tar.gz; do
+	for i in $PUB_BIN_DIR/medkit/*.tar.gz; do
 		staging_dir/host/bin/usign -S -m "$i" -s "$HOME"/mime.key
 		pushd "`dirname $i`"
 		md5sum "`basename $i`" > "`basename $i`".md5
