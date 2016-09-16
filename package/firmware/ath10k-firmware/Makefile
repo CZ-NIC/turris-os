@@ -190,7 +190,7 @@ endef
 define Package/ath10k-firmware-qca988x-ct/install
 	$(INSTALL_DIR) $(1)/lib/firmware/ath10k/QCA988X/hw2.0
 	$(INSTALL_DATA) \
-		$(PKG_BUILD_DIR)/QCA988X/board.bin \
+		$(PKG_BUILD_DIR)/QCA988X/hw2.0/board.bin \
 		$(1)/lib/firmware/ath10k/QCA988X/hw2.0/
 	$(INSTALL_DATA) \
 		$(DL_DIR)/$(QCA988X_FIRMWARE_FILE_CT) \
