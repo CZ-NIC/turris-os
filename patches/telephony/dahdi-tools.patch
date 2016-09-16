@@ -1,0 +1,30 @@
+diff --git a/libs/dahdi-tools/Makefile b/libs/dahdi-tools/Makefile
+index 572894b..0e137bf 100644
+--- a/libs/dahdi-tools/Makefile
++++ b/libs/dahdi-tools/Makefile
+@@ -60,13 +60,13 @@ define Build/Compile
+ 		INSTALL_PREFIX="$(PKG_INSTALL_DIR)" \
+ 		DAHDI_INCLUDE="$(STAGING_DIR)/usr/include" \
+ 		CONFIGURE_SILENT="--silent" \
+-		dahdi_cfg dahdi_monitor dahdi_scan dahdi_speed dahdi_test fxotune libs
++		dahdi_cfg dahdi_monitor dahdi_scan dahdi_speed dahdi_test fxotune libtonezone.la
+ endef
+ 
+ define Build/InstallDev
+ 	$(INSTALL_DIR) $(1)/usr/lib
+-	$(CP) $(PKG_BUILD_DIR)/libtonezone.so $(1)/usr/lib/
+-	$(CP) $(PKG_BUILD_DIR)/libtonezone.a $(1)/usr/lib/
++	$(CP) $(PKG_BUILD_DIR)/.libs/libtonezone.so $(1)/usr/lib/
++	$(CP) $(PKG_BUILD_DIR)/.libs/libtonezone.a $(1)/usr/lib/
+ 
+ 	$(INSTALL_DIR) $(1)/usr/include/dahdi
+ 	$(CP) $(PKG_BUILD_DIR)/tonezone.h $(1)/usr/include/dahdi/
+@@ -88,7 +88,7 @@ endef
+ 
+ define Package/dahdi-tools-libtonezone/install
+ 	$(INSTALL_DIR) $(1)/usr/lib
+-	$(CP) $(PKG_BUILD_DIR)/libtonezone.so $(1)/usr/lib/
++	$(CP) $(PKG_BUILD_DIR)/.libs/libtonezone.so $(1)/usr/lib/
+ 	cd $(1)/usr/lib/; ln -s libtonezone.so libtonezone.so.2.0
+ endef
+ 
