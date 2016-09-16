@@ -119,7 +119,6 @@ feeds/turrispackages/utils/owfs 1 2
 package/devel/gdb 2 3
 package/devel/oprofile 1 2
 package/devel/valgrind 1 2
-package/kernel/mt76 1 2
 package/libs/elfutils 1 2
 package/libs/libiconv-full 1 2
 package/libs/openssl 1 2
