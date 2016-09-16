@@ -1,0 +1,13 @@
+diff --git a/libs/libmicrohttpd/Makefile b/libs/libmicrohttpd/Makefile
+index 09eca22..ec1a9ef 100644
+--- a/libs/libmicrohttpd/Makefile
++++ b/libs/libmicrohttpd/Makefile
+@@ -73,6 +73,8 @@ CONFIGURE_ARGS += \
+ 	--with-gnutls
+ endif
+ 
++TARGET_CFLAGS += $(FPIC) -std=c99
++
+ define Build/InstallDev
+ 	$(INSTALL_DIR) $(1)/usr/include/
+ 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/* $(1)/usr/include/
