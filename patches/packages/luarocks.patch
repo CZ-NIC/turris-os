@@ -1,0 +1,13 @@
+diff --git a/lang/luarocks/Makefile b/lang/luarocks/Makefile
+index 7519f8f..e0a0f57 100644
+--- a/lang/luarocks/Makefile
++++ b/lang/luarocks/Makefile
+@@ -41,7 +41,7 @@ endef
+ CONFIGURE_ARGS = \
+     --prefix=$(CONFIGURE_PREFIX) \
+     --sysconfdir=/etc \
+-    --with-lua=$(STAGING_DIR)/host
++    --with-lua=$(STAGING_DIR_HOST)
+ 
+ define Build/Compile
+ 	$(call Build/Compile/Default,build)
