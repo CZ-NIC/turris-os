@@ -11,3 +11,87 @@ index b6fda69..b82fe3b 100644
  TARGET_LDFLAGS += -largp
  
  CONFIGURE_ARGS+= \
+diff --git a/libs/libv4l/patches/020-add-missing-includes.patch b/libs/libv4l/patches/020-add-missing-includes.patch
+index 34e0511..46fa058 100644
+--- a/libs/libv4l/patches/020-add-missing-includes.patch
++++ b/libs/libv4l/patches/020-add-missing-includes.patch
+@@ -26,3 +26,79 @@
+  
+  #include "v4l2-ctl.h"
+  
++--- a/lib/libv4lconvert/libv4lconvert.c
+++++ b/lib/libv4lconvert/libv4lconvert.c
++@@ -22,6 +22,7 @@
++ #include <config.h>
++ #endif
++ #include <errno.h>
+++#include <syscall.h>
++ #include <string.h>
++ #include <stdlib.h>
++ #include <unistd.h>
++--- a/lib/libv4lconvert/mr97310a.c
+++++ b/lib/libv4lconvert/mr97310a.c
++@@ -20,6 +20,7 @@
++  */
++ 
++ #include <unistd.h>
+++#include <syscall.h>
++ #include "libv4lconvert-priv.h"
++ #include "libv4lsyscall-priv.h"
++ 
++--- a/lib/libv4lconvert/processing/autogain.c
+++++ b/lib/libv4lconvert/processing/autogain.c
++@@ -21,6 +21,7 @@
++ #include <stdio.h>
++ #include <stdlib.h>
++ #include <unistd.h>
+++#include <syscall.h>
++ 
++ #include "libv4lprocessing.h"
++ #include "libv4lprocessing-priv.h"
++--- a/lib/libv4l2/libv4l2.c
+++++ b/lib/libv4l2/libv4l2.c
++@@ -61,6 +61,7 @@
++ #include <config.h>
++ #endif
++ #include <errno.h>
+++#include <syscall.h>
++ #include <stdarg.h>
++ #include <stdio.h>
++ #include <stdlib.h>
++@@ -73,6 +74,7 @@
++ #include "libv4l2.h"
++ #include "libv4l2-priv.h"
++ #include "libv4l-plugin.h"
+++#include "../libv4lconvert/libv4lsyscall-priv.h"
++ 
++ /* Note these flags are stored together with the flags passed to v4l2_fd_open()
++    in v4l2_dev_info's flags member, so care should be taken that the do not
++--- a/lib/libv4lconvert/libv4lsyscall-priv.h
+++++ b/lib/libv4lconvert/libv4lsyscall-priv.h
++@@ -34,7 +34,6 @@
++ /* Some of these headers are not needed by us, but by linux/videodev2.h,
++    which is broken on some systems and doesn't include them itself :( */
++ 
++-#ifdef linux
++ #include <sys/time.h>
++ #include <sys/syscall.h>
++ #include <linux/types.h>
++@@ -49,7 +48,6 @@
++ #define	SYS_mmap2 SYS_mmap
++ #define	MMAP2_PAGE_SHIFT 0
++ #endif
++-#endif
++ 
++ #if defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
++ #include <sys/time.h>
++--- a/utils/v4l2-ctl/vivid-tpg.h
+++++ b/utils/v4l2-ctl/vivid-tpg.h
++@@ -34,6 +34,7 @@ typedef __s16 s16;
++ typedef __u8 u8;
++ typedef __s8 s8;
++ 
+++#define typeof __typeof__
++ #define __packed __attribute__((packed))
++ #define pr_info printf
++ #define noinline
