@@ -3,3 +3,4 @@ libinput # doesn't make sense on Turris
 flashrom # doesn't make sense on Turris
 usbip # depends on eudev
 python-cffi
+python-cryptography # depends on python-cffi
