@@ -1,0 +1,1614 @@
+diff --git a/admin/sudo/Makefile b/admin/sudo/Makefile
+index 43e9297..e9934dd 100644
+--- a/admin/sudo/Makefile
++++ b/admin/sudo/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=sudo
+ PKG_VERSION:=1.8.14p3
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ PKG_LICENSE:=ISC
+ PKG_LICENSE_FILES:=doc/LICENSE
+ 
+diff --git a/devel/autoconf/Makefile b/devel/autoconf/Makefile
+index 35af2db..a2ae6d7 100644
+--- a/devel/autoconf/Makefile
++++ b/devel/autoconf/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=autoconf
+ PKG_VERSION:=2.69
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE_URL:=@GNU/autoconf
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+diff --git a/kernel/exfat-nofuse/Makefile b/kernel/exfat-nofuse/Makefile
+index 1577375..b4bcfe7 100644
+--- a/kernel/exfat-nofuse/Makefile
++++ b/kernel/exfat-nofuse/Makefile
+@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/kernel.mk
+ 
+ PKG_NAME:=exfat-nofuse
+ PKG_VERSION:=git-20151121
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+ PKG_SOURCE_URL:=https://github.com/dorimanx/exfat-nofuse.git
+diff --git a/lang/erlang/Makefile b/lang/erlang/Makefile
+index 47c8b11..5ae7759 100644
+--- a/lang/erlang/Makefile
++++ b/lang/erlang/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=erlang
+ PKG_VERSION:=17.5
+-PKG_RELEASE:=2
++PKG_RELEASE:=3
+ 
+ PKG_SOURCE:=otp_src_$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:= http://www.erlang.org/download/ \
+diff --git a/lang/lua-rs232/Makefile b/lang/lua-rs232/Makefile
+index 7ef5ac7..8acc60d 100644
+--- a/lang/lua-rs232/Makefile
++++ b/lang/lua-rs232/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=lua-rs232
+ PKG_VERSION:=1.0.3
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ PKG_MAINTAINER:=Dirk Chang <dirk@kooiot.com>
+ PKG_LICENSE:=MIT
+ 
+diff --git a/lang/luai2c/Makefile b/lang/luai2c/Makefile
+index 2a7dbbf..495f774 100755
+--- a/lang/luai2c/Makefile
++++ b/lang/luai2c/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=luai2c
+ PKG_VERSION:=1.0.0
+-PKG_RELEASE:=2
++PKG_RELEASE:=3
+ PKG_MAINTAINER:=Frank Edelhaeuser <fedel@users.sourceforge.net>
+ 
+ PKG_SOURCE_NAME:=i2c-lua
+diff --git a/lang/perl-device-usb/Makefile b/lang/perl-device-usb/Makefile
+index 0a2c737..02bb3df 100644
+--- a/lang/perl-device-usb/Makefile
++++ b/lang/perl-device-usb/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=perl-device-usb
+ PKG_VERSION:=0.36
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE_URL:=http://www.cpan.org/authors/id/G/GW/GWADEJ/
+ PKG_SOURCE:=Device-USB-$(PKG_VERSION).tar.gz
+diff --git a/lang/perl-xml-parser/Makefile b/lang/perl-xml-parser/Makefile
+index e5d3b2c..91de9ee 100644
+--- a/lang/perl-xml-parser/Makefile
++++ b/lang/perl-xml-parser/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=perl-xml-parser
+ PKG_VERSION:=2.44
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE_URL:=http://www.cpan.org/authors/id/T/TO/TODDR/
+ PKG_SOURCE:=XML-Parser-$(PKG_VERSION).tar.gz
+diff --git a/lang/php5-pecl-libevent/Makefile b/lang/php5-pecl-libevent/Makefile
+index feca20d..3fd54d4 100644
+--- a/lang/php5-pecl-libevent/Makefile
++++ b/lang/php5-pecl-libevent/Makefile
+@@ -11,7 +11,7 @@ PECL_NAME:=libevent
+ PECL_LONGNAME:=Libevent - event notification
+ 
+ PKG_VERSION:=0.1.0
+-PKG_RELEASE:=2
++PKG_RELEASE:=3
+ PKG_MD5SUM:=e091371a9e714098a4c04a6e3daeb56a
+ 
+ PKG_NAME:=php5-pecl-$(PECL_NAME)
+diff --git a/lang/python3-bottle/Makefile b/lang/python3-bottle/Makefile
+index b69d851..e96e39f 100644
+--- a/lang/python3-bottle/Makefile
++++ b/lang/python3-bottle/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=python3-bottle
+ PKG_VERSION:=0.12.8
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_LICENSE:=MIT
+ PKG_MAINTAINER:=Luka Perkov <luka@openwrt.org>
+diff --git a/lang/ruby/Makefile b/lang/ruby/Makefile
+index 20bfaa3..a08a512 100644
+--- a/lang/ruby/Makefile
++++ b/lang/ruby/Makefile
+@@ -625,6 +625,22 @@ endef
+ RUBY_FILES = $(strip $(call Package/ruby-$(1)/files))
+ RUBY_FILES_EXCLUDED = $(strip $(call Package/ruby-$(1)/files-excluded))
+ 
++# gems that should be installed to host environment
++GEM_LIST:=compass breakpoint
++GEM_compass_VERSION:=1.0.1
++GEM_breakpoint_VERSION:=2.5.0
++
++define Host/Install
++	$(call Host/Install/Default)
++
++	$(foreach gem,$(GEM_LIST),$(STAGING_DIR_HOST)/bin/gem install $(gem) -v $(GEM_$(gem)_VERSION);)
++endef
++
++define Host/Clean
++	$(RM) -rf $(STAGING_DIR_HOST)/lib/ruby
++	$(RM) -rf $(STAGING_DIR_HOST)/share/ri
++endef
++
+ # 1: short name
+ # 2: install dir
+ define RubyBuildPackage/install
+diff --git a/lang/tcl/patches/100-disable_tzdata_and_msgs_install.patch b/lang/tcl/patches/100-disable_tzdata_and_msgs_install.patch
+deleted file mode 100644
+index 1db8f07..0000000
+--- a/lang/tcl/patches/100-disable_tzdata_and_msgs_install.patch
++++ /dev/null
+@@ -1,22 +0,0 @@
+---- a/unix/Makefile.in
+-+++ b/unix/Makefile.in
+-@@ -817,15 +817,15 @@ install-tzdata: tclsh
+- 	@echo "Installing time zone data"
+- 	@@LD_LIBRARY_PATH_VAR@="`pwd`:$${@LD_LIBRARY_PATH_VAR@}"; export @LD_LIBRARY_PATH_VAR@; \
+- 	TCL_LIBRARY="${TCL_BUILDTIME_LIBRARY}"; export TCL_LIBRARY; \
+--	./tclsh $(TOOL_DIR)/installData.tcl \
+--	    $(TOP_DIR)/library/tzdata "$(SCRIPT_INSTALL_DIR)"/tzdata
+-+	#./tclsh $(TOOL_DIR)/installData.tcl \
+-+	#    $(TOP_DIR)/library/tzdata "$(SCRIPT_INSTALL_DIR)"/tzdata
+- 
+- install-msgs: tclsh
+- 	@echo "Installing message catalogs"
+- 	@@LD_LIBRARY_PATH_VAR@="`pwd`:$${@LD_LIBRARY_PATH_VAR@}"; export @LD_LIBRARY_PATH_VAR@; \
+- 	TCL_LIBRARY="${TCL_BUILDTIME_LIBRARY}"; export TCL_LIBRARY; \
+--	./tclsh $(TOOL_DIR)/installData.tcl \
+--	    $(TOP_DIR)/library/msgs "$(SCRIPT_INSTALL_DIR)"/msgs
+-+	#./tclsh $(TOOL_DIR)/installData.tcl \
+-+	#    $(TOP_DIR)/library/msgs "$(SCRIPT_INSTALL_DIR)"/msgs
+- 
+- install-doc: doc
+- 	@for i in "$(MAN_INSTALL_DIR)" "$(MAN1_INSTALL_DIR)" "$(MAN3_INSTALL_DIR)" "$(MANN_INSTALL_DIR)" ; \
+diff --git a/lang/tcl/patches/200-fix_mips_build.patch b/lang/tcl/patches/200-fix_mips_build.patch
+deleted file mode 100644
+index 48485ca..0000000
+--- a/lang/tcl/patches/200-fix_mips_build.patch
++++ /dev/null
+@@ -1,20 +0,0 @@
+---- a/generic/tclStrToD.c
+-+++ b/generic/tclStrToD.c
+-@@ -73,7 +73,7 @@ typedef unsigned int fpu_control_t __att
+-  * MIPS floating-point units need special settings in control registers
+-  * to use gradual underflow as we expect.
+-  */
+--#if defined(__mips)
+-+#if defined(__sgi) && defined(_COMPILER_VERSION)
+- #include <sys/fpu.h>
+- #endif
+- /*
+-@@ -2166,7 +2166,7 @@ TclInitDoubleConversion(void)
+-     } bitwhack;
+- #endif
+- 
+--#if defined(__mips)
+-+#if defined(__sgi) && defined(_COMPILER_VERSION)
+-     union fpc_csr mipsCR;
+- 
+-     mipsCR.fc_word = get_fpc_csr();
+diff --git a/libs/classpath/Makefile b/libs/classpath/Makefile
+index 273678e..96ea0f9 100644
+--- a/libs/classpath/Makefile
++++ b/libs/classpath/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=classpath
+ PKG_VERSION:=0.99
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ PKG_LICENSE:=GPL-2.0
+ PKG_MAINTAINER:=Dana H. Myers <k6jq@comcast.net>
+ 
+diff --git a/libs/cyrus-sasl/Makefile b/libs/cyrus-sasl/Makefile
+index dfc21d2..315647e 100644
+--- a/libs/cyrus-sasl/Makefile
++++ b/libs/cyrus-sasl/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=cyrus-sasl
+ PKG_VERSION:=2.1.26
+-PKG_RELEASE:=3
++PKG_RELEASE:=4
+ 
+ PKG_MAINTAINER:=W. Michael Petullo <mike@flyn.org>
+ 
+diff --git a/libs/elektra/Makefile b/libs/elektra/Makefile
+index 60b84c5..82d7193 100644
+--- a/libs/elektra/Makefile
++++ b/libs/elektra/Makefile
+@@ -93,7 +93,7 @@ endef
+ define Package/libelektra-plugins
+   $(call Package/libelektra/Default)
+   TITLE:=Useful elektra plugins
+-  DEPENDS:=+libelektra-core
++  DEPENDS:=+libelektra-core +libcurl
+ endef
+ 
+ define CONTENT_ELEKTRA_PLUGINS_TEXT
+diff --git a/libs/engine_pkcs11/Makefile b/libs/engine_pkcs11/Makefile
+index c7449ed..772e55e 100644
+--- a/libs/engine_pkcs11/Makefile
++++ b/libs/engine_pkcs11/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=engine_pkcs11
+ PKG_VERSION:=20150429
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ PKG_MAINTAINER:=Daniel Golle <daniel@makrotopia.org>
+ PKG_LICENSE:=LGPL-2.1+
+ 
+diff --git a/libs/glib2/Makefile b/libs/glib2/Makefile
+index 583828b..4b62b62 100644
+--- a/libs/glib2/Makefile
++++ b/libs/glib2/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=glib2
+ PKG_VERSION:=2.46.2
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=glib-$(PKG_VERSION).tar.xz
+ PKG_BUILD_DIR:=$(BUILD_DIR)/glib-$(PKG_VERSION)
+@@ -18,7 +18,7 @@ PKG_MD5SUM:=7f815d6e46df68e070cb421ed7f1139e
+ 
+ PKG_BUILD_PARALLEL:=1
+ HOST_BUILD_PARALLEL:=1
+-PKG_BUILD_DEPENDS:=glib2/host libpthread zlib libintl libffi
++PKG_BUILD_DEPENDS:=glib2/host libpthread zlib libiconv-full libintl libffi
+ HOST_BUILD_DEPENDS:=gettext-full/host libiconv/host libffi/host
+ PKG_INSTALL:=1
+ PKG_USE_MIPS16:=0
+@@ -45,7 +45,9 @@ define Package/glib2/description
+ endef
+ 
+ HOST_CONFIGURE_ARGS += \
+-	--disable-selinux \
++	--with-libiconv=no
++
++TARGET_CONFIGURE_ARGS += \
+ 	--with-libiconv=gnu
+ 
+ CONFIGURE_ARGS += \
+@@ -53,8 +55,7 @@ CONFIGURE_ARGS += \
+ 	--enable-static \
+ 	--enable-debug=no \
+ 	--disable-selinux \
+-	--disable-fam \
+-	--with-libiconv=gnu
++	--disable-fam
+ 
+ CONFIGURE_VARS += \
+ 	glib_cv_stack_grows=no \
+diff --git a/libs/ibrcommon/Makefile b/libs/ibrcommon/Makefile
+index a37ddf5..80e05cb 100644
+--- a/libs/ibrcommon/Makefile
++++ b/libs/ibrcommon/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=ibrcommon
+ PKG_VERSION:=1.0.1
+-PKG_RELEASE:=2
++PKG_RELEASE:=3
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://www.ibr.cs.tu-bs.de/projects/ibr-dtn/releases
+diff --git a/libs/ibrdtn/Makefile b/libs/ibrdtn/Makefile
+index 45051ad..157889c 100644
+--- a/libs/ibrdtn/Makefile
++++ b/libs/ibrdtn/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=ibrdtn
+ PKG_VERSION:=1.0.1
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://www.ibr.cs.tu-bs.de/projects/ibr-dtn/releases
+diff --git a/libs/libdbi-drivers/Makefile b/libs/libdbi-drivers/Makefile
+index e5a2da7..ae1ec5b 100644
+--- a/libs/libdbi-drivers/Makefile
++++ b/libs/libdbi-drivers/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=libdbi-drivers
+ PKG_VERSION:=0.9.0
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=@SF/libdbi-drivers
+diff --git a/libs/libgee/Makefile b/libs/libgee/Makefile
+index 9be5648..c67ce8b 100644
+--- a/libs/libgee/Makefile
++++ b/libs/libgee/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=libgee
+ PKG_VERSION:=0.18.0
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_MAINTAINER:=W. Michael Petullo <mike@flyn.org>
+ 
+diff --git a/libs/libical/Makefile b/libs/libical/Makefile
+index 4af4c85..f4070e6 100644
+--- a/libs/libical/Makefile
++++ b/libs/libical/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=libical
+ PKG_VERSION:=1.0
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=@SF/freeassociation
+diff --git a/libs/libmicrohttpd/Makefile b/libs/libmicrohttpd/Makefile
+index 09eca22..ec1a9ef 100644
+--- a/libs/libmicrohttpd/Makefile
++++ b/libs/libmicrohttpd/Makefile
+@@ -73,6 +73,8 @@ CONFIGURE_ARGS += \
+ 	--with-gnutls
+ endif
+ 
++TARGET_CFLAGS += $(FPIC) -std=c99
++
+ define Build/InstallDev
+ 	$(INSTALL_DIR) $(1)/usr/include/
+ 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/* $(1)/usr/include/
+diff --git a/libs/libnfc/Makefile b/libs/libnfc/Makefile
+index c5369cc..8ce14e8 100644
+--- a/libs/libnfc/Makefile
++++ b/libs/libnfc/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=libnfc
+ PKG_VERSION:=1.7.1
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ PKG_INSTALL:=1
+ PKG_FIXUP:=autoreconf
+ 
+diff --git a/libs/libsearpc/Makefile b/libs/libsearpc/Makefile
+index 15c0e8b..faa404a 100644
+--- a/libs/libsearpc/Makefile
++++ b/libs/libsearpc/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=libsearpc
+ PKG_VERSION:=3.1.7
+-PKG_RELEASE=$(PKG_SOURCE_VERSION)
++PKG_RELEASE=$(PKG_SOURCE_VERSION)-2
+ PKG_LICENSE:=GPL-3.0
+ 
+ PKG_SOURCE_PROTO:=git
+diff --git a/libs/libsigc++/Makefile b/libs/libsigc++/Makefile
+index 524bb6f..ccd420c 100644
+--- a/libs/libsigc++/Makefile
++++ b/libs/libsigc++/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=libsigc++
+ PKG_VERSION:=2.5.4
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+ PKG_SOURCE_URL:=@GNOME/libsigc++/2.5
+diff --git a/libs/libv4l/Makefile b/libs/libv4l/Makefile
+index b6fda69..b82fe3b 100644
+--- a/libs/libv4l/Makefile
++++ b/libs/libv4l/Makefile
+@@ -76,7 +76,7 @@ define Package/v4l-utils/description
+   This package contains the video4linux utilities.
+ endef
+ 
+-TARGET_CFLAGS += $(FPIC)
++TARGET_CFLAGS += $(FPIC) -std=c99
+ TARGET_LDFLAGS += -largp
+ 
+ CONFIGURE_ARGS+= \
+diff --git a/libs/libv4l/patches/020-add-missing-includes.patch b/libs/libv4l/patches/020-add-missing-includes.patch
+index 34e0511..46fa058 100644
+--- a/libs/libv4l/patches/020-add-missing-includes.patch
++++ b/libs/libv4l/patches/020-add-missing-includes.patch
+@@ -26,3 +26,79 @@
+  
+  #include "v4l2-ctl.h"
+  
++--- a/lib/libv4lconvert/libv4lconvert.c
+++++ b/lib/libv4lconvert/libv4lconvert.c
++@@ -22,6 +22,7 @@
++ #include <config.h>
++ #endif
++ #include <errno.h>
+++#include <syscall.h>
++ #include <string.h>
++ #include <stdlib.h>
++ #include <unistd.h>
++--- a/lib/libv4lconvert/mr97310a.c
+++++ b/lib/libv4lconvert/mr97310a.c
++@@ -20,6 +20,7 @@
++  */
++ 
++ #include <unistd.h>
+++#include <syscall.h>
++ #include "libv4lconvert-priv.h"
++ #include "libv4lsyscall-priv.h"
++ 
++--- a/lib/libv4lconvert/processing/autogain.c
+++++ b/lib/libv4lconvert/processing/autogain.c
++@@ -21,6 +21,7 @@
++ #include <stdio.h>
++ #include <stdlib.h>
++ #include <unistd.h>
+++#include <syscall.h>
++ 
++ #include "libv4lprocessing.h"
++ #include "libv4lprocessing-priv.h"
++--- a/lib/libv4l2/libv4l2.c
+++++ b/lib/libv4l2/libv4l2.c
++@@ -61,6 +61,7 @@
++ #include <config.h>
++ #endif
++ #include <errno.h>
+++#include <syscall.h>
++ #include <stdarg.h>
++ #include <stdio.h>
++ #include <stdlib.h>
++@@ -73,6 +74,7 @@
++ #include "libv4l2.h"
++ #include "libv4l2-priv.h"
++ #include "libv4l-plugin.h"
+++#include "../libv4lconvert/libv4lsyscall-priv.h"
++ 
++ /* Note these flags are stored together with the flags passed to v4l2_fd_open()
++    in v4l2_dev_info's flags member, so care should be taken that the do not
++--- a/lib/libv4lconvert/libv4lsyscall-priv.h
+++++ b/lib/libv4lconvert/libv4lsyscall-priv.h
++@@ -34,7 +34,6 @@
++ /* Some of these headers are not needed by us, but by linux/videodev2.h,
++    which is broken on some systems and doesn't include them itself :( */
++ 
++-#ifdef linux
++ #include <sys/time.h>
++ #include <sys/syscall.h>
++ #include <linux/types.h>
++@@ -49,7 +48,6 @@
++ #define	SYS_mmap2 SYS_mmap
++ #define	MMAP2_PAGE_SHIFT 0
++ #endif
++-#endif
++ 
++ #if defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
++ #include <sys/time.h>
++--- a/utils/v4l2-ctl/vivid-tpg.h
+++++ b/utils/v4l2-ctl/vivid-tpg.h
++@@ -34,6 +34,7 @@ typedef __s16 s16;
++ typedef __u8 u8;
++ typedef __s8 s8;
++ 
+++#define typeof __typeof__
++ #define __packed __attribute__((packed))
++ #define pr_info printf
++ #define noinline
+diff --git a/libs/neon/Makefile b/libs/neon/Makefile
+index 4d3bf8c..7963678 100644
+--- a/libs/neon/Makefile
++++ b/libs/neon/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=neon
+ PKG_VERSION:=0.30.0
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://www.webdav.org/neon
+diff --git a/libs/openldap/Makefile b/libs/openldap/Makefile
+index b3cbfac..4d1d6be 100644
+--- a/libs/openldap/Makefile
++++ b/libs/openldap/Makefile
+@@ -37,7 +37,7 @@ define Package/libopenldap
+   $(call Package/openldap/Default)
+   SECTION:=libs
+   CATEGORY:=Libraries
+-  DEPENDS:=+libopenssl +libsasl2 +libpthread
++  DEPENDS:=+libopenssl +libsasl2 +libpthread +icu
+   TITLE+= (libraries)
+ endef
+ 
+@@ -67,7 +67,7 @@ define Package/openldap-server
+   $(call Package/openldap/Default)
+   SECTION:=net
+   CATEGORY:=Network
+-  DEPENDS:=+libopenldap +libuuid
++  DEPENDS:=+libopenldap +libuuid +icu
+   TITLE+= (server)
+ endef
+ 
+diff --git a/libs/sqlite3/Makefile b/libs/sqlite3/Makefile
+index a30028f..04036e3 100644
+--- a/libs/sqlite3/Makefile
++++ b/libs/sqlite3/Makefile
+@@ -57,7 +57,7 @@ define Package/sqlite3-cli
+   $(call Package/sqlite3/Default)
+   SECTION:=utils
+   CATEGORY:=Utilities
+-  DEPENDS:=+libsqlite3 +libncurses +libreadline
++  DEPENDS:=+libsqlite3 +libncurses +libreadline +libedit
+   TITLE+= (cli)
+ endef
+ 
+diff --git a/libs/tdb/Makefile b/libs/tdb/Makefile
+index 2fce3dc..2a11ba4 100644
+--- a/libs/tdb/Makefile
++++ b/libs/tdb/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=tdb
+ PKG_VERSION:=1.0.6
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ PKG_LICENSE:=GPL-2.0
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+diff --git a/libs/toxcore/Makefile b/libs/toxcore/Makefile
+index 07f0c76..95ac4da 100644
+--- a/libs/toxcore/Makefile
++++ b/libs/toxcore/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=toxcore
+ PKG_VERSION:=0.0.0
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE_PROTO:=git
+ PKG_SOURCE_URL:=https://github.com/irungentoo/toxcore.git
+diff --git a/libs/vips/Makefile b/libs/vips/Makefile
+index 501f987..349fccb 100644
+--- a/libs/vips/Makefile
++++ b/libs/vips/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=vips
+ PKG_VERSION:=7.42.1
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://www.vips.ecs.soton.ac.uk/supported/7.42/
+diff --git a/libs/xmlrpc-c/Makefile b/libs/xmlrpc-c/Makefile
+index 998219a..b10f53b 100644
+--- a/libs/xmlrpc-c/Makefile
++++ b/libs/xmlrpc-c/Makefile
+@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
+ PKG_NAME:=xmlrpc-c
+ PKG_REV:=2640
+ PKG_VERSION:=1.39.0
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://svn.code.sf.net/p/xmlrpc-c/code/advanced
+diff --git a/mail/alpine/Makefile b/mail/alpine/Makefile
+index c5770a1..f8fd002 100644
+--- a/mail/alpine/Makefile
++++ b/mail/alpine/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=alpine
+ PKG_VERSION:=2.20
+-PKG_RELEASE:=2
++PKG_RELEASE:=3
+ 
+ PKG_SOURCE_URL:=http://patches.freeiz.com/alpine/release/src/
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+diff --git a/mail/fdm/Makefile b/mail/fdm/Makefile
+index 49c02f1..dd87f16 100644
+--- a/mail/fdm/Makefile
++++ b/mail/fdm/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=fdm
+ PKG_VERSION:=1.7
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ PKG_LICENSE:=BSD-2-Clause
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+diff --git a/mail/mailman/Makefile b/mail/mailman/Makefile
+index eee50f8..92c05ba 100644
+--- a/mail/mailman/Makefile
++++ b/mail/mailman/Makefile
+@@ -8,7 +8,7 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=mailman
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ PKG_SOURCE_URL:=ftp://ftp.gnu.org/gnu/mailman/ http://ftp.gnu.org/gnu/mailman/
+ PKG_VERSION:=2.1.20
+ PKG_MD5SUM:=96819640406f90a12bc28edd3dc09d4a
+diff --git a/mail/mutt/Makefile b/mail/mutt/Makefile
+index dca6cb5..b3568f5 100644
+--- a/mail/mutt/Makefile
++++ b/mail/mutt/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=mutt
+ PKG_VERSION:=1.5.24
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE_URL:=ftp://ftp.mutt.org/pub/mutt/
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+diff --git a/multimedia/gst1-libav/Makefile b/multimedia/gst1-libav/Makefile
+index 4bbd23c..8989493 100644
+--- a/multimedia/gst1-libav/Makefile
++++ b/multimedia/gst1-libav/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=gst1-libav
+ PKG_VERSION:=1.6.2
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_MAINTAINER:=W. Michael Petullo <mike@flyn.org>
+ 
+@@ -121,7 +121,7 @@ define Package/gst1-libav
+   URL:=http://www.gstreamer.net/modules/gst-libav.html
+   DEPENDS:= +libgstreamer1 +gstreamer1-plugins-base \
+ 	    +gst1-mod-alsa +libgst1audio +libgst1pbutils +libgst1video \
+-	    +libbz2
++	    +libbz2 +liblzma
+ endef
+ 
+ define Package/gst1-libav/description
+diff --git a/multimedia/gst1-plugins-bad/Makefile b/multimedia/gst1-plugins-bad/Makefile
+index d6e1fb6..fb6dcfa 100644
+--- a/multimedia/gst1-plugins-bad/Makefile
++++ b/multimedia/gst1-plugins-bad/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=gst1-plugins-bad
+ PKG_VERSION:=1.6.2
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_MAINTAINER:=W. Michael Petullo <mike@flyn.org>
+ 
+diff --git a/multimedia/gst1-plugins-base/Makefile b/multimedia/gst1-plugins-base/Makefile
+index 34ae605..bedd67e 100644
+--- a/multimedia/gst1-plugins-base/Makefile
++++ b/multimedia/gst1-plugins-base/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=gst1-plugins-base
+ PKG_VERSION:=1.6.2
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_MAINTAINER:=W. Michael Petullo <mike@flyn.org>
+ 
+diff --git a/multimedia/gst1-plugins-good/Makefile b/multimedia/gst1-plugins-good/Makefile
+index 8e7fcbe..97443c9 100644
+--- a/multimedia/gst1-plugins-good/Makefile
++++ b/multimedia/gst1-plugins-good/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=gst1-plugins-good
+ PKG_VERSION:=1.6.2
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_MAINTAINER:=W. Michael Petullo <mike@flyn.org>
+ 
+diff --git a/multimedia/gst1-plugins-ugly/Makefile b/multimedia/gst1-plugins-ugly/Makefile
+index 78dfaf7..86b5505 100644
+--- a/multimedia/gst1-plugins-ugly/Makefile
++++ b/multimedia/gst1-plugins-ugly/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=gst1-plugins-ugly
+ PKG_VERSION:=1.6.2
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_MAINTAINER:=W. Michael Petullo <mike@flyn.org>
+ 
+diff --git a/multimedia/gstreamer1/Makefile b/multimedia/gstreamer1/Makefile
+index cf11d9d..60a1ef2 100644
+--- a/multimedia/gstreamer1/Makefile
++++ b/multimedia/gstreamer1/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=gstreamer1
+ PKG_VERSION:=1.6.2
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_MAINTAINER:=W. Michael Petullo <mike@flyn.org>
+ 
+@@ -29,6 +29,8 @@ PKG_INSTALL:=1
+ include $(INCLUDE_DIR)/package.mk
+ include $(INCLUDE_DIR)/nls.mk
+ 
++TARGET_CFLAGS+= -std=gnu99
++
+ define Package/gstreamer1/Default
+   CATEGORY:=Multimedia
+   SECTION:=multimedia
+@@ -102,7 +104,7 @@ endef
+ define Package/libgstreamer1
+   $(call Package/gstreamer1/Default)
+   TITLE+= library (core)
+-  DEPENDS+= +glib2 +libpthread +libxml2
++  DEPENDS+= +glib2 +libpthread +libxml2 +librt
+   HIDDEN:=1
+ endef
+ 
+diff --git a/multimedia/ices/Makefile b/multimedia/ices/Makefile
+index a3cb714..09ed2bf 100644
+--- a/multimedia/ices/Makefile
++++ b/multimedia/ices/Makefile
+@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=ices
+ PKG_VERSION:=2.0.2
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+ PKG_SOURCE_URL:=http://downloads.xiph.org/releases/ices/
+diff --git a/multimedia/mjpg-streamer/Makefile b/multimedia/mjpg-streamer/Makefile
+index 69e05f4..08e3687 100644
+--- a/multimedia/mjpg-streamer/Makefile
++++ b/multimedia/mjpg-streamer/Makefile
+@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
+ PKG_NAME:=mjpg-streamer
+ PKG_REV:=182
+ PKG_VERSION:=r$(PKG_REV)
+-PKG_RELEASE:=8
++PKG_RELEASE:=9
+ PKG_MAINTAINER:=Roger D <rogerdammit@gmail.com>
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).1.tar.bz2
+diff --git a/net/aircrack-ng/Makefile b/net/aircrack-ng/Makefile
+index 7f62ee7..40f2580 100644
+--- a/net/aircrack-ng/Makefile
++++ b/net/aircrack-ng/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=aircrack-ng
+ PKG_VERSION:=1.2-rc1
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ PKG_LICENSE:=GPL-2.0
+ PKG_LICENSE_FILES:=LICENSE
+ 
+diff --git a/net/apache/Makefile b/net/apache/Makefile
+index f65be87..6d24fb4 100644
+--- a/net/apache/Makefile
++++ b/net/apache/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=apache
+ PKG_VERSION:=2.2.31
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ PKG_SOURCE_NAME:=httpd
+ PKG_MAINTAINER:=Thomas Heil <heil@terminal-consulting.de>
+ PKG_LICENSE:=Apache License
+diff --git a/net/atftp/Makefile b/net/atftp/Makefile
+index 9b2404b..e9f249d 100644
+--- a/net/atftp/Makefile
++++ b/net/atftp/Makefile
+@@ -8,7 +8,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=atftp
+ PKG_VERSION:=0.7.1
+-PKG_RELEASE:=5
++PKG_RELEASE:=6
+ PKG_MAINTAINER:=Daniel Danzberger <daniel@dd-wrt.com>
+ PKG_LICENSE:=GPL-2.0
+ 
+diff --git a/net/clamav/Makefile b/net/clamav/Makefile
+index 3f3edab..1867236 100644
+--- a/net/clamav/Makefile
++++ b/net/clamav/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=clamav
+ PKG_VERSION:=0.98.7
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_LICENSE:=GPL-2.0
+ PKG_MAINTAINER:=Marko Ratkaj <marko.ratkaj@sartura.hr>
+diff --git a/net/coova-chilli/Makefile b/net/coova-chilli/Makefile
+index b8acf54..eea40d0 100644
+--- a/net/coova-chilli/Makefile
++++ b/net/coova-chilli/Makefile
+@@ -12,7 +12,7 @@ PKG_VERSION:=1.3.0+20141128
+ PKG_MAINTAINER:=Imre Kaloz <kaloz@openwrt.org>
+ PKG_LICENSE:=GPL-2.0+
+ PKG_LICENSE_FILES:=COPYING
+-PKG_RELEASE:=2
++PKG_RELEASE:=3
+ 
+ PKG_SOURCE_PROTO:=git
+ PKG_SOURCE_URL:=git://github.com/coova/coova-chilli
+diff --git a/net/dansguardian/Makefile b/net/dansguardian/Makefile
+index eefefaa..d373066 100644
+--- a/net/dansguardian/Makefile
++++ b/net/dansguardian/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=dansguardian
+ PKG_VERSION:=2.12.0.3
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_LICENSE:=GPL-2.0
+ PKG_MAINTAINER:=Luka Perkov <luka@openwrt.org>
+diff --git a/net/e2guardian/Makefile b/net/e2guardian/Makefile
+index fac9737..609cf80 100644
+--- a/net/e2guardian/Makefile
++++ b/net/e2guardian/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=e2guardian
+ PKG_VERSION:=3.2.0
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_LICENSE:=GPL-2.0
+ PKG_MAINTAINER:=Luka Perkov <luka@openwrt.org>
+diff --git a/net/emailrelay/Makefile b/net/emailrelay/Makefile
+index 9352db7..d7f5461 100644
+--- a/net/emailrelay/Makefile
++++ b/net/emailrelay/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=emailrelay
+ PKG_VERSION:=1.9
+-PKG_RELEASE:=2
++PKG_RELEASE:=3
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-src.tar.gz
+ PKG_SOURCE_URL:=@SF/emailrelay/$(PKG_VERSION)
+diff --git a/net/ibrdtnd/Makefile b/net/ibrdtnd/Makefile
+index 36d5987..11ff191 100644
+--- a/net/ibrdtnd/Makefile
++++ b/net/ibrdtnd/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=ibrdtnd
+ PKG_VERSION:=1.0.1
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://www.ibr.cs.tu-bs.de/projects/ibr-dtn/releases
+diff --git a/net/iodine/patches/100-musl-compatibility.patch b/net/iodine/patches/100-musl-compatibility.patch
+index 17ddc04..ef55c3c 100644
+--- a/net/iodine/patches/100-musl-compatibility.patch
++++ b/net/iodine/patches/100-musl-compatibility.patch
+@@ -20,7 +20,7 @@ index 2715979..5f0e370 100644
+  
+  /* daemon(3) exists only in 4.4BSD or later, and in GNU libc */
+ -#if !defined(ANDROID) && !defined(WINDOWS32) && !(defined(BSD) && (BSD >= 199306)) && !defined(__GLIBC__)
+-+#ifdef __UCLIBC__
+++#ifdef __NO_DAEMON__
+  static int daemon(int nochdir, int noclose)
+  {
+   	int fd, i;
+diff --git a/net/kismet/Makefile b/net/kismet/Makefile
+index de60949..5e34e9a 100644
+--- a/net/kismet/Makefile
++++ b/net/kismet/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=kismet
+ PKG_VERSION:=2013-03-R1b
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_LICENSE:=LGPLv2.1
+ 
+diff --git a/net/lighttpd/Makefile b/net/lighttpd/Makefile
+index 6769287..87e5afa 100644
+--- a/net/lighttpd/Makefile
++++ b/net/lighttpd/Makefile
+@@ -38,6 +38,18 @@ define Package/lighttpd
+   TITLE:=A flexible and lightweight web server
+ endef
+ 
++define Package/lighttpd/postinst
++#!/bin/sh
++[ -n "$$IPKG_INSTROOT" ] || {
++if [ -e /etc/rc.d/S86lighttpd ] ; then
++	/etc/init.d/lighttpd disable
++	/etc/init.d/lighttpd enable
++fi
++# During initial installation, there are still some modules missing. It'll be started by something else later.
++/etc/init.d/lighttpd restart || ( sleep 5 ; /etc/init.d/lighttpd restart ) || true
++}
++endef
++
+ define Package/lighttpd/config
+ config LIGHTTPD_SSL
+ 	bool "SSL support"
+@@ -113,6 +125,7 @@ define Package/lighttpd/install
+ 	$(INSTALL_DIR) $(1)/etc/lighttpd
+ 	$(INSTALL_DATA) ./files/lighttpd.conf $(1)/etc/lighttpd/
+ 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/doc/config/conf.d/mime.conf $(1)/etc/lighttpd/
++	$(INSTALL_DIR) $(1)/etc/lighttpd/modules.d
+ 	$(INSTALL_DIR) $(1)/etc/lighttpd/conf.d
+ 	$(INSTALL_DIR) $(1)/etc/init.d
+ 	$(INSTALL_BIN) ./files/lighttpd.init $(1)/etc/init.d/lighttpd
+@@ -137,12 +150,8 @@ define BuildPlugin
+   define Package/lighttpd-mod-$(1)/install
+ 	$(INSTALL_DIR) $$(1)/usr/lib/lighttpd
+ 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/lighttpd/mod_$(1).so $$(1)/usr/lib/lighttpd
+-	$(INSTALL_DIR) $$(1)/etc/lighttpd/conf.d
+-	if [ -f $(PKG_BUILD_DIR)/doc/config/conf.d/$(1).conf ]; then \
+-		$(CP) $(PKG_BUILD_DIR)/doc/config/conf.d/$(1).conf $$(1)/etc/lighttpd/conf.d/$(4)-$(1).conf ; \
+-	else \
+-		echo 'server.modules += ( "mod_$(1)" )' > $$(1)/etc/lighttpd/conf.d/$(4)-$(1).conf ; \
+-	fi
++	$(INSTALL_DIR) $$(1)/etc/lighttpd/modules.d/
++	echo 'server.modules += ( "mod_$(1)" )' > $$(1)/etc/lighttpd/modules.d/$(4)-$(1).load
+   endef
+ 
+   $$(eval $$(call BuildPackage,lighttpd-mod-$(1)))
+diff --git a/net/lighttpd/files/lighttpd.conf b/net/lighttpd/files/lighttpd.conf
+index 04b06bc..78f19c1 100644
+--- a/net/lighttpd/files/lighttpd.conf
++++ b/net/lighttpd/files/lighttpd.conf
+@@ -5,8 +5,8 @@ server.document-root        = "/www"
+ server.upload-dirs          = ( "/tmp" )
+ server.errorlog             = "/var/log/lighttpd/error.log"
+ server.pid-file             = "/var/run/lighttpd.pid"
+-server.username             = "http"
+-server.groupname            = "www-data"
++#server.username             = "http"
++#server.groupname            = "www-data"
+ 
+ index-file.names            = ( "index.php", "index.html",
+                                 "index.htm", "default.htm",
+@@ -22,6 +22,9 @@ static-file.exclude-extensions = ( ".php", ".pl", ".fcgi" )
+ #server.errorlog-use-syslog  = "enable"
+ #server.network-backend      = "write"
+ 
++# listen on IPv6
++$SERVER["socket"] == "[::]:80" {  }
++
+ ### Use IPv6 if available
+ #include_shell "/usr/share/lighttpd/use-ipv6.pl"
+ 
+@@ -29,4 +32,5 @@ static-file.exclude-extensions = ( ".php", ".pl", ".fcgi" )
+ #server.dir-listing          = "enable"
+ 
+ include       "/etc/lighttpd/mime.conf"
++include_shell "cat /etc/lighttpd/modules.d/*.load"
+ include_shell "cat /etc/lighttpd/conf.d/*.conf"
+diff --git a/net/lighttpd/files/lighttpd.init b/net/lighttpd/files/lighttpd.init
+index 936c7f6..6b9a984 100644
+--- a/net/lighttpd/files/lighttpd.init
++++ b/net/lighttpd/files/lighttpd.init
+@@ -3,14 +3,11 @@
+ 
+ SERVICE_USE_PID=1
+ 
+-START=50
++# Start after the updater resume
++START=80
+ 
+ start() {
+-	user_exists http || user_add http
+-	[ -d /var/log/lighttpd ] || {
+-		mkdir -m 0775 -p /var/log/lighttpd
+-		chgrp www-data /var/log/lighttpd
+-	}
++	mkdir -m 0755 -p /var/log/lighttpd
+ 	service_start /usr/sbin/lighttpd -f /etc/lighttpd/lighttpd.conf
+ }
+ 
+@@ -18,3 +15,10 @@ stop() {
+ 	service_stop /usr/sbin/lighttpd
+ }
+ 
++restart() {
++	/usr/sbin/lighttpd -t -f /etc/lighttpd/lighttpd.conf || exit 1
++	ls /usr/lib/lighttpd/mod_alias.so || exit 1
++	ls /usr/lib/lighttpd/mod_cgi.so || exit 1
++	stop
++	start
++}
+diff --git a/net/linknx/Makefile b/net/linknx/Makefile
+index fd3032d..fe8374c 100644
+--- a/net/linknx/Makefile
++++ b/net/linknx/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=linknx
+ PKG_VERSION:=0.0.1.33
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_MAINTAINER:=Othmar Truniger <github@truniger.ch>
+ PKG_LICENSE:=GPL-2.0+
+diff --git a/net/luci-app-e2guardian/Makefile b/net/luci-app-e2guardian/Makefile
+index 880f373..560afe2 100644
+--- a/net/luci-app-e2guardian/Makefile
++++ b/net/luci-app-e2guardian/Makefile
+@@ -8,7 +8,7 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=luci-app-e2guardian
+-PKG_RELEASE:=20150520
++PKG_RELEASE:=20150521
+ 
+ PKG_LICENSE:=Apache-2.0
+ 
+diff --git a/net/mdnsresponder/Makefile b/net/mdnsresponder/Makefile
+index 4b2f5be..828421f 100644
+--- a/net/mdnsresponder/Makefile
++++ b/net/mdnsresponder/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=mDNSResponder
+ PKG_VERSION:=576.30.4
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=mDNSResponder-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://opensource.apple.com/tarballs/mDNSResponder/
+diff --git a/net/netatalk/Makefile b/net/netatalk/Makefile
+index abeb991..0213b32 100644
+--- a/net/netatalk/Makefile
++++ b/net/netatalk/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=netatalk
+ PKG_VERSION:=2.2.4
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+ PKG_SOURCE_URL:=@SF/netatalk
+diff --git a/net/ngircd/Makefile b/net/ngircd/Makefile
+index 3778609..a11a40c 100644
+--- a/net/ngircd/Makefile
++++ b/net/ngircd/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=ngircd
+ PKG_VERSION:=23
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ PKG_MAINTAINER:=Claudio Leite <leitec@staticky.com>
+ PKG_LICENSE:=GPL-2.0
+ PKG_LICENSE_FILES:=COPYING
+diff --git a/net/ntripclient/Makefile b/net/ntripclient/Makefile
+index f0d92d5..ff7e0c8 100644
+--- a/net/ntripclient/Makefile
++++ b/net/ntripclient/Makefile
+@@ -11,7 +11,7 @@ include $(TOPDIR)/rules.mk
+ PKG_NAME:=ntripclient
+ PKG_VERSION:=1.5.0
+ 
+-PKG_RELEASE=$(PKG_SOURCE_VERSION)
++PKG_RELEASE=$(PKG_SOURCE_VERSION)-2
+ 
+ PKG_SOURCE_PROTO:=git
+ PKG_SOURCE_URL:=https://github.com/nunojpg/ntripclient.git
+diff --git a/net/ntripserver/Makefile b/net/ntripserver/Makefile
+index a3e3cf9..985ccca 100644
+--- a/net/ntripserver/Makefile
++++ b/net/ntripserver/Makefile
+@@ -11,7 +11,7 @@ include $(TOPDIR)/rules.mk
+ PKG_NAME:=ntripserver
+ PKG_VERSION:=1.5.1
+ 
+-PKG_RELEASE=$(PKG_SOURCE_VERSION)
++PKG_RELEASE=$(PKG_SOURCE_VERSION)-2
+ 
+ PKG_SOURCE_PROTO:=git
+ PKG_SOURCE_URL:=https://github.com/nunojpg/ntripserver.git
+diff --git a/net/ocserv/Makefile b/net/ocserv/Makefile
+index d1c392f..fdcab13 100644
+--- a/net/ocserv/Makefile
++++ b/net/ocserv/Makefile
+@@ -39,7 +39,7 @@ define Package/ocserv
+   TITLE:=OpenConnect VPN server
+   URL:=http://www.infradead.org/ocserv/
+   MAINTAINER:=Nikos Mavrogiannopoulos <n.mavrogiannopoulos@gmail.com>
+-  DEPENDS:= +OCSERV_RADIUS:libradcli +OCSERV_HTTP_PARSER:libhttp-parser +OCSERV_SECCOMP:libseccomp +libgnutls +certtool +libncurses +libreadline +OCSERV_PAM:libpam +OCSERV_PROTOBUF:libprotobuf-c +libev +kmod-tun
++  DEPENDS:= +OCSERV_RADIUS:libradcli +OCSERV_HTTP_PARSER:libhttp-parser +OCSERV_SECCOMP:libseccomp +libgnutls +certtool +libncurses +libreadline +OCSERV_PAM:libpam +OCSERV_PROTOBUF:libprotobuf-c +libev +kmod-tun +liblz4
+   USERID:=ocserv=72:ocserv=72
+ endef
+ 
+diff --git a/net/opennhrp/Makefile b/net/opennhrp/Makefile
+index 4c2b9e8..2d43296 100644
+--- a/net/opennhrp/Makefile
++++ b/net/opennhrp/Makefile
+@@ -11,7 +11,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=opennhrp
+ PKG_VERSION:=0.14.1
+-PKG_RELEASE:=2
++PKG_RELEASE:=3
+ PKG_MAINTAINER:=Artem Makhutov <artem@makhutov.org>
+ PKG_LICENSE:=MIT License
+ 
+diff --git a/net/polipo/Makefile b/net/polipo/Makefile
+index 48c24a1..6c90b5b 100644
+--- a/net/polipo/Makefile
++++ b/net/polipo/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=polipo
+ PKG_VERSION:=1.1.1
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://www.pps.jussieu.fr/~jch/software/files/$(PKG_NAME)/
+diff --git a/net/privoxy/Makefile b/net/privoxy/Makefile
+index 9c7388b..6b213d0 100644
+--- a/net/privoxy/Makefile
++++ b/net/privoxy/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=privoxy
+ PKG_VERSION:=3.0.24
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=privoxy-$(PKG_VERSION)-stable-src.tar.gz
+ PKG_SOURCE_URL:=@SF/ijbswa
+diff --git a/net/prosody/Makefile b/net/prosody/Makefile
+index 0942a62..f3bf547 100644
+--- a/net/prosody/Makefile
++++ b/net/prosody/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=prosody
+ PKG_VERSION:=0.9.10
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://prosody.im/downloads/source
+diff --git a/net/snort/Makefile b/net/snort/Makefile
+index d37829e..b557b06 100644
+--- a/net/snort/Makefile
++++ b/net/snort/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=snort
+ PKG_VERSION:=2.9.7.2
+-PKG_RELEASE:=4
++PKG_RELEASE:=5
+ 
+ PKG_LICENSE:=GPL-2.0
+ PKG_MAINTAINER:=Luka Perkov <luka@openwrt.org>
+diff --git a/net/sshfs/Makefile b/net/sshfs/Makefile
+index d46c48d..902cf83 100644
+--- a/net/sshfs/Makefile
++++ b/net/sshfs/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=sshfs
+ PKG_VERSION:=2.5
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_LICENSE:=GPL-2.0
+ PKG_MAINTAINER:=Zoltan HERPAI <wigyori@uid0.hu>
+diff --git a/net/sslh/Makefile b/net/sslh/Makefile
+index d7edfee..91fde7a 100644
+--- a/net/sslh/Makefile
++++ b/net/sslh/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=sslh
+ PKG_VERSION:=v1.17
+-PKG_RELEASE:=2
++PKG_RELEASE:=3
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://rutschle.net/tech/
+diff --git a/net/tcpproxy/Makefile b/net/tcpproxy/Makefile
+index 77ef825..ba97aea 100644
+--- a/net/tcpproxy/Makefile
++++ b/net/tcpproxy/Makefile
+@@ -13,7 +13,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=tcpproxy
+ PKG_VERSION:=1.2
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://www.spreadspace.org/tcpproxy/releases/
+diff --git a/net/uanytun/Makefile b/net/uanytun/Makefile
+index d9b8c98..2e01257 100644
+--- a/net/uanytun/Makefile
++++ b/net/uanytun/Makefile
+@@ -13,7 +13,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=uanytun
+ PKG_VERSION:=0.3.5
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://www.anytun.org/download/
+diff --git a/net/vnstat/Makefile b/net/vnstat/Makefile
+index 921597d..25696df 100644
+--- a/net/vnstat/Makefile
++++ b/net/vnstat/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=vnstat
+ PKG_VERSION:=1.12
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://humdi.net/vnstat
+diff --git a/net/xl2tpd/Makefile b/net/xl2tpd/Makefile
+index 5cf83c5..ae5a41b 100644
+--- a/net/xl2tpd/Makefile
++++ b/net/xl2tpd/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=xl2tpd
+ PKG_VERSION:=devel-20151125
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ PKG_MAINTAINER:=Yousong Zhou <yszhou4tech@gmail.com>
+ PKG_LICENSE:=GPL-2.0
+ PKG_LICENSE_FILES:=LICENSE
+diff --git a/sound/mocp/Makefile b/sound/mocp/Makefile
+index 0c446fc..ed234ea 100644
+--- a/sound/mocp/Makefile
++++ b/sound/mocp/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=moc
+ PKG_VERSION:=2.5.0
+-PKG_RELEASE:=2
++PKG_RELEASE:=3
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+ PKG_SOURCE_URL:=http://ftp.daper.net/pub/soft/moc/stable/
+diff --git a/sound/portaudio/Makefile b/sound/portaudio/Makefile
+index ffa5cfb..49e0450 100644
+--- a/sound/portaudio/Makefile
++++ b/sound/portaudio/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=portaudio
+ PKG_VERSION:=19_20140130
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=pa_stable_v$(PKG_VERSION).tgz
+ PKG_SOURCE_URL:=http://www.portaudio.com/archives/
+diff --git a/utils/avrdude/Makefile b/utils/avrdude/Makefile
+index 5ea0e55..9c65706 100644
+--- a/utils/avrdude/Makefile
++++ b/utils/avrdude/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=avrdude
+ PKG_VERSION:=6.1
+-PKG_RELEASE:=3
++PKG_RELEASE:=4
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://download.savannah.gnu.org/releases/avrdude
+diff --git a/utils/bandwidthd/Makefile b/utils/bandwidthd/Makefile
+index 3d6514a..a803442 100644
+--- a/utils/bandwidthd/Makefile
++++ b/utils/bandwidthd/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=bandwidthd
+ PKG_VERSION:=2.0.1
+-PKG_RELEASE:=5
++PKG_RELEASE:=6
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tgz
+ PKG_SOURCE_URL:=@SF/bandwidthd
+diff --git a/utils/cmdpad/Makefile b/utils/cmdpad/Makefile
+index c092fc9..2e1b352 100644
+--- a/utils/cmdpad/Makefile
++++ b/utils/cmdpad/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=cmdpad
+ PKG_VERSION:=0.0.3
+-PKG_RELEASE:=3
++PKG_RELEASE:=4
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tgz
+ PKG_SOURCE_URL:=@SF/cmdpad
+diff --git a/utils/lcd4linux/Makefile b/utils/lcd4linux/Makefile
+index cbb8c91..20d63f6 100644
+--- a/utils/lcd4linux/Makefile
++++ b/utils/lcd4linux/Makefile
+@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
+ PKG_NAME:=lcd4linux
+ PKG_REV:=1203
+ PKG_VERSION:=r$(PKG_REV)
+-PKG_RELEASE:=3
++PKG_RELEASE:=4
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+ PKG_SOURCE_URL:=https://ssl.bulix.org/svn/lcd4linux/trunk/
+diff --git a/utils/lsof/Makefile b/utils/lsof/Makefile
+index c891344..c27035f 100644
+--- a/utils/lsof/Makefile
++++ b/utils/lsof/Makefile
+@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/kernel.mk
+ 
+ PKG_NAME:=lsof
+ PKG_VERSION:=4.89
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=$(PKG_NAME)_$(PKG_VERSION).tar.bz2
+ PKG_SOURCE_URL:=https://www.mirrorservice.org/sites/lsof.itap.purdue.edu/pub/tools/unix/lsof/ ftp://sunsite.ualberta.ca/pub/Mirror/lsof/ ftp://ftp.fu-berlin.de/pub/unix/tools/lsof
+diff --git a/utils/luci-app-lxc/Makefile b/utils/luci-app-lxc/Makefile
+index 210f030..b1d16a4 100644
+--- a/utils/luci-app-lxc/Makefile
++++ b/utils/luci-app-lxc/Makefile
+@@ -21,7 +21,7 @@ define Package/luci-app-lxc
+   CATEGORY:=LuCI
+   SUBMENU:=3. Applications
+   TITLE:=LXC management Web UI
+-  DEPENDS:=+luci-mod-admin-full +lxc +lxc-create +liblxc +rpcd-mod-lxc
++  DEPENDS:=+luci-mod-admin-full +lxc +lxc-create +liblxc +rpcd-mod-lxc +getopt +xz +gnupg +gnupg-utils
+   MAINTAINER:=Petar Koretic <petar.koretic@sartura.hr>
+ endef
+ 
+diff --git a/utils/luci-app-lxc/files/lxc.config b/utils/luci-app-lxc/files/lxc.config
+index 5572c73..b0e90f7 100644
+--- a/utils/luci-app-lxc/files/lxc.config
++++ b/utils/luci-app-lxc/files/lxc.config
+@@ -3,4 +3,4 @@
+ #
+ 
+ config lxc 'lxc'
+-	option url 'virtualwrt.org/containers/'
++	option url 'api.turris.cz/lxc'
+diff --git a/utils/luci-app-lxc/files/view/lxc.htm b/utils/luci-app-lxc/files/view/lxc.htm
+index bc767f3..edfff8e 100644
+--- a/utils/luci-app-lxc/files/view/lxc.htm
++++ b/utils/luci-app-lxc/files/view/lxc.htm
+@@ -450,7 +450,7 @@ Author: Petar Koretic <petar.koretic@sartura.hr>
+ 		{
+ 			var option = document.createElement('option');
+ 			option.value = data[key];
+-			option.text = data[key].replace(/[_:]/, ' ');
++			option.text = data[key].replace(/[_:]/g, ' ');
+ 			select.add(option, -1);
+ 		}
+ 	})
+diff --git a/utils/lxc/Makefile b/utils/lxc/Makefile
+index 0df1460..28e1703 100644
+--- a/utils/lxc/Makefile
++++ b/utils/lxc/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=lxc
+ PKG_VERSION:=1.1.5
+-PKG_RELEASE:=3
++PKG_RELEASE:=4
+ 
+ PKG_LICENSE:=LGPL-2.1+ BSD-2-Clause GPL-2.0
+ PKG_MAINTAINER:=Luka Perkov <luka@openwrt.org>
+diff --git a/utils/lxc/patches/030-lxc-download.patch b/utils/lxc/patches/030-lxc-download.patch
+index 295bae0..b6ab523 100644
+--- a/utils/lxc/patches/030-lxc-download.patch
++++ b/utils/lxc/patches/030-lxc-download.patch
+@@ -1,43 +1,15 @@
+ --- a/templates/lxc-download.in
+ +++ b/templates/lxc-download.in
+-@@ -39,7 +39,7 @@ DOWNLOAD_LIST_IMAGES="false"
++@@ -39,10 +39,10 @@ DOWNLOAD_LIST_IMAGES="false"
++-DOWNLOAD_KEYID="0xBAEFF88C22F6E216"
+++DOWNLOAD_KEYID="0x96542441B2EF343B"
++ DOWNLOAD_KEYSERVER="hkp://pool.sks-keyservers.net"
++ DOWNLOAD_LIST_IMAGES="false"
+  DOWNLOAD_MODE="system"
+  DOWNLOAD_READY_GPG="false"
+  DOWNLOAD_RELEASE=
+ -DOWNLOAD_SERVER="images.linuxcontainers.org"
+-+DOWNLOAD_SERVER="virtualwrt.org/containers/"
+++DOWNLOAD_SERVER="`uci get lxc.lxc.url 2> /dev/null || echo api.turris.cz/lxc`"
+  DOWNLOAD_SHOW_GPG_WARNING="true"
+  DOWNLOAD_SHOW_HTTP_WARNING="true"
+  DOWNLOAD_TARGET="system"
+-@@ -257,14 +257,6 @@ for bin in tar xz wget; do
+-     fi
+- done
+- 
+--# Check for GPG
+--if [ "$DOWNLOAD_VALIDATE" = "true" ]; then
+--    if ! type gpg >/dev/null 2>&1; then
+--        echo "ERROR: Missing recommended tool: gpg" 1>&2
+--        echo "You can workaround this by using --no-validate." 1>&2
+--        exit 1
+--    fi
+--fi
+- 
+- # Check that we have all variables we need
+- if [ -z "$LXC_NAME" ] || [ -z "$LXC_PATH" ] || [ -z "$LXC_ROOTFS" ]; then
+-@@ -456,16 +448,9 @@ if [ "$DOWNLOAD_USE_CACHE" = "false" ];
+-         echo "Downloading the rootfs"
+-         download_file $DOWNLOAD_URL/rootfs.tar.xz \
+-             ${DOWNLOAD_TEMP}/rootfs.tar.xz normal
+--        download_sig  $DOWNLOAD_URL/rootfs.tar.xz.asc \
+--             ${DOWNLOAD_TEMP}/rootfs.tar.xz.asc normal
+--        gpg_validate ${DOWNLOAD_TEMP}/rootfs.tar.xz.asc
+--
+-         echo "Downloading the metadata"
+-         download_file $DOWNLOAD_URL/meta.tar.xz \
+-             ${DOWNLOAD_TEMP}/meta.tar.xz normal
+--        download_sig  $DOWNLOAD_URL/meta.tar.xz.asc \
+--            ${DOWNLOAD_TEMP}/meta.tar.xz.asc normal
+--        gpg_validate ${DOWNLOAD_TEMP}/meta.tar.xz.asc
+- 
+-         if [ -d $LXC_CACHE_PATH ]; then
+-             rm -Rf $LXC_CACHE_PATH
+diff --git a/utils/mbtools/Makefile b/utils/mbtools/Makefile
+index 109adc6..209ed71 100644
+--- a/utils/mbtools/Makefile
++++ b/utils/mbtools/Makefile
+@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
+ PKG_NAME:=mbtools
+ 
+ PKG_VERSION:=2014-10-29
+-PKG_RELEASE=$(PKG_SOURCE_VERSION)
++PKG_RELEASE=$(PKG_SOURCE_VERSION)-2
+ 
+ PKG_SOURCE_PROTO:=git
+ PKG_SOURCE_URL:=git://github.com/webstack/mbtools
+diff --git a/utils/minicom/Makefile b/utils/minicom/Makefile
+index b588993..a68aba1 100644
+--- a/utils/minicom/Makefile
++++ b/utils/minicom/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=minicom
+ PKG_VERSION:=2.7
+-PKG_RELEASE:=3
++PKG_RELEASE:=4
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=https://alioth.debian.org/frs/download.php/file/3977/
+diff --git a/utils/open-plc-utils/Makefile b/utils/open-plc-utils/Makefile
+index 1017ee8..81e7807 100644
+--- a/utils/open-plc-utils/Makefile
++++ b/utils/open-plc-utils/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=open-plc-utils
+ PKG_VERSION:=2015-09-21
+-PKG_RELEASE:=$(PKG_SOURCE_VERSION)
++PKG_RELEASE:=$(PKG_SOURCE_VERSION)-2
+ 
+ PKG_SOURCE_PROTO:=git
+ PKG_SOURCE_URL:=https://github.com/qca/open-plc-utils.git
+diff --git a/utils/openocd/Makefile b/utils/openocd/Makefile
+index e18e1aa..20f7df5 100644
+--- a/utils/openocd/Makefile
++++ b/utils/openocd/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=openocd
+ PKG_VERSION:=v0.9.0
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE_PROTO:=git
+ PKG_SOURCE_URL:=git://git.code.sf.net/p/openocd/code
+diff --git a/utils/screen/Makefile b/utils/screen/Makefile
+index 80524d3..e4f8261 100644
+--- a/utils/screen/Makefile
++++ b/utils/screen/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=screen
+ PKG_VERSION:=4.3.1
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=@GNU/screen
+diff --git a/utils/sysstat/Makefile b/utils/sysstat/Makefile
+index 3e9457b..a202f64 100644
+--- a/utils/sysstat/Makefile
++++ b/utils/sysstat/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=sysstat
+ PKG_VERSION:=11.0.4
+-PKG_RELEASE:=2
++PKG_RELEASE:=3
+ 
+ PKG_LICENSE:=GPL-2.0
+ PKG_MAINTAINER:=Marko Ratkaj <marko.ratkaj@sartura.hr>
+diff --git a/utils/taskwarrior/Makefile b/utils/taskwarrior/Makefile
+index a417a45..4d6e979 100644
+--- a/utils/taskwarrior/Makefile
++++ b/utils/taskwarrior/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=taskwarrior
+ PKG_VERSION:=2.4.4
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_LICENSE:=MIT
+ 
+diff --git a/utils/unzip/Makefile b/utils/unzip/Makefile
+index a0d0d14..4359987 100644
+--- a/utils/unzip/Makefile
++++ b/utils/unzip/Makefile
+@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
+ PKG_NAME:=unzip
+ PKG_REV:=60
+ PKG_VERSION:=6.0
+-PKG_RELEASE:=4
++PKG_RELEASE:=5
+ 
+ PKG_SOURCE:=$(PKG_NAME)$(PKG_REV).tar.gz
+ PKG_SOURCE_URL:=@SF/infozip
+diff --git a/utils/watchcat/Makefile b/utils/watchcat/Makefile
+index 9160cff..d25c0c2 100644
+--- a/utils/watchcat/Makefile
++++ b/utils/watchcat/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=watchcat
+ PKG_VERSION:=1
+-PKG_RELEASE:=5
++PKG_RELEASE:=6
+ 
+ PKG_MAINTAINER:=Roger D <rogerdammit@gmail.com>
+ PKG_LICENSE:=GPL-2.0
