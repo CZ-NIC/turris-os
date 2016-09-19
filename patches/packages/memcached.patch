@@ -1,0 +1,30 @@
+From 0fe91173c6a05be1d0a94eb0fdd81472cc5107c4 Mon Sep 17 00:00:00 2001
+From: Michal Hrusecky <michal.hrusecky@nic.cz>
+Date: Mon, 19 Sep 2016 10:26:40 +0200
+Subject: [PATCH] memcached: Add missing includes
+
+---
+ net/memcached/patches/add-missing-includes.patch | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+ create mode 100644 net/memcached/patches/add-missing-includes.patch
+
+diff --git a/net/memcached/patches/add-missing-includes.patch b/net/memcached/patches/add-missing-includes.patch
+new file mode 100644
+index 0000000..43b97a0
+--- /dev/null
++++ b/net/memcached/patches/add-missing-includes.patch
+@@ -0,0 +1,11 @@
++--- a/logger.c
+++++ b/logger.c
++@@ -5,6 +5,8 @@
++ #include <errno.h>
++ #include <poll.h>
++ #include <ctype.h>
+++#include <stdio.h>
+++#include <stdarg.h>
++ 
++ #include "memcached.h"
++ #include "bipbuffer.h"
+-- 
+2.10.0
+
