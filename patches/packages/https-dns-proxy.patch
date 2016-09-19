@@ -1,0 +1,13 @@
+diff --git a/net/https-dns-proxy/Makefile b/net/https-dns-proxy/Makefile
+index 62bc86e..4ad69ca 100644
+--- a/net/https-dns-proxy/Makefile
++++ b/net/https-dns-proxy/Makefile
+@@ -15,6 +15,8 @@ PKG_LICENSE:=MIT
+ include $(INCLUDE_DIR)/package.mk
+ include $(INCLUDE_DIR)/cmake.mk
+ 
++TARGET_CFLAGS += -std=c99
++
+ define Package/https_dns_proxy
+   SECTION:=net
+   CATEGORY:=Network
