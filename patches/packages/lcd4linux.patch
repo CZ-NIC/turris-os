@@ -1,0 +1,29 @@
+From 0efdcae7bd63a1c4dd95de64bb202f9cacf2e475 Mon Sep 17 00:00:00 2001
+From: Michal Hrusecky <michal.hrusecky@nic.cz>
+Date: Mon, 19 Sep 2016 10:39:36 +0200
+Subject: [PATCH] lcd4linux: Add missing includes
+
+---
+ utils/lcd4linux/patches/174-add-missing-includes.patch | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+ create mode 100644 utils/lcd4linux/patches/174-add-missing-includes.patch
+
+diff --git a/utils/lcd4linux/patches/174-add-missing-includes.patch b/utils/lcd4linux/patches/174-add-missing-includes.patch
+new file mode 100644
+index 0000000..024babe
+--- /dev/null
++++ b/utils/lcd4linux/patches/174-add-missing-includes.patch
+@@ -0,0 +1,10 @@
++--- a/plugin_i2c_sensors.c
+++++ b/plugin_i2c_sensors.c
++@@ -68,6 +68,7 @@
++ #include <errno.h>
++ #include <fcntl.h>
++ #include <dirent.h>
+++#include <limits.h>
++ 
++ #include "debug.h"
++ #include "plugin.h"
+-- 
+2.10.0
+
