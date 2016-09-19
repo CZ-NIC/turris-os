@@ -1,0 +1,81 @@
+From 5b169c25183fdd999f193ec785271e4ca610e876 Mon Sep 17 00:00:00 2001
+From: Jean-Michel Lacroix <lacroix@lepine-lacroix.info>
+Date: Sun, 7 Aug 2016 18:00:32 -0400
+Subject: [PATCH] kismet: Update to 2016-07-R1 and new maintainer This is an
+ update to the latest version of kismet New maintainer. Signed-off-by:
+ Jean-Michel Lacroix <lacroix@lepine-lacroix.info>
+
+---
+ net/kismet/Makefile                                      | 10 +++++-----
+ net/kismet/patches/010-dont-add-host-include-paths.patch |  2 +-
+ net/kismet/patches/020-musl-include-fixes.patch          | 10 ++++++++++
+ 3 files changed, 16 insertions(+), 6 deletions(-)
+
+diff --git a/net/kismet/Makefile b/net/kismet/Makefile
+index de60949..25e32b1 100644
+--- a/net/kismet/Makefile
++++ b/net/kismet/Makefile
+@@ -1,5 +1,5 @@
+ #
+-# Copyright (C) 2006-2014 OpenWrt.org
++# Copyright (C) 2006-2016 OpenWrt.org
+ #
+ # This is free software, licensed under the GNU General Public License v2.
+ # See /LICENSE for more information.
+@@ -8,14 +8,14 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=kismet
+-PKG_VERSION:=2013-03-R1b
++PKG_VERSION:=2016-07-R1
+ PKG_RELEASE:=1
+ 
+ PKG_LICENSE:=LGPLv2.1
+ 
+-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
++PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+ PKG_SOURCE_URL:=http://www.kismetwireless.net/code
+-PKG_MD5SUM:=6cdcd78baf2e15edbe8a9de3c5493f02
++PKG_MD5SUM:=7fa6e86c5078a0e7d91fc9bf954c5107
+ 
+ PKG_BUILD_DEPENDS:=libpcap libncurses libpcre
+ 
+@@ -26,7 +26,7 @@ define Package/kismet/Default
+   SECTION:=net
+   CATEGORY:=Network
+   TITLE:=Kismet
+-  MAINTAINER:=Sebastian Wendel <packages@sourceindex.de>
++  MAINTAINER:=Jean-Michel lacroix <lacroix@lepine-lacroix.info>
+   DEPENDS:= $(CXX_DEPENDS) +libnl
+   URL:=http://www.kismetwireless.net/
+   SUBMENU:=wireless
+diff --git a/net/kismet/patches/010-dont-add-host-include-paths.patch b/net/kismet/patches/010-dont-add-host-include-paths.patch
+index 3b1858a..62acd02 100644
+--- a/net/kismet/patches/010-dont-add-host-include-paths.patch
++++ b/net/kismet/patches/010-dont-add-host-include-paths.patch
+@@ -1,6 +1,6 @@
+ --- a/configure
+ +++ b/configure
+-@@ -5456,9 +5456,6 @@ fi
++@@ -5981,9 +5981,6 @@ fi
+  
+  
+  
+diff --git a/net/kismet/patches/020-musl-include-fixes.patch b/net/kismet/patches/020-musl-include-fixes.patch
+index 7f2d52c..d3346fd 100644
+--- a/net/kismet/patches/020-musl-include-fixes.patch
++++ b/net/kismet/patches/020-musl-include-fixes.patch
+@@ -20,3 +20,13 @@
+  #include "ipc_remote.h"
+  
+  #ifndef SYS_CYGWIN
++--- a/ifcontrol.h
+++++ b/ifcontrol.h
++@@ -39,7 +39,6 @@
++ #include <net/if_arp.h>
++ #include <sys/ioctl.h>
++ #include <netinet/in.h>
++-#include <netinet/if_ether.h>
++ #include <arpa/inet.h>
++ #endif
++ 
