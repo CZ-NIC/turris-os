@@ -124,6 +124,15 @@ fi
 endef
 endif
 
+ifdef CONFIG_TARGET_mvebu_Turris-Omnia
+define Package/kernel/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+    create_notification -s restart "Jádro systému bylo aktualizováno na verzi $(VERSION). Prosím restartujte své zařízení." "The OS kernel has been updated to version $(VERSION). Please reboot the device."
+fi
+endef
+endif
+
 define Package/kernel/extra_provides
 	sed -e 's,.*/,,' $(LINUX_DIR)/modules.builtin;
 endef
