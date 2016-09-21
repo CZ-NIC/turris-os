@@ -134,7 +134,9 @@ if [ -d .git ] ; then
 fi
 make clean
 [ -z "$BUILD_ALL" ] || make dirclean
-make "$@" PKG_BRANCH=${PKG_BRANCH/-/}
+set -- "$@" PKG_BRANCH=${PKG_BRANCH/-/}
+[ -z "$PERSISTENT_CCACHE" ] || set -- "$@" CCACHE_DIR="`pwd`/ccache" CCACHE_HOST_DIR="`pwd`/ccache-host"
+make "$@"
 # Nice junit export
 mkdir -p logs
 cat > logs/junit.xml << EOF
@@ -171,6 +173,8 @@ if [ -n "`cat logs/package/error.txt 2> /dev/null`" ] && [ -z "$PKG_BRANCH" ]; t
 fi
 [ \! -d ./logs ] || mv ./logs ./logs-nand
 
+COMMIT_DATE="`git log --format=format:%cD -1`"
+
 if [ "$TARGET_BOARD" = turris ]; then
 	#Build initramfs
 	echo -e "CONFIG_TARGET_ROOTFS_INITRAMFS=y\nCONFIG_TARGET_INITRAMFS_COMPRESSION_XZ=y" >> .config
@@ -187,19 +191,54 @@ if [ "$TARGET_BOARD" = turris ]; then
 	find -type l ! -exec test -r {} \; -delete
 	cd ../../..
 elif [ "$TARGET_BOARD" = omnia ]; then
-	mv bin/mvebu-musl/openwrt-mvebu-Turris-Omnia-rootfs.tar.gz bin/mvebu-musl/omnia-medkit-`date +%Y%m%d%H%M`.tar.gz
+	mkdir bin/mvebu-musl/medkit
+	MED_PATH="bin/mvebu-musl/medkit"
+	if [ -n "$BUILD_ALL" ]; then
+		FLAVOR="full"
+	else
+		FLAVOR="minimal"
+	fi
+	mkdir -p "$MED_PATH"
+	mv bin/mvebu-musl/openwrt-mvebu-Turris-Omnia-rootfs.tar.gz "$MED_PATH"/omnia-medkit-`date -d "$COMMIT_DATE" +%Y%m%d%H%M`-$FLAVOR.tar.gz
 	# Preserve the uncompressed image too
 	mv build_dir/target-arm_*/root-mvebu* bin/mvebu-musl/root
-	cd bin/mvebu-musl/root
+	pushd bin/mvebu-musl/root
 	rm var
 	find -type l ! -exec test -r {} \; -delete
-	cd ../../..
+	popd
 fi
 
+# Clean
+[ -d ./bin-nand ] && rm -rf ./bin-nand
+mv ./bin ./bin-nand
+[ -d ./tmp ] && rm -rf ./tmp
+
 # Generate lists
-PUB_BIN_DIR="`ls -1d bin/* | head -n1`"
+PUB_BIN_DIR="`ls -1d bin-nand/* | head -n1`"
 mkdir -p $PUB_BIN_DIR/lists
-echo Install $(sed -n 's|Package: \(.*\)|"\1"|p' bin/*/root/usr/lib/opkg/status | egrep -v '"updater(|-deps|-conolidator)"') " { ignore = { 'missing' } }" >> base.lua
+
+# On Omnia full build generate a minimal image as well and use it for base list
+if [ -n "$BUILD_ALL" ] && [ "$TARGET_BOARD" = omnia ]; then
+	make dirclean
+	cat configs/common configs/$TARGET_BOARD | sed -e "s|@BOARD@|$TARGET_BOARD|" -e "s|@BRANCH@|$PKG_BRANCH|" > .config
+	echo CONFIG_ALL_KMODS=y >> .config
+	cat "lists/base.list" "lists/base.${TARGET_BOARD}" | sed 's|#.*||' 2> /dev/null | while read PKG; do
+		if expr "$PKG" : CONFIG_;then
+			echo "$PKG" >> .config
+		elif [ -n "$PKG" ]; then
+			echo "CONFIG_PACKAGE_$PKG=y" >> .config
+		fi
+	done
+	make_defconfig
+	make "$@" PKG_BRANCH=${PKG_BRANCH/-/}
+	mkdir -p bin-nand/mvebu-musl/medkit/minimal
+	mv bin/mvebu-musl/openwrt-mvebu-Turris-Omnia-rootfs.tar.gz bin-nand/mvebu-musl/medkit/omnia-medkit-`date -d "$COMMIT_DATE" +%Y%m%d%H%M`-minimal.tar.gz
+	OPKG_STATUS="`ls -1d build_dir/target-arm_*/root-mvebu*/usr/lib/opkg/status`"
+else
+	OPKG_STATUS="`ls -1d bin-nand/*/root/usr/lib/opkg/status`"
+fi
+
+echo Install $(sed -n 's|Package: \(.*\)|"\1"|p' $OPKG_STATUS | egrep -v '"updater(|-deps|-conolidator)"') " { ignore = { 'missing' } }" >> base.lua
 [ \! -f "lists/base_add" ]               || echo Install $(cat "lists/base_add.$TARGET_BOARD" | sed 's|^\([^#]\+\)$|"\1"|') " { ignore = { 'missing' } }" >> base.lua
 [ \! -f "lists/base_add.$TARGET_BOARD" ] || echo Install $(cat "lists/base_add.$TARGET_BOARD" | sed 's|^\([^#]\+\)$|"\1"|') " { ignore = { 'missing' } }" >> base.lua
 mv base.lua $PUB_BIN_DIR/lists
@@ -223,12 +262,16 @@ for i in lists/*.lua; do
 		fi
 	fi
 done
-
-
-# Clean
-[ -d ./bin-nand ] && rm -rf ./bin-nand
-mv ./bin ./bin-nand
-[ -d ./tmp ] && rm -rf ./tmp
+if [ "$TARGET_BOARD" = "omnia" ]; then
+	rm -f $PUB_BIN_DIR/*.ext4 $PUB_BIN_DIR/*sums
+	for i in $PUB_BIN_DIR/medkit/*.tar.gz; do
+		staging_dir/host/bin/usign -S -m "$i" -s "$HOME"/mime.key
+		pushd "`dirname $i`"
+		md5sum "`basename $i`" > "`basename $i`".md5
+		sha256sum "`basename $i`" > "`basename $i`".sha256
+		popd
+	done
+fi
 
 if [ "$TARGET_BOARD" = turris ]; then
 	# Build NOR FW
