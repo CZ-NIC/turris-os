@@ -1,4 +1,4 @@
-# 
+#
 # Copyright (C) 2006-2013 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -18,6 +18,7 @@ PKG_MD5SUM:=44d667c142d7cda120332623eab69f40
 PKG_LICENSE:=Zlib
 PKG_LICENSE_FILES:=README
 
+include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/zlib
@@ -27,6 +28,24 @@ define Package/zlib
   URL:=http://www.zlib.net/
 endef
 
+define Package/zlib-dev
+  SECTION:=devel
+  CATEGORY:=Development
+  SUBMENU:=Libraries
+  DEPENDS:=zlib
+  TITLE:=Development files for the zlib library
+endef
+
+define Package/zlib/description
+ zlib is a lossless data-compression library.
+ This package includes the shared library.
+endef
+
+define Package/zlib-dev/description
+ zlib is a lossless data-compression library.
+ This package includes the development support files.
+endef
+
 define Build/Configure
 	(cd $(PKG_BUILD_DIR); \
 		$(TARGET_CONFIGURE_OPTS) \
@@ -34,6 +53,18 @@ define Build/Configure
 		CFLAGS="$(TARGET_CFLAGS) $(FPIC)" \
 		./configure \
 			--prefix=/usr \
+			--shared \
+			--uname=Linux \
+	);
+endef
+
+define Host/Configure
+	(cd $(HOST_BUILD_DIR); \
+		$(HOST_CONFIGURE_OPTS) \
+		LDSHARED="$(HOST_CC) -shared -Wl,-soname,libz.so.1" \
+		CFLAGS="$(HOST_CFLAGS) $(FPIC)" \
+		./configure \
+			--prefix=$(STAGING_DIR_HOST) \
 			--shared \
 			--uname=Linux \
 	);
@@ -69,4 +100,25 @@ define Package/zlib/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libz.so.* $(1)/usr/lib/
 endef
 
+define Package/zlib-dev/install
+	$(INSTALL_DIR) $(1)/usr/include
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/zconf.h \
+	  $(1)/usr/include/
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/zlib.h \
+	  $(1)/usr/include/
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libz.a $(1)/usr/lib/
+	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/zlib.pc \
+	  $(1)/usr/lib/pkgconfig/
+endef
+
+define Host/Install
+	$(MAKE) -C $(HOST_BUILD_DIR) \
+		install
+endef
+
+$(eval $(call HostBuild))
+
 $(eval $(call BuildPackage,zlib))
+$(eval $(call BuildPackage,zlib-dev))
