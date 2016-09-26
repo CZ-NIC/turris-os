@@ -121,7 +121,6 @@ package/devel/oprofile 1 2
 package/devel/valgrind 1 2
 package/libs/elfutils 1 2
 package/libs/libiconv-full 1 2
-package/libs/openssl 1 2
 package/libs/toolchain 3 4
 package/network/services/hostapd 1 2
 package/network/services/openvpn 5 6
