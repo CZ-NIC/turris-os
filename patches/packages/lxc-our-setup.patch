@@ -7,10 +7,37 @@ index 0df1460..28e1703 100644
  PKG_NAME:=lxc
  PKG_VERSION:=1.1.5
 -PKG_RELEASE:=3
-+PKG_RELEASE:=4
++PKG_RELEASE:=5
  
  PKG_LICENSE:=LGPL-2.1+ BSD-2-Clause GPL-2.0
  PKG_MAINTAINER:=Luka Perkov <luka@openwrt.org>
+@@ -265,6 +265,26 @@ define GenPlugin
+   $$(eval $$(call BuildPackage,lxc-$(1)))
+ endef
+ 
++define Package/lxc-auto/postinst
++#!/bin/sh
++[ -n "$$IPKG_INSTROOT" ] || {
++	/etc/init.d/lxc-auto enable
++}
++endef
++
++define Package/lxc-common/postinst
++#!/bin/sh
++[ -n "$$IPKG_INSTROOT" ] || {
++	if cd /lxc; then
++		for i in *; do
++			if [ -d "$$i" ] && [ \! -e "/srv/lxc/$$i" ]; then
++				ln -s "../../lxc/$$i" "/srv/lxc/$$i"
++			fi
++		done
++	fi
++}
++endef
++
+ 
+ $(eval $(call BuildPackage,lxc))
+ $(eval $(call BuildPackage,lxc-common))
 diff --git a/utils/lxc/patches/030-lxc-download.patch b/utils/lxc/patches/030-lxc-download.patch
 index 295bae0..b6ab523 100644
 --- a/utils/lxc/patches/030-lxc-download.patch
@@ -19,7 +46,14 @@ index 295bae0..b6ab523 100644
  --- a/templates/lxc-download.in
  +++ b/templates/lxc-download.in
 -@@ -39,7 +39,7 @@ DOWNLOAD_LIST_IMAGES="false"
-+@@ -39,10 +39,10 @@ DOWNLOAD_LIST_IMAGES="false"
++@@ -30,16 +30,16 @@ DOWNLOAD_ARCH=
++ DOWNLOAD_BUILD=
++ DOWNLOAD_COMPAT_LEVEL=2
++ DOWNLOAD_DIST=
++-DOWNLOAD_FLUSH_CACHE="false"
+++DOWNLOAD_FLUSH_CACHE="true"
++ DOWNLOAD_FORCE_CACHE="false"
++ DOWNLOAD_INTERACTIVE="false"
 +-DOWNLOAD_KEYID="0xBAEFF88C22F6E216"
 ++DOWNLOAD_KEYID="0x96542441B2EF343B"
 + DOWNLOAD_KEYSERVER="hkp://pool.sks-keyservers.net"
