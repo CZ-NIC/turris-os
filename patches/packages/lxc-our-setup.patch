@@ -42,7 +42,7 @@ diff --git a/utils/lxc/patches/030-lxc-download.patch b/utils/lxc/patches/030-lx
 index 295bae0..b6ab523 100644
 --- a/utils/lxc/patches/030-lxc-download.patch
 +++ b/utils/lxc/patches/030-lxc-download.patch
-@@ -1,43 +1,15 @@
+@@ -1,43 +1,22 @@
  --- a/templates/lxc-download.in
  +++ b/templates/lxc-download.in
 -@@ -39,7 +39,7 @@ DOWNLOAD_LIST_IMAGES="false"
