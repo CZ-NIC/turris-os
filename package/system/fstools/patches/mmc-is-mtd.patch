@@ -1,12 +1,16 @@
 --- a/block.c
 +++ b/block.c
-@@ -513,8 +513,8 @@ static void cache_load(int mtd)
+@@ -513,8 +513,13 @@ static void cache_load(int mtd)
  		_cache_load("/dev/mtdblock*");
  		_cache_load("/dev/ubiblock*");
  		_cache_load("/dev/ubi?*_?*");
++#ifdef MMC_IS_MTD
 +		_cache_load("/dev/mmcblk*");
++#endif
  	}
--	_cache_load("/dev/mmcblk*");
++#ifndef MMC_IS_MTD
+ 	_cache_load("/dev/mmcblk*");
++#endif
  	_cache_load("/dev/sd*");
  	_cache_load("/dev/hd*");
  	_cache_load("/dev/md*");

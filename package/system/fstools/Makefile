@@ -31,6 +31,8 @@ include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
 TARGET_LDFLAGS += $(if $(CONFIG_USE_GLIBC),-lrt)
+TARGET_CFLAGS += $(if $(CONFIG_BLOCK_MOUNT_MMC_IS_MTD),-DMMC_IS_MTD=y)
+TARGET_CXXFLAGS += $(if $(CONFIG_BLOCK_MOUNT_MMC_IS_MTD),-DMMC_IS_MTD=y)
 CMAKE_OPTIONS += $(if $(CONFIG_FSTOOLS_UBIFS_EXTROOT),-DCMAKE_UBIFS_EXTROOT=y)
 
 define Package/fstools
@@ -56,6 +58,15 @@ define Package/block-mount
   CATEGORY:=Base system
   TITLE:=Block device mounting and checking
   DEPENDS:=+ubox +libubox +libuci
+endef
+
+define Package/block-mount/config
+	config BLOCK_MOUNT_MMC_IS_MTD
+		depends on PACKAGE_block-mount
+		bool "Rootfs is on MMC"
+		default y
+		help
+			This option makes block-mount treat MMC as non-removable and non-unmountable.
 endef
 
 define Package/fstools/install
