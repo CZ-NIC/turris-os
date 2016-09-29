@@ -95,7 +95,7 @@ fi
 # Other lists
 echo 'config pkglists pkglists' > package/feeds/turrispackages/opkg-trans/files/updater.config
 for i in lists/*.list; do
-	echo "	list lists '`basename ${i/.list}`'" >> package/feeds/turrispackages/opkg-trans/files/updater.config
+	[ i = "lists/base.list" ] || echo "	list lists '`basename ${i/.list}`'" >> package/feeds/turrispackages/opkg-trans/files/updater.config
 	cat "$i" "${i/%list/${TARGET_BOARD}}" | sed 's|#.*||' 2> /dev/null | while read PKG; do
 		if expr "$PKG" : CONFIG_;then
 			if [ "$TARGET_BOARD" = omnia ]; then
