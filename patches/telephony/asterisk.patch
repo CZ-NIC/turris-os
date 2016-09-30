@@ -1,25 +1,27 @@
 diff --git a/net/asterisk-11.x/Makefile b/net/asterisk-11.x/Makefile
-index 064a47a..2a73670 100644
+index 064a47a..637b7a7 100644
 --- a/net/asterisk-11.x/Makefile
 +++ b/net/asterisk-11.x/Makefile
-@@ -232,7 +232,7 @@ EXTRA_CFLAGS+= $(TARGET_CPPFLAGS)
+@@ -231,8 +231,8 @@ endif
+ EXTRA_CFLAGS+= $(TARGET_CPPFLAGS)
  EXTRA_LDFLAGS+= $(TARGET_LDFLAGS) -Wl,-rpath-link,$(STAGING_DIR)/usr/lib
  CONFIGURE_ARGS+= \
- 	--build=$(GNU_HOST_NAME) \
+-	--build=$(GNU_HOST_NAME) \
 -	--host=$(GNU_TARGET_NAME) \
++	--build=$(GNU_TARGET_NAME) \
 +	--host=$(GNU_HOST_NAME) \
  	--target=$(GNU_TARGET_NAME) \
  	--without-bluetooth \
  	--without-cap \
 diff --git a/net/asterisk-13.x/Makefile b/net/asterisk-13.x/Makefile
-index 5cf80cf..c104dc9 100644
+index 5cf80cf..c501878 100644
 --- a/net/asterisk-13.x/Makefile
 +++ b/net/asterisk-13.x/Makefile
 @@ -182,6 +182,9 @@ EXTRA_CFLAGS+=$(TARGET_CPPFLAGS)
  EXTRA_LDFLAGS+=$(TARGET_LDFLAGS) -Wl,-rpath-link,$(STAGING_DIR)/usr/lib
  
  CONFIGURE_ARGS+= \
-+	--build=$(GNU_HOST_NAME) \
++	--build=$(GNU_TARGET_NAME) \
 +	--host=$(GNU_HOST_NAME) \
 +	--target=$(GNU_TARGET_NAME) \
  	--without-execinfo \

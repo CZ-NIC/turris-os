@@ -1,3 +1,6 @@
+* ucollect-fake: Alternative telnet port 2323
+* bash: Enabled job control (jobs, fg, bg, disown, ...)
+* reptyr: New  package.
 * nuci: Delayed updates support (for updater-ng)
 * ucollect-fake: http server support
 * nethist: Don't leave multiple instances running

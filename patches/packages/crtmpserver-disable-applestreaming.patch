@@ -1,0 +1,54 @@
+From 3f1854ead548ece9e677a3bd6533bf2d0e14cca8 Mon Sep 17 00:00:00 2001
+From: Michal Hrusecky <michal.hrusecky@nic.cz>
+Date: Fri, 30 Sep 2016 14:14:33 +0200
+Subject: [PATCH] fix build
+
+---
+ multimedia/crtmpserver/Makefile                              |  4 ++--
+ .../crtmpserver/patches/080-disable-apple-streaming.patch    | 12 ++++++++++++
+ 2 files changed, 14 insertions(+), 2 deletions(-)
+ create mode 100644 multimedia/crtmpserver/patches/080-disable-apple-streaming.patch
+
+diff --git a/multimedia/crtmpserver/Makefile b/multimedia/crtmpserver/Makefile
+index 972fff8..88cd5be 100644
+--- a/multimedia/crtmpserver/Makefile
++++ b/multimedia/crtmpserver/Makefile
+@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
+ PKG_NAME:=crtmpserver
+ PKG_REV:=b6fdcdb
+ PKG_VERSION:=2012-07-18+git-$(PKG_REV)
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ PKG_BUILD_PARALLEL:=2
+ PKG_MAINTAINER:=Thomas Heil <heil@terminal-consulting.de>
+ PKG_LICENSE:=GPL-3.0
+@@ -73,7 +73,7 @@ endef
+ 
+ define Build/Compile
+ 	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR)/builders/make \
+-		PLATFORM=linux-openwrt-uclibc -Wno-error -j6
++		PLATFORM=$(GNU_TARGET_NAME) -Wno-error -j6
+ endef
+ 
+ define Package/crtmpserver/install
+diff --git a/multimedia/crtmpserver/patches/080-disable-apple-streaming.patch b/multimedia/crtmpserver/patches/080-disable-apple-streaming.patch
+new file mode 100644
+index 0000000..cde14fe
+--- /dev/null
++++ b/multimedia/crtmpserver/patches/080-disable-apple-streaming.patch
+@@ -0,0 +1,12 @@
++--- a/builders/make/apps.mk
+++++ b/builders/make/apps.mk
++@@ -110,6 +110,6 @@ vptests: thelib $(VPTESTS_OBJS)
++ %.vptests.o: %.cpp
++ 	$(CXXCOMPILER) $(COMPILE_FLAGS) $(DEFINES) $(VPTESTS_INCLUDE) -c $< -o $@
++ 
++-ALL_APPS_OBJS= $(ADMIN_OBJS) $(APPLESTREAMINGCLIENT_OBJS) $(APPSELECTOR_OBJS) $(FLVPLAYBACK_OBJS) $(PROXYPUBLISH_OBJS) $(SAMPLEFACTORY_OBJS) $(STRESSTEST_OBJS) $(VPTESTS_OBJS)
++-ACTIVE_APPS= -DHAS_APP_ADMIN -DHAS_APP_APPLESTREAMINGCLIENT -DHAS_APP_APPSELECTOR -DHAS_APP_FLVPLAYBACK -DHAS_APP_PROXYPUBLISH -DHAS_APP_SAMPLEFACTORY -DHAS_APP_STRESSTEST -DHAS_APP_VPTESTS
++-applications: thelib admin applestreamingclient appselector flvplayback proxypublish samplefactory stresstest vptests
+++ALL_APPS_OBJS= $(ADMIN_OBJS) $(APPSELECTOR_OBJS) $(FLVPLAYBACK_OBJS) $(PROXYPUBLISH_OBJS) $(SAMPLEFACTORY_OBJS) $(STRESSTEST_OBJS) $(VPTESTS_OBJS)
+++ACTIVE_APPS= -DHAS_APP_ADMIN -DHAS_APP_APPSELECTOR -DHAS_APP_FLVPLAYBACK -DHAS_APP_PROXYPUBLISH -DHAS_APP_SAMPLEFACTORY -DHAS_APP_STRESSTEST -DHAS_APP_VPTESTS
+++applications: thelib admin appselector flvplayback proxypublish samplefactory stresstest vptests
+-- 
+2.10.0
+

@@ -1,0 +1,12 @@
+diff --git a/libs/libcanfestival/Makefile b/libs/libcanfestival/Makefile
+index 6d9ce49..f7c1c2d 100644
+--- a/libs/libcanfestival/Makefile
++++ b/libs/libcanfestival/Makefile
+@@ -46,6 +46,7 @@ CONFIGURE_ARGS := \
+ 	--arch=$(ARCH) \
+ 	--os=Linux \
+ 	--kerneldir=$(LINUX_DIR) \
++	--binutils=$(GNU_TARGET_NAME)- \
+ 	--prefix=/usr \
+ 	--target=unix \
+ 	--can=socket \

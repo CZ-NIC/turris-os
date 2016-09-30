@@ -1,0 +1,13 @@
+diff --git a/devel/lttng-tools/Makefile b/devel/lttng-tools/Makefile
+index e52c529..27717ed 100644
+--- a/devel/lttng-tools/Makefile
++++ b/devel/lttng-tools/Makefile
+@@ -34,7 +34,7 @@ define Package/lttng-tools
+   DEPENDS:= +lttng-ust +libpopt +libxml2
+ endef
+ 
+-CONFIGURE_ARGS += --disable-kmod
++CONFIGURE_ARGS += --disable-kmod --disable-lttng-ust
+ 
+ TARGET_LDFLAGS += -lurcu-bp
+ 

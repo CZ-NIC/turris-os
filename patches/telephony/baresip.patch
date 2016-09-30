@@ -1,0 +1,15 @@
+diff --git a/net/baresip/Makefile b/net/baresip/Makefile
+index ed070f1..6a5c3dd 100644
+--- a/net/baresip/Makefile
++++ b/net/baresip/Makefile
+@@ -141,8 +141,8 @@ endef
+ $(eval $(call BuildPackage,baresip))
+ 
+ $(eval $(call BuildPlugin,alsa,ALSA audio driver,alsa,+PACKAGE_baresip-mod-alsa:alsa-lib))
+-$(eval $(call BuildPlugin,avcodec,FFmpeg video codecs,avcodec,+PACKAGE_baresip-mod-avcodec:libffmpeg-full))
+-$(eval $(call BuildPlugin,avformat,FFmpeg video source,avformat,+PACKAGE_baresip-mod-avformat:libffmpeg-full))
++$(eval $(call BuildPlugin,avcodec,FFmpeg video codecs,avcodec,+PACKAGE_baresip-mod-avcodec:libffmpeg-full +PACKAGE_baresip-mod-avcodec:libx264))
++$(eval $(call BuildPlugin,avformat,FFmpeg video source,avformat,+PACKAGE_baresip-mod-avformat:libffmpeg-full +PACKAGE_baresip-mod-avformat:libx264))
+ $(eval $(call BuildPlugin,cons,console UI,cons,))
+ $(eval $(call BuildPlugin,dtmfio,DTMF input/output,dtmfio,))
+ $(eval $(call BuildPlugin,evdev,input event device UI,evdev,))

@@ -85,8 +85,8 @@ cat >> base.lua << EOF
 
 -- Make sure the updater is up to date before continuing
 Package 'opkg-trans' { replan = true }
-Install 'opkg-trans' 'updater-ng'
-Install 'userlists' { ignore = { 'missing' } }
+Install 'opkg-trans' 'updater-ng' { critical = true }
+Install 'userlists' { critical = true }
 
 -- Install everything that was in the image
 EOF
@@ -239,9 +239,9 @@ else
 	OPKG_STATUS="`ls -1d bin-nand/*/root/usr/lib/opkg/status`"
 fi
 
-echo Install $(sed -n 's|Package: \(.*\)|"\1"|p' $OPKG_STATUS | egrep -v '"updater(|-deps|-conolidator)"') " { ignore = { 'missing' } }" >> base.lua
-[ \! -f "lists/base_add" ]               || echo Install $(cat "lists/base_add.$TARGET_BOARD" | sed 's|^\([^#]\+\)$|"\1"|') " { ignore = { 'missing' } }" >> base.lua
-[ \! -f "lists/base_add.$TARGET_BOARD" ] || echo Install $(cat "lists/base_add.$TARGET_BOARD" | sed 's|^\([^#]\+\)$|"\1"|') " { ignore = { 'missing' } }" >> base.lua
+echo Install $(sed -n 's|Package: \(.*\)|"\1"|p' $OPKG_STATUS | egrep -v '"updater(|-deps|-consolidator)"') " { critical = true }" >> base.lua
+[ \! -f "lists/base_add" ]               || echo Install $(cat "lists/base_add.$TARGET_BOARD" | sed 's|^\([^#]\+\)$|"\1"|') " { critical = true }" >> base.lua
+[ \! -f "lists/base_add.$TARGET_BOARD" ] || echo Install $(cat "lists/base_add.$TARGET_BOARD" | sed 's|^\([^#]\+\)$|"\1"|') " { critical = true }" >> base.lua
 mv base.lua $PUB_BIN_DIR/lists
 for i in lists/*.list; do
 	[ "$i" = lists/base.list ] || rm -f $PUB_BIN_DIR/lists/$(basename $i .list).lua

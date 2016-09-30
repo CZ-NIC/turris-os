@@ -11,7 +11,7 @@ include $(INCLUDE_DIR)/kernel.mk
 PKG_NAME:=mac80211
 
 PKG_VERSION:=2016-06-20
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 PKG_SOURCE_URL:=http://mirror2.openwrt.org/sources
 PKG_BACKPORT_VERSION:=
 PKG_MD5SUM:=29c79bdc3928ef5113b17042ebda9237
@@ -28,6 +28,7 @@ PKG_DRIVERS = \
 	ath ath5k ath9k ath9k-common ath9k-htc ath10k \
 	b43 b43legacy \
 	carl9170 \
+	esp8089 \
 	hermes hermes-pci hermes-pcmcia hermes-plx\
 	iwl-legacy iwl3945 iwl4965 iwlwifi \
 	lib80211 \
@@ -1448,6 +1449,7 @@ config-y:= \
 	MAC80211_RC_MINSTREL_HT \
 	MAC80211_RC_MINSTREL_VHT \
 	MAC80211_RC_DEFAULT_MINSTREL \
+	ESP8089 \
 	WLAN_VENDOR_ADMTEK \
 	WLAN_VENDOR_ATH \
 	WLAN_VENDOR_ATMEL \
@@ -1766,6 +1768,7 @@ $(eval $(call KernelPackage,brcmfmac))
 $(eval $(call KernelPackage,brcmutil))
 $(eval $(call KernelPackage,carl9170))
 $(eval $(call KernelPackage,cfg80211))
+#$(eval $(call KernelPackage,esp8089))
 $(eval $(call KernelPackage,hermes))
 $(eval $(call KernelPackage,hermes-pci))
 $(eval $(call KernelPackage,hermes-plx))
