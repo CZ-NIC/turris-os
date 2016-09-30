@@ -1,0 +1,13 @@
+diff --git a/lang/pillow/Makefile b/lang/pillow/Makefile
+index 32e0444..7aab460 100644
+--- a/lang/pillow/Makefile
++++ b/lang/pillow/Makefile
+@@ -29,7 +29,7 @@ define Package/pillow
+     TITLE:=The friendly PIL fork
+     MAINTAINER:=Gergely Kiss <mail.gery@gmail.com>
+     URL:=https://www.pillowproject.com/
+-    DEPENDS:=+python +libfreetype +libjpeg +zlib +libtiff
++    DEPENDS:=+python +libfreetype +libjpeg +zlib +libtiff +liblcms2
+ endef
+ 
+ define Package/pillow/description
