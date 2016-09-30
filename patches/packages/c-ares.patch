@@ -1,0 +1,59 @@
+From 745f715965de1cf45a732cca0b2b444c165b25cb Mon Sep 17 00:00:00 2001
+From: Michal Hrusecky <michal.hrusecky@nic.cz>
+Date: Fri, 30 Sep 2016 14:34:36 +0200
+Subject: [PATCH] c-ares: Add missing include
+
+---
+ libs/c-ares/Makefile                              |  2 +-
+ libs/c-ares/patches/010-add-missing-include.patch | 26 +++++++++++++++++++++++
+ 2 files changed, 27 insertions(+), 1 deletion(-)
+ create mode 100644 libs/c-ares/patches/010-add-missing-include.patch
+
+diff --git a/libs/c-ares/Makefile b/libs/c-ares/Makefile
+index ec822f5..16e4bed 100644
+--- a/libs/c-ares/Makefile
++++ b/libs/c-ares/Makefile
+@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=c-ares
+ PKG_VERSION:=1.11.0
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ PKG_LICENSE:=MIT
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+diff --git a/libs/c-ares/patches/010-add-missing-include.patch b/libs/c-ares/patches/010-add-missing-include.patch
+new file mode 100644
+index 0000000..11a7612
+--- /dev/null
++++ b/libs/c-ares/patches/010-add-missing-include.patch
+@@ -0,0 +1,26 @@
++From 473658aef78b14f064a331d1e1bba0977a7841a5 Mon Sep 17 00:00:00 2001
++From: Ben Noordhuis <info@bnoordhuis.nl>
++Date: Thu, 16 Jun 2011 00:49:18 +0200
++Subject: [PATCH] Include sys/time.h for fd_set.
++MIME-Version: 1.0
++Content-Type: text/plain; charset=UTF-8
++Content-Transfer-Encoding: 8bit
++
++Fixes 'ares.h:387: error: expected declaration specifiers or ‘...’
++before ‘fd_set’' when compiling with `gcc -ansi`.
++---
++ ares.h | 1 +
++ 1 file changed, 1 insertion(+)
++
++diff --git a/ares.h b/ares.h
++index 2b38303..8949885 100644
++--- a/ares.h
+++++ b/ares.h
++@@ -31,6 +31,7 @@
++ #  define WIN32
++ #endif
++ 
+++#include <sys/time.h>
++ #include <sys/types.h>
++ 
++ /* HP-UX systems version 9, 10 and 11 lack sys/select.h and so does oldish
+-- 
+2.10.0
+
