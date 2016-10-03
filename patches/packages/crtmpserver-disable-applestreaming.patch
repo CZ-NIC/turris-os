@@ -22,15 +22,6 @@ index 972fff8..88cd5be 100644
  PKG_BUILD_PARALLEL:=2
  PKG_MAINTAINER:=Thomas Heil <heil@terminal-consulting.de>
  PKG_LICENSE:=GPL-3.0
-@@ -73,7 +73,7 @@ endef
- 
- define Build/Compile
- 	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR)/builders/make \
--		PLATFORM=linux-openwrt-uclibc -Wno-error -j6
-+		PLATFORM=$(GNU_TARGET_NAME) -Wno-error -j6
- endef
- 
- define Package/crtmpserver/install
 diff --git a/multimedia/crtmpserver/patches/080-disable-apple-streaming.patch b/multimedia/crtmpserver/patches/080-disable-apple-streaming.patch
 new file mode 100644
 index 0000000..cde14fe
