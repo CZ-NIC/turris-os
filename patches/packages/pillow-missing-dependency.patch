@@ -7,7 +7,7 @@ index 32e0444..7aab460 100644
      MAINTAINER:=Gergely Kiss <mail.gery@gmail.com>
      URL:=https://www.pillowproject.com/
 -    DEPENDS:=+python +libfreetype +libjpeg +zlib +libtiff
-+    DEPENDS:=+python +libfreetype +libjpeg +zlib +libtiff +liblcms2
++    DEPENDS:=+python +libfreetype +libjpeg +zlib +libtiff +lcms2
  endef
  
  define Package/pillow/description
