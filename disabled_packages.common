@@ -2,5 +2,6 @@ eudev  # conflicts with udev
 libinput # doesn't make sense on Turris
 flashrom # doesn't make sense on Turris
 usbip # depends on eudev
+batmand # needs complete repackaging
 python-cffi
 python-cryptography # depends on python-cffi
