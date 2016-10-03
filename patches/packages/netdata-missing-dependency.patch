@@ -1,0 +1,13 @@
+diff --git a/admin/netdata/Makefile b/admin/netdata/Makefile
+index e88221e..95263eb 100644
+--- a/admin/netdata/Makefile
++++ b/admin/netdata/Makefile
+@@ -28,7 +28,7 @@ include $(INCLUDE_DIR)/package.mk
+ define Package/netdata
+   SECTION:=admin
+   CATEGORY:=Administration
+-  DEPENDS:=+zlib
++  DEPENDS:=+zlib +USE_UCLIBC:libpthread
+   TITLE:=Real-time performance monitoring tool
+   URL:=http://netdata.firehol.org/
+ endef

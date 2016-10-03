@@ -1,0 +1,13 @@
+diff --git a/libyang/Makefile b/libyang/Makefile
+index 9f30f11..b921d1f 100644
+--- a/libyang/Makefile
++++ b/libyang/Makefile
+@@ -31,7 +31,7 @@ define Package/libyang
+   CATEGORY:=Libraries
+   TITLE:=YANG data modeling language library
+   URL:=https://github.com/CESNET/libyang
+-  DEPENDS:=+libpcre
++  DEPENDS:=+libpcre +USE_UCLIBC:libpthread
+ endef
+ 
+ define Package/yanglint
