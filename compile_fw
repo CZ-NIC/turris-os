@@ -192,7 +192,7 @@ mkdir -p $PUB_BIN_DIR/lists
 echo Install $(sed -n 's|Package: \(.*\)|"\1"|p' bin/*/root/usr/lib/opkg/status | grep -v '"updater"' | grep -v '"updater-deps"' ) >> base.lua
 [ \! -f "lists/base_add" ]               || echo Install $(cat "lists/base_add.$TARGET_BOARD" | sed 's|^\([^#]\+\)$|"\1|') >> base.lua
 [ \! -f "lists/base_add.$TARGET_BOARD" ] || echo Install $(cat "lists/base_add.$TARGET_BOARD" | sed 's|^\([^#]\+\)$|"\1|') >> base.lua
-mv base.lua $PUB_BIN_DIR/lists
+cp lists/base.lua $PUB_BIN_DIR/lists
 for i in lists/*.list; do
 	[ "$i" = lists/base.list ] || rm -f $PUB_BIN_DIR/lists/$(basename $i .list).lua
 	echo -n "Install" >> $PUB_BIN_DIR/lists/$(basename $i .list).lua
