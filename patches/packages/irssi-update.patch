@@ -47,6 +47,17 @@ index 0000000..0b34bb2
 + void term_clrtoeol(TERM_WINDOW *window);
 + 
 + void term_move_cursor(int x, int y);
++@@ -94,8 +94,10 @@ void term_refresh(TERM_WINDOW *window);
++ 
++ void term_stop(void);
++ 
+++#ifdef USE_CURSES
++ void term_set_appkey_mode(int enable);
++ void term_set_bracketed_paste_mode(int enable);
+++#endif
++ 
++ /* keyboard input handling */
++ void term_set_input_type(int type);
 +--- a/src/fe-text/term-curses.c
 ++++ b/src/fe-text/term-curses.c
 +@@ -335,9 +335,13 @@ void term_add_unichar(TERM_WINDOW *windo
@@ -64,6 +75,21 @@ index 0000000..0b34bb2
 + }
 + 
 + void term_clrtoeol(TERM_WINDOW *window)
++--- a/src/fe-text/gui-readline.c
+++++ b/src/fe-text/gui-readline.c
++@@ -1039,9 +1039,12 @@ static void setup_changed(void)
++       paste_join_multiline = settings_get_bool("paste_join_multiline");
++       paste_use_bracketed_mode = settings_get_bool("paste_use_bracketed_mode");
++ 
+++#ifdef USE_CURSES
++       term_set_appkey_mode(settings_get_bool("term_appkey_mode"));
++       /* Enable the bracketed paste mode on demand */
++       term_set_bracketed_paste_mode(paste_use_bracketed_mode);
+++#endif
+++
++ }
++ 
++ void gui_readline_init(void)
 -- 
 2.10.0
 
