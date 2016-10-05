@@ -1,0 +1,43 @@
+From f12463cc1f3e7bb1189699aa30130a68ded14af4 Mon Sep 17 00:00:00 2001
+From: Michal Hrusecky <michal.hrusecky@nic.cz>
+Date: Wed, 5 Oct 2016 14:30:51 +0200
+Subject: [PATCH 21/21] arp-scan: Disable stack protector
+
+---
+ net/arp-scan/Makefile                                  |  2 ++
+ net/arp-scan/patches/002-disable-stack-protector.patch | 10 ++++++++++
+ 2 files changed, 12 insertions(+)
+ create mode 100644 net/arp-scan/patches/002-disable-stack-protector.patch
+
+diff --git a/net/arp-scan/Makefile b/net/arp-scan/Makefile
+index 78e8412..0fc0938 100644
+--- a/net/arp-scan/Makefile
++++ b/net/arp-scan/Makefile
+@@ -5,6 +5,8 @@
+ # See /LICENSE for more information.
+ #
+ 
++PKG_RELRO_FULL:=0
++
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=arp-scan
+diff --git a/net/arp-scan/patches/002-disable-stack-protector.patch b/net/arp-scan/patches/002-disable-stack-protector.patch
+new file mode 100644
+index 0000000..84753d5
+--- /dev/null
++++ b/net/arp-scan/patches/002-disable-stack-protector.patch
+@@ -0,0 +1,10 @@
++--- a/configure.ac
+++++ b/configure.ac
++@@ -34,7 +34,6 @@ if test -n "$GCC"; then
++              [Define to the compiler's unused pragma])
++    CFLAGS="$CFLAGS -Wall -Wshadow -Wwrite-strings"
++    GCC_WEXTRA
++-   GCC_STACK_PROTECT_CC
++    GCC_FORTIFY_SOURCE
++    GCC_FORMAT_SECURITY
++ dnl Uncomment the line below to compile with additional warnings enabled.
+-- 
+2.10.0
+
