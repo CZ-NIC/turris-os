@@ -1,7 +1,7 @@
-From 605aa4a1358ba55ea5108965abf37329079b7864 Mon Sep 17 00:00:00 2001
+From 72562134d09b1f6880db214772b8d646c9be0304 Mon Sep 17 00:00:00 2001
 From: Michal Hrusecky <michal.hrusecky@nic.cz>
-Date: Fri, 30 Sep 2016 10:16:55 +0200
-Subject: [PATCH] Updated irssi package
+Date: Wed, 5 Oct 2016 08:00:21 +0200
+Subject: [PATCH] irssi
 
 ---
  net/irssi/Makefile                       |  8 ++++----
@@ -32,7 +32,7 @@ index 3fbfef1..c989cf3 100644
  PKG_INSTALL:=1
 diff --git a/net/irssi/patches/wrong-definition.patch b/net/irssi/patches/wrong-definition.patch
 new file mode 100644
-index 0000000..0b34bb2
+index 0000000..a162198
 --- /dev/null
 +++ b/net/irssi/patches/wrong-definition.patch
 @@ -0,0 +1,28 @@
@@ -64,32 +64,6 @@ index 0000000..0b34bb2
 +         waddch(window->win, chr);
 + }
 + 
-+-void term_addstr(TERM_WINDOW *window, const char *str)
-++int term_addstr(TERM_WINDOW *window, const char *str)
-+ {
-++	int y1,x1,y2,x2;
-++	getyx(window->win,y1,x1);
-+         waddstr(window->win, (const char *) str);
-++	getyx(window->win,y2,x2);
-++	return x2 - x1;
-+ }
-+ 
-+ void term_clrtoeol(TERM_WINDOW *window)
-+--- a/src/fe-text/gui-readline.c
-++++ b/src/fe-text/gui-readline.c
-+@@ -1039,9 +1039,12 @@ static void setup_changed(void)
-+       paste_join_multiline = settings_get_bool("paste_join_multiline");
-+       paste_use_bracketed_mode = settings_get_bool("paste_use_bracketed_mode");
-+ 
-++#ifdef USE_CURSES
-+       term_set_appkey_mode(settings_get_bool("term_appkey_mode"));
-+       /* Enable the bracketed paste mode on demand */
-+       term_set_bracketed_paste_mode(paste_use_bracketed_mode);
-++#endif
-++
-+ }
-+ 
-+ void gui_readline_init(void)
 -- 
 2.10.0
 
