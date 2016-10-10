@@ -1,0 +1,12 @@
+diff --git a/net/freeradius2/Makefile b/net/freeradius2/Makefile
+index 2c87dbb..bd516dd 100644
+--- a/net/freeradius2/Makefile
++++ b/net/freeradius2/Makefile
+@@ -442,6 +442,7 @@ ifneq ($(SDK)$(CONFIG_PACKAGE_freeradius2-mod-sql-pgsql),)
+   CONFIGURE_ARGS+= \
+ 		--with-rlm_sql_postgresql-include-dir="$(STAGING_DIR)/usr/include" \
+ 		--with-rlm_sql_postgresql-lib-dir="$(STAGING_DIR)/usr/lib"
++  CONFIGURE_LIBS+= -lm
+ else
+   CONFIGURE_ARGS+= --without-rlm_sql_postgresql
+ endif
