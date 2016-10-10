@@ -27,10 +27,20 @@ new file mode 100644
 index 0000000..b185a6d
 --- /dev/null
 +++ b/net/https-dns-proxy/patches/010-no-u_char.patch
-@@ -0,0 +1,11 @@
+@@ -0,0 +1,21 @@
++@@ -1,5 +1,9 @@
++ #include <sys/types.h>
++
+++typedef __u_char u_char;
+++typedef __u_long u_long;
+++typedef __u_int u_int;
+++
++ #include <arpa/inet.h>
++ #include <arpa/nameser.h>
++ #include <errno.h>
 +--- a/src/json_to_dns.c
 ++++ b/src/json_to_dns.c
-+@@ -211,7 +211,7 @@ int json_to_rdata(uint16_t type, char *d
++@@ -211,7 +215,7 @@ int json_to_rdata(uint16_t type, char *d
 +       int l = e - s;
 +       if (l > 255)
 +         l = 255;
@@ -39,6 +49,22 @@ index 0000000..b185a6d
 +       memcpy(pos, s, l);
 +       s += l;
 +       pos += l;
+diff --git a/net/https-dns-proxy/patches/020-more-includes.patch b/net/https-dns-proxy/patches/020-more-includes.patch
+new file mode 100644
+index 0000000..b185a6d
+--- /dev/null
++++ b/net/https-dns-proxy/patches/020-more-includes.patch
+@@ -0,0 +1,10 @@
++--- a/src/options.c
+++++ b/src/options.c
++@@ -9,6 +9,7 @@
++ #include <stdlib.h>
++ #include <string.h>
++ #include <unistd.h>
+++#include <getopt.h>
++ 
++ #include "logging.h"
++ #include "options.h"
 -- 
 2.10.0
 
