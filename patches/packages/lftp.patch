@@ -1,0 +1,18 @@
+diff --git a/net/lftp/patches/no-assert.patch b/net/lftp/patches/no-assert.patch
+new file mode 100644
+index 0000000..43b97a0
+--- /dev/null
++++ b/net/lftp/patches/no-assert.patch
+@@ -0,0 +1,12 @@
++--- a/src/Http.cc
+++++ b/src/Http.cc
++@@ -1919,7 +1919,8 @@ int Http::Do()
++    return m;
++ 
++ system_error:
++-   assert(saved_errno!=0);
+++   if(saved_errno==0)
+++      exit(-1);
++    if(NonFatalError(saved_errno))
++       return m;
++    SetError(SEE_ERRNO,0);
