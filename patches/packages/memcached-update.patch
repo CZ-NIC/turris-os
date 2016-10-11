@@ -1,0 +1,44 @@
+From b6d1a461f447d6bf57d06e658719b051b416e5f8 Mon Sep 17 00:00:00 2001
+From: Michael Heimpold <mhei@heimpold.de>
+Date: Tue, 6 Sep 2016 23:17:43 +0200
+Subject: [PATCH] memcached: upgrade to 1.4.31
+
+This should also fix the build errors, which are reported by
+LEDE buildbots, e.g. at:
+https://downloads.lede-project.org/snapshots/faillogs/arm_cortex-a7_neon-vfpv4/packages/memcached/compile.txt
+
+While at, also fix the licensing information.
+
+Signed-off-by: Michael Heimpold <mhei@heimpold.de>
+---
+ net/memcached/Makefile | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/net/memcached/Makefile b/net/memcached/Makefile
+index 0bad81b..bd5267a 100644
+--- a/net/memcached/Makefile
++++ b/net/memcached/Makefile
+@@ -9,15 +9,19 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=memcached
+-PKG_VERSION:=1.4.26
++PKG_VERSION:=1.4.31
+ PKG_RELEASE:=1
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://memcached.org/files
+-PKG_MD5SUM:=59b7bbfbc9cde5731bf4446e1e37b440
+-PKG_INSTALL:=1
++PKG_MD5SUM:=c19bb0e77e720f64f33ecb43de28a1b4
++
+ PKG_MAINTAINER:=Thomas Heil <heil@terminal-consulting.de>
+-PKG_LICENSE:=permissive free software license
++
++PKG_LICENSE:=BSD-3-Clause
++PKG_LICENSE_FILES:=COPYING
++
++PKG_INSTALL:=1
+ 
+ include $(INCLUDE_DIR)/package.mk
+ 
