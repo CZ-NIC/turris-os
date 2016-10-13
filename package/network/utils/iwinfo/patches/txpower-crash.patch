@@ -1,0 +1,61 @@
+diff --git a/iwinfo_cli.c b/iwinfo_cli.c
+index aab6ae6..dcfdb69 100644
+--- a/iwinfo_cli.c
++++ b/iwinfo_cli.c
+@@ -611,25 +611,26 @@ static void print_scanlist(const struct iwinfo_ops *iw, const char *ifname)
+ 
+ static void print_txpwrlist(const struct iwinfo_ops *iw, const char *ifname)
+ {
+-	int len, pwr, off, i;
++	int len = 0, pwr, off, i;
++	printf("%s: %d\n", __FILE__, __LINE__); fflush(NULL);
+ 	char buf[IWINFO_BUFSIZE];
+ 	struct iwinfo_txpwrlist_entry *e;
+ 
+ 	if (iw->txpwrlist(ifname, buf, &len) || len <= 0)
+ 	{
+ 		printf("No TX power information available\n");
+ 		return;
+ 	}
+ 
+ 	if (iw->txpower(ifname, &pwr))
+ 		pwr = -1;
+ 
+ 	if (iw->txpower_offset(ifname, &off))
+ 		off = 0;
+ 
+ 	for (i = 0; i < len; i += sizeof(struct iwinfo_txpwrlist_entry))
+ 	{
+-		e = (struct iwinfo_txpwrlist_entry *) &buf[i];
++		e = (struct iwinfo_txpwrlist_entry *) (buf + i);
+ 
+ 		printf("%s%3d dBm (%4d mW)\n",
+ 			(pwr == e->dbm) ? "*" : " ",
+diff --git a/iwinfo_nl80211.c b/iwinfo_nl80211.c
+index 63b70d5..71b3652 100644
+--- a/iwinfo_nl80211.c
++++ b/iwinfo_nl80211.c
+@@ -1861,8 +1861,13 @@ static int nl80211_get_txpwrlist_cb(struct nl_msg *msg, void *arg)
+ 			nla_parse(freqs, NL80211_FREQUENCY_ATTR_MAX,
+ 			          nla_data(freq), nla_len(freq), freq_policy);
+ 
+-			ch_cmp = nl80211_freq2channel(nla_get_u32(
+-				freqs[NL80211_FREQUENCY_ATTR_FREQ]));
++			if (!freqs[NL80211_FREQUENCY_ATTR_FREQ] ||
++			    freqs[NL80211_FREQUENCY_ATTR_DISABLED])
++				continue;
++
++
++			ch_cmp = nla_get_u32(freqs[NL80211_FREQUENCY_ATTR_FREQ]);
++			ch_cmp = nl80211_freq2channel(ch_cmp);
+ 
+ 			if ((!ch_cur || (ch_cmp == ch_cur)) &&
+ 			    freqs[NL80211_FREQUENCY_ATTR_MAX_TX_POWER])
+@@ -1884,6 +1889,7 @@ static int nl80211_get_txpwrlist(const char *ifname, char *buf, int *len)
+ 	int dbm_max = -1, dbm_cur, dbm_cnt;
+ 	struct nl80211_msg_conveyor *req;
+ 	struct iwinfo_txpwrlist_entry entry;
++	*len = 0;
+ 
+ 	if (nl80211_get_channel(ifname, &ch_cur))
+ 		ch_cur = 0;
