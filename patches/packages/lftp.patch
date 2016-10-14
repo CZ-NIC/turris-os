@@ -1,6 +1,51 @@
+From b7edd3599e5a0a2c8334b43e5769637fd2ab5220 Mon Sep 17 00:00:00 2001
+From: Michal Hrusecky <michal.hrusecky@nic.cz>
+Date: Fri, 14 Oct 2016 14:55:05 +0200
+Subject: [PATCH] lftp: Fix compilation against uClibc
+
+---
+ net/lftp/Makefile                | 10 ++++++----
+ net/lftp/patches/no-assert.patch | 12 ++++++++++++
+ 2 files changed, 18 insertions(+), 4 deletions(-)
+ create mode 100644 net/lftp/patches/no-assert.patch
+
+diff --git a/net/lftp/Makefile b/net/lftp/Makefile
+index 7a59c05..22b28c2 100644
+--- a/net/lftp/Makefile
++++ b/net/lftp/Makefile
+@@ -8,16 +8,14 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=lftp
+-PKG_VERSION:=4.7.1
++PKG_VERSION:=4.7.3
+ PKG_RELEASE:=1
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+ PKG_SOURCE_URL:=http://lftp.yar.ru/ftp \
+ 		http://lftp.yar.ru/ftp/old \
+ 		http://lftp.cybermirror.org \
+ 		http://lftp.cybermirror.org/old
+-PKG_MD5SUM:=7dfb03c6544efeef633bc28ba7df8b77
+-
+-
++PKG_MD5SUM:=23deda16014412c802f095fbaa0bebee
+ 
+ PKG_LICENSE:=GPL-3.0+
+ PKG_LICENSE_FILES:=COPYING
+@@ -54,6 +52,10 @@ Other low level stuff supported: ftp proxy, http proxy, ftp over http, opie/skey
+ LFTP supports secure versions of the protocols FTP and HTTP: FTPS (explicit and implicit) and HTTPS. LFTP needs to be linked with an SSL library to support them. GNU TLS and OpenSSL are both supported as SSL backend.
+ endef
+ 
++ifdef CONFIG_LIBC_USE_UCLIBC
++TARGET_CXXFLAGS += -D_FORTIFY_SOURCE=0
++endif
++
+ CONFIGURE_ARGS += \
+ 	--without-libiconv-prefix \
+ 	--without-libintl-prefix \
 diff --git a/net/lftp/patches/no-assert.patch b/net/lftp/patches/no-assert.patch
 new file mode 100644
-index 0000000..43b97a0
+index 0000000..316e735
 --- /dev/null
 +++ b/net/lftp/patches/no-assert.patch
 @@ -0,0 +1,12 @@
@@ -16,3 +61,6 @@ index 0000000..43b97a0
 +    if(NonFatalError(saved_errno))
 +       return m;
 +    SetError(SEE_ERRNO,0);
+-- 
+2.10.1
+
