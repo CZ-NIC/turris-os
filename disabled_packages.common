@@ -5,3 +5,22 @@ usbip # depends on eudev
 batmand # needs complete repackaging
 python-cffi
 python-cryptography # depends on python-cffi
+# packages we gave on fixing right now and should be rechecked later
+kamailio-4.x
+asterisk-13.x
+asterisk-11.x-chan-dongle
+asterisk-11.x
+asterisk-g72x
+chan-sccp-b
+gcc
+elektra
+libextractor
+qemu
+lcdgrilo
+grilo-plugins
+hamlib
+netopeer2-server
+sysrepo
+libmraa
+libupm
+freeswitch
