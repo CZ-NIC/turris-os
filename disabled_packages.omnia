@@ -1,4 +1,5 @@
 mwlwifi
 reiserfsprogs
 mt-st
-subversion
+subversion-server
+subversion-client
