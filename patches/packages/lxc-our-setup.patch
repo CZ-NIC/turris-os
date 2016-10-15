@@ -7,7 +7,7 @@ index 0df1460..28e1703 100644
  PKG_NAME:=lxc
  PKG_VERSION:=1.1.5
 -PKG_RELEASE:=3
-+PKG_RELEASE:=5
++PKG_RELEASE:=6
  
  PKG_LICENSE:=LGPL-2.1+ BSD-2-Clause GPL-2.0
  PKG_MAINTAINER:=Luka Perkov <luka@openwrt.org>
@@ -118,7 +118,7 @@ index 210f030..b1d16a4 100644
    SUBMENU:=3. Applications
    TITLE:=LXC management Web UI
 -  DEPENDS:=+luci-mod-admin-full +lxc +lxc-create +liblxc +rpcd-mod-lxc
-+  DEPENDS:=+luci-mod-admin-full +lxc +lxc-create +liblxc +rpcd-mod-lxc +getopt +xz +gnupg +gnupg-utils
++  DEPENDS:=+luci-mod-admin-full +lxc +lxc-create +liblxc +rpcd-mod-lxc +getopt +xz +gnupg +gnupg-utils +ethtool
    MAINTAINER:=Petar Koretic <petar.koretic@sartura.hr>
  endef
  
@@ -127,18 +127,61 @@ new file mode 100644
 index 0000000..6842ea4
 --- /dev/null
 +++ b/utils/lxc/patches/040-better-default.patch
-@@ -0,0 +1,12 @@
+@@ -0,0 +1,14 @@
 +Index: lxc-1.1.5/config/etc/default.conf.unknown
 +===================================================================
 +--- lxc-1.1.5.orig/config/etc/default.conf.unknown
 ++++ lxc-1.1.5/config/etc/default.conf.unknown
-+@@ -1 +1,6 @@
++@@ -1 +1,8 @@
 +-lxc.network.type = empty
 ++lxc.network.type = veth
 ++lxc.network.link = br-lan
 ++lxc.network.flags = up
 ++lxc.network.name = eth0
+++# Debian workaround
+++lxc.network.script.up = /usr/share/lxc/hooks/tx-off
 ++lxc.tty = 4
 ++lxc.pts = 1024
+diff --git a/utils/lxc/files/hooks/tx-off b/utils/lxc/files/hooks/tx-off
+new file mode 100644
+index 0000000..6842ea4
+--- /dev/null
++++ b/utils/lxc/files/hooks/tx-off
+@@ -0,0 +1,2 @@
++#!/bin/sh
++[ -z "$5" ] || ethtool -K "$5" tx off
+diff --git a/utils/lxc/patches/050-tx-off.patch b/utils/lxc/patches/050-tx-off.patch
+new file mode 100644
+index 0000000..6842ea4
+@@ -0,0 +1,27 @@
++--- /dev/null
+++++ b/utils/lxc/patches/050-tx-off.patch
++Index: lxc-1.1.5/hooks/Makefile.am
++===================================================================
++--- lxc-1.1.5.orig/hooks/Makefile.am
+++++ lxc-1.1.5/hooks/Makefile.am
++@@ -4,6 +4,7 @@ hooks_SCRIPTS = \
++ 	clonehostname \
++ 	mountecryptfsroot \
++ 	ubuntu-cloud-prep \
++-	squid-deb-proxy-client
+++	squid-deb-proxy-client \
+++	tx-off
++ 
++ EXTRA_DIST=$(hooks_SCRIPTS)
++Index: lxc-1.1.5/hooks/Makefile.in
++===================================================================
++--- lxc-1.1.5.orig/hooks/Makefile.in
+++++ lxc-1.1.5/hooks/Makefile.in
++@@ -318,7 +318,8 @@ hooks_SCRIPTS = \
++ 	clonehostname \
++ 	mountecryptfsroot \
++ 	ubuntu-cloud-prep \
++-	squid-deb-proxy-client
+++	squid-deb-proxy-client \
+++	tx-off
++ 
++ EXTRA_DIST = $(hooks_SCRIPTS)
++ all: all-am
 -- 
 2.9.2 
