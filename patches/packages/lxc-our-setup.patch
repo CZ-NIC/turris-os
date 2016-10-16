@@ -1,5 +1,19 @@
+From f70d27f8fc0f34d3fb974efe49f8b6689ae35e7e Mon Sep 17 00:00:00 2001
+From: Michal Hrusecky <Michal@Hrusecky.net>
+Date: Sun, 16 Oct 2016 13:20:34 +0200
+Subject: [PATCH] LXC customizations
+
+---
+ utils/lxc/Makefile                         | 22 +++++++++++++-
+ utils/lxc/patches/030-lxc-download.patch   | 47 +++++++++---------------------
+ utils/lxc/patches/040-better-default.patch | 14 +++++++++
+ utils/lxc/patches/050-tx-off.patch         | 34 +++++++++++++++++++++
+ 4 files changed, 82 insertions(+), 35 deletions(-)
+ create mode 100644 utils/lxc/patches/040-better-default.patch
+ create mode 100644 utils/lxc/patches/050-tx-off.patch
+
 diff --git a/utils/lxc/Makefile b/utils/lxc/Makefile
-index 0df1460..28e1703 100644
+index 0df1460..b859ca7 100644
 --- a/utils/lxc/Makefile
 +++ b/utils/lxc/Makefile
 @@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
@@ -7,7 +21,7 @@ index 0df1460..28e1703 100644
  PKG_NAME:=lxc
  PKG_VERSION:=1.1.5
 -PKG_RELEASE:=3
-+PKG_RELEASE:=6
++PKG_RELEASE:=7
  
  PKG_LICENSE:=LGPL-2.1+ BSD-2-Clause GPL-2.0
  PKG_MAINTAINER:=Luka Perkov <luka@openwrt.org>
@@ -39,7 +53,7 @@ index 0df1460..28e1703 100644
  $(eval $(call BuildPackage,lxc))
  $(eval $(call BuildPackage,lxc-common))
 diff --git a/utils/lxc/patches/030-lxc-download.patch b/utils/lxc/patches/030-lxc-download.patch
-index 295bae0..b6ab523 100644
+index 295bae0..c628f24 100644
 --- a/utils/lxc/patches/030-lxc-download.patch
 +++ b/utils/lxc/patches/030-lxc-download.patch
 @@ -1,43 +1,22 @@
@@ -124,7 +138,7 @@ index 210f030..b1d16a4 100644
  
 diff --git a/utils/lxc/patches/040-better-default.patch b/utils/lxc/patches/040-better-default.patch
 new file mode 100644
-index 0000000..6842ea4
+index 0000000..b2bedb3
 --- /dev/null
 +++ b/utils/lxc/patches/040-better-default.patch
 @@ -0,0 +1,14 @@
@@ -142,22 +156,12 @@ index 0000000..6842ea4
 ++lxc.network.script.up = /usr/share/lxc/hooks/tx-off
 ++lxc.tty = 4
 ++lxc.pts = 1024
-diff --git a/utils/lxc/files/hooks/tx-off b/utils/lxc/files/hooks/tx-off
-new file mode 100644
-index 0000000..6842ea4
---- /dev/null
-+++ b/utils/lxc/files/hooks/tx-off
-@@ -0,0 +1,2 @@
-+#!/bin/sh
-+[ -z "$5" ] || ethtool -K "$5" tx off
 diff --git a/utils/lxc/patches/050-tx-off.patch b/utils/lxc/patches/050-tx-off.patch
 new file mode 100644
-index 0000000..6842ea4
+index 0000000..62d15e8
 --- /dev/null
 +++ b/utils/lxc/patches/050-tx-off.patch
-@@ -0,0 +1,27 @@
-+--- /dev/null
-++++ b/utils/lxc/patches/050-tx-off.patch
+@@ -0,0 +1,34 @@
 +Index: lxc-1.1.5/hooks/Makefile.am
 +===================================================================
 +--- lxc-1.1.5.orig/hooks/Makefile.am
@@ -175,7 +179,7 @@ index 0000000..6842ea4
 +===================================================================
 +--- lxc-1.1.5.orig/hooks/Makefile.in
 ++++ lxc-1.1.5/hooks/Makefile.in
-+@@ -318,7 +318,8 @@ hooks_SCRIPTS = \
++@@ -307,7 +307,8 @@ hooks_SCRIPTS = \
 + 	clonehostname \
 + 	mountecryptfsroot \
 + 	ubuntu-cloud-prep \
@@ -185,5 +189,13 @@ index 0000000..6842ea4
 + 
 + EXTRA_DIST = $(hooks_SCRIPTS)
 + all: all-am
++Index: lxc-1.1.5/hooks/tx-off
++===================================================================
++--- /dev/null
+++++ lxc-1.1.5/hooks/tx-off
++@@ -0,0 +1,2 @@
+++#!/bin/sh
+++[ -z "$5" ] || ethtool -K "$5" tx off
 -- 
-2.9.2 
+2.10.1
+
