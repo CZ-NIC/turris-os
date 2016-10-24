@@ -10,11 +10,11 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=mac80211
 
-PKG_VERSION:=2016-06-20
-PKG_RELEASE:=5
+PKG_VERSION:=2016-10-08
+PKG_RELEASE:=1
 PKG_SOURCE_URL:=http://mirror2.openwrt.org/sources
 PKG_BACKPORT_VERSION:=
-PKG_MD5SUM:=29c79bdc3928ef5113b17042ebda9237
+PKG_MD5SUM:=4f6350e3b75815060bfdf47ef266ad613c7bfea5b7b1dc4552dee69e1bebe4fb
 
 PKG_SOURCE:=compat-wireless-$(PKG_VERSION)$(PKG_BACKPORT_VERSION).tar.bz2
 PKG_BUILD_DIR:=$(KERNEL_BUILD_DIR)/compat-wireless-$(PKG_VERSION)
@@ -28,7 +28,6 @@ PKG_DRIVERS = \
 	ath ath5k ath9k ath9k-common ath9k-htc ath10k \
 	b43 b43legacy \
 	carl9170 \
-	esp8089 \
 	hermes hermes-pci hermes-pcmcia hermes-plx\
 	iwl-legacy iwl3945 iwl4965 iwlwifi \
 	lib80211 \
@@ -683,8 +682,7 @@ define KernelPackage/brcmfmac
   TITLE:=Broadcom IEEE802.11n USB FullMAC WLAN driver
   URL:=https://wireless.wiki.kernel.org/en/users/drivers/brcm80211
   DEPENDS+= @USB_SUPPORT +kmod-cfg80211 +@DRIVER_11N_SUPPORT +kmod-brcmutil \
-	+BRCMFMAC_PCIE:brcmfmac-firmware-pcie \
-	+BRCMFMAC_SDIO:kmod-mmc +BRCMFMAC_SDIO:brcmfmac-firmware-sdio \
+	+BRCMFMAC_SDIO:kmod-mmc \
 	+BRCMFMAC_USB:kmod-usb-core +BRCMFMAC_USB:brcmfmac-firmware-usb
   FILES:=$(PKG_BUILD_DIR)/drivers/net/wireless/broadcom/brcm80211/brcmfmac/brcmfmac.ko
   AUTOLOAD:=$(call AutoProbe,brcmfmac)
@@ -1449,7 +1447,6 @@ config-y:= \
 	MAC80211_RC_MINSTREL_HT \
 	MAC80211_RC_MINSTREL_VHT \
 	MAC80211_RC_DEFAULT_MINSTREL \
-	ESP8089 \
 	WLAN_VENDOR_ADMTEK \
 	WLAN_VENDOR_ATH \
 	WLAN_VENDOR_ATMEL \
@@ -1496,7 +1493,7 @@ config-$(call config_package,lib80211) += LIB80211 LIB80211_CRYPT_WEP LIB80211_C
 config-$(call config_package,airo) += AIRO
 
 config-$(call config_package,ath) += ATH_CARDS ATH_COMMON
-config-$(CONFIG_PACKAGE_ATH_DEBUG) += ATH_DEBUG ATH10K_DEBUG
+config-$(CONFIG_PACKAGE_ATH_DEBUG) += ATH_DEBUG ATH10K_DEBUG ATH9K_STATION_STATISTICS
 config-$(CONFIG_PACKAGE_ATH_DFS) += ATH9K_DFS_CERTIFIED ATH10K_DFS_CERTIFIED
 
 config-$(call config_package,ath9k) += ATH9K
@@ -1768,7 +1765,6 @@ $(eval $(call KernelPackage,brcmfmac))
 $(eval $(call KernelPackage,brcmutil))
 $(eval $(call KernelPackage,carl9170))
 $(eval $(call KernelPackage,cfg80211))
-#$(eval $(call KernelPackage,esp8089))
 $(eval $(call KernelPackage,hermes))
 $(eval $(call KernelPackage,hermes-pci))
 $(eval $(call KernelPackage,hermes-plx))
