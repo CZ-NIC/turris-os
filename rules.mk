@@ -312,7 +312,7 @@ endef
 # $(2) => The lock name. If not given, the global lock will be used.
 define locked
 	SHELL= \
-	$(STAGING_DIR_HOST)/bin/flock \
+	flock \
 		$(TMP_DIR)/.$(if $(2),$(strip $(2)),global).flock \
 		-c '$(subst ','\'',$(1))'
 endef
