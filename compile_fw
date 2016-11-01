@@ -9,6 +9,9 @@
 [ -d ./logs-nor ] && rm -rf ./logs-nor
 [ -d ./logs-initram ] && rm -rf ./logs-initram
 
+export TMPDIR="`pwd`/tmp"
+mkdir $TMPDIR
+
 make_defconfig() {
 	make defconfig "$@"
 	egrep '^(#[[:space:]]+)?CONFIG_KERNEL' configs/common configs/$TARGET_BOARD | sed 's|.*:||' >> ./.config
