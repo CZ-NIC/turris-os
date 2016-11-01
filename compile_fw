@@ -90,7 +90,7 @@ Install 'userlists' { critical = true }
 
 -- Install everything that was in the image
 EOF
-if [ -n "${PKG_BRANCH}" ]; then
+if [ -n "${PKG_BRANCH}" ] && [ "${PKG_BRANCH}" \!= master ] && [ "${PKG_BRANCH}" \!= stable ]; then
 	echo 'Install "cznic-repo-keys-test"' >> base.lua
 	echo CONFIG_PACKAGE_cznic-repo-keys-test=y >> .config
 	echo CONFIG_PACKAGE_getbranch-test=y >> .config
