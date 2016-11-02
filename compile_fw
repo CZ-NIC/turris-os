@@ -9,8 +9,17 @@
 [ -d ./logs-nor ] && rm -rf ./logs-nor
 [ -d ./logs-initram ] && rm -rf ./logs-initram
 
-export TMPDIR="`pwd`/tmp"
+export TMPDIR="$PWD/tmp"
 mkdir $TMPDIR
+
+if [ "$1" = turris ] || [ "$1" = omnia ]; then
+    export TARGET_BOARD="$1"
+    shift
+else
+    echo "The first argument is empty or unknown!"
+    echo "You have to specify target board - options are 'turris' or 'omnia'"
+    exit 1
+fi
 
 make_defconfig() {
 	make defconfig "$@"
@@ -24,19 +33,8 @@ make_defconfig() {
 	fi
 }
 
-if [ "$1" = turris ] || [ "$1" = omnia ]; then
-	export TARGET_BOARD="$1"
-	shift
-fi
-
-if [ -z "$TARGET_BOARD" ]; then
-	echo "You have to specify target board - options are 'turris' or 'omnia'"
-	exit 1
-fi
 # Clean feeds
 ./scripts/feeds clean
-
-# Install luci feed
 ./scripts/feeds update -a
 # Patch feeds
 pushd patches
@@ -56,15 +54,8 @@ popd
 [ \! -f ./disabled_packages.common ]        || ./scripts/feeds uninstall $(echo $(cut -d '#' -f1 ./disabled_packages.common))
 [ \! -f ./disabled_packages.$TARGET_BOARD ] || ./scripts/feeds uninstall $(echo $(cut -d '#' -f1 ./disabled_packages.$TARGET_BOARD))
 
-# Bump release numbers when asked for
-while read pkg orig_release release; do
-	if [ $orig_release = X ]; then
-		sed -i 's|^PKG_RELEASE\(:\?\)=\$(PKG_SOURCE_VERSION)$|PKG_RELEASE\1=\$(PKG_SOURCE_VERSION)-'"$release"'|' "$pkg"/Makefile || true
-	else
-		sed -i 's|^PKG_RELEASE\(:\?\)='"$orig_release"'\+$|PKG_RELEASE\1='"$release"'|' "$pkg"/Makefile || true
-		sed -i 's|^PKG_RELEASE\(:\?\)=\$(PKG_SOURCE_VERSION)-'"$orig_release"'\+$|PKG_RELEASE\1=\$(PKG_SOURCE_VERSION)-'"$release"'|' "$pkg"/Makefile || true
-	fi
-done < release-override
+# Override packages release numbers
+scripts/override_release_numbers.sh
 
 # Build NAND FW
 [ -z "$OPENWRT_BRANCH"  ] || PKG_BRANCH="-$OPENWRT_BRANCH"
@@ -125,56 +116,43 @@ for i in lists/*.list; do
 done
 
 [ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
+
+
 if [ -f "$HOME"/mime.key ]; then
 	echo "CONFIG_SIGNED_PACKAGES=y" >> .config
 	rm -f key-build key-build.pub
 	cp "$HOME/mime.key" key-build
 	cp "$HOME/mime.pub" key-build.pub
 fi
+
+
 [ "${TARGET_BOARD}" = omnia ] || echo "CONFIG_PACKAGE_updater-ng=m" >> ./.config
+
 make_defconfig
+
 if [ -d .git ] ; then
 	git log -n1 --format='%H' >files/etc/git-version
 fi
+
 make clean
+
 [ -z "$BUILD_ALL" ] || make dirclean
+
 set -- "$@" PKG_BRANCH=${PKG_BRANCH/-/}
+
 [ -z "$PERSISTENT_CCACHE" ] || set -- "$@" CCACHE_DIR="`pwd`/ccache" CCACHE_HOST_DIR="`pwd`/ccache-host"
+
 make "$@"
+
 # Nice junit export
-mkdir -p logs
-cat > logs/junit.xml << EOF
-<?xml version='1.0' encoding='utf-8'?>
-<testsuites errors='`cat logs/package/error.txt | wc -l`' tests='`find logs/package/ -name compile.txt | wc -l`'>
-EOF
-(cd logs; find package/ -name compile.txt; cd ..) | while read log; do
-PKG_NAME="`dirname $log`"
-if grep "ERROR: $PKG_NAME failed" logs/package/error.txt; then
-cat >> logs/junit.xml << EOF
-<testsuite errors='1' name='$PKG_NAME' tests='1'>
-<testcase name='compile'>
-<error message='$PKG_NAME failed to compile' type='error'><![CDATA[
-`tail -n 100 logs/$log | sed -e 's|\]\]>|\]\] >|g' -e 's/\x1b//g'`
-]]></error>
-</testcase>
-</testsuite>
-EOF
-else
-cat >> logs/junit.xml << EOF
-<testsuite errors='0' failures='0' name='$PKG_NAME' tests='1'>
-<testcase name='compile'/>
-</testsuite>
-EOF
-fi
-done
-cat >> logs/junit.xml << EOF
-</testsuites>
-EOF
+./scripts/generate_junit.sh
+
 if [ -n "`cat logs/package/error.txt 2> /dev/null`" ] && [ -z "$PKG_BRANCH" ]; then
 	echo "Following packages are failing in stable release"
 	cat logs/package/error.txt
 	exit 1
 fi
+
 [ \! -d ./logs ] || mv ./logs ./logs-nand
 
 COMMIT_DATE="`git log --format=format:%cD -1`"
@@ -293,6 +271,7 @@ if [ "$TARGET_BOARD" = turris ]; then
 	[ -d ./bin/mpc85xx/packages ] && rm -rf ./bin/mpc85xx/packages
 	[ -d ./bin-nor ] && rm -rf ./bin-nor
 	mv ./bin ./bin-nor
+
 elif [ "$TARGET_BOARD" = omnia ]; then
 	cp configs/config-omnia-rescue .config
 	[ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
