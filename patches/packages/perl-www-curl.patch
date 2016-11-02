@@ -1,0 +1,67 @@
+From 6394833be7ffedba64c0fa6901951d0e10b9bb8e Mon Sep 17 00:00:00 2001
+From: Michal Hrusecky <michal.hrusecky@nic.cz>
+Date: Fri, 30 Sep 2016 10:40:41 +0200
+Subject: [PATCH] perl-www-curl: Fix build with new curl
+
+---
+ lang/perl-www-curl/Makefile                        |  2 +-
+ ...ip-preprocessor-symbol-only-CURL_STRICTER.patch | 34 ++++++++++++++++++++++
+ 2 files changed, 35 insertions(+), 1 deletion(-)
+ create mode 100644 lang/perl-www-curl/patches/WWW-Curl-4.17-Skip-preprocessor-symbol-only-CURL_STRICTER.patch
+
+diff --git a/lang/perl-www-curl/Makefile b/lang/perl-www-curl/Makefile
+index 1e424cb..9b83109 100644
+--- a/lang/perl-www-curl/Makefile
++++ b/lang/perl-www-curl/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=perl-www-curl
+ PKG_VERSION:=4.17
+-PKG_RELEASE:=4
++PKG_RELEASE:=5
+ 
+ PKG_SOURCE_URL:=http://www.cpan.org/authors/id/S/SZ/SZBALINT/
+ PKG_SOURCE:=WWW-Curl-$(PKG_VERSION).tar.gz
+diff --git a/lang/perl-www-curl/patches/WWW-Curl-4.17-Skip-preprocessor-symbol-only-CURL_STRICTER.patch b/lang/perl-www-curl/patches/WWW-Curl-4.17-Skip-preprocessor-symbol-only-CURL_STRICTER.patch
+new file mode 100644
+index 0000000..34221c0
+--- /dev/null
++++ b/lang/perl-www-curl/patches/WWW-Curl-4.17-Skip-preprocessor-symbol-only-CURL_STRICTER.patch
+@@ -0,0 +1,34 @@
++From 0be0223422e6e5f4091c6e4e058d213623eed105 Mon Sep 17 00:00:00 2001
++From: =?UTF-8?q?Petr=20P=C3=ADsa=C5=99?= <ppisar@redhat.com>
++Date: Mon, 12 Sep 2016 14:40:44 +0200
++Subject: [PATCH] Skip preprocessor symbol only CURL_STRICTER
++MIME-Version: 1.0
++Content-Type: text/plain; charset=UTF-8
++Content-Transfer-Encoding: 8bit
++
++CURL_STRICTER leaked into curl-constants.c when building against
++curl-7.50.2. This is a preprocessor only macro without a value.
++
++CPAN RT#117793
++
++Signed-off-by: Petr Písař <ppisar@redhat.com>
++---
++ Makefile.PL | 2 +-
++ 1 file changed, 1 insertion(+), 1 deletion(-)
++
++diff --git a/Makefile.PL b/Makefile.PL
++index f9170bb..ad2bd3d 100644
++--- a/Makefile.PL
+++++ b/Makefile.PL
++@@ -127,7 +127,7 @@ if (!defined($curl_h)) {
++     close H;
++ 
++     for my $e (sort @syms) {
++-       if($e =~ /(OBSOLETE|^CURL_EXTERN|_LAST\z|_LASTENTRY\z)/) {
+++       if($e =~ /(OBSOLETE|^CURL_EXTERN|^CURL_STRICTER\z|_LAST\z|_LASTENTRY\z)/) {
++           next;
++        }
++        my ($group) = $e =~ m/^([^_]+_)/;
++-- 
++2.7.4
++
+-- 
+2.10.0
+
