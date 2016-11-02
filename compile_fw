@@ -51,8 +51,10 @@ popd
 ./scripts/feeds install -a
 
 # Uninstall broken pkgs
-[ \! -f ./disabled_packages.common ]        || ./scripts/feeds uninstall $(echo $(cut -d '#' -f1 ./disabled_packages.common))
-[ \! -f ./disabled_packages.$TARGET_BOARD ] || ./scripts/feeds uninstall $(echo $(cut -d '#' -f1 ./disabled_packages.$TARGET_BOARD))
+./scripts/feeds uninstall \
+$([ \! -f ./disabled_packages.common ] || echo $(cut -d '#' -f1 ./disabled_packages.common)) \
+$([ \! -f ./disabled_packages.$TARGET_BOARD ] || echo $(cut -d '#' -f1 ./disabled_packages.$TARGET_BOARD))
+
 
 # Override packages release numbers
 scripts/override_release_numbers.sh
