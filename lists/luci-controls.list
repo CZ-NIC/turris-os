@@ -12,7 +12,7 @@ luci-app-transmission
 luci-app-upnp
 luci-app-watchcat
 luci-app-wol
-luci-app-wshaper
+luci-app-sqm
 luci-i18n-ahcp-cs
 luci-i18n-ahcp-en
 luci-i18n-base-cs
@@ -38,8 +38,6 @@ luci-i18n-watchcat-cs
 luci-i18n-watchcat-en
 luci-i18n-wol-cs
 luci-i18n-wol-en
-luci-i18n-wshaper-cs
-luci-i18n-wshaper-en
 luci-proto-ipv6
 luci-proto-openconnect
 luci-proto-ppp
