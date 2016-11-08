@@ -13,24 +13,6 @@
 
 / {
 	lbc: localbus@ffe05000 {
-		nor@0,0 {
-                        partition@0 {
-                                read-only;
-                        };
-
-                        partition@20000 {
-                                read-only;
-                        };
-
-                        partition@1C0000 {
-                                read-only;
-                        };
-
-                        partition@340000 {
-                                read-only;
-                        };
-                };
-	
 		nand@1,0 {
 			nand-ecc-mode = "soft_bch";
 			nand-ecc-step-size = <512>;
