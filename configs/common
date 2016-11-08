@@ -113,3 +113,24 @@ CONFIG_PACKAGE_luci-app-majordomo=m
 CONFIG_PACKAGE_nikola=m
 CONFIG_PACKAGE_socat=m
 CONFIG_SOCAT_SSL=y
+
+# Some provides-compat stuff
+CONFIG_PACKAGE_provides-compat=m
+CONFIG_PACKAGE_avahi-daemon=m
+CONFIG_PACKAGE_erlang-erts=m
+CONFIG_PACKAGE_erlang-kernel=m
+CONFIG_PACKAGE_erlang-sasl=m
+CONFIG_PACKAGE_erlang-stdlib=m
+CONFIG_PACKAGE_lcd4linux=m
+CONFIG_PACKAGE_libavahi=m
+CONFIG_PACKAGE_libdb47-full=m
+CONFIG_PACKAGE_libdb47xx-full=m
+CONFIG_PACKAGE_libffmpeg-audio-dec=m
+CONFIG_PACKAGE_libffmpeg-custom=m
+CONFIG_PACKAGE_libffmpeg-full=m
+CONFIG_PACKAGE_libffmpeg-mini=m
+CONFIG_PACKAGE_libzmq=m
+CONFIG_PACKAGE_mpd=m
+CONFIG_PACKAGE_pulseaudio=m
+CONFIG_PACKAGE_shairport-sync=m
+CONFIG_PACKAGE_squeezelite=m

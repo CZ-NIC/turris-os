@@ -1,0 +1,216 @@
+diff --git a/lang/erlang/Makefile b/lang/erlang/Makefile
+index 47c8b11..9312dff 100644
+--- a/lang/erlang/Makefile
++++ b/lang/erlang/Makefile
+@@ -45,7 +45,6 @@ endef
+ define Package/erlang
+ $(call Package/erlang/Default)
+   DEPENDS+= +libncurses +librt +zlib
+-  PROVIDES:= erlang-erts=6.4 erlang-kernel=3.2 erlang-sasl=2.4.1 erlang-stdlib=2.4
+ endef
+ 
+ define Package/erlang/description
+@@ -322,6 +321,41 @@ define BuildModule
+ 
+ endef
+ 
++define Package/erlang-erts
++  TITLE:=erlang provides compat
++  DEPENDS:=+erlang
++endef
++
++define Package/erlang-erts/install
++	true
++endef
++
++define Package/erlang-kernel
++  TITLE:=erlang provides compat
++  DEPENDS:=+erlang
++endef
++
++define Package/erlang-kernel/install
++	true
++endef
++
++define Package/erlang-sasl
++  TITLE:=erlang provides compat
++  DEPENDS:=+erlang
++endef
++
++define Package/erlang-sasl/install
++	true
++endef
++
++define Package/erlang-stdlib
++  TITLE:=erlang provides compat
++  DEPENDS:=+erlang
++endef
++
++define Package/erlang-stdlib/install
++	true
++endef
+ 
+ $(eval $(call HostBuild))
+ $(eval $(call BuildPackage,erlang))
+@@ -336,3 +370,7 @@ $(eval $(call BuildModule,snmp,snmp))
+ $(eval $(call BuildModule,ssh,ssh))
+ $(eval $(call BuildModule,ssl,ssl))
+ $(eval $(call BuildModule,syntax-tools,syntax_tools))
++$(eval $(call BuildPackage,erlang-erts))
++$(eval $(call BuildPackage,erlang-kernel))
++$(eval $(call BuildPackage,erlang-sasl))
++$(eval $(call BuildPackage,erlang-stdlib))
+diff --git a/libs/zmq/Makefile b/libs/zmq/Makefile
+index 5ad5384..5e561d5 100644
+--- a/libs/zmq/Makefile
++++ b/libs/zmq/Makefile
+@@ -37,7 +37,6 @@ define Package/libzmq/default
+   SECTION:=libs
+   CATEGORY:=Libraries
+   DEPENDS:=+libuuid +libpthread +librt $(CXX_DEPENDS)
+-  PROVIDES:=libzmq
+ endef
+ 
+ define Package/libzmq-nc
+@@ -89,5 +88,15 @@ endef
+ 
+ Package/libzmq-curve/install=$(Package/libzmq-nc/install)
+ 
++define Package/libzmq
++  TITLE:=limzmp provides compat
++  DEPENDS:=+libzmq-curve
++endef
++
++define Package/libzmq/install
++	true
++endef
++
+ $(eval $(call BuildPackage,libzmq-nc))
+ $(eval $(call BuildPackage,libzmq-curve))
++$(eval $(call BuildPackage,libzmq))
+diff --git a/sound/pulseaudio/Makefile b/sound/pulseaudio/Makefile
+index b84449f..60171eb 100644
+--- a/sound/pulseaudio/Makefile
++++ b/sound/pulseaudio/Makefile
+@@ -35,7 +35,6 @@ define Package/pulseaudio/Default
+   TITLE:=Network sound server
+   MAINTAINER:=Peter Wagner <tripolar@gmx.at>
+   URL:=http://www.pulseaudio.org
+-  PROVIDES:=pulseaudio
+   USERID:=pulse=51:pulse=51
+ endef
+ 
+@@ -190,6 +189,16 @@ define Package/pulseaudio-profiles/install
+ 		$(1)/usr/share/pulseaudio/alsa-mixer/profile-sets
+ endef
+ 
++define Package/pulseaudio
++  TITLE:=pulseaudio provides compat
++  DEPENDS:=+pulseaudio-daemon
++endef
++
++define Package/pulseaudio/install
++	true
++endef
++
+ $(eval $(call BuildPackage,pulseaudio-daemon))
+ $(eval $(call BuildPackage,pulseaudio-tools))
+ $(eval $(call BuildPackage,pulseaudio-profiles))
++$(eval $(call BuildPackage,pulseaudio))
+diff --git a/sound/shairport-sync/Makefile b/sound/shairport-sync/Makefile
+index 8c253f9..340bcdf 100644
+--- a/sound/shairport-sync/Makefile
++++ b/sound/shairport-sync/Makefile
+@@ -35,7 +35,6 @@ define Package/shairport-sync/default
+   CATEGORY:=Sound
+   TITLE:=AirPlay compatible audio player
+   DEPENDS:=@AUDIO_SUPPORT +libpthread +alsa-lib +libconfig +libdaemon +libpopt
+-  PROVIDES:=shairport-sync
+   URL:=http://github.com/mikebrady/shairport-sync
+ endef
+ 
+@@ -121,6 +120,12 @@ Package/shairport-sync-openssl/install = $(Package/shairport-sync/default/instal
+ Package/shairport-sync-polarssl/install = $(Package/shairport-sync/default/install)
+ Package/shairport-sync-mini/install = $(Package/shairport-sync/default/install)
+ 
++define Package/shairport-sync
++  TITLE:=shairport-sync provides compat
++  DEPENDS:=+shairport-sync-openssl
++endef
++
+ $(eval $(call BuildPackage,shairport-sync-openssl))
+ $(eval $(call BuildPackage,shairport-sync-polarssl))
+ $(eval $(call BuildPackage,shairport-sync-mini))
++$(eval $(call BuildPackage,shairport-sync))
+diff --git a/sound/squeezelite/Makefile b/sound/squeezelite/Makefile
+index 6c1b489..c62681e 100644
+--- a/sound/squeezelite/Makefile
++++ b/sound/squeezelite/Makefile
+@@ -31,7 +31,6 @@ define Package/squeezelite/default
+     SECTION:=sound
+     CATEGORY:=Sound
+     TITLE:=Headless squeezebox emulator
+-    PROVIDES:=squeezelite
+     URL:=https://github.com/ralph-irving/squeezelite
+     DEPENDS:= +alsa-lib +SQUEEZELITE_RESAMPLE:libsoxr
+     MENU:=1
+@@ -142,5 +141,11 @@ endef
+ Package/squeezelite-mini/install=$(Package/squeezelite/install)
+ Package/squeezelite-full/install=$(Package/squeezelite/install)
+ 
++define Package/squeezelite
++  TITLE:=squeezelite provides compat
++  DEPENDS:=+squeezelite-full
++endef
++
+ $(eval $(call BuildPackage,squeezelite-mini))
+ $(eval $(call BuildPackage,squeezelite-full))
++$(eval $(call BuildPackage,squeezelite))
+diff --git a/utils/lcd4linux/Makefile b/utils/lcd4linux/Makefile
+index cbb8c91..d8594c9 100644
+--- a/utils/lcd4linux/Makefile
++++ b/utils/lcd4linux/Makefile
+@@ -169,7 +169,6 @@ $(call Package/lcd4linux/Default)
+ #	+LCD4LINUX_CUSTOM_NEEDS_libX11:libX11 \
+ #	+LCD4LINUX_CUSTOM_NEEDS_python:python
+   MENU:=1
+-  PROVIDES:=lcd4linux
+   VARIANT=custom
+ endef
+ 
+@@ -198,7 +197,6 @@ $(call Package/lcd4linux/Default)
+ #	+libftdi \
+ #	+libX11 \
+ #	+python
+-  PROVIDES:=lcd4linux
+   VARIANT=full
+ endef
+ 
+@@ -285,7 +283,7 @@ define Package/lcd4linux/conffiles
+ /etc/lcd4linux.conf
+ endef
+ 
+-define Package/lcd4linux/install
++define Package/lcd4linux/install/Default
+ 	$(INSTALL_DIR) $(1)/usr/bin
+ 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/lcd4linux $(1)/usr/bin/
+ 	$(INSTALL_DIR) $(1)/etc
+@@ -300,10 +298,16 @@ define Package/lcd4linux/install
+ endef
+ 
+ Package/lcd4linux-custom/conffiles = $(Package/lcd4linux/conffiles)
+-Package/lcd4linux-custom/install = $(Package/lcd4linux/install)
++Package/lcd4linux-custom/install = $(Package/lcd4linux/install/Default)
+ 
+ Package/lcd4linux-full/conffiles = $(Package/lcd4linux/conffiles)
+-Package/lcd4linux-full/install = $(Package/lcd4linux/install)
++Package/lcd4linux-full/install = $(Package/lcd4linux/install/Default)
++
++define Package/lcd4linux
++  TITLE:=lcd4linux provides compat
++  DEPENDS:=+lcd4linux-custom
++endef
+ 
+ $(eval $(call BuildPackage,lcd4linux-custom))
+ $(eval $(call BuildPackage,lcd4linux-full))
++$(eval $(call BuildPackage,lcd4linux))
