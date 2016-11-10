@@ -57,6 +57,23 @@ define AddDepends/dvb-core
   DEPENDS+=+kmod-dvb-core $1
 endef
 
+# ----------------------------- utility drivers -------------------------------
+
+define KernelPackage/cypress-firmware
+  SUBMENU:=$(DVB_MENU)
+  TITLE:=Cypress firmware helper routines
+  KCONFIG:=CONFIG_CYPRESS_FIRMWARE
+  FILES:=$(LINUX_DIR)/drivers/media/common/cypress_firmware.ko
+  DEPENDS:=+kmod-usb-core
+  AUTOLOAD:=$(call AutoProbe,cypress-firmware)
+endef
+
+define KernelPackage/cypress-firmware/description
+ Helper module for Cypress firmware download.
+endef
+
+$(eval $(call KernelPackage,cypress-firmware))
+
 # ----------------------------- DVB USB drivers -------------------------------
 
 define KernelPackage/dvb-usb
