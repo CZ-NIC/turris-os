@@ -291,6 +291,20 @@ endef
 
 $(eval $(call KernelPackage,dvb-usb-af9035))
 
+define KernelPackage/dvb-usb-az6007
+  TITLE:=AzureWave 6007 and clones DVB-T/C USB2.0 support
+  KCONFIG:=CONFIG_DVB_USB_AZ6007
+  FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb-v2/dvb-usb-az6007.ko
+  AUTOLOAD:=$(call AutoProbe,dvb-usb-az6007)
+  $(call AddDepends/dvb-usb-v2,+kmod-cypress-firmware)
+endef
+
+define KernelPackage/dvb-usb-az6007/description
+ Say Y here to support the AZ6007 receivers like Terratec H7.
+endef
+
+$(eval $(call KernelPackage,dvb-usb-az6007))
+
 # ------------------------------ DVB frontends --------------------------------
 
 define DvbFrontend
