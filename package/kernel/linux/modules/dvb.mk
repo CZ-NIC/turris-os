@@ -57,6 +57,23 @@ define AddDepends/dvb-core
   DEPENDS+=+kmod-dvb-core $1
 endef
 
+# ----------------------------- utility drivers -------------------------------
+
+define KernelPackage/cypress-firmware
+  SUBMENU:=$(DVB_MENU)
+  TITLE:=Cypress firmware helper routines
+  KCONFIG:=CONFIG_CYPRESS_FIRMWARE
+  FILES:=$(LINUX_DIR)/drivers/media/common/cypress_firmware.ko
+  DEPENDS:=+kmod-usb-core
+  AUTOLOAD:=$(call AutoProbe,cypress-firmware)
+endef
+
+define KernelPackage/cypress-firmware/description
+ Helper module for Cypress firmware download.
+endef
+
+$(eval $(call KernelPackage,cypress-firmware))
+
 # ----------------------------- DVB USB drivers -------------------------------
 
 define KernelPackage/dvb-usb
@@ -188,6 +205,23 @@ endef
 
 $(eval $(call KernelPackage,dvb-usb-dibusb-mc))
 
+define KernelPackage/dvb-usb-ttusb2
+  TITLE:=Pinnacle 400e DVB-S USB2.0 support
+  KCONFIG:=CONFIG_DVB_USB_TTUSB2
+  FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb/dvb-usb-ttusb2.ko
+  AUTOLOAD:=$(call AutoProbe,dvb-usb-ttusb2)
+  $(call AddDepends/dvb-usb)
+endef
+
+define KernelPackage/dvb-usb-ttusb2/description
+ Say Y here to support the Pinnacle 400e DVB-S USB2.0 receiver and
+ the TechnoTrend CT-3650 CI DVB-C/T USB2.0 receiver. The
+ firmware protocol used by this module is similar to the one used by the
+ old ttusb-driver - that's why the module is called dvb-usb-ttusb2.
+endef
+
+$(eval $(call KernelPackage,dvb-usb-ttusb2))
+
 # --------------------------- DVB USB v2 drivers ------------------------------
 
 define KernelPackage/dvb-usb-v2
@@ -274,6 +308,20 @@ endef
 
 $(eval $(call KernelPackage,dvb-usb-af9035))
 
+define KernelPackage/dvb-usb-az6007
+  TITLE:=AzureWave 6007 and clones DVB-T/C USB2.0 support
+  KCONFIG:=CONFIG_DVB_USB_AZ6007
+  FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb-v2/dvb-usb-az6007.ko
+  AUTOLOAD:=$(call AutoProbe,dvb-usb-az6007)
+  $(call AddDepends/dvb-usb-v2,+kmod-cypress-firmware)
+endef
+
+define KernelPackage/dvb-usb-az6007/description
+ Say Y here to support the AZ6007 receivers like Terratec H7.
+endef
+
+$(eval $(call KernelPackage,dvb-usb-az6007))
+
 # ------------------------------ DVB frontends --------------------------------
 
 define DvbFrontend
@@ -341,6 +389,17 @@ define KernelPackage/dvb-tda10023/description
 endef
 
 $(eval $(call KernelPackage,dvb-tda10023))
+
+define KernelPackage/dvb-tda10048
+  TITLE:=Philips TDA10048HN based tuner
+  $(call DvbFrontend,tda10048,CONFIG_DVB_TDA10048)
+endef
+
+define KernelPackage/dvb-tda10048/description
+ A DVB-T tuner module.
+endef
+
+$(eval $(call KernelPackage,dvb-tda10048))
 
 define KernelPackage/dvb-af9013
   TITLE:=Afatech AF9013 demodulator
