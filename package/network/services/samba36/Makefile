@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=samba
 PKG_VERSION:=3.6.25
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_SOURCE_URL:=http://ftp.samba.org/pub/samba \
 	http://ftp.samba.org/pub/samba/stable
@@ -130,6 +130,12 @@ define Package/samba36-server/postinst
 #!/bin/sh
 # check if we are on real system
 if [ -z "$${IPKG_INSTROOT}" ]; then
+	if [ -s /etc/rc.d/S[0-9][0-9]samba ] && \
+	   [ "`ls -1 /etc/rc.d/S[0-9][0-9]samba | head -n 1`" \!= /etc/rc.d/`sed -n 's|START=\([0-9][0-9]\)|\1|p' /etc/init.d/samba` ]; then
+		rm /etc/rc.d/S[0-9][0-9]samba
+		rm /etc/rc.d/K[0-9][0-9]samba
+		/etc/init.d/samba enable
+	fi
         if /etc/init.d/samba enabled; then
                 echo "Reloading samba"
                 /etc/init.d/samba restart

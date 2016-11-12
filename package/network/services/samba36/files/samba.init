@@ -1,7 +1,7 @@
 #!/bin/sh /etc/rc.common
 # Copyright (C) 2008-2012 OpenWrt.org
 
-START=60
+START=95
 
 smb_header() {
 	local interface
