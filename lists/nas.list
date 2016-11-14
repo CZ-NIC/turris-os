@@ -39,7 +39,6 @@ kmod-crypto-md5
 kmod-crypto-null
 kmod-crypto-pcbc
 kmod-crypto-pcompress
-kmod-crypto-rng-jitterentropy
 kmod-crypto-seqiv
 kmod-crypto-sha1
 kmod-crypto-sha256
