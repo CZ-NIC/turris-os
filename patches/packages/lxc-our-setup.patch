@@ -198,6 +198,23 @@ index 0000000..62d15e8
 +@@ -0,0 +1,2 @@
 ++#!/bin/sh
 ++[ -z "$5" ] || ethtool -K "$5" tx off
+diff --git a/utils/lxc/files/lxc-auto.config b/utils/lxc/files/lxc-auto.config
+index 5572c73..b0e90f7 100644
+--- a/utils/lxc/files/lxc-auto.config	2016-11-18 11:16:17.152468041 +0100
++++ b/utils/lxc/files/lxc-auto.config	2016-11-18 11:36:50.829639903 +0100
+@@ -1,5 +1,12 @@
+ #config container
+ 	#option name container1
+-	#option timeout 300
++	# How long to give container to shutdown gracefully before killing it
++	# Default 300s
++	#option timeout 30
++	# Commnads to run before starting container
+ 	#list command '/bin/command --option'
+ 
++#config container
++	#option name container2
++	#option timeout 60
++
 -- 
 2.10.1
-
