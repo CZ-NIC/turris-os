@@ -21,7 +21,7 @@ index 0df1460..b859ca7 100644
  PKG_NAME:=lxc
  PKG_VERSION:=1.1.5
 -PKG_RELEASE:=3
-+PKG_RELEASE:=7
++PKG_RELEASE:=8
  
  PKG_LICENSE:=LGPL-2.1+ BSD-2-Clause GPL-2.0
  PKG_MAINTAINER:=Luka Perkov <luka@openwrt.org>
@@ -141,12 +141,12 @@ new file mode 100644
 index 0000000..b2bedb3
 --- /dev/null
 +++ b/utils/lxc/patches/040-better-default.patch
-@@ -0,0 +1,14 @@
+@@ -0,0 +1,16 @@
 +Index: lxc-1.1.5/config/etc/default.conf.unknown
 +===================================================================
 +--- lxc-1.1.5.orig/config/etc/default.conf.unknown
 ++++ lxc-1.1.5/config/etc/default.conf.unknown
-+@@ -1 +1,8 @@
++@@ -1 +1,10 @@
 +-lxc.network.type = empty
 ++lxc.network.type = veth
 ++lxc.network.link = br-lan
@@ -156,6 +156,8 @@ index 0000000..b2bedb3
 ++lxc.network.script.up = /usr/share/lxc/hooks/tx-off
 ++lxc.tty = 4
 ++lxc.pts = 1024
+++# Template to generate fixed MAC address
+++lxc.network.hwaddr = x2:xx:xx:xx:xx:xx
 diff --git a/utils/lxc/patches/050-tx-off.patch b/utils/lxc/patches/050-tx-off.patch
 new file mode 100644
 index 0000000..62d15e8
