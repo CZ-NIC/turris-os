@@ -3,5 +3,6 @@ oneshot
 cznic-repo-keys
 foris
 lighttpd-mod-setenv
+foris-diagnostics-plugin
 
 CONFIG_PACKAGE_openssh_server_nuci_support=y
