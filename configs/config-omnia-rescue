@@ -4795,3 +4795,4 @@ CONFIG_PACKAGE_uboot-envtools=y
 # CONFIG_PACKAGE_yanglint is not set
 # CONFIG_PACKAGE_yunbridge is not set
 # CONFIG_PACKAGE_zsh is not set
+CONFIG_PACKAGE_dropbear=y
