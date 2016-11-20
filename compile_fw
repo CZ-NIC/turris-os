@@ -271,7 +271,9 @@ done
 if [ "$TARGET_BOARD" = "omnia" ]; then
 	rm -f $PUB_BIN_DIR/*.ext4 $PUB_BIN_DIR/*sums
 	for i in $PUB_BIN_DIR/medkit/*.tar.gz; do
-		staging_dir/host/bin/usign -S -m "$i" -s "$HOME"/mime.key
+		if [ -f "$HOME"/mime.key ]; then
+			staging_dir/host/bin/usign -S -m "$i" -s "$HOME"/mime.key
+		fi
 		pushd "`dirname $i`"
 		md5sum "`basename $i`" > "`basename $i`".md5
 		sha256sum "`basename $i`" > "`basename $i`".sha256
