@@ -1,1 +1,3 @@
-Install "luci-app-majordomo" { ignore = { 'missing' } }
+if features and features.provides then
+	Install "luci-app-majordomo" { ignore = { 'missing' } }
+end

@@ -257,7 +257,7 @@ for i in lists/*.list; do
 	done
 	echo " { ignore = { 'missing' } }" >> $PUB_BIN_DIR/lists/"$LUA"
 	sed -i '/^  Install[[:blank:]]*$/ d' $PUB_BIN_DIR/lists/"$LUA"
-	[ "$i" = lists/base.list ] || echo 'end' > $PUB_BIN_DIR/lists/"$LUA"
+	[ "$i" = lists/base.list ] || echo 'end' >> $PUB_BIN_DIR/lists/"$LUA"
 	if [ -f "$HOME"/mime.key ]; then
 		staging_dir/host/bin/usign -S -m $PUB_BIN_DIR/lists/"$LUA" -s "$HOME"/mime.key
 	fi
