@@ -1,3 +1,4 @@
+* uci: Fix listing of configs if subdirs are present
 * Foris: Added toggling of 80tcp and 2323tcp honeypot, handle error when retrieving messages.
 * ucollect-fake: Alternative telnet port 2323
 * bash: Enabled job control (jobs, fg, bg, disown, ...)

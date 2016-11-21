@@ -1,0 +1,67 @@
+commit 6c4beec8af0844565ed727f80f6af28236e3c7c8
+Author: Michal 'vorner' Vaner <michal.vaner@nic.cz>
+Date:   Mon Nov 21 16:05:24 2016 +0100
+
+    Fix skipping directories in uci_list_config_files
+    
+    Don't create a hole in the array of configs if there's a directory. Such
+    a hole would be mistaken for the end of the array.
+    
+    Signed-off-by: Michal 'vorner' Vaner <michal.vaner@nic.cz>
+
+diff --git a/file.c b/file.c
+index 81047a4..d55f56c 100644
+--- a/file.c
++++ b/file.c
+@@ -817,7 +817,6 @@ done:
+ static inline char *get_filename(char *path)
+ {
+ 	char *p;
+-
+ 	p = strrchr(path, '/');
+ 	p++;
+ 	if (!*p)
+@@ -829,7 +828,7 @@ static char **uci_list_config_files(struct uci_context *ctx)
+ {
+ 	char **configs;
+ 	glob_t globbuf;
+-	int size, i;
++	int size, i, j, skipped;
+ 	char *buf;
+ 	char *dir;
+ 
+@@ -841,18 +840,22 @@ static char **uci_list_config_files(struct uci_context *ctx)
+ 	}
+ 
+ 	size = sizeof(char *) * (globbuf.gl_pathc + 1);
++	skipped = 0;
+ 	for(i = 0; i < globbuf.gl_pathc; i++) {
+ 		char *p;
+ 
+ 		p = get_filename(globbuf.gl_pathv[i]);
+-		if (!p)
++		if (!p) {
++			skipped++;
+ 			continue;
++		}
+ 
+ 		size += strlen(p) + 1;
+ 	}
+ 
+-	configs = uci_malloc(ctx, size);
+-	buf = (char *) &configs[globbuf.gl_pathc + 1];
++	configs = uci_malloc(ctx, size - skipped);
++	buf = (char *) &configs[globbuf.gl_pathc + 1 - skipped];
++	j = 0;
+ 	for(i = 0; i < globbuf.gl_pathc; i++) {
+ 		char *p;
+ 
+@@ -863,7 +866,7 @@ static char **uci_list_config_files(struct uci_context *ctx)
+ 		if (!uci_validate_package(p))
+ 			continue;
+ 
+-		configs[i] = buf;
++		configs[j++] = buf;
+ 		strcpy(buf, p);
+ 		buf += strlen(buf) + 1;
+ 	}
