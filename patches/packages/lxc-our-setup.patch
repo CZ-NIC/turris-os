@@ -39,7 +39,7 @@ index 0df1460..b859ca7 100644
 +define Package/lxc-common/postinst
 +#!/bin/sh
 +[ -n "$$IPKG_INSTROOT" ] || {
-+	if cd /lxc; then
++	if cd /lxc 2> /dev/null; then
 +		for i in *; do
 +			if [ -d "$$i" ] && [ \! -e "/srv/lxc/$$i" ]; then
 +				ln -s "../../lxc/$$i" "/srv/lxc/$$i"
