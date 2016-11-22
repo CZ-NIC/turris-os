@@ -15,6 +15,13 @@ mkdir $TMPDIR
 make_defconfig() {
 	make defconfig "$@"
 	egrep '^(#[[:space:]]+)?CONFIG_KERNEL' configs/common configs/$TARGET_BOARD | sed 's|.*:||' >> ./.config
+	if [ -n "${PKG_BRANCH}" ] && [ "${PKG_BRANCH}" \!= master ] && [ "${PKG_BRANCH}" \!= stable ] && [ "${PKG_BRANCH}" \!= stable-omnia ]; then
+		echo CONFIG_PACKAGE_cznic-repo-keys-test=y >> .config
+		echo CONFIG_PACKAGE_getbranch-test=y >> .config
+	else
+		echo CONFIG_PACKAGE_cznic-repo-keys-test=m >> .config
+		echo CONFIG_PACKAGE_getbranch-deploy=y >> .config
+	fi
 }
 
 if [ "$1" = turris ] || [ "$1" = omnia ]; then
@@ -94,14 +101,6 @@ Install 'userlists' { critical = true }
 
 -- Install everything that was in the image
 EOF
-if [ -n "${PKG_BRANCH}" ] && [ "${PKG_BRANCH}" \!= master ] && [ "${PKG_BRANCH}" \!= stable ] && [ "${PKG_BRANCH}" \!= stable-omnia ]; then
-	echo 'Install "cznic-repo-keys-test"' >> base.lua
-	echo CONFIG_PACKAGE_cznic-repo-keys-test=y >> .config
-	echo CONFIG_PACKAGE_getbranch-test=y >> .config
-else
-	echo CONFIG_PACKAGE_cznic-repo-keys-test=m >> .config
-	echo CONFIG_PACKAGE_getbranch-deploy=y >> .config
-fi
 # Other lists
 echo 'config pkglists pkglists' > package/feeds/turrispackages/opkg-trans/files/updater.config
 for i in lists/*.list; do
