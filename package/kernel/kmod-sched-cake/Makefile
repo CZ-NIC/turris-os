@@ -28,7 +28,7 @@ define KernelPackage/sched-cake
   URL:=https://github.com/dtaht/sch_cake
   FILES:=$(PKG_BUILD_DIR)/sch_cake.ko
   AUTOLOAD:=$(call AutoLoad,75,sch_cake)
-  DEPENDS:=@LINUX_4_4:kmod-ipt-conntrack
+  DEPENDS:=@LINUX_4_4 +kmod-ipt-conntrack
 endef
 
 include $(INCLUDE_DIR)/kernel-defaults.mk
