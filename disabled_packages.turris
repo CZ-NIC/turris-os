@@ -14,10 +14,9 @@ klish
 seafile-ccnet
 fossil
 libnetconf2
-dahdi-tools
 seafile-server
 kmod-sched-cake # Doesn't build against 3.18 kernel
-dahdi-tools
-https-dns-proxy
+https_dns_proxy
 crtmpserver
 upmpdcli
+dahdi-tools-libtonezone
