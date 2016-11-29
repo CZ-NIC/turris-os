@@ -1,3 +1,4 @@
+* majordomo: Several fixes in Majordomo DB handling and DNS resolving.
 * foris-tls-plugin: Add missing German and Czech translation.
 * ucollect-sniff: Use SNI to get the correct certificate
 ===================== 3.3 =======================
