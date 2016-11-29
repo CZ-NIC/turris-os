@@ -46,6 +46,8 @@ start() {
 			uci set system.@led[$i].trigger="${MSATA}"
 			uci delete system.@led[$i].dev 2> /dev/null
 			uci delete system.@led[$i].mode 2> /dev/null
+			uci commit system
+			break
 		done
 	fi
 }
