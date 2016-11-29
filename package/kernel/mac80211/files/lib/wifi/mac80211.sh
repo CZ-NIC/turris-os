@@ -113,6 +113,7 @@ detect_mac80211() {
 config wifi-device  radio$devidx
 	option type     mac80211
 	option channel  ${channel}
+	option country  'CZ'
 	option hwmode	11${mode_band}
 $dev_id
 $ht_capab
@@ -123,7 +124,7 @@ config wifi-iface
 	option device   radio$devidx
 	option network  lan
 	option mode     ap
-	option ssid     LEDE
+	option ssid     Turris
 	option encryption none
 
 EOF
