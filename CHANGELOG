@@ -1,3 +1,4 @@
+* foris-tls-plugin: Add missing German and Czech translation.
 * ucollect-sniff: Use SNI to get the correct certificate
 ===================== 3.3 =======================
 * uci: Fix listing of configs if subdirs are present
