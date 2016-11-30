@@ -5,6 +5,8 @@
 * uci: Fix listing of configs if subdirs are present
 * Foris: Added toggling of 80tcp and 2323tcp honeypot, handle error when retrieving messages.
 * ucollect-fake: Alternative telnet port 2323
+* unbound: Support for static local domain
+* knot-resolver: Support for static local domain
 * bash: Enabled job control (jobs, fg, bg, disown, ...)
 * reptyr: New  package.
 * nuci: Delayed updates support (for updater-ng)
