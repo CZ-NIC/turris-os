@@ -1,3 +1,4 @@
+* logsend: Allow our own CA root
 * cznic-cacert-bundle: Add our own CA root
 * majordomo: Several fixes in Majordomo DB handling and DNS resolving.
 * foris-tls-plugin: Add missing German and Czech translation.
