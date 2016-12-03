@@ -1,3 +1,4 @@
+* user_notify: Fix mail envelope From header.
 * nuci: Include updater configuration in the backup
 * logsend: Allow our own CA root
 * cznic-cacert-bundle: Add our own CA root
