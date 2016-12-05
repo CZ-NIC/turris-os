@@ -1,3 +1,5 @@
+* ucollect-*: Various tiny fixes through the code
+* ucollect-fake: HTTP proxy support
 * diagnostics: Some useful diagnostics generating program added and integrated into foris as a plugin.
 * user_notify: Fix mail envelope From header.
 * nuci: Include updater configuration in the backup
