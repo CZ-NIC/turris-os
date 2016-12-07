@@ -46,6 +46,7 @@ CONFIG_LXC_KERNEL_OPTIONS=y
 CONFIG_USE_STRIP=y
 
 # Packages built as modules all the time
+CONFIG_PACKAGE_busybox-static=m
 CONFIG_PACKAGE_getbranch-test=m
 CONFIG_PACKAGE_nuci-nethist=m
 CONFIG_PACKAGE_nuci-tls=m

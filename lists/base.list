@@ -2,7 +2,6 @@ ntpdate
 oneshot
 cznic-repo-keys
 foris
-busybox-static
 lighttpd-mod-setenv
 foris-diagnostics-plugin
 
