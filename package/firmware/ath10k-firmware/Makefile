@@ -8,7 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ath10k-firmware
-PKG_SOURCE_VERSION:=307cb46b06661ebd3186723b5002de769c7add83
+PKG_SOURCE_VERSION:=b063774393b184c6e1626dec81cf5270cc213c69
+PKG_MIRROR_MD5SUM:=767c249578a4a2a14f202d92e1625af99153f29a5aeae14d04690d20c6b13897
 PKG_VERSION:=2016-09-13-$(PKG_SOURCE_VERSION)
 PKG_RELEASE:=1
 
@@ -66,28 +67,28 @@ $(Package/ath10k-firmware-default)
   TITLE:=ath10k firmware for QCA988x devices
 endef
 
-QCA988X_FIRMWARE_FILE_CT:=firmware-2-ct-full-community-16.1.bin-lede
-QCA99X0_FIRMWARE_FILE_CT:=firmware-5-ct-full-community-7.bin-lede.004
-QCA9984_FIRMWARE_FILE_CT:=firmware-5-ct-full-community-7.bin-lede.004
+QCA988X_FIRMWARE_FILE_CT:=firmware-2-ct-full-community.bin-18.rc2-lede
+QCA99X0_FIRMWARE_FILE_CT:=firmware-5-ct-full-community-8.bin-lede.005
+QCA9984_FIRMWARE_FILE_CT:=firmware-5-ct-full-community-8.bin-lede.005
 
 define Download/ath10k-firmware-qca988x-ct
   URL:=https://www.candelatech.com/downloads/
   FILE:=$(QCA988X_FIRMWARE_FILE_CT)
-  MD5SUM:=d7e081e9782936ed544b78994c9133fb
+  MD5SUM:=665482e1fd20a410627996c9a0b93411
 endef
 $(eval $(call Download,ath10k-firmware-qca988x-ct))
 
 define Download/ath10k-firmware-qca99x0-ct
   URL:=https://www.candelatech.com/downloads/ath10k-10-4/
   FILE:=$(QCA99X0_FIRMWARE_FILE_CT)
-  MD5SUM:=809bb9bf8a18ea218a8e1b9ffc0f8447
+  MD5SUM:=a63d9651e884bbb38ed6ff722f6c6951
 endef
 $(eval $(call Download,ath10k-firmware-qca99x0-ct))
 
 define Download/ath10k-firmware-qca9984-ct
   URL:=https://www.candelatech.com/downloads/ath10k-9984-10-4/
   FILE:=$(QCA9984_FIRMWARE_FILE_CT)
-  MD5SUM:=924eb8ea30de11299b13e207469a3350
+  MD5SUM:=b2427376dbfdb083b3d27cf42b2c525d
 endef
 $(eval $(call Download,ath10k-firmware-qca9984-ct))
 
@@ -237,7 +238,7 @@ define Package/ath10k-firmware-qca9984/install
 		$(PKG_BUILD_DIR)/QCA9984/hw1.0/board-2.bin \
 		$(1)/lib/firmware/ath10k/QCA9984/hw1.0/board-2.bin
 	$(INSTALL_DATA) \
-		$(PKG_BUILD_DIR)/QCA9984/hw1.0/firmware-5.bin_10.4-3.2-00072 \
+		$(PKG_BUILD_DIR)/QCA9984/hw1.0/3.3/firmware-5.bin_10.4-3.3-00092 \
 		$(1)/lib/firmware/ath10k/QCA9984/hw1.0/firmware-5.bin
 endef
 
