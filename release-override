@@ -8,7 +8,7 @@ feeds/management/freenetconfd-plugin-examples X 2
 feeds/management/shtool 1 2
 feeds/packages/admin/sudo 1 2
 feeds/packages/devel/autoconf 1 2
-feeds/packages/kernel/exfat-nofuse 1 2
+feeds/packages/kernel/exfat-nofuse 1 1-$(LINUX_VERMAGIC)
 feeds/packages/lang/erlang 2 3
 feeds/packages/lang/luai2c 2 3
 feeds/packages/lang/lua-rs232 1 2
