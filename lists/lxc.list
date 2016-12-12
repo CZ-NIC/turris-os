@@ -19,5 +19,6 @@ rpcd-mod-lxc
 luci-app-lxc
 gnupg
 gnupg-utils
+tar
 
 CONFIG_LXC_KERNEL_OPTIONS=y
