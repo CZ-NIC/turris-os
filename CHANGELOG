@@ -1,3 +1,4 @@
+* nuci: configurable content of backups
 * cznic-cacert-bundle: Let's Encrypt CA added
 * cznic-cacert-bundle: New cert for ucollect
 * Foris: Add checkboxes for disabling new minipots, improve German translation (thx to Philipp Beckers).
