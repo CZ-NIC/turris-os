@@ -1,3 +1,4 @@
+* opkg: don't destroy /usr/lib/opkg/status
 * updater-migrate: Don't crash when missing override.branch
 * nuci: configurable content of backups
 * cznic-cacert-bundle: Let's Encrypt CA added
