@@ -67,28 +67,31 @@ $(Package/ath10k-firmware-default)
   TITLE:=ath10k firmware for QCA988x devices
 endef
 
-QCA988X_FIRMWARE_FILE_CT:=firmware-2-ct-full-community.bin-18.rc2-lede
-QCA99X0_FIRMWARE_FILE_CT:=firmware-5-ct-full-community-8.bin-lede.005
-QCA9984_FIRMWARE_FILE_CT:=firmware-5-ct-full-community-8.bin-lede.005
+QCA988X_FIRMWARE_FILE_CT:=firmware-2-ct-full-community.bin-18.rc3-lede
+QCA988X_FIRMWARE_FILE_CT_SUM:=4cd2b6ce0867d1aec7879f3a5a4d4774
+QCA99X0_FIRMWARE_FILE_CT:=firmware-5-ct-full-community-8.bin-lede.006
+QCA99X0_FIRMWARE_FILE_CT_SUM:=ccd8f09b5200a468907bf7acb6f2f2e7
+QCA9984_FIRMWARE_FILE_CT:=firmware-5-ct-full-community-8.bin-lede.006
+QCA9984_FIRMWARE_FILE_CT_SUM:=33d74e6c3e41f872b7146e42035572b6
 
 define Download/ath10k-firmware-qca988x-ct
   URL:=https://www.candelatech.com/downloads/
   FILE:=$(QCA988X_FIRMWARE_FILE_CT)
-  MD5SUM:=665482e1fd20a410627996c9a0b93411
+  MD5SUM:=$(QCA988X_FIRMWARE_FILE_CT_SUM)
 endef
 $(eval $(call Download,ath10k-firmware-qca988x-ct))
 
 define Download/ath10k-firmware-qca99x0-ct
   URL:=https://www.candelatech.com/downloads/ath10k-10-4/
   FILE:=$(QCA99X0_FIRMWARE_FILE_CT)
-  MD5SUM:=a63d9651e884bbb38ed6ff722f6c6951
+  MD5SUM:=$(QCA99X0_FIRMWARE_FILE_CT_SUM)
 endef
 $(eval $(call Download,ath10k-firmware-qca99x0-ct))
 
 define Download/ath10k-firmware-qca9984-ct
   URL:=https://www.candelatech.com/downloads/ath10k-9984-10-4/
   FILE:=$(QCA9984_FIRMWARE_FILE_CT)
-  MD5SUM:=b2427376dbfdb083b3d27cf42b2c525d
+  MD5SUM:=$(QCA9984_FIRMWARE_FILE_CT_SUM)
 endef
 $(eval $(call Download,ath10k-firmware-qca9984-ct))
 
@@ -122,7 +125,7 @@ endef
 define Package/ath10k-firmware-qca9984-ct/description
 Alternative ath10k firmware for QCA9984 from Candela Technologies.
 Enables IBSS and other features.  See:
-http://www.candelatech.com/ath10k-10.4-9984.php
+http://www.candelatech.com/ath10k-10.4.php
 This firmware conflicts with the standard 9984 firmware, so select only
 one.
 endef
