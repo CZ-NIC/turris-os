@@ -1,3 +1,4 @@
+* foris-tls-plugin: Add one-time QR codes for the mobile application.
 * kernel: Enable NEON instructions.
 * iproute: Bump package release after adding cake qdisc.
 * ucollect-sniff: Don't generate 400
