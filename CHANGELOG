@@ -1,4 +1,5 @@
 ===================== 3.4 =======================
+* printing: Proof of concept of CUPS integration
 * python-turris-gpio: Add support for Turris Omnia board.
 * foris-tls-plugin: Add one-time QR codes for the mobile application.
 * kernel: Enable NEON instructions.
