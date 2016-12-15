@@ -1,3 +1,4 @@
+* python-turris-gpio: Add support for Turris Omnia board.
 * foris-tls-plugin: Add one-time QR codes for the mobile application.
 * kernel: Enable NEON instructions.
 * iproute: Bump package release after adding cake qdisc.
