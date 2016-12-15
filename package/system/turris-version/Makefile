@@ -48,8 +48,6 @@ create_notification -s news " • kernel: Aktualizace na nejnovější verzi
 }
 endef
 
-else
-
 define Package/turris-version/install
 	$(INSTALL_DIR) $(1)/etc
 	echo $(PKG_VERSION) > $(1)/etc/turris-version
