@@ -1,0 +1,21 @@
+diff --git a/libopkg/opkg_cmd.c b/libopkg/opkg_cmd.c
+index ce7cf5e..9d06827 100644
+--- a/libopkg/opkg_cmd.c
++++ b/libopkg/opkg_cmd.c
+@@ -519,6 +519,16 @@ opkg_upgrade_cmd(int argc, char **argv)
+      pkg_t *pkg;
+      int err = 0;
+ 
++     char answer[5];
++     fprintf(stderr, "The opkg upgrade is *DANGEROUS* on TurrisOS releases.\n"
++                     "It *WILL* break your system.\n"
++                     "Do you really want to continue? Write upper-case yes if do.\n");
++
++     fgets(answer, 5, stdin);
++
++     if (strcmp("YES\n", answer))
++           exit(1);
++
+      signal(SIGINT, sigint_handler);
+ 
+      if (argc) {
