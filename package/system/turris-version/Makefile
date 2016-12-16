@@ -44,7 +44,7 @@ create_notification -s news " • kernel: Aktualizace na nejnovější verzi
  • python-turris-gpio: Support for Turris Omnia
  • mac80211: Update and fixes of WiFi drivers
  • majordomo: Fixed DNS records resolving and database handling
- • nuci: Updater configuration added to backups, support for configurable backups
+ • nuci: Updater configuration added to backups, support for configurable backups"
 }
 endef
 
