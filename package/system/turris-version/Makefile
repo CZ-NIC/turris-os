@@ -34,6 +34,7 @@ create_notification -s news " • kernel: Aktualizace na nejnovější verzi
  • foris-diagnostics-plugin: Nový plugin pro generování diagnostických reportů
  • ucollect: Nové minipoty - HTTP proxy, Squid proxy a Polipo proxy; drobné opravy
  • python-turris-gpio: Podpora pro Turris Omnia
+ • cups: Základní podpora tisku přes cups
  • mac80211: Aktualizace a opravy ovladačů WiFi
  • majordomo: Opravy resolvování DNS záznamů a práce s databází
  • nuci: Přidání konfigurace updateru do záloh, podpora konfigurovatelných záloh" " • kernel: Update to latest version
@@ -42,6 +43,7 @@ create_notification -s news " • kernel: Aktualizace na nejnovější verzi
  • foris-diagnostics-plugin: New plugin for generation of diagnostic reports
  • ucollect: New minipots - HTTP proxy, Squid proxy and Polipo proxy; minor fixes
  • python-turris-gpio: Support for Turris Omnia
+ • cups: Basic support for printing via cups
  • mac80211: Update and fixes of WiFi drivers
  • majordomo: Fixed DNS records resolving and database handling
  • nuci: Updater configuration added to backups, support for configurable backups"
