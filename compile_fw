@@ -146,7 +146,7 @@ set -- "$@" PKG_BRANCH=${PKG_BRANCH/-/}
 
 make "$@"
 
-if [ "$PRIMARY_ONLY" = 1 ] ; then
+if [ -n "$PRIMARY_ONLY" ] ; then
 	# If we want only the primary system and want to use the build directory for more tests, exit now
 	exit
 fi
