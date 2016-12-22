@@ -1,3 +1,4 @@
+* diagnostics: turris_webs module added - checks whether the turris webs (api.turris.cz, www.turris.cz)
 * nuci: Fix of dir_content function
 * python-bottle: Update to 0.12.11 (fixes CVE-2016-9964; Foris was not affected)
 ===================== 3.4 =======================
