@@ -121,7 +121,7 @@ endef
 
 define KernelPackage/video-videobuf2
   TITLE:=videobuf2 lib
-  DEPENDS:=@LINUX_4_4:kmod-dma-buf
+  DEPENDS:=+LINUX_4_4:kmod-dma-buf
   KCONFIG:= \
 	CONFIG_VIDEOBUF2_CORE \
 	CONFIG_VIDEOBUF2_MEMOPS \
