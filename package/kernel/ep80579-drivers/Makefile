@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=ep80579-drivers
 PKG_VERSION:=1.0.34
-PKG_RELEASE:=1-$(LINUX_VERMAGIC)
+PKG_RELEASE:=1
 
 PKG_SOURCE:=Embedded.L.1.0.34.ADI.R100.tar.gz
 PKG_SOURCE_URL:=ftp://ftp.adiengineering.com/Archive/OcracokeIsland/Drivers/Linux/1.0.34/

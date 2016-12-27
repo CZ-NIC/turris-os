@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=button-hotplug
-PKG_RELEASE:=3-$(LINUX_VERMAGIC)
+PKG_RELEASE:=3
 
 include $(INCLUDE_DIR)/package.mk
 

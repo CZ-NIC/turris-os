@@ -8,7 +8,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=mmc-over-gpio
-PKG_RELEASE:=4-$(LINUX_VERMAGIC)
+PKG_RELEASE:=4
 
 include $(INCLUDE_DIR)/package.mk
 
