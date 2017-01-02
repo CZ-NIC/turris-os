@@ -1,0 +1,11 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -5,7 +5,7 @@ cmake_policy(SET CMP0015 NEW)
+ project(odhcp6c C)
+ set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
+ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -std=c99")
+-add_definitions(-D_GNU_SOURCE -Wall -Werror -Wextra -pedantic)
++add_definitions(-D_GNU_SOURCE -Wall)
+ 
+ if(${EXT_PREFIX_CLASS})
+ 	add_definitions(-DEXT_PREFIX_CLASS=${EXT_PREFIX_CLASS})
