@@ -1,3 +1,5 @@
+* knot: update to version 2.3.3
+* knot-resolver: update to version  1.2.0
 * kmod-uvc: Make it compile on Omnia
 * kmod-sched-cake: Update from LEDE
 * wifi: Update mac80211, ath10k-ct and hostapd from LEDE
