@@ -1,3 +1,4 @@
+* kernel: not removing info from proc
 * lighttpd: do not block on getting entropy during boot
 * squid: updtae to version 3.5.23
 * curl: update to version 7.52.1
