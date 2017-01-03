@@ -1,3 +1,6 @@
+* squid: updtae to version 3.5.23
+* curl: update to version 7.52.1
+* ebtables: fixed segfaulting
 * knot: update to version 2.3.3
 * knot-resolver: update to version  1.2.0
 * kmod-uvc: Make it compile on Omnia
