@@ -36,6 +36,14 @@ define Package/libintl-full
   URL:=http://www.gnu.org/software/gettext/
 endef
 
+define Package/gettext
+  SECTION:=utils
+  CATEGORY:=Utilities
+  DEPENDS:=+libintl-full
+  TITLE:=GNU Internationalization library
+  URL:=http://www.gnu.org/software/gettext/
+endef
+
 TARGET_CFLAGS += $(FPIC)
 ifneq ($(HOST_OS),Linux)
   TARGET_CFLAGS += -I$(STAGING_DIR_HOST)/include
@@ -76,5 +84,11 @@ define Package/libintl-full/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libintl.so* $(1)/usr/lib/
 endef
 
+define Package/gettext/install
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(CP) $(PKG_INSTALL_DIR)/usr/bin/gettext $(1)/usr/bin
+endef
+
 $(eval $(call HostBuild))
 $(eval $(call BuildPackage,libintl-full))
+$(eval $(call BuildPackage,gettext))
