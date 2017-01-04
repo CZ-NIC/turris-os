@@ -1,3 +1,5 @@
+* openssh: update to version 7.4p1 and more ucified options
+* hostapd: enable FST
 * nuci: fix backup restore script
 * kernel: not removing info from proc
 * lighttpd: do not block on getting entropy during boot
