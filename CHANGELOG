@@ -1,4 +1,6 @@
-* openssh: update to version 7.4p1 and more ucified options
+* fstrim: include binary
+* gettext: provide binary to be used in scripts
+* openssh: update to version 7.4p1
 * hostapd: enable FST
 * nuci: fix backup restore script
 * kernel: not removing info from proc
