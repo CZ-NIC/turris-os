@@ -15,7 +15,7 @@ your change wouldn't get lost on next rebase.
 Then we use various upstream OpenWRT feeds like
 [packages](https://github.com/openwrt/packages). If you want something changed
 there, send your contribution to upstream and we will pick it up on next
-rebase. We are rebasing feeds quite often. In particular if you would like new
+update. We are updating feeds quite often. In particular if you would like new
 package included in Turris OS, please send it to
 [packages](https://github.com/openwrt/packages).
 
@@ -29,3 +29,9 @@ In our repositories all development happens in `test` branch. So if your
 contribution should go into one of our repositories, send a pull request
 against `test` branch. You can use basic GitHub fork/pull-request workflow.
 
+## Technicalities
+
+All our GitHub repositories are mirrors of our development repositories hosted
+at our [gitlab](https://gitlab.labs.nic.cz/turris) but they are always in sync
+so for all purposes, they are the same. Alternatively you can also send us
+patches via issue or even via mail to packaging [at] turris.cz.
