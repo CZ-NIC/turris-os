@@ -2,3 +2,4 @@ kmod-ata-ahci-platform
 kmod-ata-mvebu-ahci
 kmod-crypto-marvell-cesa
 blkdiscard
+fstrim

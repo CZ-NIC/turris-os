@@ -225,6 +225,17 @@ define Package/flock/description
   manages flock locks from within shell scripts or the command line
 endef
 
+define Package/fstrim
+$(call Package/util-linux/Default)
+  TITLE:=discard unused blocks on a mounted filesystem
+endef
+
+define Package/fstrim/description
+  fstrim is used on a mounted filesystem to discard (or "trim") blocks
+  which are not in use by the filesystem.  This is useful for solid-
+  state drives (SSDs) and thinly-provisioned storage.
+endef
+
 define Package/getopt
 $(call Package/util-linux/Default)
   TITLE:=parse command options (enhanced)
@@ -504,6 +515,11 @@ define Package/flock/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/flock $(1)/usr/bin/
 endef
 
+define Package/fstrim/install
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/fstrim $(1)/usr/bin/
+endef
+
 define Package/getopt/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/getopt $(1)/usr/bin/
@@ -623,6 +639,7 @@ $(eval $(call BuildPackage,dmesg))
 $(eval $(call BuildPackage,fdisk))
 $(eval $(call BuildPackage,findfs))
 $(eval $(call BuildPackage,flock))
+$(eval $(call BuildPackage,fstrim))
 $(eval $(call BuildPackage,getopt))
 $(eval $(call BuildPackage,hwclock))
 $(eval $(call BuildPackage,logger))
