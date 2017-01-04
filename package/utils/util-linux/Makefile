@@ -228,6 +228,7 @@ endef
 define Package/fstrim
 $(call Package/util-linux/Default)
   TITLE:=discard unused blocks on a mounted filesystem
+  DEPENDS:=+libblkid +libuuid +libmount
 endef
 
 define Package/fstrim/description
@@ -517,7 +518,7 @@ endef
 
 define Package/fstrim/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/fstrim $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/.libs/fstrim $(1)/usr/bin/
 endef
 
 define Package/getopt/install
