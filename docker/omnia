@@ -1,0 +1,3 @@
+FROM turris-os-build:omnia-toolchain
+ARG EXTRA_PARAMS=
+RUN make -j4 IS_TTY=1 LOGFILE=1 BUILD_LOG=1 V=s $EXTRA_PARAMS
