@@ -1,3 +1,4 @@
+* Foris: add retry mechanism when NETCONF server dies, reintroduce sending stats to About page on Turris
 * fstrim: include binary
 * gettext: provide binary to be used in scripts
 * openssh: update to version 7.4p1
