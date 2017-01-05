@@ -4,7 +4,6 @@ luci-app-ddns
 luci-app-firewall
 luci-app-minidlna
 luci-app-mjpg-streamer
-luci-app-ntpc
 luci-app-rainbow
 luci-app-statistics
 luci-app-tinyproxy
@@ -24,8 +23,6 @@ luci-i18n-firewall-cs
 luci-i18n-firewall-en
 luci-i18n-minidlna-cs
 luci-i18n-minidlna-en
-luci-i18n-ntpc-cs
-luci-i18n-ntpc-en
 luci-i18n-statistics-cs
 luci-i18n-statistics-en
 luci-i18n-tinyproxy-cs
