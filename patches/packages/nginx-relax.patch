@@ -1,0 +1,35 @@
+From ab25119dfb280a6a76ba2b2873ec7ad534189609 Mon Sep 17 00:00:00 2001
+From: Michal Hrusecky <michal.hrusecky@nic.cz>
+Date: Fri, 6 Jan 2017 16:29:12 +0100
+Subject: [PATCH] nginx: Relax checks - disable -Werror
+
+---
+ net/nginx/patches/400-relax.patch | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+ create mode 100644 net/nginx/patches/400-relax.patch
+
+diff --git a/net/nginx/patches/400-relax.patch b/net/nginx/patches/400-relax.patch
+new file mode 100644
+index 00000000..acceee31
+--- /dev/null
++++ b/net/nginx/patches/400-relax.patch
+@@ -0,0 +1,16 @@
++--- a/auto/cc/gcc
+++++ b/auto/cc/gcc
++@@ -171,13 +171,6 @@ case "$NGX_GCC_VER" in
++     ;;
++ esac
++ 
++-
++-# stop on warning
++-CFLAGS="$CFLAGS -Werror"
++-
++-# debug
++-CFLAGS="$CFLAGS -g"
++-
++ # DragonFly's gcc3 generates DWARF
++ #CFLAGS="$CFLAGS -g -gstabs"
++ 
+-- 
+2.11.0
+
