@@ -32,7 +32,7 @@ create_notification -s news " • ath10k: implicitně použity ovladače WiFi a
  • mac80211, hostapd: aktualizace a opravy ovladačů, zapnutí FST (Fast Session Transfer)
  • lighttpd: při nedostatku entropie nedochází k občasnému zablokování startu systému
  • openssh: aktualizace na verzi 7.4p1
- • knot-resolver: oprava předávání sekundárních DNS serverů při forwardování
+ • knot-resolver: podpora pro forwardování na více nadřazených DNS serverů
  • foris: navrácení stavu odesílání dat pro Turris, vyšší odolnost proti pádům NETCONF serveru
  • nuci: oprava obnovování konfigurace a chyb, které mohly vést k občasným pádům
  • opkg: opravy pádů při instalaci balíčků
@@ -41,7 +41,7 @@ create_notification -s news " • ath10k: implicitně použity ovladače WiFi a
  • mac80211, hostapd: fixes and updates of drivers, enabled FST (Fast Session Transfer)
  • lighttpd: does not block boot when kernel reports low entropy
  • openssh: updated to version 7.4p1
- • knot-resolver: fixed passing of secondary DNS servers to configuration when forwarding
+ • knot-resolver: support forwarding to multiple upstream DNS servers
  • foris: returned data sending status to About page, better tolerance for NETCONF server crashes
  • nuci: fixed configuration restore and errors that could lead to ocassional crashes
  • opkg: fixed crashes during package installation
