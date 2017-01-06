@@ -2,4 +2,4 @@ FROM turris-os-build:base
 RUN git checkout test && git pull && git show
 ARG FLAVOR=omnia
 ARG EXTRA_PARAMS=
-RUN PRIMARY_ONLY=1 ./compile_fw $FLAVOR -j4 tools/install toolchain/install IS_TTY=1 LOGFILE=1 BUILD_LOG=1 V=s $EXTRA_PARAMS
+RUN PRIMARY_ONLY=1 ./compile_fw $FLAVOR -j1 tools/install toolchain/install IS_TTY=1 LOGFILE=1 BUILD_LOG=1 V=s $EXTRA_PARAMS
