@@ -109,7 +109,6 @@ feeds/turrispackages/libs/libnet-1.2.x 3 4
 feeds/turrispackages/multimedia/minidlna 1 2
 feeds/turrispackages/multimedia/tvheadend 1 2
 feeds/turrispackages/net/etherwake 4 5
-feeds/turrispackages/net/knot 1 2
 feeds/turrispackages/net/net-snmp 2 3
 feeds/turrispackages/net/squid 1 2
 feeds/turrispackages/utils/coreutils 1 2
