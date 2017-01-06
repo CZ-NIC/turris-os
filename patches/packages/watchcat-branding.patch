@@ -1,0 +1,26 @@
+diff --git a/utils/watchcat/Makefile b/utils/watchcat/Makefile
+index 9160cff0..fff7c4a1 100644
+--- a/utils/watchcat/Makefile
++++ b/utils/watchcat/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=watchcat
+ PKG_VERSION:=1
+-PKG_RELEASE:=5
++PKG_RELEASE:=7
+ 
+ PKG_MAINTAINER:=Roger D <rogerdammit@gmail.com>
+ PKG_LICENSE:=GPL-2.0
+diff --git a/utils/watchcat/files/uci_defaults_watchcat b/utils/watchcat/files/uci_defaults_watchcat
+index 49def81e..7e26eb84 100644
+--- a/utils/watchcat/files/uci_defaults_watchcat
++++ b/utils/watchcat/files/uci_defaults_watchcat
+@@ -4,7 +4,7 @@ uci -q show system.@watchcat[0] || {
+ 	uci add system watchcat
+ 	uci set system.@watchcat[0].period=6h
+ 	uci set system.@watchcat[0].mode=ping
+-	uci set system.@watchcat[0].pinghosts=8.8.8.8
++	uci set system.@watchcat[0].pinghosts=194.0.12.1
+ 	uci set system.@watchcat[0].forcedelay=30
+ 	uci commit
+ }
