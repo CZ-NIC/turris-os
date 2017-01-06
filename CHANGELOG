@@ -1,5 +1,5 @@
 ===================== 3.5 =======================
-* knot-resolver: correctly propagate servers for forwarding to configuration
+* knot-resolver: support forwarding to multiple servers
 * Foris: add retry mechanism when NETCONF server dies, reintroduce sending stats to About page on Turris
 * fstrim: include binary
 * gettext: provide binary to be used in scripts
