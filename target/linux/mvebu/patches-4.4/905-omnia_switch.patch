@@ -1,0 +1,72 @@
+Index: linux-4.4.39/drivers/net/phy/mvsw61xx.c
+===================================================================
+--- linux-4.4.39.orig/drivers/net/phy/mvsw61xx.c
++++ linux-4.4.39/drivers/net/phy/mvsw61xx.c
+@@ -640,8 +640,25 @@ static void mvsw6176_quirks(struct switc
+ 		smisw16(dev, PHY_ADDR(i, PHY_SPECCONTROL_REG), copperspecreg);
+ 
+ 		copperreg=smisr16(dev, PHY_ADDR(i, PHY_CONTROL_REG));
+-		copperreg&=~PHY_CONTROL_PWR;
++		/* Reset copper PHY. Added to overcome problems with Broadcom and Netgear
++		 * EEE-enabled switches that didn't set the link up after software reset
++		 * of the MVSW.
++		 */
++		smisw16(dev, PHY_ADDR(i, PHY_CONTROL_REG), (copperreg | MV_CONTROL_RESET));
++
++		/* Cleanup after PHY reset: Set autonegotiation, set mode advertisement. */
++		copperreg &= ~PHY_CONTROL_PWR;
++		copperreg |= (MV_CONTROL_ANEG | MV_CONTROL_ANEG_RESTART);
+ 		smisw16(dev, PHY_ADDR(i, PHY_CONTROL_REG), copperreg);
++
++		reg=smisr16(dev, PHY_ADDR(i, PHY_1000CONTROL_REG));
++		reg |= (MV_1000CONTROL_ADV1000FULL | MV_1000CONTROL_ADV1000HALF);
++		smisw16(dev, PHY_ADDR(i, PHY_1000CONTROL_REG), reg);
++
++		reg=smisr16(dev, PHY_ADDR(i, PHY_ANEG_REG));
++		reg &= ~(MV_ANEG_ADV100T4 | MV_ANEG_ADVPAUSE | MV_ANEG_ADVASYMPAUSE);
++		reg |= (MV_ANEG_ADV10HALF | MV_ANEG_ADV10FULL | MV_ANEG_ADV100HALF | MV_ANEG_ADV100FULL);
++		smisw16(dev, PHY_ADDR(i, PHY_ANEG_REG), reg);
+ 	}
+ 
+ 	/* Enable forwarding (STP mode) */
+Index: linux-4.4.39/drivers/net/phy/mvsw61xx.h
+===================================================================
+--- linux-4.4.39.orig/drivers/net/phy/mvsw61xx.h
++++ linux-4.4.39/drivers/net/phy/mvsw61xx.h
+@@ -184,9 +184,27 @@ enum {
+ enum {
+ 	MV_CONTROL_RESET		= (1 << 15),
+ 	MV_CONTROL_PPU_ENABLE		= (1 << 14),
++	MV_CONTROL_ANEG			= (1 << 12),
++	MV_CONTROL_ANEG_RESTART		= (1 << 9),
+ };
+ 
+ enum {
++	MV_1000CONTROL_ADV1000FULL	= (1 << 9),
++	MV_1000CONTROL_ADV1000HALF	= (1 << 8),
++};
++
++enum {
++	MV_ANEG_ADV10HALF		= (1 << 5),
++	MV_ANEG_ADV10FULL		= (1 << 6),
++	MV_ANEG_ADV100HALF		= (1 << 7),
++	MV_ANEG_ADV100FULL		= (1 << 8),
++	MV_ANEG_ADV100T4		= (1 << 9),
++	MV_ANEG_ADVPAUSE		= (1 << 10),
++	MV_ANEG_ADVASYMPAUSE		= (1 << 11),
++};
++
++
++enum {
+ 	MV_VTUCTL_EGRESS_UNMODIFIED	= (0 << 0),
+ 	MV_VTUCTL_EGRESS_UNTAGGED	= (1 << 0),
+ 	MV_VTUCTL_EGRESS_TAGGED		= (2 << 0),
+@@ -232,6 +250,8 @@ enum {
+ 
+ #define PHY_ADDR(_n, _type) _n, _type
+ #define PHY_CONTROL_REG 0
++#define PHY_ANEG_REG 4
++#define PHY_1000CONTROL_REG 9
+ #define PHY_SPECCONTROL_REG 16
+ #define PHY_PAGE_REG 22
+ 
