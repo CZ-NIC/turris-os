@@ -1,3 +1,5 @@
+* nuci: ca-gen plugin added - it is used to generate CA, dhparams and certificates (could be used by e.g. openvpn server/client)
+* nuci: openvpn-client plugin added - it should be able to generate client config based on server configuration from uci
 ===================== 3.5 =======================
 * knot-resolver: support forwarding to multiple servers
 * Foris: add retry mechanism when NETCONF server dies, reintroduce sending stats to About page on Turris
