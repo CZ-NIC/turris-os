@@ -1,3 +1,5 @@
+* kernel: updated to the last available version
+* lighttpd: updated and cleaned up, disabled mod_mysql_vhost
 * foris-openvpn-plugin: new plugin which helps to perform a simple openvpn server setting on your router
 * nuci: ca-gen plugin added - it is used to generate CA, dhparams and certificates (could be used by e.g. openvpn server/client)
 * nuci: openvpn-client plugin added - it should be able to generate client config based on server configuration from uci
