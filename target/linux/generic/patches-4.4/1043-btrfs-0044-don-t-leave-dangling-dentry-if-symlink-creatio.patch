@@ -1,0 +1,80 @@
+From: Filipe Manana <fdmanana@suse.com>
+Date: Thu, 31 Dec 2015 18:08:24 +0000
+Patch-mainline: 4.5
+Git-commit: d50866d00fb39fcf72307001763ee9cc92625a43
+References: bsc#1012452
+Subject: [PATCH] Btrfs: don't leave dangling dentry if symlink
+ creation failed
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+When we are creating a symlink we might fail with an error after we
+created its inode and added the corresponding directory indexes to its
+parent inode. In this case we end up never removing the directory indexes
+because the inode eviction handler, called for our symlink inode on the
+final iput(), only removes items associated with the symlink inode and
+not with the parent inode.
+
+Example:
+
+  $ mkfs.btrfs -f /dev/sdi
+  $ mount /dev/sdi /mnt
+  $ touch /mnt/foo
+  $ ln -s /mnt/foo /mnt/bar
+  ln: failed to create symbolic link ‘bar’: Cannot allocate memory
+  $ umount /mnt
+  $ btrfsck /dev/sdi
+  Checking filesystem on /dev/sdi
+  UUID: d5acb5ba-31bd-42da-b456-89dca2e716e1
+  checking extents
+  checking free space cache
+  checking fs roots
+  root 5 inode 258 errors 2001, no inode item, link count wrong
+	unresolved ref dir 256 index 3 namelen 3 name bar filetype 7 errors 4, no inode ref
+  found 131073 bytes used err is 1
+  total csum bytes: 0
+  total tree bytes: 131072
+  total fs tree bytes: 32768
+  total extent tree bytes: 16384
+  btree space waste bytes: 124305
+  file data blocks allocated: 262144
+   referenced 262144
+  btrfs-progs v4.2.3
+
+So fix this by adding the directory index entries as the very last
+step of symlink creation.
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.cz>
+---
+ fs/btrfs/inode.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -9711,10 +9711,6 @@ static int btrfs_symlink(struct inode *d
+ 	if (err)
+ 		goto out_unlock_inode;
+ 
+-	err = btrfs_add_nondir(trans, dir, dentry, inode, 0, index);
+-	if (err)
+-		goto out_unlock_inode;
+-
+ 	path = btrfs_alloc_path();
+ 	if (!path) {
+ 		err = -ENOMEM;
+@@ -9751,6 +9747,13 @@ static int btrfs_symlink(struct inode *d
+ 	inode_set_bytes(inode, name_len);
+ 	btrfs_i_size_write(inode, name_len);
+ 	err = btrfs_update_inode(trans, root, inode);
++	/*
++	 * Last step, add directory indexes for our symlink inode. This is the
++	 * last step to avoid extra cleanup of these indexes if an error happens
++	 * elsewhere above.
++	 */
++	if (!err)
++		err = btrfs_add_nondir(trans, dir, dentry, inode, 0, index);
+ 	if (err) {
+ 		drop_inode = 1;
+ 		goto out_unlock_inode;

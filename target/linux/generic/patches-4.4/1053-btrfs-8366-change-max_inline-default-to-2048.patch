@@ -1,0 +1,54 @@
+From: David Sterba <dsterba@suse.com>
+Date: Thu, 8 Oct 2015 14:14:16 +0200
+Patch-mainline: 4.6
+Git-commit: f7e98a7fff8634ae655c666dc2c9fc55a48d0a73
+References: bsc#949472
+Subject: [PATCH] btrfs: change max_inline default to 2048
+
+The current practical default is ~4k on x86_64 (the logic is more complex,
+simplified for brevity), the inlined files land in the metadata group and
+thus consume space that could be needed for the real metadata.
+
+The inlining brings some usability surprises:
+
+1) total space consumption measured on various filesystems and btrfs
+   with DUP metadata was quite visible because of the duplicated data
+   within metadata
+
+2) inlined data may exhaust the metadata, which are more precious in case
+   the entire device space is allocated to chunks (ie. balance cannot
+   make the space more compact)
+
+3) performance suffers a bit as the inlined blocks are duplicate and
+   stored far away on the device.
+
+Proposed fix: set the default to 2048
+
+This fixes namely 1), the total filesysystem space consumption will be on
+par with other filesystems.
+
+Partially fixes 2), more data are pushed to the data block groups.
+
+The characteristics of 3) are based on actual small file size
+distribution.
+
+The change is independent of the metadata blockgroup type (though it's
+most visible with DUP) or system page size as these parameters are not
+trival to find out, compared to file size.
+
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/ctree.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -2186,7 +2186,7 @@ struct btrfs_ioctl_defrag_range_args {
+ #define BTRFS_MOUNT_FRAGMENT_METADATA	(1 << 25)
+ 
+ #define BTRFS_DEFAULT_COMMIT_INTERVAL	(30)
+-#define BTRFS_DEFAULT_MAX_INLINE	(8192)
++#define BTRFS_DEFAULT_MAX_INLINE	(2048)
+ 
+ #define btrfs_clear_opt(o, opt)		((o) &= ~BTRFS_MOUNT_##opt)
+ #define btrfs_set_opt(o, opt)		((o) |= BTRFS_MOUNT_##opt)

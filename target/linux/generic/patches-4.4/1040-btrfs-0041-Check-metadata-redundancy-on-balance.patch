@@ -1,0 +1,35 @@
+From: Sam Tygier <samtygier@yahoo.co.uk>
+Date: Wed, 6 Jan 2016 08:46:12 +0000
+Patch-mainline: 4.5
+Git-commit: ee592d07716139ef7c3ea8049936cbc3aafbc533
+References: bsc#1012452
+Subject: [PATCH] Btrfs: Check metadata redundancy on balance
+
+When converting a filesystem via balance check that metadata mode
+is at least as redundant as the data mode. For example give warning
+when:
+-dconvert=raid1 -mconvert=single
+
+Signed-off-by: Sam Tygier <samtygier@yahoo.co.uk>
+[ minor message reformatting ]
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/volumes.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
+
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -3750,6 +3750,13 @@ int btrfs_balance(struct btrfs_balance_c
+ 		}
+ 	} while (read_seqretry(&fs_info->profiles_lock, seq));
+ 
++	if (btrfs_get_num_tolerated_disk_barrier_failures(bctl->meta.target) <
++		btrfs_get_num_tolerated_disk_barrier_failures(bctl->data.target)) {
++		btrfs_warn(fs_info,
++	"metatdata profile 0x%llx has lower redundancy than data profile 0x%llx",
++			bctl->meta.target, bctl->data.target);
++	}
++
+ 	if (bctl->sys.flags & BTRFS_BALANCE_ARGS_CONVERT) {
+ 		fs_info->num_tolerated_disk_barrier_failures = min(
+ 			btrfs_calc_num_tolerated_disk_barrier_failures(fs_info),

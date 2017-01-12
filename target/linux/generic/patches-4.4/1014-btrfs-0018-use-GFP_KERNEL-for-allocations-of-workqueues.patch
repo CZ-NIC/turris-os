@@ -1,0 +1,36 @@
+From: David Sterba <dsterba@suse.com>
+Date: Tue, 1 Dec 2015 18:04:30 +0100
+Patch-mainline: 4.5
+Git-commit: 61dd5ae65be6dfaeadb0e841ea6639351f0e04ce
+References: bsc#1012452
+Subject: [PATCH] btrfs: use GFP_KERNEL for allocations of workqueues
+
+We don't have to use GFP_NOFS to allocate workqueue structures, this is
+done from mount context or potentially scrub start context, safe to fail
+in both cases.
+
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/async-thread.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/fs/btrfs/async-thread.c
++++ b/fs/btrfs/async-thread.c
+@@ -97,7 +97,7 @@ static struct __btrfs_workqueue *
+ __btrfs_alloc_workqueue(const char *name, unsigned int flags, int limit_active,
+ 			 int thresh)
+ {
+-	struct __btrfs_workqueue *ret = kzalloc(sizeof(*ret), GFP_NOFS);
++	struct __btrfs_workqueue *ret = kzalloc(sizeof(*ret), GFP_KERNEL);
+ 
+ 	if (!ret)
+ 		return NULL;
+@@ -148,7 +148,7 @@ struct btrfs_workqueue *btrfs_alloc_work
+ 					      int limit_active,
+ 					      int thresh)
+ {
+-	struct btrfs_workqueue *ret = kzalloc(sizeof(*ret), GFP_NOFS);
++	struct btrfs_workqueue *ret = kzalloc(sizeof(*ret), GFP_KERNEL);
+ 
+ 	if (!ret)
+ 		return NULL;

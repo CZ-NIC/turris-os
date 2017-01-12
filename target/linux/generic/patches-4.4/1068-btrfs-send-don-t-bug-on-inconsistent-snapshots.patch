@@ -1,0 +1,113 @@
+From: Filipe Manana <fdmanana@suse.com>
+Date: Mon, 1 Aug 2016 01:50:37 +0100
+Patch-mainline: 4.8
+Git-commit: 951555856b88aa47bc238de6b4c6e97bfd9d36df
+References: bsc#985850
+Subject: [PATCH] Btrfs: send, don't bug on inconsistent snapshots
+
+When doing an incremental send, if we find a new/modified/deleted extent,
+reference or xattr without having previously processed the corresponding
+inode item we end up exexuting a BUG_ON(). This is because whenever an
+extent, xattr or reference is added, modified or deleted, we always expect
+to have the corresponding inode item updated. However there are situations
+where this will not happen due to transient -ENOMEM or -ENOSPC errors when
+doing delayed inode updates.
+
+For example, when punching holes we can succeed in deleting and modifying
+(shrinking) extents but later fail to do the delayed inode update. So after
+such failure we close our transaction handle and right after a snapshot of
+the fs/subvol tree can be made and used later for a send operation. The
+same thing can happen during truncate, link, unlink, and xattr related
+operations.
+
+So instead of executing a BUG_ON, make send return an -EIO error and print
+an informative error message do dmesg/syslog.
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+---
+ fs/btrfs/send.c | 48 +++++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 45 insertions(+), 3 deletions(-)
+
+diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
+index 63a6152..d0d4448 100644
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -273,6 +273,39 @@ struct name_cache_entry {
+ 	char name[];
+ };
+ 
++static void inconsistent_snapshot_error(struct send_ctx *sctx,
++					enum btrfs_compare_tree_result result,
++					const char *what)
++{
++	const char *result_string;
++
++	switch (result) {
++	case BTRFS_COMPARE_TREE_NEW:
++		result_string = "new";
++		break;
++	case BTRFS_COMPARE_TREE_DELETED:
++		result_string = "deleted";
++		break;
++	case BTRFS_COMPARE_TREE_CHANGED:
++		result_string = "updated";
++		break;
++	case BTRFS_COMPARE_TREE_SAME:
++		ASSERT(0);
++		result_string = "unchanged";
++		break;
++	default:
++		ASSERT(0);
++		result_string = "unexpected";
++	}
++
++	btrfs_err(sctx->send_root->fs_info,
++		  "Send: inconsistent snapshot, found %s %s for inode %llu without updated inode item, send root is %llu, parent root is %llu",
++		  result_string, what, sctx->cmp_key->objectid,
++		  sctx->send_root->root_key.objectid,
++		  (sctx->parent_root ?
++		   sctx->parent_root->root_key.objectid : 0));
++}
++
+ static int is_waiting_for_move(struct send_ctx *sctx, u64 ino);
+ 
+ static struct waiting_dir_move *
+@@ -5601,7 +5634,10 @@ static int changed_ref(struct send_ctx *sctx,
+ {
+ 	int ret = 0;
+ 
+-	BUG_ON(sctx->cur_ino != sctx->cmp_key->objectid);
++	if (sctx->cur_ino != sctx->cmp_key->objectid) {
++		inconsistent_snapshot_error(sctx, result, "reference");
++		return -EIO;
++	}
+ 
+ 	if (!sctx->cur_inode_new_gen &&
+ 	    sctx->cur_ino != BTRFS_FIRST_FREE_OBJECTID) {
+@@ -5626,7 +5662,10 @@ static int changed_xattr(struct send_ctx *sctx,
+ {
+ 	int ret = 0;
+ 
+-	BUG_ON(sctx->cur_ino != sctx->cmp_key->objectid);
++	if (sctx->cur_ino != sctx->cmp_key->objectid) {
++		inconsistent_snapshot_error(sctx, result, "xattr");
++		return -EIO;
++	}
+ 
+ 	if (!sctx->cur_inode_new_gen && !sctx->cur_inode_deleted) {
+ 		if (result == BTRFS_COMPARE_TREE_NEW)
+@@ -5650,7 +5689,10 @@ static int changed_extent(struct send_ctx *sctx,
+ {
+ 	int ret = 0;
+ 
+-	BUG_ON(sctx->cur_ino != sctx->cmp_key->objectid);
++	if (sctx->cur_ino != sctx->cmp_key->objectid) {
++		inconsistent_snapshot_error(sctx, result, "extent");
++		return -EIO;
++	}
+ 
+ 	if (!sctx->cur_inode_new_gen && !sctx->cur_inode_deleted) {
+ 		if (result != BTRFS_COMPARE_TREE_DELETED)
+-- 
+1.8.4.5
+

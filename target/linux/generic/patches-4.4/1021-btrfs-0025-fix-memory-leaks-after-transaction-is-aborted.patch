@@ -1,0 +1,47 @@
+From: Filipe Manana <fdmanana@suse.com>
+Date: Fri, 27 Nov 2015 16:12:00 +0000
+Patch-mainline: 4.5
+Git-commit: 7785a663c4beebdafeb300caf2818e7e6474abd1
+References: bsc#1012452
+Subject: [PATCH] Btrfs: fix memory leaks after transaction is aborted
+
+When a transaction is aborted, or its commit fails before writing the new
+superblock and calling btrfs_finish_extent_commit(), we leak reference
+counts on the block groups attached to the transaction's delete_bgs list,
+because btrfs_finish_extent_commit() is never called for those two cases.
+Fix this by dropping their references at btrfs_put_transaction(), which
+is called when transactions are aborted (by making the transaction kthread
+commit the transaction) or if their commits fail.
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.cz>
+---
+ fs/btrfs/transaction.c |   17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -75,6 +75,23 @@ void btrfs_put_transaction(struct btrfs_
+ 			list_del_init(&em->list);
+ 			free_extent_map(em);
+ 		}
++		/*
++		 * If any block groups are found in ->deleted_bgs then it's
++		 * because the transaction was aborted and a commit did not
++		 * happen (things failed before writing the new superblock
++		 * and calling btrfs_finish_extent_commit()), so we can not
++		 * discard the physical locations of the block groups.
++		 */
++		while (!list_empty(&transaction->deleted_bgs)) {
++			struct btrfs_block_group_cache *cache;
++
++			cache = list_first_entry(&transaction->deleted_bgs,
++						 struct btrfs_block_group_cache,
++						 bg_list);
++			list_del_init(&cache->bg_list);
++			btrfs_put_block_group_trimming(cache);
++			btrfs_put_block_group(cache);
++		}
+ 		kmem_cache_free(btrfs_transaction_cachep, transaction);
+ 	}
+ }

@@ -1,0 +1,118 @@
+From: Filipe Manana <fdmanana@suse.com>
+Date: Thu, 9 Jun 2016 17:53:10 +0100
+References: bsc#981038
+Git-commit: 67710892ec983aa79ad1e2a2642fe8e3a4a194ea
+Patch-mainline: v4.8-rc5
+Subject: [PATCH] Btrfs: be more precise on errors when getting an inode
+ from disk
+
+When we attempt to read an inode from disk, we end up always returning an
+-ESTALE error to the caller regardless of the actual failure reason, which
+can be an out of memory problem (when allocating a path), some error found
+when reading from the fs/subvolume btree (like a genuine IO error) or the
+inode does not exists. So lets start returning the real error code to the
+callers so that they don't treat all -ESTALE errors as meaning that the
+inode does not exists (such as during orphan cleanup). This will also be
+needed for a subsequent patch in the same series dealing with a special
+fsync case.
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+---
+ fs/btrfs/inode.c | 27 ++++++++++++++++++---------
+ 1 file changed, 18 insertions(+), 9 deletions(-)
+
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index ee80610..6e82c89 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -3410,10 +3410,10 @@ int btrfs_orphan_cleanup(struct btrfs_root *root)
+ 		found_key.offset = 0;
+ 		inode = btrfs_iget(root->fs_info->sb, &found_key, root, NULL);
+ 		ret = PTR_ERR_OR_ZERO(inode);
+-		if (ret && ret != -ESTALE)
++		if (ret && ret != -ENOENT)
+ 			goto out;
+ 
+-		if (ret == -ESTALE && root == root->fs_info->tree_root) {
++		if (ret == -ENOENT && root == root->fs_info->tree_root) {
+ 			struct btrfs_root *dead_root;
+ 			struct btrfs_fs_info *fs_info = root->fs_info;
+ 			int is_dead_root = 0;
+@@ -3449,7 +3449,7 @@ int btrfs_orphan_cleanup(struct btrfs_root *root)
+ 		 * Inode is already gone but the orphan item is still there,
+ 		 * kill the orphan item.
+ 		 */
+-		if (ret == -ESTALE) {
++		if (ret == -ENOENT) {
+ 			trans = btrfs_start_transaction(root, 1);
+ 			if (IS_ERR(trans)) {
+ 				ret = PTR_ERR(trans);
+@@ -3608,7 +3608,7 @@ static noinline int acls_after_inode_item(struct extent_buffer *leaf,
+ /*
+  * read an inode from the btree into the in-memory inode
+  */
+-static void btrfs_read_locked_inode(struct inode *inode)
++static int btrfs_read_locked_inode(struct inode *inode)
+ {
+ 	struct btrfs_path *path;
+ 	struct extent_buffer *leaf;
+@@ -3627,14 +3627,19 @@ static void btrfs_read_locked_inode(struct inode *inode)
+ 		filled = true;
+ 
+ 	path = btrfs_alloc_path();
+-	if (!path)
++	if (!path) {
++		ret = -ENOMEM;
+ 		goto make_bad;
++	}
+ 
+ 	memcpy(&location, &BTRFS_I(inode)->location, sizeof(location));
+ 
+ 	ret = btrfs_lookup_inode(NULL, root, path, &location, 0);
+-	if (ret)
++	if (ret) {
++		if (ret > 0)
++			ret = -ENOENT;
+ 		goto make_bad;
++	}
+ 
+ 	leaf = path->nodes[0];
+ 
+@@ -3786,11 +3791,12 @@ cache_acl:
+ 	}
+ 
+ 	btrfs_update_iflags(inode);
+-	return;
++	return 0;
+ 
+ make_bad:
+ 	btrfs_free_path(path);
+ 	make_bad_inode(inode);
++	return ret;
+ }
+ 
+ /*
+@@ -5582,7 +5588,9 @@ struct inode *btrfs_iget(struct super_block *s, struct btrfs_key *location,
+ 		return ERR_PTR(-ENOMEM);
+ 
+ 	if (inode->i_state & I_NEW) {
+-		btrfs_read_locked_inode(inode);
++		int ret;
++
++		ret = btrfs_read_locked_inode(inode);
+ 		if (!is_bad_inode(inode)) {
+ 			inode_tree_add(inode);
+ 			unlock_new_inode(inode);
+@@ -5591,7 +5599,8 @@ struct inode *btrfs_iget(struct super_block *s, struct btrfs_key *location,
+ 		} else {
+ 			unlock_new_inode(inode);
+ 			iput(inode);
+-			inode = ERR_PTR(-ESTALE);
++			ASSERT(ret < 0);
++			inode = ERR_PTR(ret < 0 ? ret : -ESTALE);
+ 		}
+ 	}
+ 
+-- 
+1.8.4.5
+

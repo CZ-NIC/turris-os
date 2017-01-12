@@ -1,0 +1,23 @@
+From: Anand Jain <Anand.Jain@oracle.com>
+Date: Tue, 8 Jul 2014 02:41:28 +0800
+Patch-mainline: Submitted, http://permalink.gmane.org/gmane.comp.file-systems.btrfs/36698
+Subject: [PATCH] btrfs: syslog when quota is enabled
+
+must syslog when btrfs working config changes so is to support
+offline investigation of the issues.
+Signed-off-by: David Sterba <dsterba@suse.cz>
+---
+ fs/btrfs/ioctl.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -4238,6 +4238,8 @@ static long btrfs_ioctl_quota_ctl(struct
+ 	switch (sa->cmd) {
+ 	case BTRFS_QUOTA_CTL_ENABLE:
+ 		ret = btrfs_quota_enable(trans, root->fs_info);
++		if (!ret)
++			btrfs_info(root->fs_info, "quota is enabled");
+ 		break;
+ 	case BTRFS_QUOTA_CTL_DISABLE:
+ 		ret = btrfs_quota_disable(trans, root->fs_info);

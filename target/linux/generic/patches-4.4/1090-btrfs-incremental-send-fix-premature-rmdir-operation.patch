@@ -1,0 +1,86 @@
+From: Robbie Ko <robbieko@synology.com>
+Date: Tue, 23 Jun 2015 18:39:49 +0800
+Patch-mainline: 4.8
+Git-commit: 99ea42ddb13bad6188d4f183f8866cacd14fa141
+References: bsc#1018316
+Subject: [PATCH] Btrfs: incremental send, fix premature rmdir operations
+
+Under certain situations, an incremental send operation can contain
+a rmdir operation that will make the receiving end fail when attempting
+to execute it, because the target directory is not yet empty.
+
+Consider the following example:
+
+  Parent snapshot:
+
+  .                                                             (ino 256)
+  |--- a/                                                       (ino 257)
+  |    |--- c/                                                  (ino 260)
+  |
+  |--- del/                                                     (ino 259)
+        |--- tmp/                                               (ino 258)
+        |--- x/                                                 (ino 261)
+
+  Send snapshot:
+
+  .                                                             (ino 256)
+  |--- a/                                                       (ino 257)
+  |    |--- x/                                                  (ino 261)
+  |
+  |--- c/                                                       (ino 260)
+       |--- tmp/                                                (ino 258)
+
+1) When processing inode 258, we delay its rename operation because inode
+   260 is its new parent in the send snapshot and it was not yet renamed
+   (since 260 > 258, that is, beyond the current progress);
+
+2) When processing inode 259, we realize we can not yet send an rmdir
+   operation (against inode 259) because inode 258 was still not yet
+   renamed/moved away from inode 259. Therefore we update data structures
+   so that after inode 258 is renamed, we try again to see if we can
+   finally send an rmdir operation for inode 259;
+
+3) When we process inode 260, we send a rename operation for it followed
+   by a rename operation for inode 258. Once we send the rename operation
+   for inode 258 we then check if we can finally issue an rmdir for its
+   previous parent, inode 259, by calling the can_rmdir() function with
+   a value of sctx->cur_ino + 1 (260 + 1 = 261) for its "progress"
+   argument. This makes can_rmdir() return true (value 1) because even
+   though there's still a child inode of inode 259 that was not yet
+   renamed/moved, which is inode 261, the given value of progress (261)
+   is not lower then 261 (that is, not lower than the inode number of
+   some child of inode 259). So we end up sending a rmdir operation for
+   inode 259 before its child inode 261 is processed and renamed.
+
+So fix this by passing the correct progress value to the call to
+can_rmdir() from within apply_dir_move() (where we issue delayed rename
+operations), which should match stcx->cur_ino (the number of the inode
+currently being processed) and not sctx->cur_ino + 1.
+
+A test case for fstests follows soon.
+
+Signed-off-by: Robbie Ko <robbieko@synology.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+[Rewrote change log to be more detailed, clear and well formatted]
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+---
+ fs/btrfs/send.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
+index 5af7bef..5286fd2 100644
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -3268,7 +3268,7 @@ static int apply_dir_move(struct send_ctx *sctx, struct pending_dir_move *pm)
+ 			/* already deleted */
+ 			goto finish;
+ 		}
+-		ret = can_rmdir(sctx, rmdir_ino, odi->gen, sctx->cur_ino + 1);
++		ret = can_rmdir(sctx, rmdir_ino, odi->gen, sctx->cur_ino);
+ 		if (ret < 0)
+ 			goto out;
+ 		if (!ret)
+-- 
+1.8.4.5
+

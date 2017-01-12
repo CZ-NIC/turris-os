@@ -1,0 +1,71 @@
+From 978d33d62321467b99f53ef04ce5b4dd6e167bfb Mon Sep 17 00:00:00 2001
+From: Qu Wenruo <quwenruo@cn.fujitsu.com>
+Date: Tue, 18 Oct 2016 09:31:26 +0800
+Subject: [PATCH 1/4] btrfs: qgroup: Add comments explaining how btrfs qgroup  works
+References: bsc983087, bsc986255
+Patch-mainline: v4.10-rc1
+Git-commit: 1d2beaa95b307db5aacd527065d16ed48854d04e
+
+Add explain how btrfs qgroup works.
+
+Qgroup is split into 3 main phrases:
+1) Reserve
+   To ensure qgroup doesn't exceed its limit
+
+2) Trace
+   To info qgroup to trace which extent
+
+3) Account
+   Calculate qgroup number change for each traced extent.
+
+This should save quite some time for new developers.
+
+Signed-off-by: Qu Wenruo <quwenruo@cn.fujitsu.com>
+Reviewed-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
+Acked-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
+---
+ fs/btrfs/qgroup.h | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+
+diff --git a/fs/btrfs/qgroup.h b/fs/btrfs/qgroup.h
+index 125de6c..4e3e08f 100644
+--- a/fs/btrfs/qgroup.h
++++ b/fs/btrfs/qgroup.h
+@@ -23,6 +23,34 @@
+ #include "delayed-ref.h"
+ 
+ /*
++ * Btrfs qgroup overview
++ *
++ * Btrfs qgroup splits into 3 main part:
++ * 1) Reserve
++ *    Reserve metadata/data space for incoming operations
++ *    Affect how qgroup limit works
++ *
++ * 2) Trace
++ *    Tell btrfs qgroup to trace dirty extents.
++ *
++ *    Dirty extents including:
++ *    - Newly allocated extents
++ *    - Extents going to be deleted (in this trans)
++ *    - Extents whose owner is going to be modified
++ *
++ *    This is the main part affects whether qgroup numbers will stay
++ *    consistent.
++ *    Btrfs qgroup can trace clean extents and won't cause any problem,
++ *    but it will consume extra CPU time, it should be avoided if possible.
++ *
++ * 3) Account
++ *    Btrfs qgroup will updates its numbers, based on dirty extents traced
++ *    in previous step.
++ *
++ *    Normally at qgroup rescan and transaction commit time.
++ */
++
++/*
+  * Record a dirty extent, and info qgroup to update quota on it
+  * TODO: Use kmem cache to alloc it.
+  */
+-- 
+2.10.0
+

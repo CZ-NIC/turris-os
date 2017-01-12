@@ -1,0 +1,38 @@
+From: Josef Bacik <jbacik@fb.com>
+Date: Thu, 15 Sep 2016 14:57:48 -0400
+Subject: Btrfs: handle quota reserve failure properly
+Git-commit: 1e5ec2e709bd8c5588fdbdda909945e4e2be8d23
+Patch-mainline: v4.8-rc8
+References: bsc#1005666
+
+btrfs/022 was spitting a warning for the case that we exceed the quota.  If we
+fail to make our quota reservation we need to clean up our data space
+reservation.  Thanks,
+
+Signed-off-by: Josef Bacik <jbacik@fb.com>
+Tested-by: Jeff Mahoney <jeffm@suse.com>
+Signed-off-by: Chris Mason <clm@fb.com>
+Acked-by: Jeff Mahoney <jeffm@suse.com>
+---
+ fs/btrfs/extent-tree.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
+
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -4146,13 +4146,10 @@ int btrfs_check_data_free_space(struct i
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	/*
+-	 * Use new btrfs_qgroup_reserve_data to reserve precious data space
+-	 *
+-	 * TODO: Find a good method to avoid reserve data space for NOCOW
+-	 * range, but don't impact performance on quota disable case.
+-	 */
++	/* Use new btrfs_qgroup_reserve_data to reserve precious data space. */
+ 	ret = btrfs_qgroup_reserve_data(inode, start, len);
++	if (ret)
++		btrfs_free_reserved_data_space_noquota(inode, start, len);
+ 	return ret;
+ }
+ 

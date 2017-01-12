@@ -1,0 +1,200 @@
+From: Filipe Manana <fdmanana@suse.com>
+Date: Mon, 19 Sep 2016 10:57:40 +0100
+Patch-mainline: 4.9-rc3
+Git-commit: d5e84fd8d0634d056248b67463b42f6c85896a19
+References: bsc#985850
+Subject: [PATCH] Btrfs: fix incremental send failure caused by balance
+
+Commit 951555856b88 ("Btrfs: send, don't bug on inconsistent snapshots")
+removed some BUG_ON() statements (replacing them with returning errors
+to user space and logging error messages) when a snapshot is in an
+inconsistent state due to failures to update a delayed inode item (ENOMEM
+or ENOSPC) after adding/updating/deleting references, xattrs or file
+extent items.
+
+However there is a case, when no errors happen, where a file extent item
+can be modified without having the corresponding inode item updated. This
+case happens during balance under very specific timings, when relocation
+is in the stage where it updates data pointers and a leaf that contains
+file extent items is COWed. When that happens file extent items get their
+disk_bytenr field updated to a new value that reflects the post relocation
+logical address of the extent, without updating their respective inode
+items (as there is nothing that needs to be updated on them). This is
+performed at relocation.c:replace_file_extents() through
+relocation.c:btrfs_reloc_cow_block().
+
+So make an incremental send deal with this case and don't do any processing
+for a file extent item that got its disk_bytenr field updated by relocation,
+since the extent's data is the same as the one pointed by the file extent
+item in the parent snapshot.
+
+After the recent commit mentioned above this case resulted in EIO errors
+returned to user space (and an error message logged to dmesg/syslog) when
+doing an incremental send, while before it, it resulted in hitting a
+BUG_ON leading to the following trace:
+
+[  952.206705] ------------[ cut here ]------------
+[  952.206714] kernel BUG at ../fs/btrfs/send.c:5653!
+[  952.206719] Internal error: Oops - BUG: 0 [#1] SMP
+[  952.209854] Modules linked in: st dm_mod nls_utf8 isofs fuse nf_log_ipv6 xt_pkttype xt_physdev br_netfilter nf_log_ipv4 nf_log_common xt_LOG xt_limit ebtable_filter ebtables af_packet bridge stp llc ip6t_REJECT xt_tcpudp nf_conntrack_ipv6 nf_defrag_ipv6 ip6table_raw ipt_REJECT iptable_raw xt_CT iptable_filter ip6table_mangle nf_conntrack_netbios_ns nf_conntrack_broadcast nf_conntrack_ipv4 nf_defrag_ipv4 ip_tables xt_conntrack nf_conntrack ip6table_filter ip6_tables x_tables xfs libcrc32c nls_iso8859_1 nls_cp437 vfat fat joydev aes_ce_blk ablk_helper cryptd snd_intel8x0 aes_ce_cipher snd_ac97_codec ac97_bus snd_pcm ghash_ce sha2_ce sha1_ce snd_timer snd virtio_net soundcore btrfs xor sr_mod cdrom hid_generic usbhid raid6_pq virtio_blk virtio_scsi bochs_drm drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops ttm virtio_mmio xhci_pci xhci_hcd usbcore usb_common virtio_pci virtio_ring virtio drm sg efivarfs
+[  952.228333] Supported: Yes
+[  952.228908] CPU: 0 PID: 12779 Comm: snapperd Not tainted 4.4.14-50-default #1
+[  952.230329] Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
+[  952.231683] task: ffff800058e94100 ti: ffff8000d866c000 task.ti: ffff8000d866c000
+[  952.233279] PC is at changed_cb+0x9f4/0xa48 [btrfs]
+[  952.234375] LR is at changed_cb+0x58/0xa48 [btrfs]
+[  952.236552] pc : [<ffff7ffffc39de7c>] lr : [<ffff7ffffc39d4e0>] pstate: 80000145
+[  952.238049] sp : ffff8000d866fa20
+[  952.238732] x29: ffff8000d866fa20 x28: 0000000000000019
+[  952.239840] x27: 00000000000028d5 x26: 00000000000024a2
+[  952.241008] x25: 0000000000000002 x24: ffff8000e66e92f0
+[  952.242131] x23: ffff8000b8c76800 x22: ffff800092879140
+[  952.243238] x21: 0000000000000002 x20: ffff8000d866fb78
+[  952.244348] x19: ffff8000b8f8c200 x18: 0000000000002710
+[  952.245607] x17: 0000ffff90d42480 x16: ffff800000237dc0
+[  952.246719] x15: 0000ffff90de7510 x14: ab000c000a2faf08
+[  952.247835] x13: 0000000000577c2b x12: ab000c000b696665
+[  952.248981] x11: 2e65726f632f6966 x10: 652d34366d72612f
+[  952.250101] x9 : 32627572672f746f x8 : ab000c00092f1671
+[  952.251352] x7 : 8000000000577c2b x6 : ffff800053eadf45
+[  952.252468] x5 : 0000000000000000 x4 : ffff80005e169494
+[  952.253582] x3 : 0000000000000004 x2 : ffff8000d866fb78
+[  952.254695] x1 : 000000000003e2a3 x0 : 000000000003e2a4
+[  952.255803]
+[  952.256150] Process snapperd (pid: 12779, stack limit = 0xffff8000d866c020)
+[  952.257516] Stack: (0xffff8000d866fa20 to 0xffff8000d8670000)
+[  952.258654] fa20: ffff8000d866fae0 ffff7ffffc308fc0 ffff800092879140 ffff8000e66e92f0
+[  952.260219] fa40: 0000000000000035 ffff800055de6000 ffff8000b8c76800 ffff8000d866fb78
+[  952.261745] fa60: 0000000000000002 00000000000024a2 00000000000028d5 0000000000000019
+[  952.263269] fa80: ffff8000d866fae0 ffff7ffffc3090f0 ffff8000d866fae0 ffff7ffffc309128
+[  952.264797] faa0: ffff800092879140 ffff8000e66e92f0 0000000000000035 ffff800055de6000
+[  952.268261] fac0: ffff8000b8c76800 ffff8000d866fb78 0000000000000002 0000000000001000
+[  952.269822] fae0: ffff8000d866fbc0 ffff7ffffc39ecfc ffff8000b8f8c200 ffff8000b8f8c368
+[  952.271368] fb00: ffff8000b8f8c378 ffff800055de6000 0000000000000001 ffff8000ecb17500
+[  952.272893] fb20: ffff8000b8c76800 ffff800092879140 ffff800062b6d000 ffff80007a9e2470
+[  952.274420] fb40: ffff8000b8f8c208 0000000005784000 ffff8000580a8000 ffff8000b8f8c200
+[  952.276088] fb60: ffff7ffffc39d488 00000002b8f8c368 0000000000000000 000000000003e2a4
+[  952.280275] fb80: 000000000000006c ffff7ffffc39ec00 000000000003e2a4 000000000000006c
+[  952.283219] fba0: ffff8000b8f8c300 0000000000000100 0000000000000001 ffff8000ecb17500
+[  952.286166] fbc0: ffff8000d866fcd0 ffff7ffffc3643c0 ffff8000f8842700 0000ffff8ffe9278
+[  952.289136] fbe0: 0000000040489426 ffff800055de6000 0000ffff8ffe9278 0000000040489426
+[  952.292083] fc00: 000000000000011d 000000000000001d ffff80007a9e4598 ffff80007a9e43e8
+[  952.294959] fc20: ffff8000b8c7693f 0000000000003b24 0000000000000019 ffff8000b8f8c218
+[  952.301161] fc40: 00000001d866fc70 ffff8000b8c76800 0000000000000128 ffffffffffffff84
+[  952.305749] fc60: ffff800058e941ff 0000000000003a58 ffff8000d866fcb0 ffff8000000f7390
+[  952.308875] fc80: 000000000000012a 0000000000010290 ffff8000d866fc00 000000000000007b
+[  952.311915] fca0: 0000000000010290 ffff800046c1b100 74732d7366727462 000001006d616572
+[  952.314937] fcc0: ffff8000fffc4100 cb88537fdc8ba60e ffff8000d866fe10 ffff8000002499e8
+[  952.318008] fce0: 0000000040489426 ffff8000f8842700 0000ffff8ffe9278 ffff80007a9e4598
+[  952.321321] fd00: 0000ffff8ffe9278 0000000040489426 000000000000011d 000000000000001d
+[  952.324280] fd20: ffff80000072c000 ffff8000d866c000 ffff8000d866fda0 ffff8000000e997c
+[  952.327156] fd40: ffff8000fffc4180 00000000000031ed ffff8000fffc4180 ffff800046c1b7d4
+[  952.329895] fd60: 0000000000000140 0000ffff907ea170 000000000000011d 00000000000000dc
+[  952.334641] fd80: ffff80000072c000 ffff8000d866c000 0000000000000000 0000000000000002
+[  952.338002] fda0: ffff8000d866fdd0 ffff8000000ebacc ffff800046c1b080 ffff800046c1b7d4
+[  952.340724] fdc0: ffff8000d866fdf0 ffff8000000db67c 0000000000000040 ffff800000e69198
+[  952.343415] fde0: 0000ffff8ffea790 00000000000031ed ffff8000d866fe20 ffff800000254000
+[  952.346101] fe00: 000000000000001d 0000000000000004 ffff8000d866fe90 ffff800000249d3c
+[  952.348980] fe20: ffff8000f8842700 0000000000000000 ffff8000f8842701 0000000000000008
+[  952.351696] fe40: ffff8000d866fe70 0000000000000008 ffff8000d866fe90 ffff800000249cf8
+[  952.354387] fe60: ffff8000f8842700 0000ffff8ffe9170 ffff8000f8842701 0000000000000008
+[  952.357083] fe80: 0000ffff8ffe9278 ffff80008ff85500 0000ffff8ffe90c0 ffff800000085c84
+[  952.359800] fea0: 0000000000000000 0000ffff8ffe9170 ffffffffffffffff 0000ffff90d473bc
+[  952.365351] fec0: 0000000000000000 0000000000000015 0000000000000008 0000000040489426
+[  952.369550] fee0: 0000ffff8ffe9278 0000ffff907ea790 0000ffff907ea170 0000ffff907ea790
+[  952.372416] ff00: 0000ffff907ea170 0000000000000000 000000000000001d 0000000000000004
+[  952.375223] ff20: 0000ffff90a32220 00000000003d0f00 0000ffff907ea0a0 0000ffff8ffe8f30
+[  952.378099] ff40: 0000ffff9100f554 0000ffff91147000 0000ffff91117bc0 0000ffff90d473b0
+[  952.381115] ff60: 0000ffff9100f620 0000ffff880069b0 0000ffff8ffe9170 0000ffff8ffe91a0
+[  952.384003] ff80: 0000ffff8ffe9160 0000ffff8ffe9140 0000ffff88006990 0000ffff8ffe9278
+[  952.386860] ffa0: 0000ffff88008a60 0000ffff8ffe9480 0000ffff88014ca0 0000ffff8ffe90c0
+[  952.389654] ffc0: 0000ffff910be8e8 0000ffff8ffe90c0 0000ffff90d473bc 0000000000000000
+[  952.410986] ffe0: 0000000000000008 000000000000001d 6e2079747265706f 72616d223d656d61
+[  952.415497] Call trace:
+[  952.417403] [<ffff7ffffc39de7c>] changed_cb+0x9f4/0xa48 [btrfs]
+[  952.420023] [<ffff7ffffc308fc0>] btrfs_compare_trees+0x500/0x6b0 [btrfs]
+[  952.422759] [<ffff7ffffc39ecfc>] btrfs_ioctl_send+0xb4c/0xe10 [btrfs]
+[  952.425601] [<ffff7ffffc3643c0>] btrfs_ioctl+0x374/0x29a4 [btrfs]
+[  952.428031] [<ffff8000002499e8>] do_vfs_ioctl+0x33c/0x600
+[  952.430360] [<ffff800000249d3c>] SyS_ioctl+0x90/0xa4
+[  952.432552] [<ffff800000085c84>] el0_svc_naked+0x38/0x3c
+[  952.434803] Code: 2a1503e0 17fffdac b9404282 17ffff28 (d4210000)
+[  952.437457] ---[ end trace 9afd7090c466cf15 ]---
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+---
+ fs/btrfs/send.c | 58 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 58 insertions(+)
+
+diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
+index d0d4448..70f69be 100644
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -5690,6 +5690,64 @@ static int changed_extent(struct send_ctx *sctx,
+ 	int ret = 0;
+ 
+ 	if (sctx->cur_ino != sctx->cmp_key->objectid) {
++
++		if (result == BTRFS_COMPARE_TREE_CHANGED) {
++			struct extent_buffer *leaf_l;
++			struct extent_buffer *leaf_r;
++			struct btrfs_file_extent_item *ei_l;
++			struct btrfs_file_extent_item *ei_r;
++
++			leaf_l = sctx->left_path->nodes[0];
++			leaf_r = sctx->right_path->nodes[0];
++			ei_l = btrfs_item_ptr(leaf_l,
++					      sctx->left_path->slots[0],
++					      struct btrfs_file_extent_item);
++			ei_r = btrfs_item_ptr(leaf_r,
++					      sctx->right_path->slots[0],
++					      struct btrfs_file_extent_item);
++
++			/*
++			 * We may have found an extent item that has changed
++			 * only its disk_bytenr field and the corresponding
++			 * inode item was not updated. This case happens due to
++			 * very specific timings during relocation when a leaf
++			 * that contains file extent items is COWed while
++			 * relocation is ongoing and its in the stage where it
++			 * updates data pointers. So when this happens we can
++			 * safely ignore it since we know it's the same extent,
++			 * but just at different logical and physical locations
++			 * (when an extent is fully replaced with a new one, we
++			 * know the generation number must have changed too,
++			 * since snapshot creation implies committing the current
++			 * transaction, and the inode item must have been updated
++			 * as well).
++			 * This replacement of the disk_bytenr happens at
++			 * relocation.c:replace_file_extents() through
++			 * relocation.c:btrfs_reloc_cow_block().
++			 */
++			if (btrfs_file_extent_generation(leaf_l, ei_l) ==
++			    btrfs_file_extent_generation(leaf_r, ei_r) &&
++			    btrfs_file_extent_ram_bytes(leaf_l, ei_l) ==
++			    btrfs_file_extent_ram_bytes(leaf_r, ei_r) &&
++			    btrfs_file_extent_compression(leaf_l, ei_l) ==
++			    btrfs_file_extent_compression(leaf_r, ei_r) &&
++			    btrfs_file_extent_encryption(leaf_l, ei_l) ==
++			    btrfs_file_extent_encryption(leaf_r, ei_r) &&
++			    btrfs_file_extent_other_encoding(leaf_l, ei_l) ==
++			    btrfs_file_extent_other_encoding(leaf_r, ei_r) &&
++			    btrfs_file_extent_type(leaf_l, ei_l) ==
++			    btrfs_file_extent_type(leaf_r, ei_r) &&
++			    btrfs_file_extent_disk_bytenr(leaf_l, ei_l) !=
++			    btrfs_file_extent_disk_bytenr(leaf_r, ei_r) &&
++			    btrfs_file_extent_disk_num_bytes(leaf_l, ei_l) ==
++			    btrfs_file_extent_disk_num_bytes(leaf_r, ei_r) &&
++			    btrfs_file_extent_offset(leaf_l, ei_l) ==
++			    btrfs_file_extent_offset(leaf_r, ei_r) &&
++			    btrfs_file_extent_num_bytes(leaf_l, ei_l) ==
++			    btrfs_file_extent_num_bytes(leaf_r, ei_r))
++				return 0;
++		}
++
+ 		inconsistent_snapshot_error(sctx, result, "extent");
+ 		return -EIO;
+ 	}
+-- 
+1.8.4.5
+

@@ -1,0 +1,205 @@
+From: Filipe Manana <fdmanana@suse.com>
+Date: Tue, 8 Dec 2015 16:23:16 +0000
+Patch-mainline: 4.5
+Git-commit: b850ae14278dfc49c3a03b39357214fc79330db9
+References: bnc#965344
+Subject: [PATCH] Btrfs: fix deadlock between direct IO write and
+ defrag/readpages
+
+If readpages() (triggered by defrag or buffered reads) is called while a
+direct IO write is in progress, we have a small time window where we can
+deadlock, resulting in traces like the following being generated:
+
+[84723.212993] INFO: task fio:2849 blocked for more than 120 seconds.
+[84723.214310]       Tainted: G        W       4.3.0-rc5-btrfs-next-17+ #1
+[84723.215640] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[84723.217313] fio        D ffff88023ec75218     0  2849   2835 0x00000000
+[84723.218778]  ffff880122dfb6e8 0000000000000092 0000000000000000 ffff88023ec75200
+[84723.220458]  ffff88000e05d2c0 ffff880122dfc000 ffff88023ec75200 7fffffffffffffff
+[84723.230597]  0000000000000002 ffffffff8147891a ffff880122dfb700 ffffffff8147856a
+[84723.232085] Call Trace:
+[84723.232625]  [<ffffffff8147891a>] ? bit_wait+0x3c/0x3c
+[84723.233529]  [<ffffffff8147856a>] schedule+0x7d/0x95
+[84723.234398]  [<ffffffff8147baa3>] schedule_timeout+0x43/0x10b
+[84723.235384]  [<ffffffff810f82eb>] ? time_hardirqs_on+0x15/0x28
+[84723.236426]  [<ffffffff8108a23d>] ? trace_hardirqs_on+0xd/0xf
+[84723.237502]  [<ffffffff810af8a3>] ? read_seqcount_begin.constprop.20+0x57/0x6d
+[84723.238807]  [<ffffffff8108a09b>] ? trace_hardirqs_on_caller+0x16/0x1ab
+[84723.242012]  [<ffffffff8108a23d>] ? trace_hardirqs_on+0xd/0xf
+[84723.243064]  [<ffffffff810af2ad>] ? timekeeping_get_ns+0xe/0x33
+[84723.244116]  [<ffffffff810afa2e>] ? ktime_get+0x41/0x52
+[84723.245029]  [<ffffffff81477cff>] io_schedule_timeout+0xb7/0x12b
+[84723.245942]  [<ffffffff81477cff>] ? io_schedule_timeout+0xb7/0x12b
+[84723.246596]  [<ffffffff81478953>] bit_wait_io+0x39/0x45
+[84723.247503]  [<ffffffff81478b93>] __wait_on_bit_lock+0x49/0x8d
+[84723.248540]  [<ffffffff8111684f>] __lock_page+0x66/0x68
+[84723.249558]  [<ffffffff81081c9b>] ? autoremove_wake_function+0x3a/0x3a
+[84723.250844]  [<ffffffff81124a04>] lock_page+0x2c/0x2f
+[84723.251871]  [<ffffffff81124afc>] invalidate_inode_pages2_range+0xf5/0x2aa
+[84723.253274]  [<ffffffff81117c34>] ? filemap_fdatawait_range+0x12d/0x146
+[84723.254757]  [<ffffffff81118191>] ? filemap_fdatawrite_range+0x13/0x15
+[84723.256378]  [<ffffffffa05139a2>] btrfs_get_blocks_direct+0x1b0/0x664 [btrfs]
+[84723.258556]  [<ffffffff8119e3f9>] ? submit_page_section+0x7b/0x111
+[84723.260064]  [<ffffffff8119eb90>] do_blockdev_direct_IO+0x658/0xbdb
+[84723.261479]  [<ffffffffa05137f2>] ? btrfs_page_exists_in_range+0x1a9/0x1a9 [btrfs]
+[84723.262961]  [<ffffffffa050a8a6>] ? btrfs_writepage_start_hook+0xce/0xce [btrfs]
+[84723.264449]  [<ffffffff8119f144>] __blockdev_direct_IO+0x31/0x33
+[84723.265614]  [<ffffffff8119f144>] ? __blockdev_direct_IO+0x31/0x33
+[84723.266769]  [<ffffffffa050a8a6>] ? btrfs_writepage_start_hook+0xce/0xce [btrfs]
+[84723.268264]  [<ffffffffa050935d>] btrfs_direct_IO+0x1b9/0x259 [btrfs]
+[84723.270954]  [<ffffffffa050a8a6>] ? btrfs_writepage_start_hook+0xce/0xce [btrfs]
+[84723.272465]  [<ffffffff8111878c>] generic_file_direct_write+0xb3/0x128
+[84723.273734]  [<ffffffffa051955c>] btrfs_file_write_iter+0x228/0x404 [btrfs]
+[84723.275101]  [<ffffffff8116ca6f>] __vfs_write+0x7c/0xa5
+[84723.276200]  [<ffffffff8116cfab>] vfs_write+0xa0/0xe4
+[84723.277298]  [<ffffffff8116d79d>] SyS_write+0x50/0x7e
+[84723.278327]  [<ffffffff8147cd97>] entry_SYSCALL_64_fastpath+0x12/0x6f
+[84723.279595] INFO: lockdep is turned off.
+[84723.379035] INFO: task btrfs:2923 blocked for more than 120 seconds.
+[84723.380323]       Tainted: G        W       4.3.0-rc5-btrfs-next-17+ #1
+[84723.381608] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[84723.383003] btrfs           D ffff88023ed75218     0  2923   2859 0x00000000
+[84723.384277]  ffff88001311f860 0000000000000082 ffff88001311f840 ffff88023ed75200
+[84723.385748]  ffff88012c6751c0 ffff880013120000 ffff88012042fe68 ffff88012042fe30
+[84723.387152]  ffff880221571c88 0000000000000001 ffff88001311f878 ffffffff8147856a
+[84723.388620] Call Trace:
+[84723.389105]  [<ffffffff8147856a>] schedule+0x7d/0x95
+[84723.391882]  [<ffffffffa051da32>] btrfs_start_ordered_extent+0x161/0x1fa [btrfs]
+[84723.393718]  [<ffffffff81081c61>] ? signal_pending_state+0x31/0x31
+[84723.395659]  [<ffffffffa0522c5b>] __do_contiguous_readpages.constprop.21+0x81/0xdc [btrfs]
+[84723.397383]  [<ffffffffa050ac96>] ? btrfs_submit_direct+0x3f0/0x3f0 [btrfs]
+[84723.398852]  [<ffffffffa0522da3>] __extent_readpages.constprop.20+0xed/0x100 [btrfs]
+[84723.400561]  [<ffffffff81123f6c>] ? __lru_cache_add+0x5d/0x72
+[84723.401787]  [<ffffffffa0523896>] extent_readpages+0x111/0x1a7 [btrfs]
+[84723.403121]  [<ffffffffa050ac96>] ? btrfs_submit_direct+0x3f0/0x3f0 [btrfs]
+[84723.404583]  [<ffffffffa05088fa>] btrfs_readpages+0x1f/0x21 [btrfs]
+[84723.406007]  [<ffffffff811226df>] __do_page_cache_readahead+0x168/0x1f4
+[84723.407502]  [<ffffffff81122988>] ondemand_readahead+0x21d/0x22e
+[84723.408937]  [<ffffffff81122988>] ? ondemand_readahead+0x21d/0x22e
+[84723.410487]  [<ffffffff81122af1>] page_cache_sync_readahead+0x3d/0x3f
+[84723.411710]  [<ffffffffa0535388>] btrfs_defrag_file+0x419/0xaaf [btrfs]
+[84723.413007]  [<ffffffffa0531db0>] ? kzalloc+0xf/0x11 [btrfs]
+[84723.414085]  [<ffffffffa0535b43>] btrfs_ioctl_defrag+0x125/0x14e [btrfs]
+[84723.415307]  [<ffffffffa0536753>] btrfs_ioctl+0x746/0x24c6 [btrfs]
+[84723.416532]  [<ffffffff81087481>] ? arch_local_irq_save+0x9/0xc
+[84723.417731]  [<ffffffff8113ad61>] ? __might_fault+0x4c/0xa7
+[84723.418699]  [<ffffffff8113ad61>] ? __might_fault+0x4c/0xa7
+[84723.421532]  [<ffffffff8113adba>] ? __might_fault+0xa5/0xa7
+[84723.422629]  [<ffffffff81171139>] ? cp_new_stat+0x15d/0x174
+[84723.423712]  [<ffffffff8117c610>] do_vfs_ioctl+0x427/0x4e6
+[84723.424801]  [<ffffffff81171175>] ? SYSC_newfstat+0x25/0x2e
+[84723.425968]  [<ffffffff8118574d>] ? __fget_light+0x4d/0x71
+[84723.427063]  [<ffffffff8117c726>] SyS_ioctl+0x57/0x79
+[84723.428138]  [<ffffffff8147cd97>] entry_SYSCALL_64_fastpath+0x12/0x6f
+
+Consider the following logical and physical file layout:
+
+logical:    ... [ prealloc extent A ] [ prealloc extent B ] [ extent C ] ...
+                4K                    8K                    16K
+
+physical:   ... 12853248              12857344              1103101952   ...
+                                      (= 12853248 + 4K)
+
+Extents A and B are physically adjacent. The following diagram shows a
+sequence of events that lead to the deadlock when we attempt to do a
+direct IO write against the file range [4K, 16K[ and a defrag is triggered
+simultaneously.
+
+           CPU 1                                               CPU 2
+
+ btrfs_direct_IO()
+
+   btrfs_get_blocks_direct()
+     creates ordered extent A, covering
+     the 4k prealloc extent A (range [4K, 8K[)
+
+                                                    btrfs_defrag_file()
+                                                      page_cache_sync_readahead([0K, 1M[)
+                                                        btrfs_readpages()
+                                                          extent_readpages()
+
+                                                            locks all pages in the file
+                                                            range [0K, 128K[ through calls
+                                                            to add_to_page_cache_lru()
+
+                                                            __do_contiguous_readpages()
+
+                                                               finds ordered extent A
+
+                                                               waits for it to complete
+
+   btrfs_get_blocks_direct() called again
+
+     lock_extent_direct(range [8K, 16K[)
+
+       finds a page in range [8K, 16K[ through
+       btrfs_page_exists_in_range()
+
+       invalidate_inode_pages2_range([8K, 16K[)
+
+         --> tries to lock pages that are already
+             locked by the task at CPU 2
+
+         --> our task, running __blockdev_direct_IO(),
+             hangs waiting to lock the pages and the
+             submit bio callback, btrfs_submit_direct(),
+             ends up never being called, resulting in the
+             ordered extent A never completing (because a
+             corresponding bio is never submitted) and
+             CPU 2 will wait for it forever while holding
+             the pages locked
+              ---> deadlock!
+
+Fix this by removing the page invalidation approach when attempting to
+lock the range for IO from the callback btrfs_get_blocks_direct() and
+falling back buffered IO. This was a rare case anyway and well behaved
+applications do not mix concurrent direct IO writes with buffered reads
+anyway, being a concurrent defrag the only normal case that could lead
+to the deadlock.
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+---
+ fs/btrfs/inode.c |   30 +++++++++++++-----------------
+ 1 file changed, 13 insertions(+), 17 deletions(-)
+
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -7418,25 +7418,21 @@ static int lock_extent_direct(struct ino
+ 			btrfs_start_ordered_extent(inode, ordered, 1);
+ 			btrfs_put_ordered_extent(ordered);
+ 		} else {
+-			/* Screw you mmap */
+-			ret = btrfs_fdatawrite_range(inode, lockstart, lockend);
+-			if (ret)
+-				break;
+-			ret = filemap_fdatawait_range(inode->i_mapping,
+-						      lockstart,
+-						      lockend);
+-			if (ret)
+-				break;
+-
+ 			/*
+-			 * If we found a page that couldn't be invalidated just
+-			 * fall back to buffered.
++			 * We could trigger writeback for this range (and wait
++			 * for it to complete) and then invalidate the pages for
++			 * this range (through invalidate_inode_pages2_range()),
++			 * but that can lead us to a deadlock with a concurrent
++			 * call to readpages() (a buffered read or a defrag call
++			 * triggered a readahead) on a page lock due to an
++			 * ordered dio extent we created before but did not have
++			 * yet a corresponding bio submitted (whence it can not
++			 * complete), which makes readpages() wait for that
++			 * ordered extent to complete while holding a lock on
++			 * that page.
+ 			 */
+-			ret = invalidate_inode_pages2_range(inode->i_mapping,
+-					lockstart >> PAGE_CACHE_SHIFT,
+-					lockend >> PAGE_CACHE_SHIFT);
+-			if (ret)
+-				break;
++			ret = -ENOTBLK;
++			break;
+ 		}
+ 
+ 		cond_resched();

@@ -1,0 +1,30 @@
+From: Filipe Manana <fdmanana@suse.com>
+Date: Fri, 15 Jan 2016 10:56:15 +0000
+Patch-mainline: 4.5
+Git-commit: fedc00455ccc1f928066528da87b0c7b143de647
+References: bsc#1012452
+Subject: [PATCH] Btrfs: fix typo in log message when starting a
+ balance
+
+The recent change titled "Btrfs: Check metadata redundancy on balance"
+(already in linux-next) left a typo in a message for users:
+metatdata -> metadata.
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Chris Mason <clm@fb.com>
+Signed-off-by: David Sterba <dsterba@suse.cz>
+---
+ fs/btrfs/volumes.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -3753,7 +3753,7 @@ int btrfs_balance(struct btrfs_balance_c
+ 	if (btrfs_get_num_tolerated_disk_barrier_failures(bctl->meta.target) <
+ 		btrfs_get_num_tolerated_disk_barrier_failures(bctl->data.target)) {
+ 		btrfs_warn(fs_info,
+-	"metatdata profile 0x%llx has lower redundancy than data profile 0x%llx",
++	"metadata profile 0x%llx has lower redundancy than data profile 0x%llx",
+ 			bctl->meta.target, bctl->data.target);
+ 	}
+ 

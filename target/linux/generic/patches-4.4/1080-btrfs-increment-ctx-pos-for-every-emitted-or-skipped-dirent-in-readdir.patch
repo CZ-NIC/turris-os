@@ -1,0 +1,116 @@
+From: Jeff Mahoney <jeffm@suse.com>
+Subject: btrfs: increment ctx->pos for every emitted or skipped dirent in readdir
+Patch-mainline: v4.10-rc1
+Git-commit: d2fbb2b589ece9060635b43c2b2333d0b0a0fbf2
+References: bsc#981709
+
+If we process the last item in the leaf and hit an I/O error while
+reading the next leaf, we return -EIO without having adjusted the
+position.  Since we have emitted dirents, getdents() will return
+the byte count to the user instead of the error.  Subsequent callers
+will emit the last successful dirent again, and return -EIO again,
+with the same result.  Callers loop forever.
+
+Instead, if we always increment ctx->pos after emitting or skipping
+the dirent, we'll be sure that we won't hit the same one again.  When
+we go to process the next leaf, we won't have emitted any dirents
+and the -EIO will be returned to the user properly.  We also don't
+need to track if we've emitted a dirent already or if we've changed
+the position yet.
+
+Signed-off-by: Jeff Mahoney <jeffm@suse.com>
+---
+ fs/btrfs/delayed-inode.c |    3 +--
+ fs/btrfs/delayed-inode.h |    2 +-
+ fs/btrfs/inode.c         |   21 ++-------------------
+ 3 files changed, 4 insertions(+), 22 deletions(-)
+
+--- a/fs/btrfs/delayed-inode.c
++++ b/fs/btrfs/delayed-inode.c
+@@ -1694,7 +1694,7 @@ int btrfs_should_delete_dir_index(struct
+  *
+  */
+ int btrfs_readdir_delayed_dir_index(struct dir_context *ctx,
+-				    struct list_head *ins_list, bool *emitted)
++				    struct list_head *ins_list)
+ {
+ 	struct btrfs_dir_item *di;
+ 	struct btrfs_delayed_item *curr, *next;
+@@ -1738,7 +1738,6 @@ int btrfs_readdir_delayed_dir_index(stru
+ 
+ 		if (over)
+ 			return 1;
+-		*emitted = true;
+ 	}
+ 	return 0;
+ }
+--- a/fs/btrfs/delayed-inode.h
++++ b/fs/btrfs/delayed-inode.h
+@@ -144,7 +144,7 @@ void btrfs_put_delayed_items(struct list
+ int btrfs_should_delete_dir_index(struct list_head *del_list,
+ 				  u64 index);
+ int btrfs_readdir_delayed_dir_index(struct dir_context *ctx,
+-				    struct list_head *ins_list, bool *emitted);
++				    struct list_head *ins_list);
+ 
+ /* for init */
+ int __init btrfs_delayed_inode_init(void);
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -5758,8 +5758,6 @@ static int btrfs_real_readdir(struct fil
+ 	char tmp_name[32];
+ 	char *name_ptr;
+ 	int name_len;
+-	int is_curr = 0;	/* ctx->pos points to the current index? */
+-	bool emitted;
+ 	struct btrfs_key location;
+ 
+ 	if (!dir_emit_dots(file, ctx))
+@@ -5783,7 +5781,6 @@ static int btrfs_real_readdir(struct fil
+ 	if (ret < 0)
+ 		goto err;
+ 
+-	emitted = false;
+ 	while (1) {
+ 		leaf = path->nodes[0];
+ 		slot = path->slots[0];
+@@ -5809,7 +5806,6 @@ static int btrfs_real_readdir(struct fil
+ 			goto next;
+ 
+ 		ctx->pos = found_key.offset;
+-		is_curr = 1;
+ 
+ 		di = btrfs_item_ptr(leaf, slot, struct btrfs_dir_item);
+ 		if (verify_dir_item(root, leaf, di))
+@@ -5839,29 +5835,16 @@ static int btrfs_real_readdir(struct fil
+ 
+ 		if (over)
+ 			goto nopos;
++		ctx->pos++;
+ next:
+ 		path->slots[0]++;
+ 	}
+ 
+-	if (is_curr)
+-		ctx->pos++;
+-	ret = btrfs_readdir_delayed_dir_index(ctx, &ins_list, &emitted);
++	ret = btrfs_readdir_delayed_dir_index(ctx, &ins_list);
+ 	if (ret)
+ 		goto nopos;
+ 
+ 	/*
+-	 * If we haven't emitted any dir entry, we must not touch ctx->pos as
+-	 * it was was set to the termination value in previous call. We assume
+-	 * that "." and ".." were emitted if we reach this point and set the
+-	 * termination value as well for an empty directory.
+-	 */
+-	if (ctx->pos > 2 && !emitted)
+-		goto nopos;
+-
+-	/* Reached end of directory/root. Bump pos past the last item. */
+-	ctx->pos++;
+-
+-	/*
+ 	 * Stop new entries from being returned after we return the last
+ 	 * entry.
+ 	 *

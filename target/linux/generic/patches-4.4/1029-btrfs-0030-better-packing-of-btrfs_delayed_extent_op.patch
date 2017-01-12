@@ -1,0 +1,113 @@
+From: David Sterba <dsterba@suse.com>
+Date: Mon, 30 Nov 2015 16:51:29 +0100
+Patch-mainline: 4.5
+Git-commit: 35b3ad50baa4a5fc2ae616c0513d2987bfb52a85
+References: bsc#1012452
+Subject: [PATCH] btrfs: better packing of btrfs_delayed_extent_op
+
+btrfs_delayed_extent_op can be packed in a better way, it's 40 bytes now
+and has 8 unused bytes. Reducing the level type to u8 makes it possible
+to squeeze it to the padding byte after key. The bitfields were switched
+to bool as there's space to store the full byte without increasing the
+whole structure, besides that the generated assembly is smaller.
+
+struct btrfs_delayed_extent_op {
+	struct btrfs_disk_key      key;                  /*     0    17 */
+	u8                         level;                /*    17     1 */
+	bool                       update_key;           /*    18     1 */
+	bool                       update_flags;         /*    19     1 */
+	bool                       is_data;              /*    20     1 */
+
+	/* XXX 3 bytes hole, try to pack */
+
+	u64                        flags_to_set;         /*    24     8 */
+
+	/* size: 32, cachelines: 1, members: 6 */
+	/* sum members: 29, holes: 1, sum holes: 3 */
+	/* last cacheline: 32 bytes */
+};
+
+The final size is 32 bytes which gives +26 object per slab page.
+
+   text	   data	    bss	    dec	    hex	filename
+ 938811	  43670	  23144	1005625	  f5839	fs/btrfs/btrfs.ko.before
+ 938747	  43670	  23144	1005561	  f57f9	fs/btrfs/btrfs.ko.after
+
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/delayed-ref.c |  4 ++--
+ fs/btrfs/delayed-ref.h |  8 ++++----
+ fs/btrfs/extent-tree.c | 15 ++++++---------
+ fs/btrfs/extent-tree.h |  0
+ fs/btrfs/delayed-ref.c |    4 ++--
+ fs/btrfs/delayed-ref.h |    8 ++++----
+ fs/btrfs/extent-tree.c |   15 ++++++---------
+ 3 files changed, 12 insertions(+), 15 deletions(-)
+ delete mode 100644 fs/btrfs/extent-tree.h
+
+--- a/fs/btrfs/delayed-ref.c
++++ b/fs/btrfs/delayed-ref.c
+@@ -493,12 +493,12 @@ update_existing_head_ref(struct btrfs_de
+ 				memcpy(&existing_ref->extent_op->key,
+ 				       &ref->extent_op->key,
+ 				       sizeof(ref->extent_op->key));
+-				existing_ref->extent_op->update_key = 1;
++				existing_ref->extent_op->update_key = true;
+ 			}
+ 			if (ref->extent_op->update_flags) {
+ 				existing_ref->extent_op->flags_to_set |=
+ 					ref->extent_op->flags_to_set;
+-				existing_ref->extent_op->update_flags = 1;
++				existing_ref->extent_op->update_flags = true;
+ 			}
+ 			btrfs_free_delayed_extent_op(ref->extent_op);
+ 		}
+--- a/fs/btrfs/delayed-ref.h
++++ b/fs/btrfs/delayed-ref.h
+@@ -75,11 +75,11 @@ struct btrfs_delayed_ref_node {
+ 
+ struct btrfs_delayed_extent_op {
+ 	struct btrfs_disk_key key;
++	u8 level;
++	bool update_key;
++	bool update_flags;
++	bool is_data;
+ 	u64 flags_to_set;
+-	int level;
+-	unsigned int update_key:1;
+-	unsigned int update_flags:1;
+-	unsigned int is_data:1;
+ };
+ 
+ /*
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -2988,9 +2988,9 @@ int btrfs_set_disk_extent_flags(struct b
+ 		return -ENOMEM;
+ 
+ 	extent_op->flags_to_set = flags;
+-	extent_op->update_flags = 1;
+-	extent_op->update_key = 0;
+-	extent_op->is_data = is_data ? 1 : 0;
++	extent_op->update_flags = true;
++	extent_op->update_key = false;
++	extent_op->is_data = is_data ? true : false;
+ 	extent_op->level = level;
+ 
+ 	ret = btrfs_add_delayed_extent_op(root->fs_info, trans, bytenr,
+@@ -7998,12 +7998,9 @@ struct extent_buffer *btrfs_alloc_tree_b
+ 		else
+ 			memset(&extent_op->key, 0, sizeof(extent_op->key));
+ 		extent_op->flags_to_set = flags;
+-		if (skinny_metadata)
+-			extent_op->update_key = 0;
+-		else
+-			extent_op->update_key = 1;
+-		extent_op->update_flags = 1;
+-		extent_op->is_data = 0;
++		extent_op->update_key = skinny_metadata ? false : true;
++		extent_op->update_flags = true;
++		extent_op->is_data = false;
+ 		extent_op->level = level;
+ 
+ 		ret = btrfs_add_delayed_tree_ref(root->fs_info, trans,

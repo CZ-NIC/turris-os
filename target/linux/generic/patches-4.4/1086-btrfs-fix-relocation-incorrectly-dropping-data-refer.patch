@@ -1,0 +1,217 @@
+From: Filipe Manana <fdmanana@suse.com>
+Date: Tue, 1 Nov 2016 11:23:31 +0000
+Patch-mainline: v4.10-rc1
+Git-commit: 054570a1dc94de20e7a612cddcc5a97db9c37b6f
+References: bsc#990384
+Subject: [PATCH] Btrfs: fix relocation incorrectly dropping data references
+
+During relocation of a data block group we create a relocation tree
+for each fs/subvol tree by making a snapshot of each tree using
+btrfs_copy_root() and the tree's commit root, and then setting the last
+snapshot field for the fs/subvol tree's root to the value of the current
+transaction id minus 1. However this can lead to relocation later
+dropping references that it did not create if we have qgroups enabled,
+leaving the filesystem in an inconsistent state that keeps aborting
+transactions.
+
+Lets consider the following example to explain the problem, which requires
+qgroups to be enabled.
+
+We are relocating data block group Y, we have a subvolume with id 258 that
+has a root at level 1, that subvolume is used to store directory entries
+for snapshots and we are currently at transaction 3404.
+
+When committing transaction 3404, we have a pending snapshot and therefore
+we call btrfs_run_delayed_items() at transaction.c:create_pending_snapshot()
+in order to create its dentry at subvolume 258. This results in COWing
+leaf A from root 258 in order to add the dentry. Note that leaf A
+also contains file extent items referring to extents from some other
+block group X (we are currently relocating block group Y). Later on, still
+at create_pending_snapshot() we call qgroup_account_snapshot(), which
+switches the commit root for root 258 when it calls switch_commit_roots(),
+so now the COWed version of leaf A, lets call it leaf A', is accessible
+from the commit root of tree 258. At the end of qgroup_account_snapshot(),
+we call record_root_in_trans() with 258 as its argument, which results
+in btrfs_init_reloc_root() being called, which in turn calls
+relocation.c:create_reloc_root() in order to create a relocation tree
+associated to root 258, which results in assigning the value of 3403
+(which is the current transaction id minus 1 = 3404 - 1) to the
+last_snapshot field of root 258. When creating the relocation tree root
+at ctree.c:btrfs_copy_root() we add a shared reference for leaf A',
+corresponding to the relocation tree's root, when we call btrfs_inc_ref()
+against the COWed root (a copy of the commit root from tree 258), which
+is at level 1. So at this point leaf A' has 2 references, one normal
+reference corresponding to root 258 and one shared reference corresponding
+to the root of the relocation tree.
+
+Transaction 3404 finishes its commit and transaction 3405 is started by
+relocation when calling merge_reloc_root() for the relocation tree
+associated to root 258. In the meanwhile leaf A' is COWed again, in
+response to some filesystem operation, when we are still at transaction
+3405. However when we COW leaf A', at ctree.c:update_ref_for_cow(), we
+call btrfs_block_can_be_shared() in order to figure out if other trees
+refer to the leaf and if any such trees exists, add a full back reference
+to leaf A' - but btrfs_block_can_be_shared() incorrectly returns false
+because the following condition is false:
+
+  btrfs_header_generation(buf) <= btrfs_root_last_snapshot(&root->root_item)
+
+which evaluates to 3404 <= 3403. So after leaf A' is COWed, it stays with
+only one reference, corresponding to the shared reference we created when
+we called btrfs_copy_root() to create the relocation tree's root and
+btrfs_inc_ref() ends up not being called for leaf A' nor we end up setting
+the flag BTRFS_BLOCK_FLAG_FULL_BACKREF in leaf A'. This results in not
+adding shared references for the extents from block group X that leaf A'
+refers to with its file extent items.
+
+Later, after merging the relocation root we do a call to to
+btrfs_drop_snapshot() in order to delete the relocation tree. This ends
+up calling do_walk_down() when path->slots[1] points to leaf A', which
+results in calling btrfs_lookup_extent_info() to get the number of
+references for leaf A', which is 1 at this time (only the shared reference
+exists) and this value is stored at wc->refs[0]. After this walk_up_proc()
+is called when wc->level is 0 and path->nodes[0] corresponds to leaf A'.
+Because the current level is 0 and wc->refs[0] is 1, it does call
+btrfs_dec_ref() against leaf A', which results in removing the single
+references that the extents from block group X have which are associated
+to root 258 - the expectation was to have each of these extents with 2
+references - one reference for root 258 and one shared reference related
+to the root of the relocation tree, and so we would drop only the shared
+reference (because leaf A' was supposed to have the flag
+BTRFS_BLOCK_FLAG_FULL_BACKREF set).
+
+This leaves the filesystem in an inconsistent state as we now have file
+extent items in a subvolume tree that point to extents from block group X
+without references in the extent tree. So later on when we try to decrement
+the references for these extents, for example due to a file unlink operation,
+truncate operation or overwriting ranges of a file, we fail because the
+expected references do not exist in the extent tree.
+
+This leads to warnings and transaction aborts like the following:
+
+[  588.965795] ------------[ cut here ]------------
+[  588.965815] WARNING: CPU: 2 PID: 2479 at fs/btrfs/extent-tree.c:1625 lookup_inline_extent_backref+0x432/0x5b0 [btrfs]
+[  588.965816] Modules linked in: af_packet iscsi_ibft iscsi_boot_sysfs xfs libcrc32c ppdev acpi_cpufreq button tpm_tis e1000 i2c_piix4 pcspkr parport_pc
+parport tpm qemu_fw_cfg joydev btrfs xor raid6_pq sr_mod cdrom ata_generic virtio_scsi ata_piix virtio_pci bochs_drm virtio_ring drm_kms_helper syscopyarea
+sysfillrect sysimgblt fb_sys_fops virtio ttm serio_raw drm floppy sg
+[  588.965831] CPU: 2 PID: 2479 Comm: kworker/u8:7 Not tainted 4.7.3-3-default-fdm+ #1
+[  588.965832] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.9.1-0-gb3ef39f-prebuilt.qemu-project.org 04/01/2014
+[  588.965844] Workqueue: btrfs-extent-refs btrfs_extent_refs_helper [btrfs]
+[  588.965845]  0000000000000000 ffff8802263bfa28 ffffffff813af542 0000000000000000
+[  588.965847]  0000000000000000 ffff8802263bfa68 ffffffff81081e8b 0000065900000000
+[  588.965848]  ffff8801db2af000 000000012bbe2000 0000000000000000 ffff880215703b48
+[  588.965849] Call Trace:
+[  588.965852]  [<ffffffff813af542>] dump_stack+0x63/0x81
+[  588.965854]  [<ffffffff81081e8b>] __warn+0xcb/0xf0
+[  588.965855]  [<ffffffff81081f7d>] warn_slowpath_null+0x1d/0x20
+[  588.965863]  [<ffffffffa0175042>] lookup_inline_extent_backref+0x432/0x5b0 [btrfs]
+[  588.965865]  [<ffffffff81143220>] ? trace_clock_local+0x10/0x30
+[  588.965867]  [<ffffffff8114c5df>] ? rb_reserve_next_event+0x6f/0x460
+[  588.965875]  [<ffffffffa0175215>] insert_inline_extent_backref+0x55/0xd0 [btrfs]
+[  588.965882]  [<ffffffffa017531f>] __btrfs_inc_extent_ref.isra.55+0x8f/0x240 [btrfs]
+[  588.965890]  [<ffffffffa017acea>] __btrfs_run_delayed_refs+0x74a/0x1260 [btrfs]
+[  588.965892]  [<ffffffff810cb046>] ? cpuacct_charge+0x86/0xa0
+[  588.965900]  [<ffffffffa017e74f>] btrfs_run_delayed_refs+0x9f/0x2c0 [btrfs]
+[  588.965908]  [<ffffffffa017ea04>] delayed_ref_async_start+0x94/0xb0 [btrfs]
+[  588.965918]  [<ffffffffa01c799a>] btrfs_scrubparity_helper+0xca/0x350 [btrfs]
+[  588.965928]  [<ffffffffa01c7c5e>] btrfs_extent_refs_helper+0xe/0x10 [btrfs]
+[  588.965930]  [<ffffffff8109b323>] process_one_work+0x1f3/0x4e0
+[  588.965931]  [<ffffffff8109b658>] worker_thread+0x48/0x4e0
+[  588.965932]  [<ffffffff8109b610>] ? process_one_work+0x4e0/0x4e0
+[  588.965934]  [<ffffffff810a1659>] kthread+0xc9/0xe0
+[  588.965936]  [<ffffffff816f2f1f>] ret_from_fork+0x1f/0x40
+[  588.965937]  [<ffffffff810a1590>] ? kthread_worker_fn+0x170/0x170
+[  588.965938] ---[ end trace 34e5232c933a1749 ]---
+[  588.966187] ------------[ cut here ]------------
+[  588.966196] WARNING: CPU: 2 PID: 2479 at fs/btrfs/extent-tree.c:2966 btrfs_run_delayed_refs+0x28c/0x2c0 [btrfs]
+[  588.966196] BTRFS: Transaction aborted (error -5)
+[  588.966197] Modules linked in: af_packet iscsi_ibft iscsi_boot_sysfs xfs libcrc32c ppdev acpi_cpufreq button tpm_tis e1000 i2c_piix4 pcspkr parport_pc
+parport tpm qemu_fw_cfg joydev btrfs xor raid6_pq sr_mod cdrom ata_generic virtio_scsi ata_piix virtio_pci bochs_drm virtio_ring drm_kms_helper syscopyarea
+sysfillrect sysimgblt fb_sys_fops virtio ttm serio_raw drm floppy sg
+[  588.966206] CPU: 2 PID: 2479 Comm: kworker/u8:7 Tainted: G        W       4.7.3-3-default-fdm+ #1
+[  588.966207] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.9.1-0-gb3ef39f-prebuilt.qemu-project.org 04/01/2014
+[  588.966217] Workqueue: btrfs-extent-refs btrfs_extent_refs_helper [btrfs]
+[  588.966217]  0000000000000000 ffff8802263bfc98 ffffffff813af542 ffff8802263bfce8
+[  588.966219]  0000000000000000 ffff8802263bfcd8 ffffffff81081e8b 00000b96345ee000
+[  588.966220]  ffffffffa021ae1c ffff880215703b48 00000000000005fe ffff8802345ee000
+[  588.966221] Call Trace:
+[  588.966223]  [<ffffffff813af542>] dump_stack+0x63/0x81
+[  588.966224]  [<ffffffff81081e8b>] __warn+0xcb/0xf0
+[  588.966225]  [<ffffffff81081eff>] warn_slowpath_fmt+0x4f/0x60
+[  588.966233]  [<ffffffffa017e93c>] btrfs_run_delayed_refs+0x28c/0x2c0 [btrfs]
+[  588.966241]  [<ffffffffa017ea04>] delayed_ref_async_start+0x94/0xb0 [btrfs]
+[  588.966250]  [<ffffffffa01c799a>] btrfs_scrubparity_helper+0xca/0x350 [btrfs]
+[  588.966259]  [<ffffffffa01c7c5e>] btrfs_extent_refs_helper+0xe/0x10 [btrfs]
+[  588.966260]  [<ffffffff8109b323>] process_one_work+0x1f3/0x4e0
+[  588.966261]  [<ffffffff8109b658>] worker_thread+0x48/0x4e0
+[  588.966263]  [<ffffffff8109b610>] ? process_one_work+0x4e0/0x4e0
+[  588.966264]  [<ffffffff810a1659>] kthread+0xc9/0xe0
+[  588.966265]  [<ffffffff816f2f1f>] ret_from_fork+0x1f/0x40
+[  588.966267]  [<ffffffff810a1590>] ? kthread_worker_fn+0x170/0x170
+[  588.966268] ---[ end trace 34e5232c933a174a ]---
+[  588.966269] BTRFS: error (device sda2) in btrfs_run_delayed_refs:2966: errno=-5 IO failure
+[  588.966270] BTRFS info (device sda2): forced readonly
+
+This was happening often on openSUSE and SLE systems using btrfs as the
+root filesystem (with its default layout where multiple subvolumes are
+used) where balance happens in the background triggered by a cron job and
+snapshots are automatically created before/after package installations,
+upgrades and removals. The issue could be triggered simply by running the
+following loop on the first system boot post installation:
+
+  while true; do
+     zypper -n in nfs-kernel-server
+     zypper -n rm nfs-kernel-server
+  done
+
+(If we were fast enough and made that loop before the cron job triggered
+a balance operation and the balance finished)
+
+So fix by setting the last_snapshot field of the root to the value of the
+generation of its commit root. Like this btrfs_block_can_be_shared()
+behaves correctly for the case where the relocation root is created during
+a transaction commit and for the case where it's created before a
+transaction commit.
+
+Fixes: 6426c7ad697d (btrfs: qgroup: Fix qgroup accounting when creating snapshot)
+Cc: stable@vger.kernel.org  # 4.7+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Josef Bacik <jbacik@fb.com>
+---
+ fs/btrfs/relocation.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
+index bdc6fc6..9601385 100644
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -1382,14 +1382,23 @@ static struct btrfs_root *create_reloc_root(struct btrfs_trans_handle *trans,
+ 	root_key.offset = objectid;
+ 
+ 	if (root->root_key.objectid == objectid) {
++		u64 commit_root_gen;
++
+ 		/* called by btrfs_init_reloc_root */
+ 		ret = btrfs_copy_root(trans, root, root->commit_root, &eb,
+ 				      BTRFS_TREE_RELOC_OBJECTID);
+ 		BUG_ON(ret);
+-
+ 		last_snap = btrfs_root_last_snapshot(&root->root_item);
+-		btrfs_set_root_last_snapshot(&root->root_item,
+-					     trans->transid - 1);
++		/*
++		 * Set the last_snapshot field to the generation of the commit
++		 * root - like this ctree.c:btrfs_block_can_be_shared() behaves
++		 * correctly (returns true) when the relocation root is created
++		 * either inside the critical section of a transaction commit
++		 * (through transaction.c:qgroup_account_snapshot()) and when
++		 * it's created before the transaction commit is started.
++		 */
++		commit_root_gen = btrfs_header_generation(root->commit_root);
++		btrfs_set_root_last_snapshot(&root->root_item, commit_root_gen);
+ 	} else {
+ 		/*
+ 		 * called by btrfs_reloc_post_snapshot_hook.
+-- 
+1.8.4.5
+

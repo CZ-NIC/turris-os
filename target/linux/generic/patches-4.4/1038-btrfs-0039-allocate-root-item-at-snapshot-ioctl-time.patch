@@ -1,0 +1,80 @@
+From: David Sterba <dsterba@suse.com>
+Date: Tue, 10 Nov 2015 18:54:00 +0100
+Patch-mainline: 4.5
+Git-commit: b0c0ea6338d5018e02d27c5315084fb1a5d099f6
+References: bsc#1012452
+Subject: [PATCH] btrfs: allocate root item at snapshot ioctl time
+
+The actual snapshot creation is delayed until transaction commit. If we
+cannot get enough memory for the root item there, we have to fail the
+whole transaction commit which is bad. So we'll allocate the memory at
+the ioctl call and pass it along with the pending_snapshot struct. The
+potential ENOMEM will be returned to the caller of snapshot ioctl.
+
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/ioctl.c       |    9 +++++++++
+ fs/btrfs/transaction.c |    9 +++------
+ fs/btrfs/transaction.h |    1 +
+ 3 files changed, 13 insertions(+), 6 deletions(-)
+
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -663,6 +663,13 @@ static int create_snapshot(struct btrfs_
+ 	if (!pending_snapshot)
+ 		return -ENOMEM;
+ 
++	pending_snapshot->root_item = kzalloc(sizeof(struct btrfs_root_item),
++			GFP_NOFS);
++	if (!pending_snapshot->root_item) {
++		ret = -ENOMEM;
++		goto free_pending;
++	}
++
+ 	atomic_inc(&root->will_be_snapshoted);
+ 	smp_mb__after_atomic();
+ 	btrfs_wait_for_no_snapshoting_writes(root);
+@@ -742,6 +749,8 @@ fail:
+ dec_and_free:
+ 	if (atomic_dec_and_test(&root->will_be_snapshoted))
+ 		wake_up_atomic_t(&root->will_be_snapshoted);
++free_pending:
++	kfree(pending_snapshot->root_item);
+ 	kfree(pending_snapshot);
+ 
+ 	return ret;
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -1342,11 +1342,8 @@ static noinline int create_pending_snaps
+ 		return 0;
+ 	}
+ 
+-	new_root_item = kmalloc(sizeof(*new_root_item), GFP_NOFS);
+-	if (!new_root_item) {
+-		pending->error = -ENOMEM;
+-		goto root_item_alloc_fail;
+-	}
++	ASSERT(pending->root_item);
++	new_root_item = pending->root_item;
+ 
+ 	pending->error = btrfs_find_free_objectid(tree_root, &objectid);
+ 	if (pending->error)
+@@ -1579,7 +1576,7 @@ clear_skip_qgroup:
+ 	btrfs_clear_skip_qgroup(trans);
+ no_free_objectid:
+ 	kfree(new_root_item);
+-root_item_alloc_fail:
++	pending->root_item = NULL;
+ 	btrfs_free_path(path);
+ 	return ret;
+ }
+--- a/fs/btrfs/transaction.h
++++ b/fs/btrfs/transaction.h
+@@ -137,6 +137,7 @@ struct btrfs_pending_snapshot {
+ 	struct dentry *dentry;
+ 	struct inode *dir;
+ 	struct btrfs_root *root;
++	struct btrfs_root_item *root_item;
+ 	struct btrfs_root *snap;
+ 	struct btrfs_qgroup_inherit *inherit;
+ 	/* block reservation for the operation */

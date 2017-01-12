@@ -1,0 +1,47 @@
+From: David Sterba <dsterba@suse.com>
+Date: Thu, 3 Dec 2015 13:08:59 +0100
+Patch-mainline: 4.5
+Git-commit: f6311572762a9ccaa533e60bf7929d63be914bde
+References: bsc#1012452
+Subject: [PATCH] btrfs: make extent_range_redirty_for_io return void
+
+Does not return any errors, nor anything from the callgraph. There's a
+BUG_ON but it's a sanity check and not an error condition we could
+recover from.
+
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/extent_io.c |    3 +--
+ fs/btrfs/extent_io.h |    2 +-
+ 2 files changed, 2 insertions(+), 3 deletions(-)
+
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -1466,7 +1466,7 @@ void extent_range_clear_dirty_for_io(str
+ 	}
+ }
+ 
+-int extent_range_redirty_for_io(struct inode *inode, u64 start, u64 end)
++void extent_range_redirty_for_io(struct inode *inode, u64 start, u64 end)
+ {
+ 	unsigned long index = start >> PAGE_CACHE_SHIFT;
+ 	unsigned long end_index = end >> PAGE_CACHE_SHIFT;
+@@ -1480,7 +1480,6 @@ int extent_range_redirty_for_io(struct i
+ 		page_cache_release(page);
+ 		index++;
+ 	}
+-	return 0;
+ }
+ 
+ /*
+--- a/fs/btrfs/extent_io.h
++++ b/fs/btrfs/extent_io.h
+@@ -339,7 +339,7 @@ int map_private_extent_buffer(struct ext
+ 		      unsigned long *map_start,
+ 		      unsigned long *map_len);
+ void extent_range_clear_dirty_for_io(struct inode *inode, u64 start, u64 end);
+-int extent_range_redirty_for_io(struct inode *inode, u64 start, u64 end);
++void extent_range_redirty_for_io(struct inode *inode, u64 start, u64 end);
+ void extent_clear_unlock_delalloc(struct inode *inode, u64 start, u64 end,
+ 				 struct page *locked_page,
+ 				 unsigned bits_to_clear,

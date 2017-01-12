@@ -1,0 +1,122 @@
+From: Robbie Ko <robbieko@synology.com>
+Date: Mon, 22 Jun 2015 17:08:45 +0800
+Patch-mainline: 4.8
+Git-commit: 443f9d266c4848a3a9ea386f66c4bed2f5997940
+References: bsc#1018316
+Subject: [PATCH] Btrfs: send, fix warning due to late freeing of
+ orphan_dir_info structures
+
+Under certain situations, when doing an incremental send, we can end up
+not freeing orphan_dir_info structures as soon as they are no longer
+needed. Instead we end up freeing them only after finishing the send
+stream, which causes a warning to be emitted:
+
+[282735.229200] ------------[ cut here ]------------
+[282735.229968] WARNING: CPU: 9 PID: 10588 at fs/btrfs/send.c:6298 btrfs_ioctl_send+0xe2f/0xe51 [btrfs]
+[282735.231282] Modules linked in: btrfs crc32c_generic xor raid6_pq acpi_cpufreq tpm_tis ppdev tpm parport_pc psmouse parport sg pcspkr i2c_piix4 i2c_core evdev processor serio_raw button loop autofs4 ext4 crc16 jbd2 mbcache sr_mod cdrom sd_mod ata_generic virtio_scsi ata_piix libata virtio_pci virtio_ring virtio e1000 scsi_mod floppy [last unloaded: btrfs]
+[282735.237130] CPU: 9 PID: 10588 Comm: btrfs Tainted: G        W       4.6.0-rc7-btrfs-next-31+ #1
+[282735.239309] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS by qemu-project.org 04/01/2014
+[282735.240160]  0000000000000000 ffff880224273ca8 ffffffff8126b42c 0000000000000000
+[282735.240160]  0000000000000000 ffff880224273ce8 ffffffff81052b14 0000189a24273ac8
+[282735.240160]  ffff8802210c9800 0000000000000000 0000000000000001 0000000000000000
+[282735.240160] Call Trace:
+[282735.240160]  [<ffffffff8126b42c>] dump_stack+0x67/0x90
+[282735.240160]  [<ffffffff81052b14>] __warn+0xc2/0xdd
+[282735.240160]  [<ffffffff81052beb>] warn_slowpath_null+0x1d/0x1f
+[282735.240160]  [<ffffffffa03c99d5>] btrfs_ioctl_send+0xe2f/0xe51 [btrfs]
+[282735.240160]  [<ffffffffa0398358>] btrfs_ioctl+0x14f/0x1f81 [btrfs]
+[282735.240160]  [<ffffffff8108e456>] ? arch_local_irq_save+0x9/0xc
+[282735.240160]  [<ffffffff8118da05>] vfs_ioctl+0x18/0x34
+[282735.240160]  [<ffffffff8118e00c>] do_vfs_ioctl+0x550/0x5be
+[282735.240160]  [<ffffffff81196f0c>] ? __fget+0x6b/0x77
+[282735.240160]  [<ffffffff81196fa1>] ? __fget_light+0x62/0x71
+[282735.240160]  [<ffffffff8118e0d1>] SyS_ioctl+0x57/0x79
+[282735.240160]  [<ffffffff8149e025>] entry_SYSCALL_64_fastpath+0x18/0xa8
+[282735.240160]  [<ffffffff81100c6b>] ? time_hardirqs_off+0x9/0x14
+[282735.240160]  [<ffffffff8108e87d>] ? trace_hardirqs_off_caller+0x1f/0xaa
+[282735.256343] ---[ end trace a4539270c8056f93 ]---
+
+Consider the following example:
+
+  Parent snapshot:
+
+  .                                                             (ino 256)
+  |--- a/                                                       (ino 257)
+  |    |--- c/                                                  (ino 260)
+  |
+  |--- del/                                                     (ino 259)
+        |--- tmp/                                               (ino 258)
+        |--- x/                                                 (ino 261)
+        |--- y/                                                 (ino 262)
+
+  Send snapshot:
+
+  .                                                             (ino 256)
+  |--- a/                                                       (ino 257)
+  |    |--- x/                                                  (ino 261)
+  |    |--- y/                                                  (ino 262)
+  |
+  |--- c/                                                       (ino 260)
+       |--- tmp/                                                (ino 258)
+
+1) When processing inode 258, we end up delaying its rename operation
+   because it has an ancestor (in the send snapshot) that has a higher
+   inode number (inode 260) which was also renamed in the send snapshot,
+   therefore we delay the rename of inode 258 so that it happens after
+   inode 260 is renamed;
+
+2) When processing inode 259, we end up delaying its deletion (rmdir
+   operation) because it has a child inode (258) that has its rename
+   operation delayed. At this point we allocate an orphan_dir_info
+   structure and tag inode 258 so that we later attempt to see if we
+   can delete (rmdir) inode 259 once inode 258 is renamed;
+
+3) When we process inode 260, after renaming it we finally do the rename
+   operation for inode 258. Once we issue the rename operation for inode
+   258 we notice that this inode was tagged so that we attempt to see
+   if at this point we can delete (rmdir) inode 259. But at this point
+   we can not still delete inode 259 because it has 2 children, inodes
+   261 and 262, that were not yet processed and therefore not yet
+   moved (renamed) away from inode 259. We end up not freeing the
+   orphan_dir_info structure allocated in step 2;
+
+4) We process inodes 261 and 262, and once we move/rename inode 262
+   we issue the rmdir operation for inode 260;
+
+5) We finish the send stream and notice that red black tree that
+   contains orphan_dir_info structures is not empty, so we emit
+   a warning and then free any orphan_dir_structures left.
+
+So fix this by freeing an orphan_dir_info structure once we try to
+apply a pending rename operation if we can not delete yet the tagged
+directory.
+
+A test case for fstests follows soon.
+
+Signed-off-by: Robbie Ko <robbieko@synology.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+[Modified changelog to be more detailed and easier to understand]
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+---
+ fs/btrfs/send.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
+index 5286fd2..8779bcc 100644
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -2979,6 +2979,10 @@ static int can_rmdir(struct send_ctx *sctx, u64 dir, u64 dir_gen,
+ 		}
+ 
+ 		if (loc.objectid > send_progress) {
++			struct orphan_dir_info *odi;
++
++			odi = get_orphan_dir_info(sctx, dir);
++			free_orphan_dir_info(sctx, odi);
+ 			ret = 0;
+ 			goto out;
+ 		}
+-- 
+1.8.4.5
+

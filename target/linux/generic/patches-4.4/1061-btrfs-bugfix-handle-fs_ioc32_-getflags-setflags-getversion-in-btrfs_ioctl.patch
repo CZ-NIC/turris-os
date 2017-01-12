@@ -1,0 +1,84 @@
+From: Luke Dashjr <luke@dashjr.org>
+Date: Thu, 29 Oct 2015 08:22:21 +0000
+Subject: btrfs: bugfix: handle FS_IOC32_{GETFLAGS,SETFLAGS,GETVERSION} in
+ btrfs_ioctl
+Git-commit: 4c63c2454eff996c5e27991221106eb511f7db38
+Patch-mainline: v4.7-rc2
+References: bsc#1018100
+
+32-bit ioctl uses these rather than the regular FS_IOC_* versions. They can
+be handled in btrfs using the same code. Without this, 32-bit {ch,ls}attr
+fail.
+
+Signed-off-by: Luke Dashjr <luke-jr+git@utopios.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Josef Bacik <jbacik@fb.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Acked-by: Jeff Mahoney <jeffm@suse.com>
+---
+ fs/btrfs/ctree.h |    1 +
+ fs/btrfs/file.c  |    2 +-
+ fs/btrfs/inode.c |    2 +-
+ fs/btrfs/ioctl.c |   21 +++++++++++++++++++++
+ 4 files changed, 24 insertions(+), 2 deletions(-)
+
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -4013,6 +4013,7 @@ void btrfs_test_inode_set_ops(struct ino
+ 
+ /* ioctl.c */
+ long btrfs_ioctl(struct file *file, unsigned int cmd, unsigned long arg);
++long btrfs_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg);
+ void btrfs_update_iflags(struct inode *inode);
+ void btrfs_inherit_iflags(struct inode *inode, struct inode *dir);
+ int btrfs_is_empty_uuid(u8 *uuid);
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -2930,7 +2930,7 @@ const struct file_operations btrfs_file_
+ 	.fallocate	= btrfs_fallocate,
+ 	.unlocked_ioctl	= btrfs_ioctl,
+ #ifdef CONFIG_COMPAT
+-	.compat_ioctl	= btrfs_ioctl,
++	.compat_ioctl	= btrfs_compat_ioctl,
+ #endif
+ };
+ 
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -10078,7 +10078,7 @@ static const struct file_operations btrf
+ 	.iterate	= btrfs_real_readdir,
+ 	.unlocked_ioctl	= btrfs_ioctl,
+ #ifdef CONFIG_COMPAT
+-	.compat_ioctl	= btrfs_ioctl,
++	.compat_ioctl	= btrfs_compat_ioctl,
+ #endif
+ 	.release        = btrfs_release_file,
+ 	.fsync		= btrfs_sync_file,
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -5682,3 +5682,24 @@ long btrfs_ioctl(struct file *file, unsi
+ 
+ 	return -ENOTTY;
+ }
++
++#ifdef CONFIG_COMPAT
++long btrfs_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
++{
++	switch (cmd) {
++	case FS_IOC32_GETFLAGS:
++		cmd = FS_IOC_GETFLAGS;
++		break;
++	case FS_IOC32_SETFLAGS:
++		cmd = FS_IOC_SETFLAGS;
++		break;
++	case FS_IOC32_GETVERSION:
++		cmd = FS_IOC_GETVERSION;
++		break;
++	default:
++		return -ENOIOCTLCMD;
++	}
++
++	return btrfs_ioctl(file, cmd, (unsigned long) compat_ptr(arg));
++}
++#endif

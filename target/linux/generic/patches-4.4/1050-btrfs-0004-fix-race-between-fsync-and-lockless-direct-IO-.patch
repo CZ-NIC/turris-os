@@ -1,0 +1,122 @@
+From: Filipe Manana <fdmanana@suse.com>
+Date: Thu, 21 Jan 2016 10:17:54 +0000
+Patch-mainline: 4.5
+Git-commit: de0ee0edb21fbab4c7afa3e94573ecfebfb0244e
+References: bsc#977685
+Subject: [PATCH] Btrfs: fix race between fsync and lockless direct IO
+ writes
+
+An fsync, using the fast path, can race with a concurrent lockless direct
+IO write and end up logging a file extent item that points to an extent
+that wasn't written to yet. This is because the fast fsync path collects
+ordered extents into a local list and then collects all the new extent
+maps to log file extent items based on them, while the direct IO write
+path creates the new extent map before it creates the corresponding
+ordered extent (and submitting the respective bio(s)).
+
+So fix this by making the direct IO write path create ordered extents
+before the extent maps and make the fast fsync path collect any new
+ordered extents after it collects the extent maps.
+Note that making the fsync handler call inode_dio_wait() (after acquiring
+the inode's i_mutex) would not work and lead to a deadlock when doing
+AIO, as through AIO we end up in a path where the fsync handler is called
+(through dio_aio_complete_work() -> dio_complete() -> vfs_fsync_range())
+before the inode's dio counter is decremented (inode_dio_wait() waits
+for this counter to have a value of zero).
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Chris Mason <clm@fb.com>
+---
+ fs/btrfs/inode.c    |   36 ++++++++++++++++++++++++++++--------
+ fs/btrfs/tree-log.c |   14 +++++++++++---
+ 2 files changed, 39 insertions(+), 11 deletions(-)
+
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -7156,21 +7156,41 @@ static struct extent_map *btrfs_new_exte
+ 	if (ret)
+ 		return ERR_PTR(ret);
+ 
+-	em = create_pinned_em(inode, start, ins.offset, start, ins.objectid,
+-			      ins.offset, ins.offset, ins.offset, 0);
+-	if (IS_ERR(em)) {
+-		btrfs_free_reserved_extent(root, ins.objectid, ins.offset, 1);
+-		return em;
+-	}
+-
++	/*
++	 * Create the ordered extent before the extent map. This is to avoid
++	 * races with the fast fsync path that would lead to it logging file
++	 * extent items that point to disk extents that were not yet written to.
++	 * The fast fsync path collects ordered extents into a local list and
++	 * then collects all the new extent maps, so we must create the ordered
++	 * extent first and make sure the fast fsync path collects any new
++	 * ordered extents after collecting new extent maps as well.
++	 * The fsync path simply can not rely on inode_dio_wait() because it
++	 * causes deadlock with AIO.
++	 */
+ 	ret = btrfs_add_ordered_extent_dio(inode, start, ins.objectid,
+ 					   ins.offset, ins.offset, 0);
+ 	if (ret) {
+ 		btrfs_free_reserved_extent(root, ins.objectid, ins.offset, 1);
+-		free_extent_map(em);
+ 		return ERR_PTR(ret);
+ 	}
+ 
++	em = create_pinned_em(inode, start, ins.offset, start, ins.objectid,
++			      ins.offset, ins.offset, ins.offset, 0);
++	if (IS_ERR(em)) {
++		struct btrfs_ordered_extent *oe;
++
++		btrfs_free_reserved_extent(root, ins.objectid, ins.offset, 1);
++		oe = btrfs_lookup_ordered_extent(inode, start);
++		ASSERT(oe);
++		if (WARN_ON(!oe))
++			return em;
++		set_bit(BTRFS_ORDERED_IOERR, &oe->flags);
++		set_bit(BTRFS_ORDERED_IO_DONE, &oe->flags);
++		btrfs_remove_ordered_extent(inode, oe);
++		/* Once for our lookup and once for the ordered extents tree. */
++		btrfs_put_ordered_extent(oe);
++		btrfs_put_ordered_extent(oe);
++	}
+ 	return em;
+ }
+ 
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -4120,7 +4120,9 @@ static int btrfs_log_changed_extents(str
+ 				     struct inode *inode,
+ 				     struct btrfs_path *path,
+ 				     struct list_head *logged_list,
+-				     struct btrfs_log_ctx *ctx)
++				     struct btrfs_log_ctx *ctx,
++				     const u64 start,
++				     const u64 end)
+ {
+ 	struct extent_map *em, *n;
+ 	struct list_head extents;
+@@ -4159,7 +4161,13 @@ static int btrfs_log_changed_extents(str
+ 	}
+ 
+ 	list_sort(NULL, &extents, extent_cmp);
+-
++	/*
++	 * Collect any new ordered extents within the range. This is to
++	 * prevent logging file extent items without waiting for the disk
++	 * location they point to being written. We do this only to deal
++	 * with races against concurrent lockless direct IO writes.
++	 */
++	btrfs_get_logged_extents(inode, logged_list, start, end);
+ process:
+ 	while (!list_empty(&extents)) {
+ 		em = list_entry(extents.next, struct extent_map, list);
+@@ -4831,7 +4839,7 @@ log_extents:
+ 			goto out_unlock;
+ 		}
+ 		ret = btrfs_log_changed_extents(trans, root, inode, dst_path,
+-						&logged_list, ctx);
++						&logged_list, ctx, start, end);
+ 		if (ret) {
+ 			err = ret;
+ 			goto out_unlock;

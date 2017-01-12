@@ -1,0 +1,44 @@
+From: Filipe Manana <fdmanana@suse.com>
+Date: Sat, 2 Jul 2016 05:43:46 +0100
+Patch-mainline: 4.8
+Git-commit: 15b253eace1f98dabbc6e03f6793fcf8603b1655
+References: bsc#1018316
+Subject: [PATCH] Btrfs: send, avoid incorrect leaf accesses when sending
+ utimes operations
+
+The caller of send_utimes() is supposed to be sure that the inode number
+it passes to this function does actually exists in the send snapshot.
+However due to logic/algorithm bugs (such as the one fixed by the patch
+titled "Btrfs: send, fix invalid leaf accesses due to incorrect utimes
+operations"), this might not be the case and when that happens it makes
+send_utimes() access use an unrelated leaf item as the target inode item
+or access beyond a leaf's boundaries (when the leaf is full and
+path->slots[0] matches the number of items in the leaf).
+
+So if the call to btrfs_search_slot() done by send_utimes() does not find
+the inode item, just make sure send_utimes() returns -ENOENT and does not
+silently accesses unrelated leaf items or does invalid leaf accesses, also
+allowing us to easialy and deterministically catch such algorithmic/logic
+bugs.
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+---
+ fs/btrfs/send.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
+index 6b39a8a..b837d77 100644
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -2534,6 +2534,8 @@ verbose_printk("btrfs: send_utimes %llu\n", ino);
+ 	key.type = BTRFS_INODE_ITEM_KEY;
+ 	key.offset = 0;
+ 	ret = btrfs_search_slot(NULL, sctx->send_root, &key, path, 0, 0);
++	if (ret > 0)
++		ret = -ENOENT;
+ 	if (ret < 0)
+ 		goto out;
+ 
+-- 
+1.8.4.5
+

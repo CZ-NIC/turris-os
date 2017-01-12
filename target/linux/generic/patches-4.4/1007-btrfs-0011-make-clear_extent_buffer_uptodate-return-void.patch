@@ -1,0 +1,45 @@
+From: David Sterba <dsterba@suse.com>
+Date: Thu, 3 Dec 2015 13:08:59 +0100
+Patch-mainline: 4.5
+Git-commit: 69ba39272c519a34a4a0169b839ca177bf0f0104
+References: bsc#1012452
+Subject: [PATCH] btrfs: make clear_extent_buffer_uptodate return void
+
+Does not return any errors, nor anything from the callgraph.
+
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/extent_io.c |    3 +--
+ fs/btrfs/extent_io.h |    2 +-
+ 2 files changed, 2 insertions(+), 3 deletions(-)
+
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -5221,7 +5221,7 @@ int set_extent_buffer_dirty(struct exten
+ 	return was_dirty;
+ }
+ 
+-int clear_extent_buffer_uptodate(struct extent_buffer *eb)
++void clear_extent_buffer_uptodate(struct extent_buffer *eb)
+ {
+ 	unsigned long i;
+ 	struct page *page;
+@@ -5234,7 +5234,6 @@ int clear_extent_buffer_uptodate(struct
+ 		if (page)
+ 			ClearPageUptodate(page);
+ 	}
+-	return 0;
+ }
+ 
+ void set_extent_buffer_uptodate(struct extent_buffer *eb)
+--- a/fs/btrfs/extent_io.h
++++ b/fs/btrfs/extent_io.h
+@@ -331,7 +331,7 @@ void memset_extent_buffer(struct extent_
+ void clear_extent_buffer_dirty(struct extent_buffer *eb);
+ int set_extent_buffer_dirty(struct extent_buffer *eb);
+ void set_extent_buffer_uptodate(struct extent_buffer *eb);
+-int clear_extent_buffer_uptodate(struct extent_buffer *eb);
++void clear_extent_buffer_uptodate(struct extent_buffer *eb);
+ int extent_buffer_uptodate(struct extent_buffer *eb);
+ int extent_buffer_under_io(struct extent_buffer *eb);
+ int map_private_extent_buffer(struct extent_buffer *eb, unsigned long offset,

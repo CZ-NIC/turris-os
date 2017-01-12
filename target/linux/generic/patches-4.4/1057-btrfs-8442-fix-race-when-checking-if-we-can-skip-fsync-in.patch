@@ -1,0 +1,53 @@
+From: Filipe Manana <fdmanana@suse.com>
+Date: Wed, 24 Feb 2016 07:35:05 +0000
+Patch-mainline: 4.6-rc1
+Git-commit: affc0ff902d539ebe9bba405d330410314f46e9f
+References: bsc#977685
+Subject: [PATCH] Btrfs: fix race when checking if we can skip fsync'ing an
+ inode
+
+If we're about to do a fast fsync for an inode and btrfs_inode_in_log()
+returns false, it's possible that we had an ordered extent in progress
+(btrfs_finish_ordered_io() not run yet) when we noticed that the inode's
+last_trans field was not greater than the id of the last committed
+transaction, but shortly after, before we checked if there were any
+ongoing ordered extents, the ordered extent had just completed and
+removed itself from the inode's ordered tree, in which case we end up not
+logging the inode, losing some data if a power failure or crash happens
+after the fsync handler returns and before the transaction is committed.
+
+Fix this by checking first if there are any ongoing ordered extents
+before comparing the inode's last_trans with the id of the last committed
+transaction - when it completes, an ordered extent always updates the
+inode's last_trans before it removes itself from the inode's ordered
+tree (at btrfs_finish_ordered_io()).
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Chris Mason <clm@fb.com>
+---
+ fs/btrfs/file.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
+index 5a38a12..2655c3a 100644
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -1998,10 +1998,11 @@ int btrfs_sync_file(struct file *file, loff_t start, loff_t end, int datasync)
+ 	 */
+ 	smp_mb();
+ 	if (btrfs_inode_in_log(inode, root->fs_info->generation) ||
+-	    (BTRFS_I(inode)->last_trans <=
+-	     root->fs_info->last_trans_committed &&
+-	     (full_sync ||
+-	      !btrfs_have_ordered_extents_in_range(inode, start, len)))) {
++	    (full_sync && BTRFS_I(inode)->last_trans <=
++	     root->fs_info->last_trans_committed) ||
++	    (!btrfs_have_ordered_extents_in_range(inode, start, len) &&
++	     BTRFS_I(inode)->last_trans
++	     <= root->fs_info->last_trans_committed)) {
+ 		/*
+ 		 * We'v had everything committed since the last time we were
+ 		 * modified so clear this flag in case it was set for whatever
+-- 
+1.8.4.5
+

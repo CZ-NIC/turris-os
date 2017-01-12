@@ -1,0 +1,35 @@
+From: Filipe Manana <fdmanana@suse.com>
+Date: Fri, 17 Jun 2016 17:13:36 +0100
+Patch-mainline: 4.8
+Git-commit: 7969e77a73164b418da851cbae35cdd6c1b43fee
+References: bsc#1018316
+Subject: [PATCH] Btrfs: send, add missing error check for calls to
+ path_loop()
+
+The function path_loop() can return a negative integer, signaling an
+error, 0 if there's no path loop and 1 if there's a path loop. We were
+treating any non zero values as meaning that a path loop exists. Fix
+this by explicitly checking for errors and gracefully return them to
+user space.
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+---
+ fs/btrfs/send.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
+index ef04999..dbb32e6 100644
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -3232,6 +3232,8 @@ static int apply_dir_move(struct send_ctx *sctx, struct pending_dir_move *pm)
+ 
+ 	sctx->send_progress = sctx->cur_ino + 1;
+ 	ret = path_loop(sctx, name, pm->ino, pm->gen, &ancestor);
++	if (ret < 0)
++		goto out;
+ 	if (ret) {
+ 		LIST_HEAD(deleted_refs);
+ 		ASSERT(ancestor > BTRFS_FIRST_FREE_OBJECTID);
+-- 
+1.8.4.5
+

@@ -1,0 +1,58 @@
+From: Chris Mason <clm@fb.com>
+Date: Sat, 19 Sep 2015 11:28:25 -0700
+Subject: Btrfs: deal with duplciates during extent_map insertion in
+ btrfs_get_extent
+Git-commit: 8dff9c85341032767d7b519217a79ea04cd676b0
+Patch-mainline: v4.7-rc2
+References: bsc#1001171
+
+When dealing with inline extents, btrfs_get_extent will incorrectly try
+to insert a duplicate extent_map.  The dup hits -EEXIST from
+add_extent_map, but then we try to merge with the existing one and end
+up trying to insert a zero length extent_map.
+
+This actually works most of the time, except when there are extent maps
+past the end of the inline extent.  rocksdb will trigger this sometimes
+because it preallocates an extent and then truncates down.
+
+Josef made a script to trigger with xfs_io:
+
+	#!/bin/bash
+
+	xfs_io -f -c "pwrite 0 1000" inline
+	xfs_io -c "falloc -k 4k 1M" inline
+	xfs_io -c "pread 0 1000" -c "fadvise -d 0 1000" -c "pread 0 1000" inline
+	xfs_io -c "fadvise -d 0 1000" inline
+	cat inline
+
+You'll get EIOs trying to read inline after this because add_extent_map
+is returning EEXIST
+
+Signed-off-by: Chris Mason <clm@fb.com>
+Acked-by: Jeff Mahoney <jeffm@suse.com>
+---
+ fs/btrfs/inode.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -7002,7 +7002,18 @@ insert:
+ 		 * existing will always be non-NULL, since there must be
+ 		 * extent causing the -EEXIST.
+ 		 */
+-		if (start >= extent_map_end(existing) ||
++		if (existing->start == em->start &&
++		    extent_map_end(existing) == extent_map_end(em) &&
++		    em->block_start == existing->block_start) {
++			/*
++			 * these two extents are the same, it happens
++			 * with inlines especially
++			 */
++			free_extent_map(em);
++			em = existing;
++			err = 0;
++
++		} else if (start >= extent_map_end(existing) ||
+ 		    start <= existing->start) {
+ 			/*
+ 			 * The existing extent map is the one nearest to

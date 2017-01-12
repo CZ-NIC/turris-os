@@ -1,0 +1,278 @@
+From: David Sterba <dsterba@suse.com>
+Date: Thu, 3 Dec 2015 14:30:40 +0100
+Patch-mainline: 4.5
+Git-commit: ff13db41f184f8222aca0cb653347ccdd48a057a
+References: bsc#1012452
+Subject: [PATCH] btrfs: drop unused parameter from lock_extent_bits
+
+We've always passed 0. Stack usage will slightly decrease.
+
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/disk-io.c          |    2 +-
+ fs/btrfs/extent_io.c        |   12 ++++++------
+ fs/btrfs/extent_io.h        |    2 +-
+ fs/btrfs/file.c             |    8 ++++----
+ fs/btrfs/free-space-cache.c |    2 +-
+ fs/btrfs/inode.c            |   20 ++++++++++----------
+ fs/btrfs/ioctl.c            |    6 +++---
+ fs/btrfs/scrub.c            |    2 +-
+ 8 files changed, 27 insertions(+), 27 deletions(-)
+
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -362,7 +362,7 @@ static int verify_parent_transid(struct
+ 	}
+ 
+ 	lock_extent_bits(io_tree, eb->start, eb->start + eb->len - 1,
+-			 0, &cached_state);
++			 &cached_state);
+ 	if (extent_buffer_uptodate(eb) &&
+ 	    btrfs_header_generation(eb) == parent_transid) {
+ 		ret = 0;
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -1328,13 +1328,13 @@ int clear_record_extent_bits(struct exte
+  * us if waiting is desired.
+  */
+ int lock_extent_bits(struct extent_io_tree *tree, u64 start, u64 end,
+-		     unsigned bits, struct extent_state **cached_state)
++		     struct extent_state **cached_state)
+ {
+ 	int err;
+ 	u64 failed_start;
+ 
+ 	while (1) {
+-		err = __set_extent_bit(tree, start, end, EXTENT_LOCKED | bits,
++		err = __set_extent_bit(tree, start, end, EXTENT_LOCKED,
+ 				       EXTENT_LOCKED, &failed_start,
+ 				       cached_state, GFP_NOFS, NULL);
+ 		if (err == -EEXIST) {
+@@ -1349,7 +1349,7 @@ int lock_extent_bits(struct extent_io_tr
+ 
+ int lock_extent(struct extent_io_tree *tree, u64 start, u64 end)
+ {
+-	return lock_extent_bits(tree, start, end, 0, NULL);
++	return lock_extent_bits(tree, start, end, NULL);
+ }
+ 
+ int try_lock_extent(struct extent_io_tree *tree, u64 start, u64 end)
+@@ -1714,7 +1714,7 @@ again:
+ 	BUG_ON(ret); /* Only valid values are 0 and -EAGAIN */
+ 
+ 	/* step three, lock the state bits for the whole range */
+-	lock_extent_bits(tree, delalloc_start, delalloc_end, 0, &cached_state);
++	lock_extent_bits(tree, delalloc_start, delalloc_end, &cached_state);
+ 
+ 	/* then test to make sure it is all still delalloc */
+ 	ret = test_range_bit(tree, delalloc_start, delalloc_end,
+@@ -4230,7 +4230,7 @@ int extent_invalidatepage(struct extent_
+ 	if (start > end)
+ 		return 0;
+ 
+-	lock_extent_bits(tree, start, end, 0, &cached_state);
++	lock_extent_bits(tree, start, end, &cached_state);
+ 	wait_on_page_writeback(page);
+ 	clear_extent_bit(tree, start, end,
+ 			 EXTENT_LOCKED | EXTENT_DIRTY | EXTENT_DELALLOC |
+@@ -4440,7 +4440,7 @@ int extent_fiemap(struct inode *inode, s
+ 		last_for_get_extent = isize;
+ 	}
+ 
+-	lock_extent_bits(&BTRFS_I(inode)->io_tree, start, start + len - 1, 0,
++	lock_extent_bits(&BTRFS_I(inode)->io_tree, start, start + len - 1,
+ 			 &cached_state);
+ 
+ 	em = get_extent_skip_holes(inode, start, last_for_get_extent,
+--- a/fs/btrfs/extent_io.h
++++ b/fs/btrfs/extent_io.h
+@@ -201,7 +201,7 @@ int try_release_extent_mapping(struct ex
+ int try_release_extent_buffer(struct page *page);
+ int lock_extent(struct extent_io_tree *tree, u64 start, u64 end);
+ int lock_extent_bits(struct extent_io_tree *tree, u64 start, u64 end,
+-		     unsigned bits, struct extent_state **cached);
++		     struct extent_state **cached);
+ int try_lock_extent(struct extent_io_tree *tree, u64 start, u64 end);
+ int extent_read_full_page(struct extent_io_tree *tree, struct page *page,
+ 			  get_extent_t *get_extent, int mirror_num);
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -1394,7 +1394,7 @@ lock_and_cleanup_extent_if_need(struct i
+ 	if (start_pos < inode->i_size) {
+ 		struct btrfs_ordered_extent *ordered;
+ 		lock_extent_bits(&BTRFS_I(inode)->io_tree,
+-				 start_pos, last_pos, 0, cached_state);
++				 start_pos, last_pos, cached_state);
+ 		ordered = btrfs_lookup_ordered_range(inode, start_pos,
+ 						     last_pos - start_pos + 1);
+ 		if (ordered &&
+@@ -2395,7 +2395,7 @@ static int btrfs_punch_hole(struct inode
+ 		truncate_pagecache_range(inode, lockstart, lockend);
+ 
+ 		lock_extent_bits(&BTRFS_I(inode)->io_tree, lockstart, lockend,
+-				 0, &cached_state);
++				 &cached_state);
+ 		ordered = btrfs_lookup_first_ordered_extent(inode, lockend);
+ 
+ 		/*
+@@ -2702,7 +2702,7 @@ static long btrfs_fallocate(struct file
+ 		 * transaction
+ 		 */
+ 		lock_extent_bits(&BTRFS_I(inode)->io_tree, alloc_start,
+-				 locked_end, 0, &cached_state);
++				 locked_end, &cached_state);
+ 		ordered = btrfs_lookup_first_ordered_extent(inode,
+ 							    alloc_end - 1);
+ 		if (ordered &&
+@@ -2849,7 +2849,7 @@ static int find_desired_extent(struct in
+ 	lockend--;
+ 	len = lockend - lockstart + 1;
+ 
+-	lock_extent_bits(&BTRFS_I(inode)->io_tree, lockstart, lockend, 0,
++	lock_extent_bits(&BTRFS_I(inode)->io_tree, lockstart, lockend,
+ 			 &cached_state);
+ 
+ 	while (start < inode->i_size) {
+--- a/fs/btrfs/free-space-cache.c
++++ b/fs/btrfs/free-space-cache.c
+@@ -1261,7 +1261,7 @@ static int __btrfs_write_out_cache(struc
+ 		goto out;
+ 
+ 	lock_extent_bits(&BTRFS_I(inode)->io_tree, 0, i_size_read(inode) - 1,
+-			 0, &cached_state);
++			 &cached_state);
+ 
+ 	io_ctl_set_generation(io_ctl, trans->transid);
+ 
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -1989,7 +1989,7 @@ again:
+ 	page_start = page_offset(page);
+ 	page_end = page_offset(page) + PAGE_CACHE_SIZE - 1;
+ 
+-	lock_extent_bits(&BTRFS_I(inode)->io_tree, page_start, page_end, 0,
++	lock_extent_bits(&BTRFS_I(inode)->io_tree, page_start, page_end,
+ 			 &cached_state);
+ 
+ 	/* already ordered? We're done */
+@@ -2482,7 +2482,7 @@ static noinline int relink_extent_backre
+ 	lock_start = backref->file_pos;
+ 	lock_end = backref->file_pos + backref->num_bytes - 1;
+ 	lock_extent_bits(&BTRFS_I(inode)->io_tree, lock_start, lock_end,
+-			 0, &cached);
++			 &cached);
+ 
+ 	ordered = btrfs_lookup_first_ordered_extent(inode, lock_end);
+ 	if (ordered) {
+@@ -2874,7 +2874,7 @@ static int btrfs_finish_ordered_io(struc
+ 
+ 	lock_extent_bits(io_tree, ordered_extent->file_offset,
+ 			 ordered_extent->file_offset + ordered_extent->len - 1,
+-			 0, &cached_state);
++			 &cached_state);
+ 
+ 	ret = test_range_bit(io_tree, ordered_extent->file_offset,
+ 			ordered_extent->file_offset + ordered_extent->len - 1,
+@@ -4664,7 +4664,7 @@ again:
+ 	}
+ 	wait_on_page_writeback(page);
+ 
+-	lock_extent_bits(io_tree, page_start, page_end, 0, &cached_state);
++	lock_extent_bits(io_tree, page_start, page_end, &cached_state);
+ 	set_page_extent_mapped(page);
+ 
+ 	ordered = btrfs_lookup_ordered_extent(inode, page_start);
+@@ -4795,7 +4795,7 @@ int btrfs_cont_expand(struct inode *inod
+ 	while (1) {
+ 		struct btrfs_ordered_extent *ordered;
+ 
+-		lock_extent_bits(io_tree, hole_start, block_end - 1, 0,
++		lock_extent_bits(io_tree, hole_start, block_end - 1,
+ 				 &cached_state);
+ 		ordered = btrfs_lookup_ordered_range(inode, hole_start,
+ 						     block_end - hole_start);
+@@ -5107,7 +5107,7 @@ static void evict_inode_truncate_pages(s
+ 		end = state->end;
+ 		spin_unlock(&io_tree->lock);
+ 
+-		lock_extent_bits(io_tree, start, end, 0, &cached_state);
++		lock_extent_bits(io_tree, start, end, &cached_state);
+ 
+ 		/*
+ 		 * If still has DELALLOC flag, the extent didn't reach disk,
+@@ -7390,7 +7390,7 @@ static int lock_extent_direct(struct ino
+ 
+ 	while (1) {
+ 		lock_extent_bits(&BTRFS_I(inode)->io_tree, lockstart, lockend,
+-				 0, cached_state);
++				 cached_state);
+ 		/*
+ 		 * We're concerned with the entire range that we're going to be
+ 		 * doing DIO to, so we need to make sure theres no ordered
+@@ -8639,7 +8639,7 @@ static void btrfs_invalidatepage(struct
+ 	}
+ 
+ 	if (!inode_evicting)
+-		lock_extent_bits(tree, page_start, page_end, 0, &cached_state);
++		lock_extent_bits(tree, page_start, page_end, &cached_state);
+ 	ordered = btrfs_lookup_ordered_extent(inode, page_start);
+ 	if (ordered) {
+ 		/*
+@@ -8677,7 +8677,7 @@ static void btrfs_invalidatepage(struct
+ 		btrfs_put_ordered_extent(ordered);
+ 		if (!inode_evicting) {
+ 			cached_state = NULL;
+-			lock_extent_bits(tree, page_start, page_end, 0,
++			lock_extent_bits(tree, page_start, page_end,
+ 					 &cached_state);
+ 		}
+ 	}
+@@ -8780,7 +8780,7 @@ again:
+ 	}
+ 	wait_on_page_writeback(page);
+ 
+-	lock_extent_bits(io_tree, page_start, page_end, 0, &cached_state);
++	lock_extent_bits(io_tree, page_start, page_end, &cached_state);
+ 	set_page_extent_mapped(page);
+ 
+ 	/*
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -996,7 +996,7 @@ static struct extent_map *defrag_lookup_
+ 		u64 end = start + len - 1;
+ 
+ 		/* get the big lock and read metadata off disk */
+-		lock_extent_bits(io_tree, start, end, 0, &cached);
++		lock_extent_bits(io_tree, start, end, &cached);
+ 		em = btrfs_get_extent(inode, NULL, 0, start, len, 0);
+ 		unlock_extent_cached(io_tree, start, end, &cached, GFP_NOFS);
+ 
+@@ -1144,7 +1144,7 @@ again:
+ 		page_end = page_start + PAGE_CACHE_SIZE - 1;
+ 		while (1) {
+ 			lock_extent_bits(tree, page_start, page_end,
+-					 0, &cached_state);
++					 &cached_state);
+ 			ordered = btrfs_lookup_ordered_extent(inode,
+ 							      page_start);
+ 			unlock_extent_cached(tree, page_start, page_end,
+@@ -1204,7 +1204,7 @@ again:
+ 	page_end = page_offset(pages[i_done - 1]) + PAGE_CACHE_SIZE;
+ 
+ 	lock_extent_bits(&BTRFS_I(inode)->io_tree,
+-			 page_start, page_end - 1, 0, &cached_state);
++			 page_start, page_end - 1, &cached_state);
+ 	clear_extent_bit(&BTRFS_I(inode)->io_tree, page_start,
+ 			  page_end - 1, EXTENT_DIRTY | EXTENT_DELALLOC |
+ 			  EXTENT_DO_ACCOUNTING | EXTENT_DEFRAG, 0, 0,
+--- a/fs/btrfs/scrub.c
++++ b/fs/btrfs/scrub.c
+@@ -4211,7 +4211,7 @@ static int check_extent_to_block(struct
+ 
+ 	io_tree = &BTRFS_I(inode)->io_tree;
+ 
+-	lock_extent_bits(io_tree, lockstart, lockend, 0, &cached_state);
++	lock_extent_bits(io_tree, lockstart, lockend, &cached_state);
+ 	ordered = btrfs_lookup_ordered_range(inode, lockstart, len);
+ 	if (ordered) {
+ 		btrfs_put_ordered_extent(ordered);

@@ -1,0 +1,118 @@
+From: Filipe Manana <fdmanana@suse.com>
+Date: Wed, 30 Dec 2015 02:42:30 +0000
+Patch-mainline: 4.5
+Git-commit: 2bc0bb5fe71dee6fdaf81ff81f6e739ff9f7ff19
+References: bsc#1012452
+Subject: [PATCH] Btrfs: fix race between free space endio workers and
+ space cache writeout
+
+While running a stress test I ran into the following trace/transaction
+abort:
+
+[471626.672243] ------------[ cut here ]------------
+[471626.673322] WARNING: CPU: 9 PID: 19107 at fs/btrfs/extent-tree.c:3740 btrfs_write_dirty_block_groups+0x17c/0x214 [btrfs]()
+[471626.675492] BTRFS: Transaction aborted (error -2)
+[471626.676748] Modules linked in: btrfs dm_flakey dm_mod crc32c_generic xor raid6_pq nfsd auth_rpcgss oid_registry nfs_acl nfs lockd grace fscache sunrpc loop fuse parport_pc i2c_piix
+[471626.688802] CPU: 14 PID: 19107 Comm: fsstress Tainted: G        W       4.3.0-rc5-btrfs-next-17+ #1
+[471626.690148] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.8.1-0-g4adadbd-20150316_085822-nilsson.home.kraxel.org 04/01/2014
+[471626.691901]  0000000000000000 ffff880016037cf0 ffffffff812566f4 ffff880016037d38
+[471626.695009]  ffff880016037d28 ffffffff8104d0a6 ffffffffa040c84e 00000000fffffffe
+[471626.697490]  ffff88011fe855f8 ffff88000c484cb0 ffff88000d195000 ffff880016037d90
+[471626.699201] Call Trace:
+[471626.699804]  [<ffffffff812566f4>] dump_stack+0x4e/0x79
+[471626.701049]  [<ffffffff8104d0a6>] warn_slowpath_common+0x9f/0xb8
+[471626.702542]  [<ffffffffa040c84e>] ? btrfs_write_dirty_block_groups+0x17c/0x214 [btrfs]
+[471626.704326]  [<ffffffff8104d107>] warn_slowpath_fmt+0x48/0x50
+[471626.705636]  [<ffffffffa0403717>] ? write_one_cache_group.isra.32+0x77/0x82 [btrfs]
+[471626.707048]  [<ffffffffa040c84e>] btrfs_write_dirty_block_groups+0x17c/0x214 [btrfs]
+[471626.708616]  [<ffffffffa048a50a>] commit_cowonly_roots+0x1d7/0x25a [btrfs]
+[471626.709950]  [<ffffffffa041e34a>] btrfs_commit_transaction+0x4c4/0x991 [btrfs]
+[471626.711286]  [<ffffffff81081c61>] ? signal_pending_state+0x31/0x31
+[471626.712611]  [<ffffffffa03f6df4>] btrfs_sync_fs+0x145/0x1ad [btrfs]
+[471626.715610]  [<ffffffff811962a2>] ? SyS_tee+0x226/0x226
+[471626.716718]  [<ffffffff811962c2>] sync_fs_one_sb+0x20/0x22
+[471626.717672]  [<ffffffff8116fc01>] iterate_supers+0x75/0xc2
+[471626.718800]  [<ffffffff8119669a>] sys_sync+0x52/0x80
+[471626.719990]  [<ffffffff8147cd97>] entry_SYSCALL_64_fastpath+0x12/0x6f
+[471626.721835] ---[ end trace baf57f43d76693f4 ]---
+[471626.722954] BTRFS: error (device sdc) in btrfs_write_dirty_block_groups:3740: errno=-2 No such entry
+
+This is a very rare situation and it happened due to a race between a free
+space endio worker and writing the space caches for dirty block groups at
+a transaction's commit critical section. The steps leading to this are:
+
+1) A task calls btrfs_commit_transaction() and starts the writeout of the
+   space caches for all currently dirty block groups (i.e. it calls
+   btrfs_start_dirty_block_groups());
+
+2) The previous step starts writeback for space caches;
+
+3) When the writeback finishes it queues jobs for free space endio work
+   queue (fs_info->endio_freespace_worker) that execute
+   btrfs_finish_ordered_io();
+
+4) The task committing the transaction sets the transaction's state
+   to TRANS_STATE_COMMIT_DOING and shortly after calls
+   btrfs_write_dirty_block_groups();
+
+5) A free space endio job joins the transaction, through
+   btrfs_join_transaction_nolock(), and updates a free space inode item
+   in the root tree through btrfs_update_inode_fallback();
+
+6) Updating the free space inode item resulted in COWing one or more
+   nodes/leaves of the root tree, and that resulted in creating a new
+   metadata block group, which gets added to the transaction's list
+   of dirty block groups (this is a very rare case);
+
+7) The free space endio job has not released yet its transaction handle
+   at this point, so the new metadata block group was not yet fully
+   created (didn't go through btrfs_create_pending_block_groups() yet);
+
+8) The transaction commit task sees the new metadata block group in
+   the transaction's list of dirty block groups and processes it.
+   When it attempts to update the block group's block group item in
+   the extent tree, through write_one_cache_group(), it isn't able
+   to find it and aborts the transaction with error -ENOENT - this
+   is because the free space endio job hasn't yet released its
+   transaction handle (which calls btrfs_create_pending_block_groups())
+   and therefore the block group item was not yet added to the extent
+   tree.
+
+Fix this waiting for free space endio jobs if we fail to find a block
+group item in the extent tree and then retry once updating the block
+group item.
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.cz>
+---
+ fs/btrfs/extent-tree.c |   19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -3749,6 +3749,25 @@ int btrfs_write_dirty_block_groups(struc
+ 		}
+ 		if (!ret) {
+ 			ret = write_one_cache_group(trans, root, path, cache);
++			/*
++			 * One of the free space endio workers might have
++			 * created a new block group while updating a free space
++			 * cache's inode (at inode.c:btrfs_finish_ordered_io())
++			 * and hasn't released its transaction handle yet, in
++			 * which case the new block group is still attached to
++			 * its transaction handle and its creation has not
++			 * finished yet (no block group item in the extent tree
++			 * yet, etc). If this is the case, wait for all free
++			 * space endio workers to finish and retry. This is a
++			 * a very rare case so no need for a more efficient and
++			 * complex approach.
++			 */
++			if (ret == -ENOENT) {
++				wait_event(cur_trans->writer_wait,
++				   atomic_read(&cur_trans->num_writers) == 1);
++				ret = write_one_cache_group(trans, root, path,
++							    cache);
++			}
+ 			if (ret)
+ 				btrfs_abort_transaction(trans, root, ret);
+ 		}

@@ -1,0 +1,169 @@
+From: David Sterba <dsterba@suse.com>
+Date: Thu, 3 Dec 2015 14:08:11 +0100
+Patch-mainline: 4.5
+Git-commit: e83b1d91f872a4cf7bf0d3528044fc9e43260e2b
+References: bsc#1012452
+Subject: [PATCH] btrfs: make clear_extent_bit helpers static inline
+
+The funcions just wrap the clear_extent_bit API and generate function
+calls. This increases stack consumption and may negatively affect
+performance due to icache misses. We can simply make the helpers static
+inline and keep the type checking and API untouched. The code slightly
+decreases:
+
+   text	   data	    bss	    dec	    hex	filename
+ 938667	  43670	  23144	1005481	  f57a9	fs/btrfs/btrfs.ko.before
+ 939651	  43670	  23144	1006465	  f5b81	fs/btrfs/btrfs.ko.after
+
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/extent_io.c |   39 ---------------------------------------
+ fs/btrfs/extent_io.h |   47 ++++++++++++++++++++++++++++++++++++++---------
+ 2 files changed, 38 insertions(+), 48 deletions(-)
+
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -1309,17 +1309,6 @@ int clear_extent_bit(struct extent_io_tr
+ 				  cached, mask, NULL);
+ }
+ 
+-int clear_extent_bits(struct extent_io_tree *tree, u64 start, u64 end,
+-		      unsigned bits, gfp_t mask)
+-{
+-	int wake = 0;
+-
+-	if (bits & EXTENT_LOCKED)
+-		wake = 1;
+-
+-	return clear_extent_bit(tree, start, end, bits, wake, 0, NULL, mask);
+-}
+-
+ int clear_record_extent_bits(struct extent_io_tree *tree, u64 start, u64 end,
+ 			     unsigned bits, gfp_t mask,
+ 			     struct extent_changeset *changeset)
+@@ -1334,21 +1323,6 @@ int clear_record_extent_bits(struct exte
+ 				  changeset);
+ }
+ 
+-int clear_extent_dirty(struct extent_io_tree *tree, u64 start, u64 end,
+-		       gfp_t mask)
+-{
+-	return clear_extent_bit(tree, start, end,
+-				EXTENT_DIRTY | EXTENT_DELALLOC |
+-				EXTENT_DO_ACCOUNTING, 0, 0, NULL, mask);
+-}
+-
+-int clear_extent_uptodate(struct extent_io_tree *tree, u64 start, u64 end,
+-			  struct extent_state **cached_state, gfp_t mask)
+-{
+-	return clear_extent_bit(tree, start, end, EXTENT_UPTODATE, 0, 0,
+-				cached_state, mask);
+-}
+-
+ /*
+  * either insert or lock state struct between start and end use mask to tell
+  * us if waiting is desired.
+@@ -1394,19 +1368,6 @@ int try_lock_extent(struct extent_io_tre
+ 	return 1;
+ }
+ 
+-int unlock_extent_cached(struct extent_io_tree *tree, u64 start, u64 end,
+-			 struct extent_state **cached, gfp_t mask)
+-{
+-	return clear_extent_bit(tree, start, end, EXTENT_LOCKED, 1, 0, cached,
+-				mask);
+-}
+-
+-int unlock_extent(struct extent_io_tree *tree, u64 start, u64 end)
+-{
+-	return clear_extent_bit(tree, start, end, EXTENT_LOCKED, 1, 0, NULL,
+-				GFP_NOFS);
+-}
+-
+ void extent_range_clear_dirty_for_io(struct inode *inode, u64 start, u64 end)
+ {
+ 	unsigned long index = start >> PAGE_CACHE_SHIFT;
+--- a/fs/btrfs/extent_io.h
++++ b/fs/btrfs/extent_io.h
+@@ -202,9 +202,6 @@ int try_release_extent_buffer(struct pag
+ int lock_extent(struct extent_io_tree *tree, u64 start, u64 end);
+ int lock_extent_bits(struct extent_io_tree *tree, u64 start, u64 end,
+ 		     unsigned bits, struct extent_state **cached);
+-int unlock_extent(struct extent_io_tree *tree, u64 start, u64 end);
+-int unlock_extent_cached(struct extent_io_tree *tree, u64 start, u64 end,
+-			 struct extent_state **cached, gfp_t mask);
+ int try_lock_extent(struct extent_io_tree *tree, u64 start, u64 end);
+ int extent_read_full_page(struct extent_io_tree *tree, struct page *page,
+ 			  get_extent_t *get_extent, int mirror_num);
+@@ -221,8 +218,6 @@ void free_extent_state(struct extent_sta
+ int test_range_bit(struct extent_io_tree *tree, u64 start, u64 end,
+ 		   unsigned bits, int filled,
+ 		   struct extent_state *cached_state);
+-int clear_extent_bits(struct extent_io_tree *tree, u64 start, u64 end,
+-		      unsigned bits, gfp_t mask);
+ int clear_record_extent_bits(struct extent_io_tree *tree, u64 start, u64 end,
+ 			     unsigned bits, gfp_t mask,
+ 			     struct extent_changeset *changeset);
+@@ -230,6 +225,30 @@ int clear_extent_bit(struct extent_io_tr
+ 		     unsigned bits, int wake, int delete,
+ 		     struct extent_state **cached, gfp_t mask);
+ 
++static inline int unlock_extent(struct extent_io_tree *tree, u64 start, u64 end)
++{
++	return clear_extent_bit(tree, start, end, EXTENT_LOCKED, 1, 0, NULL,
++				GFP_NOFS);
++}
++
++static inline int unlock_extent_cached(struct extent_io_tree *tree, u64 start,
++		u64 end, struct extent_state **cached, gfp_t mask)
++{
++	return clear_extent_bit(tree, start, end, EXTENT_LOCKED, 1, 0, cached,
++				mask);
++}
++
++static inline int clear_extent_bits(struct extent_io_tree *tree, u64 start,
++		u64 end, unsigned bits, gfp_t mask)
++{
++	int wake = 0;
++
++	if (bits & EXTENT_LOCKED)
++		wake = 1;
++
++	return clear_extent_bit(tree, start, end, bits, wake, 0, NULL, mask);
++}
++
+ int set_record_extent_bits(struct extent_io_tree *tree, u64 start, u64 end,
+ 			   unsigned bits, gfp_t mask,
+ 			   struct extent_changeset *changeset);
+@@ -243,8 +262,12 @@ static inline int set_extent_bits(struct
+ 	return set_extent_bit(tree, start, end, bits, NULL, NULL, mask);
+ }
+ 
+-int clear_extent_uptodate(struct extent_io_tree *tree, u64 start, u64 end,
+-			  struct extent_state **cached_state, gfp_t mask);
++static inline int clear_extent_uptodate(struct extent_io_tree *tree, u64 start,
++		u64 end, struct extent_state **cached_state, gfp_t mask)
++{
++	return clear_extent_bit(tree, start, end, EXTENT_UPTODATE, 0, 0,
++				cached_state, mask);
++}
+ 
+ static inline int set_extent_dirty(struct extent_io_tree *tree, u64 start,
+ 		u64 end, gfp_t mask)
+@@ -253,8 +276,14 @@ static inline int set_extent_dirty(struc
+ 			      NULL, mask);
+ }
+ 
+-int clear_extent_dirty(struct extent_io_tree *tree, u64 start, u64 end,
+-		       gfp_t mask);
++static inline int clear_extent_dirty(struct extent_io_tree *tree, u64 start,
++		u64 end, gfp_t mask)
++{
++	return clear_extent_bit(tree, start, end,
++				EXTENT_DIRTY | EXTENT_DELALLOC |
++				EXTENT_DO_ACCOUNTING, 0, 0, NULL, mask);
++}
++
+ int convert_extent_bit(struct extent_io_tree *tree, u64 start, u64 end,
+ 		       unsigned bits, unsigned clear_bits,
+ 		       struct extent_state **cached_state, gfp_t mask);

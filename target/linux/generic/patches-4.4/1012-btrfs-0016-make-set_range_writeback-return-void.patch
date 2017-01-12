@@ -1,0 +1,35 @@
+From: David Sterba <dsterba@suse.com>
+Date: Thu, 3 Dec 2015 13:08:59 +0100
+Patch-mainline: 4.5
+Git-commit: 35de6db28f260e88e9acc47305f7b3f272d76cbf
+References: bsc#1012452
+Subject: [PATCH] btrfs: make set_range_writeback return void
+
+Does not return any errors, nor anything from the callgraph. There's a
+BUG_ON but it's a sanity check and not an error condition we could
+recover from.
+
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/extent_io.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -1485,7 +1485,7 @@ void extent_range_redirty_for_io(struct
+ /*
+  * helper function to set both pages and extents in the tree writeback
+  */
+-static int set_range_writeback(struct extent_io_tree *tree, u64 start, u64 end)
++static void set_range_writeback(struct extent_io_tree *tree, u64 start, u64 end)
+ {
+ 	unsigned long index = start >> PAGE_CACHE_SHIFT;
+ 	unsigned long end_index = end >> PAGE_CACHE_SHIFT;
+@@ -1498,7 +1498,6 @@ static int set_range_writeback(struct ex
+ 		page_cache_release(page);
+ 		index++;
+ 	}
+-	return 0;
+ }
+ 
+ /* find the first state struct with 'bits' set after 'start', and

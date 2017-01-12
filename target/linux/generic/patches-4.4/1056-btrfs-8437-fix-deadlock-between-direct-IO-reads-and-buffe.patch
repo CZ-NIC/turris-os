@@ -1,0 +1,392 @@
+From: Filipe Manana <fdmanana@suse.com>
+Date: Thu, 18 Feb 2016 14:28:55 +0000
+Patch-mainline: 4.6
+Git-commit: ade770294df29e08f913e5d733a756893128f45e
+References: bsc#973855
+Subject: [PATCH] Btrfs: fix deadlock between direct IO reads and buffered
+ writes
+
+While running a test with a mix of buffered IO and direct IO against
+the same files I hit a deadlock reported by the following trace:
+
+[11642.140352] INFO: task kworker/u32:3:15282 blocked for more than 120 seconds.
+[11642.142452]       Not tainted 4.4.0-rc6-btrfs-next-21+ #1
+[11642.143982] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[11642.146332] kworker/u32:3   D ffff880230ef7988 [11642.147737] systemd-journald[571]: Sent WATCHDOG=1 notification.
+[11642.149771]     0 15282      2 0x00000000
+[11642.151205] Workqueue: btrfs-flush_delalloc btrfs_flush_delalloc_helper [btrfs]
+[11642.154074]  ffff880230ef7988 0000000000000246 0000000000014ec0 ffff88023ec94ec0
+[11642.156722]  ffff880233fe8f80 ffff880230ef8000 ffff88023ec94ec0 7fffffffffffffff
+[11642.159205]  0000000000000002 ffffffff8147b7f9 ffff880230ef79a0 ffffffff8147b541
+[11642.161403] Call Trace:
+[11642.162129]  [<ffffffff8147b7f9>] ? bit_wait+0x2f/0x2f
+[11642.163396]  [<ffffffff8147b541>] schedule+0x82/0x9a
+[11642.164871]  [<ffffffff8147e7fe>] schedule_timeout+0x43/0x109
+[11642.167020]  [<ffffffff8147b7f9>] ? bit_wait+0x2f/0x2f
+[11642.167931]  [<ffffffff8108afd1>] ? trace_hardirqs_on_caller+0x17b/0x197
+[11642.182320]  [<ffffffff8108affa>] ? trace_hardirqs_on+0xd/0xf
+[11642.183762]  [<ffffffff810b079b>] ? timekeeping_get_ns+0xe/0x33
+[11642.185308]  [<ffffffff810b0f61>] ? ktime_get+0x41/0x52
+[11642.186782]  [<ffffffff8147ac08>] io_schedule_timeout+0xa0/0x102
+[11642.188217]  [<ffffffff8147ac08>] ? io_schedule_timeout+0xa0/0x102
+[11642.189626]  [<ffffffff8147b814>] bit_wait_io+0x1b/0x39
+[11642.190803]  [<ffffffff8147bb21>] __wait_on_bit_lock+0x4c/0x90
+[11642.192158]  [<ffffffff8111829f>] __lock_page+0x66/0x68
+[11642.193379]  [<ffffffff81082f29>] ? autoremove_wake_function+0x3a/0x3a
+[11642.194831]  [<ffffffffa0450ddd>] lock_page+0x31/0x34 [btrfs]
+[11642.197068]  [<ffffffffa0454e3b>] extent_write_cache_pages.isra.19.constprop.35+0x1af/0x2f4 [btrfs]
+[11642.199188]  [<ffffffffa0455373>] extent_writepages+0x4b/0x5c [btrfs]
+[11642.200723]  [<ffffffffa043c913>] ? btrfs_writepage_start_hook+0xce/0xce [btrfs]
+[11642.202465]  [<ffffffffa043aa82>] btrfs_writepages+0x28/0x2a [btrfs]
+[11642.203836]  [<ffffffff811236bc>] do_writepages+0x23/0x2c
+[11642.205624]  [<ffffffff811198c9>] __filemap_fdatawrite_range+0x5a/0x61
+[11642.207057]  [<ffffffff81119946>] filemap_fdatawrite_range+0x13/0x15
+[11642.208529]  [<ffffffffa044f87e>] btrfs_start_ordered_extent+0xd0/0x1a1 [btrfs]
+[11642.210375]  [<ffffffffa0462613>] ? btrfs_scrubparity_helper+0x140/0x33a [btrfs]
+[11642.212132]  [<ffffffffa044f974>] btrfs_run_ordered_extent_work+0x25/0x34 [btrfs]
+[11642.213837]  [<ffffffffa046262f>] btrfs_scrubparity_helper+0x15c/0x33a [btrfs]
+[11642.215457]  [<ffffffffa046293b>] btrfs_flush_delalloc_helper+0xe/0x10 [btrfs]
+[11642.217095]  [<ffffffff8106483e>] process_one_work+0x256/0x48b
+[11642.218324]  [<ffffffff81064f20>] worker_thread+0x1f5/0x2a7
+[11642.219466]  [<ffffffff81064d2b>] ? rescuer_thread+0x289/0x289
+[11642.220801]  [<ffffffff8106a500>] kthread+0xd4/0xdc
+[11642.222032]  [<ffffffff8106a42c>] ? kthread_parkme+0x24/0x24
+[11642.223190]  [<ffffffff8147fdef>] ret_from_fork+0x3f/0x70
+[11642.224394]  [<ffffffff8106a42c>] ? kthread_parkme+0x24/0x24
+[11642.226295] 2 locks held by kworker/u32:3/15282:
+[11642.227273]  #0:  ("%s-%s""btrfs", name){++++.+}, at: [<ffffffff8106474d>] process_one_work+0x165/0x48b
+[11642.229412]  #1:  ((&work->normal_work)){+.+.+.}, at: [<ffffffff8106474d>] process_one_work+0x165/0x48b
+[11642.231414] INFO: task kworker/u32:8:15289 blocked for more than 120 seconds.
+[11642.232872]       Not tainted 4.4.0-rc6-btrfs-next-21+ #1
+[11642.234109] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[11642.235776] kworker/u32:8   D ffff88020de5f848     0 15289      2 0x00000000
+[11642.237412] Workqueue: writeback wb_workfn (flush-btrfs-481)
+[11642.238670]  ffff88020de5f848 0000000000000246 0000000000014ec0 ffff88023ed54ec0
+[11642.240475]  ffff88021b1ece40 ffff88020de60000 ffff88023ed54ec0 7fffffffffffffff
+[11642.242154]  0000000000000002 ffffffff8147b7f9 ffff88020de5f860 ffffffff8147b541
+[11642.243715] Call Trace:
+[11642.244390]  [<ffffffff8147b7f9>] ? bit_wait+0x2f/0x2f
+[11642.245432]  [<ffffffff8147b541>] schedule+0x82/0x9a
+[11642.246392]  [<ffffffff8147e7fe>] schedule_timeout+0x43/0x109
+[11642.247479]  [<ffffffff8147b7f9>] ? bit_wait+0x2f/0x2f
+[11642.248551]  [<ffffffff8108afd1>] ? trace_hardirqs_on_caller+0x17b/0x197
+[11642.249968]  [<ffffffff8108affa>] ? trace_hardirqs_on+0xd/0xf
+[11642.251043]  [<ffffffff810b079b>] ? timekeeping_get_ns+0xe/0x33
+[11642.252202]  [<ffffffff810b0f61>] ? ktime_get+0x41/0x52
+[11642.253210]  [<ffffffff8147ac08>] io_schedule_timeout+0xa0/0x102
+[11642.254307]  [<ffffffff8147ac08>] ? io_schedule_timeout+0xa0/0x102
+[11642.256118]  [<ffffffff8147b814>] bit_wait_io+0x1b/0x39
+[11642.257131]  [<ffffffff8147bb21>] __wait_on_bit_lock+0x4c/0x90
+[11642.258200]  [<ffffffff8111829f>] __lock_page+0x66/0x68
+[11642.259168]  [<ffffffff81082f29>] ? autoremove_wake_function+0x3a/0x3a
+[11642.260516]  [<ffffffffa0450ddd>] lock_page+0x31/0x34 [btrfs]
+[11642.261841]  [<ffffffffa0454e3b>] extent_write_cache_pages.isra.19.constprop.35+0x1af/0x2f4 [btrfs]
+[11642.263531]  [<ffffffffa0455373>] extent_writepages+0x4b/0x5c [btrfs]
+[11642.264747]  [<ffffffffa043c913>] ? btrfs_writepage_start_hook+0xce/0xce [btrfs]
+[11642.266148]  [<ffffffffa043aa82>] btrfs_writepages+0x28/0x2a [btrfs]
+[11642.267264]  [<ffffffff811236bc>] do_writepages+0x23/0x2c
+[11642.268280]  [<ffffffff81192a2b>] __writeback_single_inode+0xda/0x5ba
+[11642.269407]  [<ffffffff811939f0>] writeback_sb_inodes+0x27b/0x43d
+[11642.270476]  [<ffffffff81193c28>] __writeback_inodes_wb+0x76/0xae
+[11642.271547]  [<ffffffff81193ea6>] wb_writeback+0x19e/0x41c
+[11642.272588]  [<ffffffff81194821>] wb_workfn+0x201/0x341
+[11642.273523]  [<ffffffff81194821>] ? wb_workfn+0x201/0x341
+[11642.274479]  [<ffffffff8106483e>] process_one_work+0x256/0x48b
+[11642.275497]  [<ffffffff81064f20>] worker_thread+0x1f5/0x2a7
+[11642.276518]  [<ffffffff81064d2b>] ? rescuer_thread+0x289/0x289
+[11642.277520]  [<ffffffff81064d2b>] ? rescuer_thread+0x289/0x289
+[11642.278517]  [<ffffffff8106a500>] kthread+0xd4/0xdc
+[11642.279371]  [<ffffffff8106a42c>] ? kthread_parkme+0x24/0x24
+[11642.280468]  [<ffffffff8147fdef>] ret_from_fork+0x3f/0x70
+[11642.281607]  [<ffffffff8106a42c>] ? kthread_parkme+0x24/0x24
+[11642.282604] 3 locks held by kworker/u32:8/15289:
+[11642.283423]  #0:  ("writeback"){++++.+}, at: [<ffffffff8106474d>] process_one_work+0x165/0x48b
+[11642.285629]  #1:  ((&(&wb->dwork)->work)){+.+.+.}, at: [<ffffffff8106474d>] process_one_work+0x165/0x48b
+[11642.287538]  #2:  (&type->s_umount_key#37){+++++.}, at: [<ffffffff81171217>] trylock_super+0x1b/0x4b
+[11642.289423] INFO: task fdm-stress:26848 blocked for more than 120 seconds.
+[11642.290547]       Not tainted 4.4.0-rc6-btrfs-next-21+ #1
+[11642.291453] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[11642.292864] fdm-stress      D ffff88022c107c20     0 26848  26591 0x00000000
+[11642.294118]  ffff88022c107c20 000000038108affa 0000000000014ec0 ffff88023ed54ec0
+[11642.295602]  ffff88013ab1ca40 ffff88022c108000 ffff8800b2fc19d0 00000000000e0fff
+[11642.297098]  ffff8800b2fc19b0 ffff88022c107c88 ffff88022c107c38 ffffffff8147b541
+[11642.298433] Call Trace:
+[11642.298896]  [<ffffffff8147b541>] schedule+0x82/0x9a
+[11642.299738]  [<ffffffffa045225d>] lock_extent_bits+0xfe/0x1a3 [btrfs]
+[11642.300833]  [<ffffffff81082eef>] ? add_wait_queue_exclusive+0x44/0x44
+[11642.301943]  [<ffffffffa0447516>] lock_and_cleanup_extent_if_need+0x68/0x18e [btrfs]
+[11642.303270]  [<ffffffffa04485ba>] __btrfs_buffered_write+0x238/0x4c1 [btrfs]
+[11642.304552]  [<ffffffffa044b50a>] ? btrfs_file_write_iter+0x17c/0x408 [btrfs]
+[11642.305782]  [<ffffffffa044b682>] btrfs_file_write_iter+0x2f4/0x408 [btrfs]
+[11642.306878]  [<ffffffff8116e298>] __vfs_write+0x7c/0xa5
+[11642.307729]  [<ffffffff8116e7d1>] vfs_write+0x9d/0xe8
+[11642.308602]  [<ffffffff8116efbb>] SyS_write+0x50/0x7e
+[11642.309410]  [<ffffffff8147fa97>] entry_SYSCALL_64_fastpath+0x12/0x6b
+[11642.310403] 3 locks held by fdm-stress/26848:
+[11642.311108]  #0:  (&f->f_pos_lock){+.+.+.}, at: [<ffffffff811877e8>] __fdget_pos+0x3a/0x40
+[11642.312578]  #1:  (sb_writers#11){.+.+.+}, at: [<ffffffff811706ee>] __sb_start_write+0x5f/0xb0
+[11642.314170]  #2:  (&sb->s_type->i_mutex_key#15){+.+.+.}, at: [<ffffffffa044b401>] btrfs_file_write_iter+0x73/0x408 [btrfs]
+[11642.316796] INFO: task fdm-stress:26849 blocked for more than 120 seconds.
+[11642.317842]       Not tainted 4.4.0-rc6-btrfs-next-21+ #1
+[11642.318691] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[11642.319959] fdm-stress      D ffff8801964ffa68     0 26849  26591 0x00000000
+[11642.321312]  ffff8801964ffa68 00ff8801e9975f80 0000000000014ec0 ffff88023ed94ec0
+[11642.322555]  ffff8800b00b4840 ffff880196500000 ffff8801e9975f20 0000000000000002
+[11642.323715]  ffff8801e9975f18 ffff8800b00b4840 ffff8801964ffa80 ffffffff8147b541
+[11642.325096] Call Trace:
+[11642.325532]  [<ffffffff8147b541>] schedule+0x82/0x9a
+[11642.326303]  [<ffffffff8147e7fe>] schedule_timeout+0x43/0x109
+[11642.327180]  [<ffffffff8108ae40>] ? mark_held_locks+0x5e/0x74
+[11642.328114]  [<ffffffff8147f30e>] ? _raw_spin_unlock_irq+0x2c/0x4a
+[11642.329051]  [<ffffffff8108afd1>] ? trace_hardirqs_on_caller+0x17b/0x197
+[11642.330053]  [<ffffffff8147bceb>] __wait_for_common+0x109/0x147
+[11642.330952]  [<ffffffff8147bceb>] ? __wait_for_common+0x109/0x147
+[11642.331869]  [<ffffffff8147e7bb>] ? usleep_range+0x4a/0x4a
+[11642.332925]  [<ffffffff81074075>] ? wake_up_q+0x47/0x47
+[11642.333736]  [<ffffffff8147bd4d>] wait_for_completion+0x24/0x26
+[11642.334672]  [<ffffffffa044f5ce>] btrfs_wait_ordered_extents+0x1c8/0x217 [btrfs]
+[11642.335858]  [<ffffffffa0465b5a>] btrfs_mksubvol+0x224/0x45d [btrfs]
+[11642.336854]  [<ffffffff81082eef>] ? add_wait_queue_exclusive+0x44/0x44
+[11642.337820]  [<ffffffffa0465edb>] btrfs_ioctl_snap_create_transid+0x148/0x17a [btrfs]
+[11642.339026]  [<ffffffffa046603b>] btrfs_ioctl_snap_create_v2+0xc7/0x110 [btrfs]
+[11642.340214]  [<ffffffffa0468582>] btrfs_ioctl+0x590/0x27bd [btrfs]
+[11642.341123]  [<ffffffff8147dc00>] ? mutex_unlock+0xe/0x10
+[11642.341934]  [<ffffffffa00fa6e9>] ? ext4_file_write_iter+0x2a3/0x36f [ext4]
+[11642.342936]  [<ffffffff8108895d>] ? __lock_is_held+0x3c/0x57
+[11642.343772]  [<ffffffff81186a1d>] ? rcu_read_unlock+0x3e/0x5d
+[11642.344673]  [<ffffffff8117dc95>] do_vfs_ioctl+0x458/0x4dc
+[11642.346024]  [<ffffffff81186bbe>] ? __fget_light+0x62/0x71
+[11642.346873]  [<ffffffff8117dd70>] SyS_ioctl+0x57/0x79
+[11642.347720]  [<ffffffff8147fa97>] entry_SYSCALL_64_fastpath+0x12/0x6b
+[11642.350222] 4 locks held by fdm-stress/26849:
+[11642.350898]  #0:  (sb_writers#11){.+.+.+}, at: [<ffffffff811706ee>] __sb_start_write+0x5f/0xb0
+[11642.352375]  #1:  (&type->i_mutex_dir_key#4/1){+.+.+.}, at: [<ffffffffa0465981>] btrfs_mksubvol+0x4b/0x45d [btrfs]
+[11642.354072]  #2:  (&fs_info->subvol_sem){++++..}, at: [<ffffffffa0465a2a>] btrfs_mksubvol+0xf4/0x45d [btrfs]
+[11642.355647]  #3:  (&root->ordered_extent_mutex){+.+...}, at: [<ffffffffa044f456>] btrfs_wait_ordered_extents+0x50/0x217 [btrfs]
+[11642.357516] INFO: task fdm-stress:26850 blocked for more than 120 seconds.
+[11642.358508]       Not tainted 4.4.0-rc6-btrfs-next-21+ #1
+[11642.359376] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[11642.368625] fdm-stress      D ffff88021f167688     0 26850  26591 0x00000000
+[11642.369716]  ffff88021f167688 0000000000000001 0000000000014ec0 ffff88023edd4ec0
+[11642.370950]  ffff880128a98680 ffff88021f168000 ffff88023edd4ec0 7fffffffffffffff
+[11642.372210]  0000000000000002 ffffffff8147b7f9 ffff88021f1676a0 ffffffff8147b541
+[11642.373430] Call Trace:
+[11642.373853]  [<ffffffff8147b7f9>] ? bit_wait+0x2f/0x2f
+[11642.374623]  [<ffffffff8147b541>] schedule+0x82/0x9a
+[11642.375948]  [<ffffffff8147e7fe>] schedule_timeout+0x43/0x109
+[11642.376862]  [<ffffffff8147b7f9>] ? bit_wait+0x2f/0x2f
+[11642.377637]  [<ffffffff8108afd1>] ? trace_hardirqs_on_caller+0x17b/0x197
+[11642.378610]  [<ffffffff8108affa>] ? trace_hardirqs_on+0xd/0xf
+[11642.379457]  [<ffffffff810b079b>] ? timekeeping_get_ns+0xe/0x33
+[11642.380366]  [<ffffffff810b0f61>] ? ktime_get+0x41/0x52
+[11642.381353]  [<ffffffff8147ac08>] io_schedule_timeout+0xa0/0x102
+[11642.382255]  [<ffffffff8147ac08>] ? io_schedule_timeout+0xa0/0x102
+[11642.383162]  [<ffffffff8147b814>] bit_wait_io+0x1b/0x39
+[11642.383945]  [<ffffffff8147bb21>] __wait_on_bit_lock+0x4c/0x90
+[11642.384875]  [<ffffffff8111829f>] __lock_page+0x66/0x68
+[11642.385749]  [<ffffffff81082f29>] ? autoremove_wake_function+0x3a/0x3a
+[11642.386721]  [<ffffffffa0450ddd>] lock_page+0x31/0x34 [btrfs]
+[11642.387596]  [<ffffffffa0454e3b>] extent_write_cache_pages.isra.19.constprop.35+0x1af/0x2f4 [btrfs]
+[11642.389030]  [<ffffffffa0455373>] extent_writepages+0x4b/0x5c [btrfs]
+[11642.389973]  [<ffffffff810a25ad>] ? rcu_read_lock_sched_held+0x61/0x69
+[11642.390939]  [<ffffffffa043c913>] ? btrfs_writepage_start_hook+0xce/0xce [btrfs]
+[11642.392271]  [<ffffffffa0451c32>] ? __clear_extent_bit+0x26e/0x2c0 [btrfs]
+[11642.393305]  [<ffffffffa043aa82>] btrfs_writepages+0x28/0x2a [btrfs]
+[11642.394239]  [<ffffffff811236bc>] do_writepages+0x23/0x2c
+[11642.395045]  [<ffffffff811198c9>] __filemap_fdatawrite_range+0x5a/0x61
+[11642.395991]  [<ffffffff81119946>] filemap_fdatawrite_range+0x13/0x15
+[11642.397144]  [<ffffffffa044f87e>] btrfs_start_ordered_extent+0xd0/0x1a1 [btrfs]
+[11642.398392]  [<ffffffffa0452094>] ? clear_extent_bit+0x17/0x19 [btrfs]
+[11642.399363]  [<ffffffffa0445945>] btrfs_get_blocks_direct+0x12b/0x61c [btrfs]
+[11642.400445]  [<ffffffff8119f7a1>] ? dio_bio_add_page+0x3d/0x54
+[11642.401309]  [<ffffffff8119fa93>] ? submit_page_section+0x7b/0x111
+[11642.402213]  [<ffffffff811a0258>] do_blockdev_direct_IO+0x685/0xc24
+[11642.403139]  [<ffffffffa044581a>] ? btrfs_page_exists_in_range+0x1a1/0x1a1 [btrfs]
+[11642.404360]  [<ffffffffa043d267>] ? btrfs_get_extent_fiemap+0x1c0/0x1c0 [btrfs]
+[11642.406187]  [<ffffffff811a0828>] __blockdev_direct_IO+0x31/0x33
+[11642.407070]  [<ffffffff811a0828>] ? __blockdev_direct_IO+0x31/0x33
+[11642.407990]  [<ffffffffa043d267>] ? btrfs_get_extent_fiemap+0x1c0/0x1c0 [btrfs]
+[11642.409192]  [<ffffffffa043b4ca>] btrfs_direct_IO+0x1c7/0x27e [btrfs]
+[11642.410146]  [<ffffffffa043d267>] ? btrfs_get_extent_fiemap+0x1c0/0x1c0 [btrfs]
+[11642.411291]  [<ffffffff81119a2c>] generic_file_read_iter+0x89/0x4e1
+[11642.412263]  [<ffffffff8108ac05>] ? mark_lock+0x24/0x201
+[11642.413057]  [<ffffffff8116e1f8>] __vfs_read+0x79/0x9d
+[11642.413897]  [<ffffffff8116e6f1>] vfs_read+0x8f/0xd2
+[11642.414708]  [<ffffffff8116ef3d>] SyS_read+0x50/0x7e
+[11642.415573]  [<ffffffff8147fa97>] entry_SYSCALL_64_fastpath+0x12/0x6b
+[11642.416572] 1 lock held by fdm-stress/26850:
+[11642.417345]  #0:  (&f->f_pos_lock){+.+.+.}, at: [<ffffffff811877e8>] __fdget_pos+0x3a/0x40
+[11642.418703] INFO: task fdm-stress:26851 blocked for more than 120 seconds.
+[11642.419698]       Not tainted 4.4.0-rc6-btrfs-next-21+ #1
+[11642.420612] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[11642.421807] fdm-stress      D ffff880196483d28     0 26851  26591 0x00000000
+[11642.422878]  ffff880196483d28 00ff8801c8f60740 0000000000014ec0 ffff88023ed94ec0
+[11642.424149]  ffff8801c8f60740 ffff880196484000 0000000000000246 ffff8801c8f60740
+[11642.425374]  ffff8801bb711840 ffff8801bb711878 ffff880196483d40 ffffffff8147b541
+[11642.426591] Call Trace:
+[11642.427013]  [<ffffffff8147b541>] schedule+0x82/0x9a
+[11642.427856]  [<ffffffff8147b6d5>] schedule_preempt_disabled+0x18/0x24
+[11642.428852]  [<ffffffff8147c23a>] mutex_lock_nested+0x1d7/0x3b4
+[11642.429743]  [<ffffffffa044f456>] ? btrfs_wait_ordered_extents+0x50/0x217 [btrfs]
+[11642.430911]  [<ffffffffa044f456>] btrfs_wait_ordered_extents+0x50/0x217 [btrfs]
+[11642.432102]  [<ffffffffa044f674>] ? btrfs_wait_ordered_roots+0x57/0x191 [btrfs]
+[11642.433259]  [<ffffffffa044f456>] ? btrfs_wait_ordered_extents+0x50/0x217 [btrfs]
+[11642.434431]  [<ffffffffa044f6ea>] btrfs_wait_ordered_roots+0xcd/0x191 [btrfs]
+[11642.436079]  [<ffffffffa0410cab>] btrfs_sync_fs+0xe0/0x1ad [btrfs]
+[11642.437009]  [<ffffffff81197900>] ? SyS_tee+0x23c/0x23c
+[11642.437860]  [<ffffffff81197920>] sync_fs_one_sb+0x20/0x22
+[11642.438723]  [<ffffffff81171435>] iterate_supers+0x75/0xc2
+[11642.439597]  [<ffffffff81197d00>] sys_sync+0x52/0x80
+[11642.440454]  [<ffffffff8147fa97>] entry_SYSCALL_64_fastpath+0x12/0x6b
+[11642.441533] 3 locks held by fdm-stress/26851:
+[11642.442370]  #0:  (&type->s_umount_key#37){+++++.}, at: [<ffffffff8117141f>] iterate_supers+0x5f/0xc2
+[11642.444043]  #1:  (&fs_info->ordered_operations_mutex){+.+...}, at: [<ffffffffa044f661>] btrfs_wait_ordered_roots+0x44/0x191 [btrfs]
+[11642.446010]  #2:  (&root->ordered_extent_mutex){+.+...}, at: [<ffffffffa044f456>] btrfs_wait_ordered_extents+0x50/0x217 [btrfs]
+
+This happened because under specific timings the path for direct IO reads
+can deadlock with concurrent buffered writes. The diagram below shows how
+this happens for an example file that has the following layout:
+
+     [  extent A  ]  [  extent B  ]  [ ....
+     0K              4K              8K
+
+     CPU 1                                               CPU 2                             CPU 3
+
+DIO read against range
+ [0K, 8K[ starts
+
+btrfs_direct_IO()
+  --> calls btrfs_get_blocks_direct()
+      which finds the extent map for the
+      extent A and leaves the range
+      [0K, 4K[ locked in the inode's
+      io tree
+
+                                                   buffered write against
+                                                   range [4K, 8K[ starts
+
+                                                   __btrfs_buffered_write()
+                                                     --> dirties page at 4K
+
+                                                                                     a user space
+                                                                                     task calls sync
+                                                                                     for e.g or
+                                                                                     writepages() is
+                                                                                     invoked by mm
+
+                                                                                     writepages()
+                                                                                       run_delalloc_range()
+                                                                                         cow_file_range()
+                                                                                           --> ordered extent X
+                                                                                               for the buffered
+                                                                                               write is created
+                                                                                               and
+                                                                                               writeback starts
+
+  --> calls btrfs_get_blocks_direct()
+      again, without submitting first
+      a bio for reading extent A, and
+      finds the extent map for extent B
+
+  --> calls lock_extent_direct()
+
+      --> locks range [4K, 8K[
+      --> finds ordered extent X
+          covering range [4K, 8K[
+      --> unlocks range [4K, 8K[
+
+                                                  buffered write against
+                                                  range [0K, 8K[ starts
+
+                                                  __btrfs_buffered_write()
+                                                    prepare_pages()
+                                                      --> locks pages with
+                                                          offsets 0 and 4K
+                                                    lock_and_cleanup_extent_if_need()
+                                                      --> blocks attempting to
+                                                          lock range [0K, 8K[ in
+                                                          the inode's io tree,
+                                                          because the range [0, 4K[
+                                                          is already locked by the
+                                                          direct IO task at CPU 1
+
+      --> calls
+          btrfs_start_ordered_extent(oe X)
+
+          btrfs_start_ordered_extent(oe X)
+
+            --> At this point writeback for ordered
+                extent X has not finished yet
+
+            filemap_fdatawrite_range()
+              btrfs_writepages()
+                extent_writepages()
+                  extent_write_cache_pages()
+                    --> finds page with offset 0
+                        with the writeback tag
+                        (and not dirty)
+                    --> tries to lock it
+                         --> deadlock, task at CPU 2
+                             has the page locked and
+                             is blocked on the io range
+                             [0, 4K[ that was locked
+                             earlier by this task
+
+So fix this by falling back to a buffered read in the direct IO read path
+when an ordered extent for a buffered write is found.
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Liu Bo <bo.li.liu@oracle.com>
+Signed-off-by: Chris Mason <clm@fb.com>
+---
+ fs/btrfs/inode.c | 25 +++++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
+
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 7b79a3f..b4f538c 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -7422,7 +7422,26 @@ static int lock_extent_direct(struct inode *inode, u64 lockstart, u64 lockend,
+ 				     cached_state, GFP_NOFS);
+ 
+ 		if (ordered) {
+-			btrfs_start_ordered_extent(inode, ordered, 1);
++			/*
++			 * If we are doing a DIO read and the ordered extent we
++			 * found is for a buffered write, we can not wait for it
++			 * to complete and retry, because if we do so we can
++			 * deadlock with concurrent buffered writes on page
++			 * locks. This happens only if our DIO read covers more
++			 * than one extent map, if at this point has already
++			 * created an ordered extent for a previous extent map
++			 * and locked its range in the inode's io tree, and a
++			 * concurrent write against that previous extent map's
++			 * range and this range started (we unlock the ranges
++			 * in the io tree only when the bios complete and
++			 * buffered writes always lock pages before attempting
++			 * to lock range in the io tree).
++			 */
++			if (writing ||
++			    test_bit(BTRFS_ORDERED_DIRECT, &ordered->flags))
++				btrfs_start_ordered_extent(inode, ordered, 1);
++			else
++				ret = -ENOTBLK;
+ 			btrfs_put_ordered_extent(ordered);
+ 		} else {
+ 			/*
+@@ -7439,9 +7458,11 @@ static int lock_extent_direct(struct inode *inode, u64 lockstart, u64 lockend,
+ 			 * that page.
+ 			 */
+ 			ret = -ENOTBLK;
+-			break;
+ 		}
+ 
++		if (ret)
++			break;
++
+ 		cond_resched();
+ 	}
+ 
+-- 
+1.8.4.5
+

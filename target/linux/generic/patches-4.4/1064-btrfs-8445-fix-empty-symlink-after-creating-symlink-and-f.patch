@@ -1,0 +1,51 @@
+From: Filipe Manana <fdmanana@suse.com>
+Date: Mon, 25 Apr 2016 04:45:02 +0100
+Patch-mainline: 4.7-rc1
+Git-commit: 3f9749f6e9edcf8ec569fb542efc3be35e06e84a
+References: bsc#977685
+Subject: [PATCH] Btrfs: fix empty symlink after creating symlink and fsync
+ parent dir
+
+If we create a symlink, fsync its parent directory, crash/power fail and
+mount the filesystem, we end up with an empty symlink, which not only is
+useless it's also not allowed in linux (the man page symlink(2) is well
+explicit about that).  So we just need to make sure to fully log an inode
+if it's a symlink, to ensure its inline extent gets logged, ensuring the
+same behaviour as ext3, ext4, xfs, reiserfs, f2fs, nilfs2, etc.
+
+Example reproducer:
+
+  $ mkfs.btrfs -f /dev/sdb
+  $ mount /dev/sdb /mnt
+  $ mkdir /mnt/testdir
+  $ sync
+  $ ln -s /mnt/foo /mnt/testdir/bar
+  $ xfs_io -c fsync /mnt/testdir
+  <power fail>
+  $ mount /dev/sdb /mnt
+  $ readlink /mnt/testdir/bar
+  <empty string>
+
+A test case for fstests follows soon.
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+---
+ fs/btrfs/tree-log.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index 23df70e..a2cd421 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -5157,7 +5157,7 @@ process_leaf:
+ 			}
+ 
+ 			ctx->log_new_dentries = false;
+-			if (type == BTRFS_FT_DIR)
++			if (type == BTRFS_FT_DIR || type == BTRFS_FT_SYMLINK)
+ 				log_mode = LOG_INODE_ALL;
+ 			btrfs_release_path(path);
+ 			ret = btrfs_log_inode(trans, root, di_inode,
+-- 
+1.8.4.5
+

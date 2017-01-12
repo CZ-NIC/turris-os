@@ -1,0 +1,101 @@
+From: Robbie Ko <robbieko@synology.com>
+Date: Tue, 23 Jun 2015 18:39:50 +0800
+Patch-mainline: 4.8
+Git-commit: 764433a12e78e1a2161793c02eceafdfed2d652b
+References: bsc#1018316
+Subject: [PATCH] Btrfs: send, fix invalid leaf accesses due to incorrect
+ utimes operations
+
+During an incremental send, if we have delayed rename operations for inodes
+that were children of directories which were removed in the send snapshot,
+we can end up accessing incorrect items in a leaf or accessing beyond the
+last item of the leaf due to issuing utimes operations for the removed
+inodes. Consider the following example:
+
+  Parent snapshot:
+  .                                                             (ino 256)
+  |--- a/                                                       (ino 257)
+  |    |--- c/                                                  (ino 262)
+  |
+  |--- b/                                                       (ino 258)
+  |    |--- d/                                                  (ino 263)
+  |
+  |--- del/                                                     (ino 261)
+        |--- x/                                                 (ino 259)
+        |--- y/                                                 (ino 260)
+
+  Send snapshot:
+
+  .                                                             (ino 256)
+  |--- a/                                                       (ino 257)
+  |
+  |--- b/                                                       (ino 258)
+  |
+  |--- c/                                                       (ino 262)
+  |    |--- y/                                                  (ino 260)
+  |
+  |--- d/                                                       (ino 263)
+       |--- x/                                                  (ino 259)
+
+1) When processing inodes 259 and 260, we end up delaying their rename
+   operations because their parents, inodes 263 and 262 respectively, were
+   not yet processed and therefore not yet renamed;
+
+2) When processing inode 262, its rename operation is issued and right
+   after the rename operation for inode 260 is issued. However right after
+   issuing the rename operation for inode 260, at send.c:apply_dir_move(),
+   we issue utimes operations for all current and past parents of inode
+   260. This means we try to send a utimes operation for its old parent,
+   inode 261 (deleted in the send snapshot), which does not cause any
+   immediate and deterministic failure, because when the target inode is
+   not found in the send snapshot, the send.c:send_utimes() function
+   ignores it and uses the leaf region pointed to by path->slots[0],
+   which can be any unrelated item (belonging to other inode) or it can
+   be a region outside the leaf boundaries, if the leaf is full and
+   path->slots[0] matches the number of items in the leaf. So we end
+   up either successfully sending a utimes operation, which is fine
+   and irrelevant because the old parent (inode 261) will end up being
+   deleted later, or we end up doing an invalid memory access tha
+   crashes the kernel.
+
+So fix this by making apply_dir_move() issue utimes operations only for
+parents that still exist in the send snapshot. In a separate patch we
+will make send_utimes() return an error (-ENOENT) if the given inode
+does not exists in the send snapshot.
+
+Signed-off-by: Robbie Ko <robbieko@synology.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+[Rewrote change log to be more detailed and better organized]
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+---
+ fs/btrfs/send.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
+index 8779bcc..6b39a8a 100644
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -3302,8 +3302,18 @@ finish:
+ 	 * and old parent(s).
+ 	 */
+ 	list_for_each_entry(cur, &pm->update_refs, list) {
+-		if (cur->dir == rmdir_ino)
++		/*
++		 * The parent inode might have been deleted in the send snapshot
++		 */
++		ret = get_inode_info(sctx->send_root, cur->dir, NULL,
++				     NULL, NULL, NULL, NULL, NULL);
++		if (ret == -ENOENT) {
++			ret = 0;
+ 			continue;
++		}
++		if (ret < 0)
++			goto out;
++
+ 		ret = send_utimes(sctx, cur->dir, cur->dir_gen);
+ 		if (ret < 0)
+ 			goto out;
+-- 
+1.8.4.5
+

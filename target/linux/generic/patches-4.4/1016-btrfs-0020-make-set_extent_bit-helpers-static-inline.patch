@@ -1,0 +1,170 @@
+From: David Sterba <dsterba@suse.com>
+Date: Thu, 3 Dec 2015 14:08:11 +0100
+Patch-mainline: 4.5
+Git-commit: c63179556af1335585e53cd8a23da40bf69cb2e2
+References: bsc#1012452
+Subject: [PATCH] btrfs: make set_extent_bit helpers static inline
+
+The funcions just wrap the set_extent_bit API and generate function
+calls. This increases stack consumption and may negatively affect
+performance due to icache misses. We can simply make the helpers static
+inline and keep the type checking and API untouched. The code slightly
+increases:
+
+   text	   data	    bss	    dec	    hex	filename
+ 938427	  43670	  23144	1005241	  f56b9	fs/btrfs/btrfs.ko.before
+ 938667	  43670	  23144	1005481	  f57a9	fs/btrfs/btrfs.ko
+
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/extent_io.c |   44 --------------------------------------
+ fs/btrfs/extent_io.h |   58 ++++++++++++++++++++++++++++++++++++++++-----------
+ 2 files changed, 46 insertions(+), 56 deletions(-)
+
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -1285,20 +1285,6 @@ search_again:
+ }
+ 
+ /* wrappers around set/clear extent bit */
+-int set_extent_dirty(struct extent_io_tree *tree, u64 start, u64 end,
+-		     gfp_t mask)
+-{
+-	return set_extent_bit(tree, start, end, EXTENT_DIRTY, NULL,
+-			      NULL, mask);
+-}
+-
+-int set_extent_bits(struct extent_io_tree *tree, u64 start, u64 end,
+-		    unsigned bits, gfp_t mask)
+-{
+-	return set_extent_bit(tree, start, end, bits, NULL,
+-			      NULL, mask);
+-}
+-
+ int set_record_extent_bits(struct extent_io_tree *tree, u64 start, u64 end,
+ 			   unsigned bits, gfp_t mask,
+ 			   struct extent_changeset *changeset)
+@@ -1348,22 +1334,6 @@ int clear_record_extent_bits(struct exte
+ 				  changeset);
+ }
+ 
+-int set_extent_delalloc(struct extent_io_tree *tree, u64 start, u64 end,
+-			struct extent_state **cached_state, gfp_t mask)
+-{
+-	return set_extent_bit(tree, start, end,
+-			      EXTENT_DELALLOC | EXTENT_UPTODATE,
+-			      NULL, cached_state, mask);
+-}
+-
+-int set_extent_defrag(struct extent_io_tree *tree, u64 start, u64 end,
+-		      struct extent_state **cached_state, gfp_t mask)
+-{
+-	return set_extent_bit(tree, start, end,
+-			      EXTENT_DELALLOC | EXTENT_UPTODATE | EXTENT_DEFRAG,
+-			      NULL, cached_state, mask);
+-}
+-
+ int clear_extent_dirty(struct extent_io_tree *tree, u64 start, u64 end,
+ 		       gfp_t mask)
+ {
+@@ -1372,20 +1342,6 @@ int clear_extent_dirty(struct extent_io_
+ 				EXTENT_DO_ACCOUNTING, 0, 0, NULL, mask);
+ }
+ 
+-int set_extent_new(struct extent_io_tree *tree, u64 start, u64 end,
+-		     gfp_t mask)
+-{
+-	return set_extent_bit(tree, start, end, EXTENT_NEW, NULL,
+-			      NULL, mask);
+-}
+-
+-int set_extent_uptodate(struct extent_io_tree *tree, u64 start, u64 end,
+-			struct extent_state **cached_state, gfp_t mask)
+-{
+-	return set_extent_bit(tree, start, end, EXTENT_UPTODATE, NULL,
+-			      cached_state, mask);
+-}
+-
+ int clear_extent_uptodate(struct extent_io_tree *tree, u64 start, u64 end,
+ 			  struct extent_state **cached_state, gfp_t mask)
+ {
+--- a/fs/btrfs/extent_io.h
++++ b/fs/btrfs/extent_io.h
+@@ -229,31 +229,65 @@ int clear_record_extent_bits(struct exte
+ int clear_extent_bit(struct extent_io_tree *tree, u64 start, u64 end,
+ 		     unsigned bits, int wake, int delete,
+ 		     struct extent_state **cached, gfp_t mask);
+-int set_extent_bits(struct extent_io_tree *tree, u64 start, u64 end,
+-		    unsigned bits, gfp_t mask);
++
+ int set_record_extent_bits(struct extent_io_tree *tree, u64 start, u64 end,
+ 			   unsigned bits, gfp_t mask,
+ 			   struct extent_changeset *changeset);
+ int set_extent_bit(struct extent_io_tree *tree, u64 start, u64 end,
+ 		   unsigned bits, u64 *failed_start,
+ 		   struct extent_state **cached_state, gfp_t mask);
+-int set_extent_uptodate(struct extent_io_tree *tree, u64 start, u64 end,
+-			struct extent_state **cached_state, gfp_t mask);
++
++static inline int set_extent_bits(struct extent_io_tree *tree, u64 start,
++		u64 end, unsigned bits, gfp_t mask)
++{
++	return set_extent_bit(tree, start, end, bits, NULL, NULL, mask);
++}
++
+ int clear_extent_uptodate(struct extent_io_tree *tree, u64 start, u64 end,
+ 			  struct extent_state **cached_state, gfp_t mask);
+-int set_extent_new(struct extent_io_tree *tree, u64 start, u64 end,
+-		   gfp_t mask);
+-int set_extent_dirty(struct extent_io_tree *tree, u64 start, u64 end,
+-		     gfp_t mask);
++
++static inline int set_extent_dirty(struct extent_io_tree *tree, u64 start,
++		u64 end, gfp_t mask)
++{
++	return set_extent_bit(tree, start, end, EXTENT_DIRTY, NULL,
++			      NULL, mask);
++}
++
+ int clear_extent_dirty(struct extent_io_tree *tree, u64 start, u64 end,
+ 		       gfp_t mask);
+ int convert_extent_bit(struct extent_io_tree *tree, u64 start, u64 end,
+ 		       unsigned bits, unsigned clear_bits,
+ 		       struct extent_state **cached_state, gfp_t mask);
+-int set_extent_delalloc(struct extent_io_tree *tree, u64 start, u64 end,
+-			struct extent_state **cached_state, gfp_t mask);
+-int set_extent_defrag(struct extent_io_tree *tree, u64 start, u64 end,
+-		      struct extent_state **cached_state, gfp_t mask);
++
++static inline int set_extent_delalloc(struct extent_io_tree *tree, u64 start,
++		u64 end, struct extent_state **cached_state, gfp_t mask)
++{
++	return set_extent_bit(tree, start, end,
++			      EXTENT_DELALLOC | EXTENT_UPTODATE,
++			      NULL, cached_state, mask);
++}
++
++static inline int set_extent_defrag(struct extent_io_tree *tree, u64 start,
++		u64 end, struct extent_state **cached_state, gfp_t mask)
++{
++	return set_extent_bit(tree, start, end,
++			      EXTENT_DELALLOC | EXTENT_UPTODATE | EXTENT_DEFRAG,
++			      NULL, cached_state, mask);
++}
++
++static inline int set_extent_new(struct extent_io_tree *tree, u64 start,
++		u64 end, gfp_t mask)
++{
++	return set_extent_bit(tree, start, end, EXTENT_NEW, NULL, NULL, mask);
++}
++
++static inline int set_extent_uptodate(struct extent_io_tree *tree, u64 start,
++		u64 end, struct extent_state **cached_state, gfp_t mask)
++{
++	return set_extent_bit(tree, start, end, EXTENT_UPTODATE, NULL,
++			      cached_state, mask);
++}
++
+ int find_first_extent_bit(struct extent_io_tree *tree, u64 start,
+ 			  u64 *start_ret, u64 *end_ret, unsigned bits,
+ 			  struct extent_state **cached_state);

@@ -1,0 +1,54 @@
+From: David Sterba <dsterba@suse.com>
+Date: Fri, 27 Nov 2015 19:27:11 +0100
+Patch-mainline: 4.5
+Git-commit: 3042460136bee7bf48860f16a391e6d75f2d0d5c
+References: bsc#1012452
+Subject: [PATCH] btrfs: remove wait from struct btrfs_delalloc_work
+
+The value is 0 and never changes, we can propagate the value, remove
+wait and the implied dead code.
+
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/ctree.h |    1 -
+ fs/btrfs/inode.c |   11 +++--------
+ 2 files changed, 3 insertions(+), 9 deletions(-)
+
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -3907,7 +3907,6 @@ void btrfs_extent_item_to_extent_map(str
+ /* inode.c */
+ struct btrfs_delalloc_work {
+ 	struct inode *inode;
+-	int wait;
+ 	int delay_iput;
+ 	struct completion completion;
+ 	struct list_head list;
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -9448,14 +9448,10 @@ static void btrfs_run_delalloc_work(stru
+ 	delalloc_work = container_of(work, struct btrfs_delalloc_work,
+ 				     work);
+ 	inode = delalloc_work->inode;
+-	if (delalloc_work->wait) {
+-		btrfs_wait_ordered_range(inode, 0, (u64)-1);
+-	} else {
++	filemap_flush(inode->i_mapping);
++	if (test_bit(BTRFS_INODE_HAS_ASYNC_EXTENT,
++				&BTRFS_I(inode)->runtime_flags))
+ 		filemap_flush(inode->i_mapping);
+-		if (test_bit(BTRFS_INODE_HAS_ASYNC_EXTENT,
+-			     &BTRFS_I(inode)->runtime_flags))
+-			filemap_flush(inode->i_mapping);
+-	}
+ 
+ 	if (delalloc_work->delay_iput)
+ 		btrfs_add_delayed_iput(inode);
+@@ -9476,7 +9472,6 @@ struct btrfs_delalloc_work *btrfs_alloc_
+ 	init_completion(&work->completion);
+ 	INIT_LIST_HEAD(&work->list);
+ 	work->inode = inode;
+-	work->wait = 0;
+ 	work->delay_iput = delay_iput;
+ 	WARN_ON_ONCE(!inode);
+ 	btrfs_init_work(&work->work, btrfs_flush_delalloc_helper,

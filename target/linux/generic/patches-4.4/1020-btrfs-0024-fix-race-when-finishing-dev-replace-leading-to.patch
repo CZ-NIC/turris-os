@@ -1,0 +1,175 @@
+From: Filipe Manana <fdmanana@suse.com>
+Date: Fri, 20 Nov 2015 10:42:47 +0000
+Patch-mainline: 4.5
+Git-commit: 50460e37186a2b932eacea24dca804bd1bcd2012
+References: bsc#1012452
+Subject: [PATCH] Btrfs: fix race when finishing dev replace leading to
+ transaction abort
+
+During the final phase of a device replace operation, I ran into a
+transaction abort that resulted in the following trace:
+
+[23919.655368] WARNING: CPU: 10 PID: 30175 at fs/btrfs/extent-tree.c:9843 btrfs_create_pending_block_groups+0x15e/0x1ab [btrfs]()
+[23919.664742] BTRFS: Transaction aborted (error -2)
+[23919.665749] Modules linked in: btrfs crc32c_generic xor raid6_pq nfsd auth_rpcgss oid_registry nfs_acl nfs lockd grace fscache sunrpc loop fuse parport_pc i2c_piix4 parport psmouse acpi_cpufreq processor i2c_core evdev microcode pcspkr button serio_raw ext4 crc16 jbd2 mbcache sd_mod sg sr_mod cdrom virtio_scsi ata_generic ata_piix virtio_pci floppy virtio_ring libata e1000 virtio scsi_mod [last unloaded: btrfs]
+[23919.679442] CPU: 10 PID: 30175 Comm: fsstress Not tainted 4.3.0-rc5-btrfs-next-17+ #1
+[23919.682392] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.8.1-0-g4adadbd-20150316_085822-nilsson.home.kraxel.org 04/01/2014
+[23919.689151]  0000000000000000 ffff8804020cbb50 ffffffff812566f4 ffff8804020cbb98
+[23919.692604]  ffff8804020cbb88 ffffffff8104d0a6 ffffffffa03eea69 ffff88041b678a48
+[23919.694230]  ffff88042ac38000 ffff88041b678930 00000000fffffffe ffff8804020cbbf0
+[23919.696716] Call Trace:
+[23919.698669]  [<ffffffff812566f4>] dump_stack+0x4e/0x79
+[23919.700597]  [<ffffffff8104d0a6>] warn_slowpath_common+0x9f/0xb8
+[23919.701958]  [<ffffffffa03eea69>] ? btrfs_create_pending_block_groups+0x15e/0x1ab [btrfs]
+[23919.703612]  [<ffffffff8104d107>] warn_slowpath_fmt+0x48/0x50
+[23919.705047]  [<ffffffffa03eea69>] btrfs_create_pending_block_groups+0x15e/0x1ab [btrfs]
+[23919.706967]  [<ffffffffa0402097>] __btrfs_end_transaction+0x84/0x2dd [btrfs]
+[23919.708611]  [<ffffffffa0402300>] btrfs_end_transaction+0x10/0x12 [btrfs]
+[23919.710099]  [<ffffffffa03ef0b8>] btrfs_alloc_data_chunk_ondemand+0x121/0x28b [btrfs]
+[23919.711970]  [<ffffffffa0413025>] btrfs_fallocate+0x7d3/0xc6d [btrfs]
+[23919.713602]  [<ffffffff8108b78f>] ? lock_acquire+0x10d/0x194
+[23919.714756]  [<ffffffff81086dbc>] ? percpu_down_read+0x51/0x78
+[23919.716155]  [<ffffffff8116ef1d>] ? __sb_start_write+0x5f/0xb0
+[23919.718918]  [<ffffffff8116ef1d>] ? __sb_start_write+0x5f/0xb0
+[23919.724170]  [<ffffffff8116b579>] vfs_fallocate+0x170/0x1ff
+[23919.725482]  [<ffffffff8117c1d7>] ioctl_preallocate+0x89/0x9b
+[23919.726790]  [<ffffffff8117c5ef>] do_vfs_ioctl+0x406/0x4e6
+[23919.728428]  [<ffffffff81171175>] ? SYSC_newfstat+0x25/0x2e
+[23919.729642]  [<ffffffff8118574d>] ? __fget_light+0x4d/0x71
+[23919.730782]  [<ffffffff8117c726>] SyS_ioctl+0x57/0x79
+[23919.731847]  [<ffffffff8147cd97>] entry_SYSCALL_64_fastpath+0x12/0x6f
+[23919.733330] ---[ end trace 166ef301a335832a ]---
+
+This is due to a race between device replace and chunk allocation, which
+the following diagram illustrates:
+
+         CPU 1                                    CPU 2
+
+ btrfs_dev_replace_finishing()
+
+   at this point
+    dev_replace->tgtdev->devid ==
+    BTRFS_DEV_REPLACE_DEVID (0ULL)
+
+   ...
+
+   btrfs_start_transaction()
+   btrfs_commit_transaction()
+
+                                               btrfs_fallocate()
+                                                 btrfs_alloc_data_chunk_ondemand()
+                                                   btrfs_join_transaction()
+                                                     --> starts a new transaction
+                                                   do_chunk_alloc()
+                                                     lock fs_info->chunk_mutex
+                                                       btrfs_alloc_chunk()
+                                                         --> creates extent map for
+                                                             the new chunk with
+                                                             em->bdev->map->stripes[i]->dev->devid
+                                                             == X (X > 0)
+                                                         --> extent map is added to
+                                                             fs_info->mapping_tree
+                                                         --> initial phase of bg A
+                                                             allocation completes
+                                                     unlock fs_info->chunk_mutex
+
+   lock fs_info->chunk_mutex
+
+   btrfs_dev_replace_update_device_in_mapping_tree()
+     --> iterates fs_info->mapping_tree and
+         replaces the device in every extent
+         map's map->stripes[] with
+         dev_replace->tgtdev, which still has
+         an id of 0ULL (BTRFS_DEV_REPLACE_DEVID)
+
+                                                   btrfs_end_transaction()
+                                                     btrfs_create_pending_block_groups()
+                                                       --> starts final phase of
+                                                           bg A creation (update device,
+                                                           extent, and chunk trees, etc)
+                                                       btrfs_finish_chunk_alloc()
+
+                                                         btrfs_update_device()
+                                                           --> attempts to update a device
+                                                               item with ID == 0ULL
+                                                               (BTRFS_DEV_REPLACE_DEVID)
+                                                               which is the current ID of
+                                                               bg A's
+                                                               em->bdev->map->stripes[i]->dev->devid
+                                                           --> doesn't find such item
+                                                               returns -ENOENT
+                                                           --> the device id should have been X
+                                                               and not 0ULL
+
+                                                       got -ENOENT from
+                                                       btrfs_finish_chunk_alloc()
+                                                       and aborts current transaction
+
+   finishes setting up the target device,
+   namely it sets tgtdev->devid to the value
+   of srcdev->devid, which is X (and X > 0)
+
+   frees the srcdev
+
+   unlock fs_info->chunk_mutex
+
+So fix this by taking the device list mutex when processing the chunk's
+extent map stripes to update the device items. This avoids getting the
+wrong device id and use-after-free problems if the task finishing a
+chunk allocation grabs the replaced device, which is freed while the
+dev replace task is holding the device list mutex.
+
+This happened while running fstest btrfs/071.
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Liu Bo <bo.li.liu@oracle.com>
+Signed-off-by: David Sterba <dsterba@suse.cz>
+---
+ fs/btrfs/volumes.c |   17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
+
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -4826,20 +4826,32 @@ int btrfs_finish_chunk_alloc(struct btrf
+ 		goto out;
+ 	}
+ 
++	/*
++	 * Take the device list mutex to prevent races with the final phase of
++	 * a device replace operation that replaces the device object associated
++	 * with the map's stripes, because the device object's id can change
++	 * at any time during that final phase of the device replace operation
++	 * (dev-replace.c:btrfs_dev_replace_finishing()).
++	 */
++	mutex_lock(&chunk_root->fs_info->fs_devices->device_list_mutex);
+ 	for (i = 0; i < map->num_stripes; i++) {
+ 		device = map->stripes[i].dev;
+ 		dev_offset = map->stripes[i].physical;
+ 
+ 		ret = btrfs_update_device(trans, device);
+ 		if (ret)
+-			goto out;
++			break;
+ 		ret = btrfs_alloc_dev_extent(trans, device,
+ 					     chunk_root->root_key.objectid,
+ 					     BTRFS_FIRST_CHUNK_TREE_OBJECTID,
+ 					     chunk_offset, dev_offset,
+ 					     stripe_size);
+ 		if (ret)
+-			goto out;
++			break;
++	}
++	if (ret) {
++		mutex_unlock(&chunk_root->fs_info->fs_devices->device_list_mutex);
++		goto out;
+ 	}
+ 
+ 	stripe = &chunk->stripe;
+@@ -4852,6 +4864,7 @@ int btrfs_finish_chunk_alloc(struct btrf
+ 		memcpy(stripe->dev_uuid, device->uuid, BTRFS_UUID_SIZE);
+ 		stripe++;
+ 	}
++	mutex_unlock(&chunk_root->fs_info->fs_devices->device_list_mutex);
+ 
+ 	btrfs_set_stack_chunk_length(chunk, chunk_size);
+ 	btrfs_set_stack_chunk_owner(chunk, extent_root->root_key.objectid);

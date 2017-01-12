@@ -1,0 +1,44 @@
+From: Jeff Mahoney <jeffm@suse.com>
+Subject: btrfs: Ensure proper sector alignment for
+ btrfs_free_reserved_data_space
+References: bsc#1005666
+Patch-mainline: v4.10-rc1
+Git-commit: 0c476a5d7f63bdae0b6188a191a6e9eb8f1024d7
+
+This fixes the WARN_ON on BTRFS_I(inode)->reserved_extents in
+btrfs_destroy_inode and the WARN_ON on nonzero delalloc bytes on umount
+with qgroups enabled.
+
+I was able to reproduce this by setting up a small (~500kb) quota limit
+and writing a file one byte at a time until I hit the limit.  The warnings
+would all hit on umount.
+
+The root cause is that we would reserve a block-sized range in both
+the reservation and the quota in btrfs_check_data_free_space, but if we
+encountered a problem (like e.g. EDQUOT), we would only release the single
+byte in the qgroup reservation.  That caused an iotree state split, which
+increased the number of outstanding extents, in turn disallowing releasing
+the metadata reservation.
+
+Signed-off-by: Jeff Mahoney <jeffm@suse.com>
+---
+ fs/btrfs/extent-tree.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
+
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -3822,6 +3822,13 @@ void btrfs_free_reserved_data_space_noqu
+  */
+ void btrfs_free_reserved_data_space(struct inode *inode, u64 start, u64 len)
+ {
++	struct btrfs_root *root = BTRFS_I(inode)->root;
++
++	/* Make sure the range is aligned to sectorsize */
++	len = round_up(start + len, root->sectorsize) -
++	      round_down(start, root->sectorsize);
++	start = round_down(start, root->sectorsize);
++
+ 	btrfs_free_reserved_data_space_noquota(inode, start, len);
+ 	btrfs_qgroup_free_data(inode, start, len);
+ }
+

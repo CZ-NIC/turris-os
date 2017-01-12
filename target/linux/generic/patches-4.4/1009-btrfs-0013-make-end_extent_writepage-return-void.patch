@@ -1,0 +1,58 @@
+From: David Sterba <dsterba@suse.com>
+Date: Thu, 3 Dec 2015 13:08:59 +0100
+Patch-mainline: 4.5
+Git-commit: b5227c075b5c11d5cf653bac5c01b9f7f03f2a8f
+References: bsc#1012452
+Subject: [PATCH] btrfs: make end_extent_writepage return void
+
+Does not return any errors, nor anything from the callgraph.  The branch
+in end_bio_extent_writepage has been skipped since
+5fd02043553b ("Btrfs: finish ordered extents in their own thread").
+
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/extent_io.c |    7 ++-----
+ fs/btrfs/extent_io.h |    2 +-
+ 2 files changed, 3 insertions(+), 6 deletions(-)
+
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -2515,7 +2515,7 @@ static int bio_readpage_error(struct bio
+ 
+ /* lots and lots of room for performance fixes in the end_bio funcs */
+ 
+-int end_extent_writepage(struct page *page, int err, u64 start, u64 end)
++void end_extent_writepage(struct page *page, int err, u64 start, u64 end)
+ {
+ 	int uptodate = (err == 0);
+ 	struct extent_io_tree *tree;
+@@ -2536,7 +2536,6 @@ int end_extent_writepage(struct page *pa
+ 		ret = ret < 0 ? ret : -EIO;
+ 		mapping_set_error(page->mapping, ret);
+ 	}
+-	return 0;
+ }
+ 
+ /*
+@@ -2578,9 +2577,7 @@ static void end_bio_extent_writepage(str
+ 		start = page_offset(page);
+ 		end = start + bvec->bv_offset + bvec->bv_len - 1;
+ 
+-		if (end_extent_writepage(page, bio->bi_error, start, end))
+-			continue;
+-
++		end_extent_writepage(page, bio->bi_error, start, end);
+ 		end_page_writeback(page);
+ 	}
+ 
+--- a/fs/btrfs/extent_io.h
++++ b/fs/btrfs/extent_io.h
+@@ -357,7 +357,7 @@ int repair_io_failure(struct inode *inod
+ 		      int mirror_num);
+ int clean_io_failure(struct inode *inode, u64 start, struct page *page,
+ 		     unsigned int pg_offset);
+-int end_extent_writepage(struct page *page, int err, u64 start, u64 end);
++void end_extent_writepage(struct page *page, int err, u64 start, u64 end);
+ int repair_eb_io_failure(struct btrfs_root *root, struct extent_buffer *eb,
+ 			 int mirror_num);
+ 

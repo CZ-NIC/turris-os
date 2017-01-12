@@ -1,0 +1,48 @@
+From: David Sterba <dsterba@suse.com>
+Date: Thu, 3 Dec 2015 12:49:48 +0100
+Patch-mainline: 4.5
+Git-commit: 39a27ec1004e886f1d949bdb8f2616896d02c5c2
+References: bsc#1012452
+Subject: [PATCH] btrfs: use GFP_KERNEL for xattr and acl allocations
+
+We don't have to use GFP_NOFS in context of ACL or XATTR actions, not
+possible to loop through the allocator and it's safe to fail with
+ENOMEM.
+
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/acl.c   |    4 ++--
+ fs/btrfs/xattr.c |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+--- a/fs/btrfs/acl.c
++++ b/fs/btrfs/acl.c
+@@ -48,7 +48,7 @@ struct posix_acl *btrfs_get_acl(struct i
+ 
+ 	size = __btrfs_getxattr(inode, name, "", 0);
+ 	if (size > 0) {
+-		value = kzalloc(size, GFP_NOFS);
++		value = kzalloc(size, GFP_KERNEL);
+ 		if (!value)
+ 			return ERR_PTR(-ENOMEM);
+ 		size = __btrfs_getxattr(inode, name, value, size);
+@@ -100,7 +100,7 @@ static int __btrfs_set_acl(struct btrfs_
+ 
+ 	if (acl) {
+ 		size = posix_acl_xattr_size(acl->a_count);
+-		value = kmalloc(size, GFP_NOFS);
++		value = kmalloc(size, GFP_KERNEL);
+ 		if (!value) {
+ 			ret = -ENOMEM;
+ 			goto out;
+--- a/fs/btrfs/xattr.c
++++ b/fs/btrfs/xattr.c
+@@ -494,7 +494,7 @@ static int btrfs_initxattrs(struct inode
+ 
+ 	for (xattr = xattr_array; xattr->name != NULL; xattr++) {
+ 		name = kmalloc(XATTR_SECURITY_PREFIX_LEN +
+-			       strlen(xattr->name) + 1, GFP_NOFS);
++			       strlen(xattr->name) + 1, GFP_KERNEL);
+ 		if (!name) {
+ 			err = -ENOMEM;
+ 			break;

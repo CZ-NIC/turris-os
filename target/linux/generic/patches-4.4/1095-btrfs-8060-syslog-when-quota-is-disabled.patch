@@ -1,0 +1,24 @@
+From: Anand Jain <Anand.Jain@oracle.com>
+Date: Tue, 8 Jul 2014 02:41:29 +0800
+Patch-mainline: Submitted, http://www.spinics.net/lists/linux-btrfs/msg35681.html
+Subject: [PATCH] btrfs: syslog when quota is disabled
+
+Offline investigations of the issues would need to know when quota is disabled.
+
+Signed-off-by: Anand Jain <Anand.Jain@oracle.com>
+Signed-off-by: David Sterba <dsterba@suse.cz>
+---
+ fs/btrfs/ioctl.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -4243,6 +4243,8 @@ static long btrfs_ioctl_quota_ctl(struct
+ 		break;
+ 	case BTRFS_QUOTA_CTL_DISABLE:
+ 		ret = btrfs_quota_disable(trans, root->fs_info);
++		if (!ret)
++			btrfs_info(root->fs_info, "quota is disabled");
+ 		break;
+ 	default:
+ 		ret = -EINVAL;

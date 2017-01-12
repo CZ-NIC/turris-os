@@ -1,0 +1,311 @@
+From: David Sterba <dsterba@suse.com>
+Date: Fri, 27 Nov 2015 16:31:35 +0100
+Patch-mainline: 4.5
+Git-commit: e4058b54d1e442b6b3eca949f0d63d49ba2b020d
+References: bsc#1012452
+Subject: [PATCH] btrfs: cleanup, use enum values for btrfs_path reada
+
+Replace the integers by enums for better readability. The value 2 does
+not have any meaning since a717531942f488209dded30f6bc648167bcefa72
+"Btrfs: do less aggressive btree readahead" (2009-01-22).
+
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/ctree.c       |    9 ++++-----
+ fs/btrfs/ctree.h       |    1 +
+ fs/btrfs/extent-tree.c |   12 ++++++------
+ fs/btrfs/file-item.c   |    4 ++--
+ fs/btrfs/inode-map.c   |    2 +-
+ fs/btrfs/inode.c       |    8 ++++----
+ fs/btrfs/ioctl.c       |    2 +-
+ fs/btrfs/relocation.c  |   12 ++++++------
+ fs/btrfs/scrub.c       |    2 +-
+ fs/btrfs/volumes.c     |    6 +++---
+ fs/btrfs/xattr.c       |    2 +-
+ 11 files changed, 30 insertions(+), 30 deletions(-)
+
+--- a/fs/btrfs/ctree.c
++++ b/fs/btrfs/ctree.c
+@@ -2249,7 +2249,6 @@ static void reada_for_search(struct btrf
+ 	u64 target;
+ 	u64 nread = 0;
+ 	u64 gen;
+-	int direction = path->reada;
+ 	struct extent_buffer *eb;
+ 	u32 nr;
+ 	u32 blocksize;
+@@ -2277,16 +2276,16 @@ static void reada_for_search(struct btrf
+ 	nr = slot;
+ 
+ 	while (1) {
+-		if (direction < 0) {
++		if (path->reada == READA_BACK) {
+ 			if (nr == 0)
+ 				break;
+ 			nr--;
+-		} else if (direction > 0) {
++		} else if (path->reada == READA_FORWARD) {
+ 			nr++;
+ 			if (nr >= nritems)
+ 				break;
+ 		}
+-		if (path->reada < 0 && objectid) {
++		if (path->reada == READA_BACK && objectid) {
+ 			btrfs_node_key(node, &disk_key, nr);
+ 			if (btrfs_disk_key_objectid(&disk_key) != objectid)
+ 				break;
+@@ -2494,7 +2493,7 @@ read_block_for_search(struct btrfs_trans
+ 	btrfs_set_path_blocking(p);
+ 
+ 	free_extent_buffer(tmp);
+-	if (p->reada)
++	if (p->reada != READA_NONE)
+ 		reada_for_search(root, p, level, slot, key->objectid);
+ 
+ 	btrfs_release_path(p);
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -590,6 +590,7 @@ struct btrfs_node {
+  * The slots array records the index of the item or block pointer
+  * used while walking the tree.
+  */
++enum { READA_NONE = 0, READA_BACK, READA_FORWARD };
+ struct btrfs_path {
+ 	struct extent_buffer *nodes[BTRFS_MAX_LEVEL];
+ 	int slots[BTRFS_MAX_LEVEL];
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -438,7 +438,7 @@ static noinline void caching_thread(stru
+ 	 */
+ 	path->skip_locking = 1;
+ 	path->search_commit_root = 1;
+-	path->reada = 1;
++	path->reada = READA_FORWARD;
+ 
+ 	key.objectid = last;
+ 	key.offset = 0;
+@@ -2115,7 +2115,7 @@ static int __btrfs_inc_extent_ref(struct
+ 	if (!path)
+ 		return -ENOMEM;
+ 
+-	path->reada = 1;
++	path->reada = READA_FORWARD;
+ 	path->leave_spinning = 1;
+ 	/* this will setup the path even if it fails to insert the back ref */
+ 	ret = insert_inline_extent_backref(trans, fs_info->extent_root, path,
+@@ -2141,7 +2141,7 @@ static int __btrfs_inc_extent_ref(struct
+ 	btrfs_mark_buffer_dirty(leaf);
+ 	btrfs_release_path(path);
+ 
+-	path->reada = 1;
++	path->reada = READA_FORWARD;
+ 	path->leave_spinning = 1;
+ 	/* now insert the actual backref */
+ 	ret = insert_extent_backref(trans, root->fs_info->extent_root,
+@@ -2254,7 +2254,7 @@ static int run_delayed_extent_op(struct
+ 	}
+ 
+ again:
+-	path->reada = 1;
++	path->reada = READA_FORWARD;
+ 	path->leave_spinning = 1;
+ 	ret = btrfs_search_slot(trans, root->fs_info->extent_root, &key,
+ 				path, 0, 1);
+@@ -6456,7 +6456,7 @@ static int __btrfs_free_extent(struct bt
+ 	if (!path)
+ 		return -ENOMEM;
+ 
+-	path->reada = 1;
++	path->reada = READA_FORWARD;
+ 	path->leave_spinning = 1;
+ 
+ 	is_data = owner_objectid >= BTRFS_FIRST_FREE_OBJECTID;
+@@ -9706,7 +9706,7 @@ int btrfs_read_block_groups(struct btrfs
+ 	path = btrfs_alloc_path();
+ 	if (!path)
+ 		return -ENOMEM;
+-	path->reada = 1;
++	path->reada = READA_FORWARD;
+ 
+ 	cache_gen = btrfs_super_cache_generation(root->fs_info->super_copy);
+ 	if (btrfs_test_opt(root, SPACE_CACHE) &&
+--- a/fs/btrfs/file-item.c
++++ b/fs/btrfs/file-item.c
+@@ -202,7 +202,7 @@ static int __btrfs_lookup_bio_sums(struc
+ 	}
+ 
+ 	if (bio->bi_iter.bi_size > PAGE_CACHE_SIZE * 8)
+-		path->reada = 2;
++		path->reada = READA_FORWARD;
+ 
+ 	WARN_ON(bio->bi_vcnt <= 0);
+ 
+@@ -328,7 +328,7 @@ int btrfs_lookup_csums_range(struct btrf
+ 
+ 	if (search_commit) {
+ 		path->skip_locking = 1;
+-		path->reada = 2;
++		path->reada = READA_FORWARD;
+ 		path->search_commit_root = 1;
+ 	}
+ 
+--- a/fs/btrfs/inode-map.c
++++ b/fs/btrfs/inode-map.c
+@@ -48,7 +48,7 @@ static int caching_kthread(void *data)
+ 	/* Since the commit root is read-only, we can safely skip locking. */
+ 	path->skip_locking = 1;
+ 	path->search_commit_root = 1;
+-	path->reada = 2;
++	path->reada = READA_FORWARD;
+ 
+ 	key.objectid = BTRFS_FIRST_FREE_OBJECTID;
+ 	key.offset = 0;
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -3348,7 +3348,7 @@ int btrfs_orphan_cleanup(struct btrfs_ro
+ 		ret = -ENOMEM;
+ 		goto out;
+ 	}
+-	path->reada = -1;
++	path->reada = READA_BACK;
+ 
+ 	key.objectid = BTRFS_ORPHAN_OBJECTID;
+ 	key.type = BTRFS_ORPHAN_ITEM_KEY;
+@@ -4314,7 +4314,7 @@ int btrfs_truncate_inode_items(struct bt
+ 	path = btrfs_alloc_path();
+ 	if (!path)
+ 		return -ENOMEM;
+-	path->reada = -1;
++	path->reada = READA_BACK;
+ 
+ 	/*
+ 	 * We want to drop from the next block forward in case this new size is
+@@ -5751,7 +5751,7 @@ static int btrfs_real_readdir(struct fil
+ 	if (!path)
+ 		return -ENOMEM;
+ 
+-	path->reada = 1;
++	path->reada = READA_FORWARD;
+ 
+ 	if (key_type == BTRFS_DIR_INDEX_KEY) {
+ 		INIT_LIST_HEAD(&ins_list);
+@@ -6795,7 +6795,7 @@ again:
+ 		 * Chances are we'll be called again, so go ahead and do
+ 		 * readahead
+ 		 */
+-		path->reada = 1;
++		path->reada = READA_FORWARD;
+ 	}
+ 
+ 	ret = btrfs_lookup_file_extent(trans, root, path,
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -3563,7 +3563,7 @@ static int btrfs_clone(struct inode *src
+ 		return ret;
+ 	}
+ 
+-	path->reada = 2;
++	path->reada = READA_FORWARD;
+ 	/* clone data */
+ 	key.objectid = btrfs_ino(src);
+ 	key.type = BTRFS_EXTENT_DATA_KEY;
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -708,8 +708,8 @@ struct backref_node *build_backref_tree(
+ 		err = -ENOMEM;
+ 		goto out;
+ 	}
+-	path1->reada = 1;
+-	path2->reada = 2;
++	path1->reada = READA_FORWARD;
++	path2->reada = READA_FORWARD;
+ 
+ 	node = alloc_backref_node(cache);
+ 	if (!node) {
+@@ -2130,7 +2130,7 @@ static noinline_for_stack int merge_relo
+ 	path = btrfs_alloc_path();
+ 	if (!path)
+ 		return -ENOMEM;
+-	path->reada = 1;
++	path->reada = READA_FORWARD;
+ 
+ 	reloc_root = root->reloc_root;
+ 	root_item = &reloc_root->root_item;
+@@ -3527,7 +3527,7 @@ static int find_data_references(struct r
+ 	path = btrfs_alloc_path();
+ 	if (!path)
+ 		return -ENOMEM;
+-	path->reada = 1;
++	path->reada = READA_FORWARD;
+ 
+ 	root = read_fs_root(rc->extent_root->fs_info, ref_root);
+ 	if (IS_ERR(root)) {
+@@ -3917,7 +3917,7 @@ static noinline_for_stack int relocate_b
+ 	path = btrfs_alloc_path();
+ 	if (!path)
+ 		return -ENOMEM;
+-	path->reada = 1;
++	path->reada = READA_FORWARD;
+ 
+ 	ret = prepare_to_relocate(rc);
+ 	if (ret) {
+@@ -4343,7 +4343,7 @@ int btrfs_recover_relocation(struct btrf
+ 	path = btrfs_alloc_path();
+ 	if (!path)
+ 		return -ENOMEM;
+-	path->reada = -1;
++	path->reada = READA_BACK;
+ 
+ 	key.objectid = BTRFS_TREE_RELOC_OBJECTID;
+ 	key.type = BTRFS_ROOT_ITEM_KEY;
+--- a/fs/btrfs/scrub.c
++++ b/fs/btrfs/scrub.c
+@@ -3507,7 +3507,7 @@ int scrub_enumerate_chunks(struct scrub_
+ 	if (!path)
+ 		return -ENOMEM;
+ 
+-	path->reada = 2;
++	path->reada = READA_FORWARD;
+ 	path->search_commit_root = 1;
+ 	path->skip_locking = 1;
+ 
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -1104,7 +1104,7 @@ int btrfs_account_dev_extents_size(struc
+ 	path = btrfs_alloc_path();
+ 	if (!path)
+ 		return -ENOMEM;
+-	path->reada = 2;
++	path->reada = READA_FORWARD;
+ 
+ 	key.objectid = device->devid;
+ 	key.offset = start;
+@@ -1282,7 +1282,7 @@ again:
+ 		goto out;
+ 	}
+ 
+-	path->reada = 2;
++	path->reada = READA_FORWARD;
+ 	path->search_commit_root = 1;
+ 	path->skip_locking = 1;
+ 
+@@ -4262,7 +4262,7 @@ int btrfs_shrink_device(struct btrfs_dev
+ 	if (!path)
+ 		return -ENOMEM;
+ 
+-	path->reada = 2;
++	path->reada = READA_FORWARD;
+ 
+ 	lock_chunks(root);
+ 
+--- a/fs/btrfs/xattr.c
++++ b/fs/btrfs/xattr.c
+@@ -283,7 +283,7 @@ ssize_t btrfs_listxattr(struct dentry *d
+ 	path = btrfs_alloc_path();
+ 	if (!path)
+ 		return -ENOMEM;
+-	path->reada = 2;
++	path->reada = READA_FORWARD;
+ 
+ 	/* search for our xattrs */
+ 	ret = btrfs_search_slot(NULL, root, &key, path, 0, 0);

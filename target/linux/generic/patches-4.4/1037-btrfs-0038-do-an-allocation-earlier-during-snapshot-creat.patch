@@ -1,0 +1,70 @@
+From: David Sterba <dsterba@suse.com>
+Date: Tue, 10 Nov 2015 18:53:56 +0100
+Patch-mainline: 4.5
+Git-commit: a1ee736268448d74af25737568e383acb84c3c18
+References: bsc#1012452
+Subject: [PATCH] btrfs: do an allocation earlier during snapshot
+ creation
+
+We can allocate pending_snapshot earlier and do not have to do cleanup
+in case of failure.
+
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/ioctl.c |   20 +++++++++-----------
+ 1 file changed, 9 insertions(+), 11 deletions(-)
+
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -659,22 +659,20 @@ static int create_snapshot(struct btrfs_
+ 	if (!test_bit(BTRFS_ROOT_REF_COWS, &root->state))
+ 		return -EINVAL;
+ 
++	pending_snapshot = kzalloc(sizeof(*pending_snapshot), GFP_NOFS);
++	if (!pending_snapshot)
++		return -ENOMEM;
++
+ 	atomic_inc(&root->will_be_snapshoted);
+ 	smp_mb__after_atomic();
+ 	btrfs_wait_for_no_snapshoting_writes(root);
+ 
+ 	ret = btrfs_start_delalloc_inodes(root, 0);
+ 	if (ret)
+-		goto out;
++		goto dec_and_free;
+ 
+ 	btrfs_wait_ordered_extents(root, -1);
+ 
+-	pending_snapshot = kzalloc(sizeof(*pending_snapshot), GFP_NOFS);
+-	if (!pending_snapshot) {
+-		ret = -ENOMEM;
+-		goto out;
+-	}
+-
+ 	btrfs_init_block_rsv(&pending_snapshot->block_rsv,
+ 			     BTRFS_BLOCK_RSV_TEMP);
+ 	/*
+@@ -690,7 +688,7 @@ static int create_snapshot(struct btrfs_
+ 					&pending_snapshot->qgroup_reserved,
+ 					false);
+ 	if (ret)
+-		goto free;
++		goto dec_and_free;
+ 
+ 	pending_snapshot->dentry = dentry;
+ 	pending_snapshot->root = root;
+@@ -741,11 +739,11 @@ fail:
+ 	btrfs_subvolume_release_metadata(BTRFS_I(dir)->root,
+ 					 &pending_snapshot->block_rsv,
+ 					 pending_snapshot->qgroup_reserved);
+-free:
+-	kfree(pending_snapshot);
+-out:
++dec_and_free:
+ 	if (atomic_dec_and_test(&root->will_be_snapshoted))
+ 		wake_up_atomic_t(&root->will_be_snapshoted);
++	kfree(pending_snapshot);
++
+ 	return ret;
+ }
+ 

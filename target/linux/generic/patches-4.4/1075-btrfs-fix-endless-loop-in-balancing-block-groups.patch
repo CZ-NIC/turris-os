@@ -1,0 +1,39 @@
+From: Liu Bo <bo.li.liu@oracle.com>
+Date: Wed, 31 Aug 2016 16:43:33 -0700
+Subject: Btrfs: fix endless loop in balancing block groups
+Git-commit: a9b1fc851db054ddec703dc7951ed00620600b26
+Patch-mainline: v4.8-rc5
+References: bsc#1006804
+
+Qgroup function may overwrite the saved error 'err' with 0
+in case quota is not enabled, and this ends up with a
+endless loop in balance because we keep going back to balance
+the same block group.
+
+It really should use 'ret' instead.
+
+Signed-off-by: Liu Bo <bo.li.liu@oracle.com>
+Reviewed-by: Qu Wenruo <quwenruo@cn.fujitsu.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Acked-by: Jeff Mahoney <jeffm@suse.com>
+---
+ fs/btrfs/relocation.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -4182,9 +4182,11 @@ restart:
+ 		err = PTR_ERR(trans);
+ 		goto out_free;
+ 	}
+-	err = qgroup_fix_relocated_data_extents(trans, rc);
+-	if (err < 0) {
+-		btrfs_abort_transaction(trans, rc->extent_root, err);
++	ret = qgroup_fix_relocated_data_extents(trans, rc);
++	if (ret < 0) {
++		btrfs_abort_transaction(trans, rc->extent_root, ret);
++		if (!err)
++			err = ret;
+ 		goto out_free;
+ 	}
+ 	btrfs_commit_transaction(trans, rc->extent_root);

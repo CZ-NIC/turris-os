@@ -1,0 +1,135 @@
+From: Tsutomu Itoh <t-itoh@jp.fujitsu.com>
+Date: Wed, 6 Jan 2016 17:03:40 +0900
+Patch-mainline: 4.5
+Git-commit: b7c47bbb2d1856330f71ba04c8eb03b39aca87cd
+References: bsc#1012452
+Subject: [PATCH] Btrfs: fix output of compression message in
+ btrfs_parse_options()
+
+The compression message might not be correctly output.
+Fix it.
+
+[[before fix]]
+
+# mount -o compress /dev/sdb3 /test3
+[  996.874264] BTRFS info (device sdb3): disk space caching is enabled
+[  996.874268] BTRFS: has skinny extents
+# mount | grep /test3
+/dev/sdb3 on /test3 type btrfs (rw,relatime,compress=zlib,space_cache,subvolid=5,subvol=/)
+
+# mount -o remount,compress-force /dev/sdb3 /test3
+[ 1035.075017] BTRFS info (device sdb3): force zlib compression
+[ 1035.075021] BTRFS info (device sdb3): disk space caching is enabled
+# mount | grep /test3
+/dev/sdb3 on /test3 type btrfs (rw,relatime,compress-force=zlib,space_cache,subvolid=5,subvol=/)
+
+# mount -o remount,compress /dev/sdb3 /test3
+[ 1053.679092] BTRFS info (device sdb3): disk space caching is enabled
+# mount | grep /test3
+/dev/sdb3 on /test3 type btrfs (rw,relatime,compress=zlib,space_cache,subvolid=5,subvol=/)
+
+[[after fix]]
+
+# mount -o compress /dev/sdb3 /test3
+[  401.021753] BTRFS info (device sdb3): use zlib compression
+[  401.021758] BTRFS info (device sdb3): disk space caching is enabled
+[  401.021760] BTRFS: has skinny extents
+# mount | grep /test3
+/dev/sdb3 on /test3 type btrfs (rw,relatime,compress=zlib,space_cache,subvolid=5,subvol=/)
+
+# mount -o remount,compress-force /dev/sdb3 /test3
+[  439.824624] BTRFS info (device sdb3): force zlib compression
+[  439.824629] BTRFS info (device sdb3): disk space caching is enabled
+# mount | grep /test3
+/dev/sdb3 on /test3 type btrfs (rw,relatime,compress-force=zlib,space_cache,subvolid=5,subvol=/)
+
+# mount -o remount,compress /dev/sdb3 /test3
+[  459.918430] BTRFS info (device sdb3): use zlib compression
+[  459.918434] BTRFS info (device sdb3): disk space caching is enabled
+# mount | grep /test3
+/dev/sdb3 on /test3 type btrfs (rw,relatime,compress=zlib,space_cache,subvolid=5,subvol=/)
+
+Signed-off-by: Tsutomu Itoh <t-itoh@jp.fujitsu.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/super.c |   29 ++++++++++++++++++++++-------
+ 1 file changed, 22 insertions(+), 7 deletions(-)
+
+--- a/fs/btrfs/super.c
++++ b/fs/btrfs/super.c
+@@ -381,6 +381,9 @@ int btrfs_parse_options(struct btrfs_roo
+ 	int ret = 0;
+ 	char *compress_type;
+ 	bool compress_force = false;
++	enum btrfs_compression_type saved_compress_type;
++	bool saved_compress_force;
++	int no_compress = 0;
+ 
+ 	cache_gen = btrfs_super_cache_generation(root->fs_info->super_copy);
+ 	if (cache_gen)
+@@ -458,6 +461,10 @@ int btrfs_parse_options(struct btrfs_roo
+ 			/* Fallthrough */
+ 		case Opt_compress:
+ 		case Opt_compress_type:
++			saved_compress_type = btrfs_test_opt(root, COMPRESS) ?
++				info->compress_type : BTRFS_COMPRESS_NONE;
++			saved_compress_force =
++				btrfs_test_opt(root, FORCE_COMPRESS);
+ 			if (token == Opt_compress ||
+ 			    token == Opt_compress_force ||
+ 			    strcmp(args[0].from, "zlib") == 0) {
+@@ -466,6 +473,7 @@ int btrfs_parse_options(struct btrfs_roo
+ 				btrfs_set_opt(info->mount_opt, COMPRESS);
+ 				btrfs_clear_opt(info->mount_opt, NODATACOW);
+ 				btrfs_clear_opt(info->mount_opt, NODATASUM);
++				no_compress = 0;
+ 			} else if (strcmp(args[0].from, "lzo") == 0) {
+ 				compress_type = "lzo";
+ 				info->compress_type = BTRFS_COMPRESS_LZO;
+@@ -473,25 +481,21 @@ int btrfs_parse_options(struct btrfs_roo
+ 				btrfs_clear_opt(info->mount_opt, NODATACOW);
+ 				btrfs_clear_opt(info->mount_opt, NODATASUM);
+ 				btrfs_set_fs_incompat(info, COMPRESS_LZO);
++				no_compress = 0;
+ 			} else if (strncmp(args[0].from, "no", 2) == 0) {
+ 				compress_type = "no";
+ 				btrfs_clear_opt(info->mount_opt, COMPRESS);
+ 				btrfs_clear_opt(info->mount_opt, FORCE_COMPRESS);
+ 				compress_force = false;
++				no_compress++;
+ 			} else {
+ 				ret = -EINVAL;
+ 				goto out;
+ 			}
+ 
+ 			if (compress_force) {
+-				btrfs_set_and_info(root, FORCE_COMPRESS,
+-						   "force %s compression",
+-						   compress_type);
++				btrfs_set_opt(info->mount_opt, FORCE_COMPRESS);
+ 			} else {
+-				if (!btrfs_test_opt(root, COMPRESS))
+-					btrfs_info(root->fs_info,
+-						   "btrfs: use %s compression",
+-						   compress_type);
+ 				/*
+ 				 * If we remount from compress-force=xxx to
+ 				 * compress=xxx, we need clear FORCE_COMPRESS
+@@ -500,6 +504,17 @@ int btrfs_parse_options(struct btrfs_roo
+ 				 */
+ 				btrfs_clear_opt(info->mount_opt, FORCE_COMPRESS);
+ 			}
++			if ((btrfs_test_opt(root, COMPRESS) &&
++			     (info->compress_type != saved_compress_type ||
++			      compress_force != saved_compress_force)) ||
++			    (!btrfs_test_opt(root, COMPRESS) &&
++			     no_compress == 1)) {
++				btrfs_info(root->fs_info,
++					   "%s %s compression",
++					   (compress_force) ? "force" : "use",
++					   compress_type);
++			}
++			compress_force = false;
+ 			break;
+ 		case Opt_ssd:
+ 			btrfs_set_and_info(root, SSD,

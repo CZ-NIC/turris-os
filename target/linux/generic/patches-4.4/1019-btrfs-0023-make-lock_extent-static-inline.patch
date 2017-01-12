@@ -1,0 +1,47 @@
+From: David Sterba <dsterba@suse.com>
+Date: Thu, 3 Dec 2015 14:41:30 +0100
+Patch-mainline: 4.5
+Git-commit: cd716d8fea125e5531003e66aaf7ca7323277f83
+References: bsc#1012452
+Subject: [PATCH] btrfs: make lock_extent static inline
+
+One call less reduces stack usage, code slightly reduced as well.
+
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/extent_io.c |    5 -----
+ fs/btrfs/extent_io.h |    7 ++++++-
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -1347,11 +1347,6 @@ int lock_extent_bits(struct extent_io_tr
+ 	return err;
+ }
+ 
+-int lock_extent(struct extent_io_tree *tree, u64 start, u64 end)
+-{
+-	return lock_extent_bits(tree, start, end, NULL);
+-}
+-
+ int try_lock_extent(struct extent_io_tree *tree, u64 start, u64 end)
+ {
+ 	int err;
+--- a/fs/btrfs/extent_io.h
++++ b/fs/btrfs/extent_io.h
+@@ -199,9 +199,14 @@ int try_release_extent_mapping(struct ex
+ 			       struct extent_io_tree *tree, struct page *page,
+ 			       gfp_t mask);
+ int try_release_extent_buffer(struct page *page);
+-int lock_extent(struct extent_io_tree *tree, u64 start, u64 end);
+ int lock_extent_bits(struct extent_io_tree *tree, u64 start, u64 end,
+ 		     struct extent_state **cached);
++
++static inline int lock_extent(struct extent_io_tree *tree, u64 start, u64 end)
++{
++	return lock_extent_bits(tree, start, end, NULL);
++}
++
+ int try_lock_extent(struct extent_io_tree *tree, u64 start, u64 end);
+ int extent_read_full_page(struct extent_io_tree *tree, struct page *page,
+ 			  get_extent_t *get_extent, int mirror_num);

@@ -1,0 +1,26 @@
+From: David Sterba <dsterba@suse.com>
+Date: Fri, 27 Nov 2015 16:31:42 +0100
+Patch-mainline: 4.5
+Git-commit: 7853f15b2aeeb01c587168fc3f7f0ff76a3c9bfd
+References: bsc#1012452
+Subject: [PATCH] btrfs: use smaller type for btrfs_path lowest_level
+
+The level is 0..7, we can use smaller type. The size of btrfs_path is now
+136 bytes from 144, which is +2 objects that fit into a 4k slab.
+
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/ctree.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -598,7 +598,7 @@ struct btrfs_path {
+ 	int locks[BTRFS_MAX_LEVEL];
+ 	u8 reada;
+ 	/* keep some upper locks as we walk down */
+-	int lowest_level;
++	u8 lowest_level;
+ 
+ 	/*
+ 	 * set by btrfs_split_item, tells search_slot to keep all locks

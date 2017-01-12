@@ -1,0 +1,102 @@
+From: Filipe Manana <fdmanana@suse.com>
+Date: Mon, 27 Jun 2016 16:54:44 +0100
+Patch-mainline: 4.8
+Git-commit: 4122ea64f877f632390bca1886c8a6f666f28398
+References: bsc#1018316
+Subject: [PATCH] Btrfs: incremental send, fix invalid paths for rename
+ operations
+
+Example scenario:
+
+  Parent snapshot:
+
+  .                                                       (ino 277)
+  |---- tmp/                                              (ino 278)
+  |---- pre/                                              (ino 280)
+  |      |---- wait_dir/                                  (ino 281)
+  |
+  |---- desc/                                             (ino 282)
+  |---- ance/                                             (ino 283)
+  |       |---- below_ance/                               (ino 279)
+  |
+  |---- other_dir/                                        (ino 284)
+
+  Send snapshot:
+
+  .                                                       (ino 277)
+  |---- tmp/                                              (ino 278)
+         |---- other_dir/                                 (ino 284)
+                   |---- below_ance/                      (ino 279)
+                   |            |---- pre/                (ino 280)
+                   |
+                   |---- wait_dir/                        (ino 281)
+                              |---- desc/                 (ino 282)
+                                      |---- ance/         (ino 283)
+
+While computing the send stream the following steps happen:
+
+1) While processing inode 279 we end up delaying its rename operation
+   because its new parent in the send snapshot, inode 284, was not
+   yet processed and therefore not yet renamed;
+
+2) Later when processing inode 280 we end up renaming it immediately to
+   "ance/below_once/pre" and not delay its rename operation because its
+   new parent (inode 279 in the send snapshot) has its rename operation
+   delayed and inode 280 is not an encestor of inode 279 (its parent in
+   the send snapshot) in the parent snapshot;
+
+3) When processing inode 281 we end up delaying its rename operation
+   because its new parent in the send snapshot, inode 284, was not yet
+   processed and therefore not yet renamed;
+
+4) When processing inode 282 we do not delay its rename operation because
+   its parent in the send snapshot, inode 281, already has its own rename
+   operation delayed and our current inode (282) is not an ancestor of
+   inode 281 in the parent snapshot. Therefore inode 282 is renamed to
+   "ance/below_ance/pre/wait_dir";
+
+5) When processing inode 283 we realize that we can rename it because one
+   of its ancestors in the send snapshot, inode 281, has its rename
+   operation delayed and inode 283 is not an ancestor of inode 281 in the
+   parent snapshot. So a rename operation to rename inode 283 to
+   "ance/below_ance/pre/wait_dir/desc/ance" is issued. This path is
+   invalid due to a missing path building loop that was undetected by
+   the incremental send implementation, as inode 283 ends up getting
+   included twice in the path (once with its path in the parent snapshot).
+   Therefore its rename operation must wait before the ancestor inode 284
+   is renamed.
+
+Fix this by not terminating the rename dependency checks when we find an
+ancestor, in the send snapshot, that has its rename operation delayed. So
+that we continue doing the same checks if the current inode is not an
+ancestor, in the parent snapshot, of an ancestor in the send snapshot we
+are processing in the loop.
+
+The problem and reproducer were reported by Robbie Ko, as part of a patch
+titled "Btrfs: incremental send, avoid ancestor rename to descendant".
+However the fix was unnecessarily complicated and can be addressed with
+much less code and effort.
+
+Reported-by: Robbie Ko <robbieko@synology.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+---
+ fs/btrfs/send.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
+index dbb32e6..5af7bef 100644
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -3566,7 +3566,8 @@ static int wait_for_parent_move(struct send_ctx *sctx,
+ 			ret = is_ancestor(sctx->parent_root,
+ 					  sctx->cur_ino, sctx->cur_inode_gen,
+ 					  ino, path_before);
+-			break;
++			if (ret)
++				break;
+ 		}
+ 
+ 		fs_path_reset(path_before);
+-- 
+1.8.4.5
+

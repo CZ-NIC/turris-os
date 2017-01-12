@@ -1,0 +1,38 @@
+From: Byongho Lee <bhlee.kernel@gmail.com>
+Date: Tue, 19 May 2015 23:46:45 +0900
+Patch-mainline: 4.5
+Git-commit: e40da0e58a208940bf3d1745f9bd8cf1e27904d4
+References: bsc#1012452
+Subject: [PATCH] btrfs: remove unused inode argument from
+ uncompress_inline()
+
+The inode argument is never used from the beginning, so remove it.
+
+Signed-off-by: Byongho Lee <bhlee.kernel@gmail.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/inode.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -6698,7 +6698,7 @@ static int merge_extent_mapping(struct e
+ }
+ 
+ static noinline int uncompress_inline(struct btrfs_path *path,
+-				      struct inode *inode, struct page *page,
++				      struct page *page,
+ 				      size_t pg_offset, u64 extent_offset,
+ 				      struct btrfs_file_extent_item *item)
+ {
+@@ -6894,8 +6894,7 @@ next:
+ 		if (create == 0 && !PageUptodate(page)) {
+ 			if (btrfs_file_extent_compression(leaf, item) !=
+ 			    BTRFS_COMPRESS_NONE) {
+-				ret = uncompress_inline(path, inode, page,
+-							pg_offset,
++				ret = uncompress_inline(path, page, pg_offset,
+ 							extent_offset, item);
+ 				if (ret) {
+ 					err = ret;

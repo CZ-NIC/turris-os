@@ -1,0 +1,25 @@
+From: David Sterba <dsterba@suse.com>
+Date: Mon, 30 Nov 2015 17:27:09 +0100
+Patch-mainline: 4.5
+Git-commit: 93a3d46780b0f207f76608078eb965cf7b83902c
+References: bsc#1012452
+Subject: [PATCH] btrfs: verbose error when we find an unexpected item
+ in sys_array
+
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/volumes.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -6535,6 +6535,9 @@ int btrfs_read_sys_array(struct btrfs_ro
+ 			if (ret)
+ 				break;
+ 		} else {
++			printk(KERN_ERR
++		"BTRFS: unexpected item type %u in sys_array at offset %u\n",
++				(u32)key.type, cur_offset);
+ 			ret = -EIO;
+ 			break;
+ 		}
