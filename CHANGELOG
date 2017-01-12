@@ -1,3 +1,4 @@
+* cznic-cacert-bundle: Drop old ucollect certificate (server already switched)
 * kernel: updated to the last available version
 * lighttpd: updated and cleaned up, disabled mod_mysql_vhost
 * foris-openvpn-plugin: new plugin which helps to perform a simple openvpn server setting on your router
