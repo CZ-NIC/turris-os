@@ -12,21 +12,21 @@ This, however, takes not-trivial amount of time and system resources.
 
 After that, you get five images:
 
-* turris-os-build:base: This is the base system with all the dependencies
+* turris/turris-os-build:base: This is the base system with all the dependencies
   needed to perform the build. The source code is checked out, from the test
   branch (the one where development happens). However, no building is performed
   yet.
-* turris-os-build:omnia-toolchain: The sources are configured for the Omnia
+* turris/turris-os-build:omnia-toolchain: The sources are configured for the Omnia
   router and the toolchain has been built. No packages are compiled, but if you
   need a specific package, you can build just that one (and its dependencies),
   which should be relatively fast.
-* turris-os-build:omnia: The base system has also been built. This means you
+* turris/turris-os-build:omnia: The base system has also been built. This means you
   can probably just change a thing or two and the compilation will be fast.
   However, this still doesn't compile all the packages available (simply
   because it takes too long).
-* turris-os-build:turris-toolchain: Similar to omnia-toolchain, but for the
+* turris/turris-os-build:turris-toolchain: Similar to omnia-toolchain, but for the
   older Turris router.
-* turris-os-build:turris: Similar to omnia, but for the older Turris router.
+* turris/turris-os-build:turris: Similar to omnia, but for the older Turris router.
 
 The recommended way to use the images is through the `./run` script. Pass the
 tag (eg. omnia-toolchain) as parameter. When inside, the directory from which

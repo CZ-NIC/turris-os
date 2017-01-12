@@ -2,9 +2,9 @@
 
 set -ex
 
-docker build -t turris-os-build:base -f base --build-arg http_proxy="$http_proxy" "$@" .
-docker build -t turris-os-build:omnia-toolchain -f toolchain --build-arg FLAVOR=omnia --build-arg http_proxy="$http_proxy" "$@" .
-docker build -t turris-os-build:omnia -f omnia --build-arg http_proxy="$http_proxy" "$@" .
-docker build -t turris-os-build:turris-toolchain -f toolchain --build-arg FLAVOR=turris --build-arg http_proxy="$http_proxy" "$@" .
-docker build -t turris-os-build:turris -f turris --build-arg http_proxy="$http_proxy" "$@" .
+docker build -t turris/turris-os-build:base -f base --build-arg http_proxy="$http_proxy" "$@" .
+docker build -t turris/turris-os-build:omnia-toolchain -f toolchain --build-arg FLAVOR=omnia --build-arg http_proxy="$http_proxy" "$@" .
+docker build -t turris/turris-os-build:omnia -f omnia --build-arg http_proxy="$http_proxy" "$@" .
+docker build -t turris/turris-os-build:turris-toolchain -f toolchain --build-arg FLAVOR=turris --build-arg http_proxy="$http_proxy" "$@" .
+docker build -t turris/turris-os-build:turris -f turris --build-arg http_proxy="$http_proxy" "$@" .
 

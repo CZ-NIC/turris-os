@@ -1,4 +1,4 @@
-FROM turris-os-build:base
+FROM turris/turris-os-build:base
 RUN git checkout test && git pull && git show
 ARG FLAVOR=omnia
 ARG EXTRA_PARAMS=

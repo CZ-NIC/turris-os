@@ -9,4 +9,4 @@ else
 	TAG="omnia-toolchain"
 fi
 
-exec docker run -it --rm -e http_proxy="$http_proxy" -v $(pwd):/home/build/share "$@" turris-os-build:"$TAG"
+exec docker run -it --rm -e http_proxy="$http_proxy" -v $(pwd):/home/build/share "$@" turris/turris-os-build:"$TAG"
