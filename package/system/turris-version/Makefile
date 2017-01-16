@@ -30,8 +30,10 @@ define Package/turris-version/postinst
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • openssl: oprava CVE-2016-7056
  • knot-resolver: omezení forwardování jen na čtyři servery
+ • watchcat: odebrán z LuCI userlistu jelikož současná verze způsobuje problémy (lze doinstalovat ručně)
  • opkg-trans: ošetření adresářů v .list souborech" " • openssl: fix CVE-2016-7056
  • knot-resolver: limit forwarding to only four servers
+ • watchcat: no longer part of LuCI user list as current version causes some issues (still available in repo)
  • opkg-trans: handle directories in .list files"
 }
 endef
