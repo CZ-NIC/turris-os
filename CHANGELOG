@@ -1,3 +1,4 @@
+* ucollect-fake: Don't intercept connections from LAN
 * atsha204: use atsha204 to improve entropy
 * suricata: new package - IDS
 * kernel: add SUSE btrfs patches and CPUFreq patches
