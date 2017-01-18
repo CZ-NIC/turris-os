@@ -22,7 +22,7 @@ uci_apply_defaults() {
 feed_urandom() {
         if [ -x /usr/bin/atsha204cmd ]; then
                 for I in $(seq 1 16); do
-                        /usr/bin/atsha204cmd feed
+                        /usr/bin/atsha204cmd feed-entropy
                 done
         fi
 }
