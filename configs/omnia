@@ -31,6 +31,7 @@ CONFIG_PACKAGE_ath10k-firmware-qca9884-ct=m
 CONFIG_PACKAGE_kmod-ath10k-ct=m
 CONFIG_PACKAGE_kmod-ath10k=y
 CONFIG_PACKAGE_ath10k-firmware-qca988x=y
+CONFIG_PACKAGE_kmod-switch-mvsw61xx=y
 
 # Packages that used to be built as modules all the time
 CONFIG_PACKAGE_daemon-watchdog=y
