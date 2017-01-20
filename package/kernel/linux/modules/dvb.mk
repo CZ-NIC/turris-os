@@ -349,7 +349,7 @@ endef
 
 define KernelPackage/dvb-drxk
   TITLE:=Micronas DRXK based
-  $(call DvbFrontend,dvb-drxk,CONFIG_DVB_DRXK)
+  $(call DvbFrontend,drxk,CONFIG_DVB_DRXK)
 endef
 
 define KernelPackage/dvb-drxk/description
