@@ -38,6 +38,25 @@ define KernelPackage/fs-afs
   AUTOLOAD:=$(call AutoLoad,30,kafs)
 endef
 
+define KernelPackage/fs-9p
+  SUBMENU:=$(FS_MENU)
+  TITLE:=Plan 9 Resource Sharing Support
+  DEPENDS:=+kmod-9pnet
+  KCONFIG:=\
+	CONFIG_9P_FS \
+	CONFIG_9P_FS_POSIX_ACL=n \
+	CONFIG_9P_FS_SECURITY=n \
+	CONFIG_9P_FSCACHE=n
+  FILES:=$(LINUX_DIR)/fs/9p/9p.ko
+  AUTOLOAD:=$(call AutoLoad,30,9p)
+endef
+
+define KernelPackage/fs-9p/description
+  Kernel module for Plan 9 Resource Sharing Support support
+endef
+
+$(eval $(call KernelPackage,fs-9p))
+
 define KernelPackage/fs-afs/description
   Kernel module for Andrew FileSystem client support
 endef
@@ -65,8 +84,8 @@ define KernelPackage/fs-btrfs
   DEPENDS:=+kmod-lib-crc32c +kmod-lib-lzo +kmod-lib-zlib +kmod-lib-raid6 +kmod-lib-xor
   KCONFIG:=\
 	CONFIG_BTRFS_FS \
-	CONFIG_BTRFS_FS_POSIX_ACL=n \
-	CONFIG_BTRFS_FS_CHECK_INTEGRITY=n
+	CONFIG_BTRFS_FS_POSIX_ACL=y \
+	CONFIG_BTRFS_FS_CHECK_INTEGRITY=y
   FILES:=\
 	$(LINUX_DIR)/fs/btrfs/btrfs.ko
   AUTOLOAD:=$(call AutoLoad,30,btrfs,1)
