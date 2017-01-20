@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=zlib
-PKG_VERSION:=1.2.8
+PKG_VERSION:=1.2.11
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.zlib.net @SF/libpng
-PKG_MD5SUM:=44d667c142d7cda120332623eab69f40
+PKG_SH256SUM:=c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1
 
 include $(INCLUDE_DIR)/host-build.mk
 
