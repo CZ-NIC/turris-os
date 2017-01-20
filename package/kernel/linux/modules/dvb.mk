@@ -322,6 +322,20 @@ endef
 
 $(eval $(call KernelPackage,dvb-usb-az6007))
 
+define KernelPackage/dvb-usb-dvbsky
+  TITLE:=DVBSky USB support
+  KCONFIG:=CONFIG_DVB_USB_DVBSKY
+  FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb-v2/dvb-usb-dvbsky.ko
+  AUTOLOAD:=$(call AutoProbe,dvb-usb-dvbsky)
+  $(call AddDepends/dvb-usb-v2,+kmod-dvb-si2168)
+endef
+
+define KernelPackage/dvb-usb-dvbsky/description
+ Say Y here to support the USB receivers from DVBSky.
+endef
+
+$(eval $(call KernelPackage,dvb-usb-dvbsky))
+
 # ------------------------------ DVB frontends --------------------------------
 
 define DvbFrontend
@@ -332,6 +346,17 @@ define DvbFrontend
   FILES:=$(LINUX_DIR)/drivers/media/dvb-frontends/$1.ko
   AUTOLOAD:=$(call AutoProbe,$1)
 endef
+
+define KernelPackage/dvb-drxk
+  TITLE:=Micronas DRXK based
+  $(call DvbFrontend,dvb-drxk,CONFIG_DVB_DRXK)
+endef
+
+define KernelPackage/dvb-drxk/description
+ Micronas DRX-K DVB-C/T demodulator.
+endef
+
+$(eval $(call KernelPackage,dvb-drxk))
 
 define KernelPackage/dvb-pll
   TITLE:=Generic I2C PLL based tuners
@@ -367,6 +392,18 @@ define KernelPackage/dvb-rtl2832/description
 endef
 
 $(eval $(call KernelPackage,dvb-rtl2832))
+
+define KernelPackage/dvb-si2168
+  TITLE:=Silicon Labs Si2168
+  $(call DvbFrontend,si2168,CONFIG_DVB_SI2168)
+  DEPENDS+=+kmod-i2c-mux
+endef
+
+define KernelPackage/dvb-si2168/description
+ Silicon Labs Si2168
+endef
+
+$(eval $(call KernelPackage,dvb-si2168))
 
 define KernelPackage/dvb-zl10353
   TITLE:=Zarlink ZL10353 based tuner
