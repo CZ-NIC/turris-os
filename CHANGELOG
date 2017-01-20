@@ -1,3 +1,11 @@
+* ntpd: updated to the current version
+* knot-resolver: remove AD flag in forwarding mode
+* updated and fixed switch driver
+==================== 3.5.1 ======================
+* openssl: fix CVE-2016-7056
+* knot-resolver: limit forwarding to only four servers
+* watchcat: no longer part of LuCI user list as current version causes some issues (still available in repo)
+* opkg-trans: handle directories in .list files
 ===================== 3.5 =======================
 * knot-resolver: support forwarding to multiple servers
 * Foris: add retry mechanism when NETCONF server dies, reintroduce sending stats to About page on Turris
