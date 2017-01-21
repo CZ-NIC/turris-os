@@ -17,7 +17,7 @@ EOF
 PKG_NAME="$(dirname $log)"
 
 # This branch takes care about packages which haven't been build.  
-if grep "ERROR: $PKG_NAME failed" logs/package/error.txt; then
+if grep "ERROR: $PKG_NAME failed" logs/package/error.txt 2> /dev/null; then
 cat >> $PWD/logs/junit.xml << EOF
 <testsuite errors='1' name='$PKG_NAME' tests='1'>
 <testcase name='compile'>
