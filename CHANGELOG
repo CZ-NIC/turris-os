@@ -1,3 +1,4 @@
+* opkg: Use repo.turris.cz because of certificates
 * ntpd: updated to the current version
 * knot-resolver: remove AD flag in forwarding mode
 * updated and fixed switch driver
