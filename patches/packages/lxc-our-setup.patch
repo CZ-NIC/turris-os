@@ -21,11 +21,11 @@ index 0df1460..b859ca7 100644
  PKG_NAME:=lxc
  PKG_VERSION:=1.1.5
 -PKG_RELEASE:=3
-+PKG_RELEASE:=8
++PKG_RELEASE:=9
  
  PKG_LICENSE:=LGPL-2.1+ BSD-2-Clause GPL-2.0
  PKG_MAINTAINER:=Luka Perkov <luka@openwrt.org>
-@@ -265,6 +265,26 @@ define GenPlugin
+@@ -265,6 +265,27 @@ define GenPlugin
    $$(eval $$(call BuildPackage,lxc-$(1)))
  endef
  
@@ -46,6 +46,7 @@ index 0df1460..b859ca7 100644
 +			fi
 +		done
 +	fi
++	sed -i 's|api.turris.cz|repo.turris.cz|' /etc/config/lxc
 +}
 +endef
 +
@@ -77,7 +78,7 @@ index 295bae0..c628f24 100644
   DOWNLOAD_RELEASE=
  -DOWNLOAD_SERVER="images.linuxcontainers.org"
 -+DOWNLOAD_SERVER="virtualwrt.org/containers/"
-++DOWNLOAD_SERVER="`uci get lxc.lxc.url 2> /dev/null || echo api.turris.cz/lxc`"
+++DOWNLOAD_SERVER="`uci get lxc.lxc.url 2> /dev/null || echo repo.turris.cz/lxc`"
   DOWNLOAD_SHOW_GPG_WARNING="true"
   DOWNLOAD_SHOW_HTTP_WARNING="true"
   DOWNLOAD_TARGET="system"
@@ -122,7 +123,7 @@ index 5572c73..b0e90f7 100644
  
  config lxc 'lxc'
 -	option url 'virtualwrt.org/containers/'
-+	option url 'api.turris.cz/lxc'
++	option url 'repo.turris.cz/lxc'
 diff --git a/utils/luci-app-lxc/Makefile b/utils/luci-app-lxc/Makefile
 index 210f030..b1d16a4 100644
 --- a/utils/luci-app-lxc/Makefile
