@@ -13,11 +13,11 @@
 -      if (conf->http_proxy || conf->ftp_proxy) {
 -	argv[i++] = "-Y";
 -	argv[i++] = "on";
-+      argv[i++] = "get-api-crl";
-+      argv[i++] = NULL;
-+      res = xsystem(argv);
++      //argv[i++] = "get-api-crl";
++      //argv[i++] = NULL;
++      //res = xsystem(argv);
 +
-+      if (res) {
++      if (0) {
 +	  opkg_msg(ERROR, "Failed to download CRL, get-api-crl returned %d.\n", res);
 +	  free(tmp_file_location);
 +	  return -1;
@@ -28,10 +28,10 @@
 +
 +      argv[i++] = "curl";
 +      argv[i++] = "--compress";
-+      argv[i++] = "--cacert";
-+      argv[i++] = "/etc/ssl/startcom.pem";
-+      argv[i++] = "--crlfile";
-+      argv[i++] = "/etc/ssl/crl.pem";
++      //argv[i++] = "--cacert";
++      //argv[i++] = "/etc/ssl/startcom.pem";
++      //argv[i++] = "--crlfile";
++      //argv[i++] = "/etc/ssl/crl.pem";
 +      argv[i++] = "-f";
 +      argv[i++] = "-o";
        argv[i++] = tmp_file_location;

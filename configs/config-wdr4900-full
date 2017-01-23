@@ -236,7 +236,7 @@ CONFIG_VERSIONOPT=y
 CONFIG_VERSION_DIST="OpenWrt"
 CONFIG_VERSION_NICK=""
 CONFIG_VERSION_NUMBER=""
-CONFIG_VERSION_REPO="https://api.turris.cz/openwrt-repo/mpc85xx/packages/"
+CONFIG_VERSION_REPO="https://repo.turris.cz/mpc85xx/packages/"
 # CONFIG_SMIMEOPT is not set
 CONFIG_OPKGSMIME_PASSPHRASE=y
 
