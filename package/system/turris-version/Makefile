@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.5.1
+PKG_VERSION:=3.5.2
 
 PKG_MAINTAINER:=Michal Vaner <michal.vaner@nic.cz>
 
@@ -24,17 +24,21 @@ endef
 define Build/Compile
 endef
 
+opkg: Use repo.turris.cz because of certificates
+* ntpd: updated to the current version
+* knot-resolver: remove AD flag in forwarding mode
+* updated and fixed switch driver
+
+
 define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • openssl: oprava CVE-2016-7056
- • knot-resolver: omezení forwardování jen na čtyři servery
- • watchcat: odebrán z LuCI userlistu jelikož současná verze způsobuje problémy (lze doinstalovat ručně)
- • opkg-trans: ošetření adresářů v .list souborech" " • openssl: fix CVE-2016-7056
- • knot-resolver: limit forwarding to only four servers
- • watchcat: no longer part of LuCI user list as current version causes some issues (still available in repo)
- • opkg-trans: handle directories in .list files"
+create_notification -s news " • ntpd: aktualizace na poslední verzi opravující různé bezpečnostní chyby
+ • knot-resolver: odstranění AD příznaku během forwardování
+ • opkg & lxc: výchozí URL změněno na repo.turris.cz místo api.turris.cz" " • ntpd: updated to the last version fixing various security issues
+ • knot-resolver: removed AD flag in forwarding mode
+ • opkg & lxc: default URL changed to repo.turris.cz instead of api.turris.cz"
 }
 endef
 
