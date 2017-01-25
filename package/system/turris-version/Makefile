@@ -24,12 +24,6 @@ endef
 define Build/Compile
 endef
 
-opkg: Use repo.turris.cz because of certificates
-* ntpd: updated to the current version
-* knot-resolver: remove AD flag in forwarding mode
-* updated and fixed switch driver
-
-
 define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
