@@ -1,3 +1,4 @@
+* updater: Some fixes to the migrator
 * isc-dhcp: Enable failover
 * opkg: Use repo.turris.cz because of certificates
 * ucollect-fake: Don't intercept connections from LAN
