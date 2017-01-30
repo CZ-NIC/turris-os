@@ -1,3 +1,6 @@
+* openssl: update to the newest 1.0.2 version
+* wget: avoid collisions with busysbox wget
+==================== 3.5.2 ======================
 * opkg: Use repo.turris.cz because of certificates
 * ntpd: updated to the current version
 * knot-resolver: remove AD flag in forwarding mode
