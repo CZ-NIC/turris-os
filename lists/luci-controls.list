@@ -9,7 +9,6 @@ luci-app-statistics
 luci-app-tinyproxy
 luci-app-transmission
 luci-app-upnp
-luci-app-watchcat
 luci-app-wol
 luci-app-sqm
 luci-i18n-ahcp-cs
@@ -31,8 +30,6 @@ luci-i18n-transmission-cs
 luci-i18n-transmission-en
 luci-i18n-upnp-cs
 luci-i18n-upnp-en
-luci-i18n-watchcat-cs
-luci-i18n-watchcat-en
 luci-i18n-wol-cs
 luci-i18n-wol-en
 luci-proto-ipv6
