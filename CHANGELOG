@@ -1,3 +1,4 @@
+* knot-resolver: updated to version 1.2.1
 * nuci: Support for querying of the router's contract validity
 * Foris: support for configurable session timeout (via foris.auth.session_timeout)
 * kernel: enable /dev/mem and basic driver support for EC25-E LTE module
