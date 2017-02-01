@@ -1,3 +1,4 @@
+* kernel: enable /dev/mem and basic driver support for EC25-E LTE module
 * knot-resolver: support for dynamic hosts and rpz files
 * bird: Updated to the latest version
 * openssl: update to the newest 1.0.2 version
