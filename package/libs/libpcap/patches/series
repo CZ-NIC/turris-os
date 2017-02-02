@@ -1,0 +1,6 @@
+100-debian_shared_lib.patch
+102-makefile_disable_manpages.patch
+103-makefile_flex_workaround.patch
+201-space_optimization.patch
+202-protocol_api.patch
+203-undef_iw_mode_monitor.patch
