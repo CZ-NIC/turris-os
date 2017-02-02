@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.5.2
+PKG_VERSION:=3.5.3
 
 PKG_MAINTAINER:=Michal Vaner <michal.vaner@nic.cz>
 
@@ -28,11 +28,13 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • ntpd: aktualizace na poslední verzi opravující různé bezpečnostní chyby
- • knot-resolver: odstranění AD příznaku během forwardování
- • opkg & lxc: výchozí URL změněno na repo.turris.cz místo api.turris.cz" " • ntpd: updated to the last version fixing various security issues
- • knot-resolver: removed AD flag in forwarding mode
- • opkg & lxc: default URL changed to repo.turris.cz instead of api.turris.cz"
+create_notification -s news " • wget: zajištění aby busybox wget nepřepisoval opravdový wget
+ • openssl: opraveno několik bezpečnostních chyb
+ • libpcap: opraveno několik bezpečnostních chyb
+ • tcpdump: opraveno několik bezpečnostních chyb, zrušena mini varianta" " • wget: making sure busybox wget doesn't override the real one
+ • openssl: fix various security issues
+ • libpcap: fix various security issues
+ • tcpdump: fix various security issuse, dropped mini variant"
 }
 endef
 
