@@ -1,6 +1,6 @@
 --- a/gencode.c
 +++ b/gencode.c
-@@ -511,20 +511,6 @@ pcap_compile_nopcap(int snaplen_arg, int
+@@ -780,20 +780,6 @@ pcap_compile_nopcap(int snaplen_arg, int
  }
  
  /*
@@ -23,7 +23,7 @@
   * back to another unresolved block (or nil).  At least one of the fields
 --- a/pcap.c
 +++ b/pcap.c
-@@ -1075,6 +1075,59 @@ static const u_char charmap[] = {
+@@ -1119,6 +1119,59 @@ static const u_char charmap[] = {
  	(u_char)'\374', (u_char)'\375', (u_char)'\376', (u_char)'\377',
  };
  
@@ -85,7 +85,7 @@
  {
 --- a/optimize.c
 +++ b/optimize.c
-@@ -2193,45 +2193,6 @@ icode_to_fcode(struct block *root, u_int
+@@ -2227,45 +2227,6 @@ icode_to_fcode(compiler_state_t *cstate,
  	return fp;
  }
  
@@ -106,7 +106,7 @@
 -	 * Validate the program.
 -	 */
 -	if (!bpf_validate(fp->bf_insns, fp->bf_len)) {
--		snprintf(p->errbuf, sizeof(p->errbuf),
+-		pcap_snprintf(p->errbuf, sizeof(p->errbuf),
 -			"BPF program is not valid");
 -		return (-1);
 -	}
@@ -120,7 +120,7 @@
 -	p->fcode.bf_len = fp->bf_len;
 -	p->fcode.bf_insns = (struct bpf_insn *)malloc(prog_size);
 -	if (p->fcode.bf_insns == NULL) {
--		snprintf(p->errbuf, sizeof(p->errbuf),
+-		pcap_snprintf(p->errbuf, sizeof(p->errbuf),
 -			 "malloc: %s", pcap_strerror(errno));
 -		return (-1);
 -	}
@@ -130,4 +130,4 @@
 -
  #ifdef BDEBUG
  static void
- opt_dump(struct block *root)
+ dot_dump_node(struct icode *ic, struct block *block, struct bpf_program *prog,
