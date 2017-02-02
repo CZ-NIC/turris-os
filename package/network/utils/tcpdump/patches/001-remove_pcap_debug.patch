@@ -1,23 +1,30 @@
 --- a/tcpdump.c
 +++ b/tcpdump.c
-@@ -1095,20 +1095,6 @@ main(int argc, char **argv)
- 				error("invalid data link type %s", gndo->ndo_dltname);
- 			break;
- 
--#if defined(HAVE_PCAP_DEBUG) || defined(HAVE_YYDEBUG)
--		case 'Y':
--			{
--			/* Undocumented flag */
+@@ -257,27 +257,6 @@ __declspec(dllimport)
+ extern
+ #endif /* _WIN32 */
+ void pcap_set_parser_debug(int);
+-#elif defined(HAVE_PCAP_DEBUG) || defined(HAVE_YYDEBUG)
+-/*
+- * We don't have pcap_set_parser_debug() in libpcap, but we do have
+- * pcap_debug or yydebug.  Make a local version of pcap_set_parser_debug()
+- * to set the flag, and define HAVE_PCAP_SET_PARSER_DEBUG.
+- */
+-static void
+-pcap_set_parser_debug(int value)
+-{
 -#ifdef HAVE_PCAP_DEBUG
--			extern int pcap_debug;
--			pcap_debug = 1;
--#else
--			extern int yydebug;
--			yydebug = 1;
--#endif
--			}
--			break;
--#endif
- 		case 'z':
- 			if (optarg) {
- 				zflag = strdup(optarg);
+-	extern int pcap_debug;
+-
+-	pcap_debug = value;
+-#else /* HAVE_PCAP_DEBUG */
+-	extern int yydebug;
+-
+-	yydebug = value;
+-#endif /* HAVE_PCAP_DEBUG */
+-}
+-
+-#define HAVE_PCAP_SET_PARSER_DEBUG
+ #endif
+ 
+ #if defined(HAVE_PCAP_SET_OPTIMIZER_DEBUG)
