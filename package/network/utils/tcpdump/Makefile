@@ -8,15 +8,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tcpdump
-PKG_VERSION:=4.5.1
-PKG_RELEASE:=4
+PKG_VERSION:=4.9.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.tcpdump.org/release/ \
 	http://ftp.gwdg.de/pub/misc/tcpdump/ \
 	http://www.at.tcpdump.org/ \
 	http://www.br.tcpdump.org/
-PKG_MD5SUM:=973a2513d0076e34aa9da7e15ed98e1b
+PKG_MD5SUM:=eae98121cbb1c9adbedd9a777bf2eae9fa1c1c676424a54740311c8abcee5a5e
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_BUILD_PARALLEL:=1
@@ -28,27 +28,16 @@ PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/tcpdump/default
+define Package/tcpdump
   SECTION:=net
   CATEGORY:=Network
-  DEPENDS:=+libpcap
+  DEPENDS:=+libpcap +openssl
   TITLE:=Network monitoring and data acquisition tool
   URL:=http://www.tcpdump.org/
 endef
 
-define Package/tcpdump
-  $(Package/tcpdump/default)
-  VARIANT:=full
-endef
-
-define Package/tcpdump-mini
-  $(Package/tcpdump/default)
-  TITLE+= (minimal version)
-  VARIANT:=mini
-endef
-
 CONFIGURE_ARGS += \
-	--without-crypto
+	--with-system-libpcap
 
 ifeq ($(CONFIG_IPV6),y)
 CONFIGURE_ARGS += \
@@ -69,12 +58,6 @@ CONFIGURE_VARS += \
 
 MAKE_FLAGS :=
 
-ifeq ($(BUILD_VARIANT),mini)
-  TARGET_CFLAGS += -DTCPDUMP_MINI
-  CONFIGURE_ARGS += --disable-smb
-  MAKE_FLAGS += TCPDUMP_MINI=1
-endif
-
 MAKE_FLAGS += \
 	CCOPT="$(TARGET_CFLAGS)" INCLS="-I. $(TARGET_CPPFLAGS)"
 
@@ -84,7 +67,4 @@ define Package/tcpdump/install
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/tcpdump $(1)/usr/sbin/
 endef
 
-Package/tcpdump-mini/install = $(Package/tcpdump/install)
-
 $(eval $(call BuildPackage,tcpdump))
-$(eval $(call BuildPackage,tcpdump-mini))
