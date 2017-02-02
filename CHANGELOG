@@ -1,3 +1,4 @@
+* updater: resilient opkg wrapper and updater fixes
 * knot-resolver: updated to version 1.2.1
 * nuci: Support for querying of the router's contract validity
 * Foris: support for configurable session timeout (via foris.auth.session_timeout)
