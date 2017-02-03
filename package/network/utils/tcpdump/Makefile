@@ -31,7 +31,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/tcpdump
   SECTION:=net
   CATEGORY:=Network
-  DEPENDS:=+libpcap +openssl
+  DEPENDS:=+libpcap +libopenssl
   TITLE:=Network monitoring and data acquisition tool
   URL:=http://www.tcpdump.org/
 endef
