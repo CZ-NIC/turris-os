@@ -23,3 +23,8 @@ dahdi-tools-libtonezone
 libpri
 subversion
 apinger
+
+# Packages that needs to be fixed before release
+knot
+knot-resolver
+suricata
