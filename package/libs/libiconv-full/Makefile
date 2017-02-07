@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libiconv-full
 PKG_VERSION:=1.11.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_MAINTAINER:=Jo-Philipp Wich <jow@openwrt.org>
 
@@ -17,10 +17,10 @@ PKG_SOURCE:=libiconv-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@GNU/libiconv
 PKG_MD5SUM:=d42b97f6ef5dd0ba4469d520ed732fed
 PKG_BUILD_DIR:=$(BUILD_DIR)/libiconv-$(PKG_VERSION)
-
-PKG_FIXUP:=patch-libtool
+HOST_BUILD_DIR:=$(BUILD_DIR)/host/libiconv-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/host-build.mk
 
 define Package/libiconv-full/Default
   URL:=http://www.gnu.org/software/libiconv/
@@ -88,6 +88,7 @@ define Package/iconv/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/iconv $(1)/usr/bin/
 endef
 
+$(eval $(call HostBuild))
 $(eval $(call BuildPackage,libcharset))
 $(eval $(call BuildPackage,libiconv-full))
 $(eval $(call BuildPackage,iconv))
