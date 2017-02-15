@@ -1,3 +1,4 @@
+* updater-migrator: Disable branch detection
 * nuci: automatic datacollect enabling
 * updater: resilient opkg wrapper and updater fixes
 * knot-resolver: updated to version 1.2.1
