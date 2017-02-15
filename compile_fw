@@ -237,7 +237,8 @@ echo Install $(sed -n 's|Package: \(.*\)|"\1"|p' $OPKG_STATUS | egrep -v '"updat
 mv base.lua $PUB_BIN_DIR/lists
 # Generate packages that block each other, based on their file collisions
 # For some reason, mktemp -d doesn't work with TMPDIR set, so avoid that here.
-TMPDIR= ./scripts/negative_deps.pl $PUB_BIN_DIR >>$PUB_BIN_DIR/lists/base.lua
+# This is deactivated for now until updater #186 is resolved.
+#TMPDIR= ./scripts/negative_deps.pl $PUB_BIN_DIR >>$PUB_BIN_DIR/lists/base.lua
 echo '-- Install everything that was in the image' >>$PUB_BIN_DIR/lists/base.lua
 for i in lists/*.list; do
 	LUA="$(basename $i .list).lua"
