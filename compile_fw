@@ -92,9 +92,6 @@ Package 'opkg-trans' { replan = true }
 Install 'opkg-trans' 'updater-ng' { critical = true }
 Install 'userlists' { critical = true }
 
--- Make sure we replan after nuci, as it might change userlist configuration in its postinst
-Package 'nuci' { replan = true }
-
 -- Negative dependencies generated from file collisions
 EOF
 # Other lists
