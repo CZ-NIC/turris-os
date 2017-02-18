@@ -19,3 +19,20 @@ config timeserver ntp
         option enabled 1
         option enable_server '0'
 
+config led
+        option default '0'
+        option name 'Auto-configuration for PCI1'
+        option sysfs 'omnia-led:pci1'
+        option trigger 'none'
+
+config led
+        option default '0'
+        option name 'Auto-configuration for PCI2'
+        option sysfs 'omnia-led:pci1'
+        option trigger 'none'
+
+config led
+        option default '0'
+        option name 'Auto-configuration for PCI3'
+        option sysfs 'omnia-led:pci1'
+        option trigger 'none'
