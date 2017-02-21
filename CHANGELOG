@@ -1,3 +1,4 @@
+* ucollect-bandwidth: fixed wrong initialization of buckets
 * ucollect: fixed issues with newer zlib versions
 * updater-migrator: Disable branch detection
 * nuci: automatic datacollect enabling
