@@ -3,7 +3,8 @@
 # It doesn't make sense to run this script if there is no source data 
 if [ ! -d $PWD/logs ]; then
     echo "Directory $PWD/logs doesn't exist!"
-    return 1
+    echo "Skipping junit output"
+    exit 0
 fi
 
 # Insert XML header
