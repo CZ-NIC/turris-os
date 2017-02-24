@@ -46,7 +46,7 @@ CONFIGURE_ARGS += \
 	$(if $(CONFIG_PACKAGE_cal)$(CONFIG_PACKAGE_cfdisk)$(CONFIG_PACKAGE_setterm),--with-ncurses,--without-ncurses)
 
 TARGET_CFLAGS += $(FPIC) -std=gnu99
-LIBS += -lm
+TARGET_LDFLAGS += -lm
 
 define Build/InstallDev
 	$(MAKE) -C $(PKG_BUILD_DIR) \
