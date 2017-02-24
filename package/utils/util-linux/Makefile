@@ -42,6 +42,7 @@ CONFIGURE_ARGS += \
 	--disable-sulogin	\
 	--without-python	\
 	--without-udev		\
+  --without-ncursesw \
 	$(if $(CONFIG_PACKAGE_cal)$(CONFIG_PACKAGE_cfdisk)$(CONFIG_PACKAGE_setterm),--with-ncurses,--without-ncurses)
 
 TARGET_CFLAGS += $(FPIC) -std=gnu99
