@@ -1,13 +1,13 @@
 Index: util-linux-2.29.2/libmount/src/utils.c
 ===================================================================
---- util-linux-2.29.2.orig/libmount/src/utils.c 2017-02-22 11:16:55.251092724 +0100
-+++ util-linux-2.29.2/libmount/src/utils.c      2017-02-24 14:33:03.633809775 +0100
-@@ -940,7 +940,7 @@
-         */
-        oldmode = umask(S_IRGRP|S_IWGRP|S_IXGRP|
-                        S_IROTH|S_IWOTH|S_IXOTH);
--       fd = mkostemp(n, O_RDWR|O_CREAT|O_EXCL|O_CLOEXEC);
-+       fd = mkstemp_cloexec(n);
-        if (fd < 0)
-                fd = -errno;
-        umask(oldmode);
+--- util-linux-2.29.2.orig/libmount/src/utils.c
++++ util-linux-2.29.2/libmount/src/utils.c
+@@ -940,7 +940,7 @@ int mnt_open_uniq_filename(const char *f
+ 	 */
+ 	oldmode = umask(S_IRGRP|S_IWGRP|S_IXGRP|
+ 			S_IROTH|S_IWOTH|S_IXOTH);
+-	fd = mkostemp(n, O_RDWR|O_CREAT|O_EXCL|O_CLOEXEC);
++	fd = mkstemp_cloexec(n);
+ 	if (fd < 0)
+ 		fd = -errno;
+ 	umask(oldmode);
