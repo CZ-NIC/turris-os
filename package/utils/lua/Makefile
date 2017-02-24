@@ -145,6 +145,7 @@ endef
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/lua{,lib,conf}.h $(1)/usr/include/
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/lua.hpp $(1)/usr/include/
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/lauxlib.h $(1)/usr/include/
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/lnum_config.h $(1)/usr/include/
 	$(INSTALL_DIR) $(1)/usr/lib

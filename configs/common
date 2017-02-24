@@ -118,6 +118,9 @@ CONFIG_PACKAGE_nikola=m
 CONFIG_PACKAGE_socat=m
 CONFIG_SOCAT_SSL=y
 
+# Pakoň
+CONFIG_PACKAGE_pakon-guts=m
+
 # Build all firmwares
 CONFIG_PACKAGE_brcmfmac-firmware-43602a1-pcie=m
 CONFIG_PACKAGE_brcmfmac-firmware-4366b1-pcie=m
