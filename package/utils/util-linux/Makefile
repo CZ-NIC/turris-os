@@ -62,6 +62,8 @@ define Build/InstallDev
 
 	$(INSTALL_DIR) $(1)/usr/include/blkid
 	$(CP) $(PKG_BUILD_DIR)/libblkid/src/blkid.h $(1)/usr/include/blkid
+	$(INSTALL_DIR) $(1)/usr/include/libfdisk
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/libfdisk/libfdisk.h $(1)/usr/include/libfdisk
 	$(INSTALL_DIR) $(1)/usr/include/libmount
 	$(CP) $(PKG_BUILD_DIR)/libmount/src/libmount.h $(1)/usr/include/libmount
 	$(INSTALL_DIR) $(1)/usr/include/uuid
@@ -71,6 +73,7 @@ define Build/InstallDev
 
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/.libs/libblkid.{a,so*} $(1)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/.libs/libfdisk.{a,so*} $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/.libs/libmount.{a,so*} $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/.libs/libuuid.{a,so*} $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/.libs/libsmartcols.{a,so*} $(1)/usr/lib
@@ -89,6 +92,18 @@ define Package/libblkid/description
  content (e.g. filesystem type, partitions) as well as extracting additional
  information such as filesystem labels/volume names, partitions, unique
  identifiers/serial numbers...
+endef
+
+define Package/libfdisk
+$(call Package/util-linux/Default)
+  DEPENDS:=+libuuid +libblkid
+  TITLE:=partition manipulating library
+  SECTION:=libs
+  CATEGORY:=Libraries
+endef
+
+define Package/libfdisk/description
+  The libfdisk library is used for manipulating with partition tables.
 endef
 
 define Package/libmount
@@ -177,7 +192,7 @@ endef
 define Package/cfdisk
 $(call Package/util-linux/Default)
   TITLE:=display or manipulate disk partition table
-  DEPENDS:= +libblkid +libncurses +libsmartcols +libfdisk
+  DEPENDS:= +libblkid +libncurses +libsmartcols +libfdisk +libmount
   SUBMENU:=disc
 endef
 
@@ -376,6 +391,7 @@ define Package/sfdisk
 $(call Package/util-linux/Default)
   TITLE:=partition table manipulator for Linux
   SUBMENU=disc
+  DEPENDS:= +libblkid +libfdisk +libsmartcols
 endef
 
 define Package/sfdisk/description
@@ -456,6 +472,11 @@ endef
 define Package/libblkid/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/.libs/libblkid.so* $(1)/usr/lib/
+endef
+
+define Package/libfdisk/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/.libs/libfdisk.so* $(1)/usr/lib/
 endef
 
 define Package/libmount/install
@@ -630,6 +651,7 @@ define Package/wipefs/install
 endef
 
 $(eval $(call BuildPackage,libblkid))
+$(eval $(call BuildPackage,libfdisk))
 $(eval $(call BuildPackage,libmount))
 $(eval $(call BuildPackage,libsmartcols))
 $(eval $(call BuildPackage,libuuid))
