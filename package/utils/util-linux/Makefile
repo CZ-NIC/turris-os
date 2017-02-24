@@ -46,6 +46,7 @@ CONFIGURE_ARGS += \
 	$(if $(CONFIG_PACKAGE_cal)$(CONFIG_PACKAGE_cfdisk)$(CONFIG_PACKAGE_setterm),--with-ncurses,--without-ncurses)
 
 TARGET_CFLAGS += $(FPIC) -std=gnu99
+LIBS += -lm
 
 define Build/InstallDev
 	$(MAKE) -C $(PKG_BUILD_DIR) \
@@ -176,7 +177,7 @@ endef
 define Package/cfdisk
 $(call Package/util-linux/Default)
   TITLE:=display or manipulate disk partition table
-  DEPENDS:= +libblkid +libncurses +libsmartcols
+  DEPENDS:= +libblkid +libncurses +libsmartcols +libfdisk
   SUBMENU:=disc
 endef
 
@@ -197,7 +198,7 @@ endef
 define Package/fdisk
 $(call Package/util-linux/Default)
   TITLE:=manipulate disk partition table
-  DEPENDS:= +libblkid +libsmartcols
+  DEPENDS:= +libblkid +libsmartcols +libfdisk
   SUBMENU=disc
 endef
 
