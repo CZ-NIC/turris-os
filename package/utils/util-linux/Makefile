@@ -63,7 +63,7 @@ define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/blkid
 	$(CP) $(PKG_BUILD_DIR)/libblkid/src/blkid.h $(1)/usr/include/blkid
 	$(INSTALL_DIR) $(1)/usr/include/libfdisk
-	$(CP) $(PKG_BUILD_DIR)/libfdisk/libfdisk.h $(1)/usr/include/libfdisk
+	$(CP) $(PKG_BUILD_DIR)/libfdisk/src/libfdisk.h $(1)/usr/include/libfdisk
 	$(INSTALL_DIR) $(1)/usr/include/libmount
 	$(CP) $(PKG_BUILD_DIR)/libmount/src/libmount.h $(1)/usr/include/libmount
 	$(INSTALL_DIR) $(1)/usr/include/uuid
