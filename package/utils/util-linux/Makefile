@@ -43,6 +43,7 @@ CONFIGURE_ARGS += \
 	--without-python	\
 	--without-udev		\
   --without-ncursesw \
+  --disable-widechar \
 	$(if $(CONFIG_PACKAGE_cal)$(CONFIG_PACKAGE_cfdisk)$(CONFIG_PACKAGE_setterm),--with-ncurses,--without-ncurses)
 
 TARGET_CFLAGS += $(FPIC) -std=gnu99
