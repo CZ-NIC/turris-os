@@ -1,0 +1,6 @@
+#!/bin/sh /etc/rc.common
+START=99
+
+start() {
+	sh /usr/share/dhparam/generate_dh.sh > /dev/null 2> /dev/null &
+}

@@ -1,4 +1,5 @@
 ntpdate
+dhparam
 oneshot
 cznic-repo-keys
 foris
