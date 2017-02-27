@@ -109,7 +109,7 @@ endef
 
 define Package/libmount
 $(call Package/util-linux/Default)
-  DEPENDS:=+libblkid
+  DEPENDS:=+libblkid @USE_UCLIBC:+librt
   TITLE:=mount library
   SECTION:=libs
   CATEGORY:=Libraries
