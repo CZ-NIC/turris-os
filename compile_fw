@@ -158,6 +158,8 @@ if [ -n "`cat logs/package/error.txt 2> /dev/null`" ] && [ -z "$PKG_BRANCH" ]; t
 	exit 1
 fi
 
+[ \! -d ./logs ] || cp ./.config logs/config
+
 [ \! -d ./logs ] || mv ./logs ./logs-nand
 
 COMMIT_DATE="`git log --format=format:%cD -1`"
@@ -167,6 +169,7 @@ if [ "$TARGET_BOARD" = turris ]; then
 	echo -e "CONFIG_TARGET_ROOTFS_INITRAMFS=y\nCONFIG_TARGET_INITRAMFS_COMPRESSION_XZ=y" >> .config
 	make_defconfig
 	make target/linux/compile "$@"
+	[ \! -d ./logs ] || cp ./.config logs/config
 	[ \! -d ./logs ] || mv ./logs ./logs-initram
 
 	cp build_dir/target-powerpc_*/linux-mpc85xx_p2020-nand/zImage-initramfs bin/mpc85xx/turris-initramfs-zimage
@@ -277,6 +280,7 @@ if [ "$TARGET_BOARD" = turris ]; then
 	make defconfig
 	make clean
 	make "$@"
+	[ \! -d ./logs ] || cp ./.config logs/config
 	[ \! -d ./logs ] || mv ./logs ./logs-nor
 	[ -d ./bin/mpc85xx/packages ] && rm -rf ./bin/mpc85xx/packages
 	[ -d ./bin-nor ] && rm -rf ./bin-nor
@@ -299,6 +303,7 @@ elif [ "$TARGET_BOARD" = omnia ]; then
 	make target/linux/compile "$@"
 	cp `ls -d build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/linux-mvebu`/{zImage-initramfs,zImage-initramfs-armada-385-turris-omnia}
 	cat build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/linux-mvebu/linux-4.4*/arch/arm/boot/dts/armada-385-turris-omnia.dtb >> `ls -d build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/linux-mvebu`/zImage-initramfs-armada-385-turris-omnia
+	[ \! -d ./logs ] || cp ./.config logs/config
 	[ \! -d ./logs ] || mv ./logs ./logs-initram
 	cp build_dir/target-arm_*/linux-mvebu/zImage-initramfs-armada-385-turris-omnia bin/mvebu-musl/omnia-initramfs-zimage
 	SIZE="`du -b bin/mvebu-musl/omnia-initramfs-zimage | sed 's|[[:blank:]].*||'`"
