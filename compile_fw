@@ -107,11 +107,9 @@ for i in lists/*.list; do
 			fi
 		elif [ -n "$PKG" ]; then
 			if [ "$TARGET_BOARD" = omnia ] || [ "$i" = lists/base.list ]; then
-				if [ "$BUILD_ALL" ] || [ "$i" = lists/base.list ]; then
-					echo "CONFIG_PACKAGE_$PKG=y" >> .config
-				fi
+				echo "CONFIG_PACKAGE_$PKG=y" >> .config
 			else
-				[ -z "$BUILD_ALL" ] || echo "CONFIG_PACKAGE_$PKG=m" >> .config
+				echo "CONFIG_PACKAGE_$PKG=m" >> .config
 			fi
 		fi
 	done
