@@ -1,3 +1,6 @@
+* updater: clearer error message in case of no connectivity
+* updater: migrator: ignore getbranch-* packages
+* updater: reimplement files collisions checking
 * pakon-guts: Initial attempt at compilation
 * ucollect-bandwidth: fixed wrong initialization of buckets
 * ucollect: fixed issues with newer zlib versions
