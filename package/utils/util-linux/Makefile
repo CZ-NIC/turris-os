@@ -237,6 +237,7 @@ endef
 
 define Package/flock
 $(call Package/util-linux/Default)
+  DEPENDS+=@USE_UCLIBC:+librt
   TITLE:=manage locks from shell scripts
 endef
 
@@ -370,6 +371,7 @@ endef
 define Package/script-utils
 $(call Package/util-linux/Default)
   TITLE:=make and replay typescript of terminal session
+  DEPENDS+=@USE_UCLIBC:+librt
   SUBMENU=Terminal
 endef
 
