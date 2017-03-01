@@ -32,7 +32,6 @@ include $(INCLUDE_DIR)/package.mk
 define Package/util-linux/Default
   SECTION:=utils
   CATEGORY:=Utilities
-  DEPENDS:=@USE_UCLIBC:+librt
   URL:=http://www.kernel.org/pub/linux/utils/util-linux/
 endef
 
@@ -110,7 +109,7 @@ endef
 
 define Package/libmount
 $(call Package/util-linux/Default)
-  DEPENDS:=+libblkid
+  DEPENDS:=+libblkid @USE_UCLIBC:+librt
   TITLE:=mount library
   SECTION:=libs
   CATEGORY:=Libraries
@@ -160,6 +159,7 @@ endef
 define Package/blkdiscard
 $(call Package/util-linux/Default)
   TITLE:=discard sectors on a device
+  DEPENDS+=@USE_UCLIBC:+librt
   SUBMENU=disc
 endef
 
