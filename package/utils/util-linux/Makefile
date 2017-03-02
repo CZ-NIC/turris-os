@@ -417,7 +417,7 @@ endef
 define Package/uuidd
 $(call Package/util-linux/Default)
   TITLE:=UUID generation daemon
-  DEPENDS:= +libuuid
+  DEPENDS:= +libuuid @USE_UCLIBC:+librt
 endef
 
 define Package/uuidd/description
