@@ -473,6 +473,19 @@ endef
 
 $(eval $(call KernelPackage,dvb-tuner-dib0070))
 
+define KernelPackage/dvb-tuner-cxusb
+  TITLE:=Conexant USB2.0 hybrid reference design support
+  $(call DvbFrontend,cxusb,CONFIG_DVB_USB_CXUSB)
+endef
+
+define KernelPackage/dvb-tuner-cxusb/description
+ Support the Conexant USB2.0 hybrid reference design.
+ Currently, only DVB and ATSC modes are supported, analog mode
+ shall be added in the future.
+endef
+
+$(eval $(call KernelPackage,dvb-tuner-dib0070))
+
 define KernelPackage/dvb-tuner-dib0090
   TITLE:=DiBcom DiB0090 silicon base-band tuner
   $(call DvbFrontend,dib0090,CONFIG_DVB_TUNER_DIB0090)
@@ -657,6 +670,18 @@ define KernelPackage/media-tuner-it913x/description
 endef
 
 $(eval $(call KernelPackage,media-tuner-it913x))
+
+define KernelPackage/media-tuner-si2157
+  TITLE:=Silicon Labs Si2157 silicon tuner
+  $(call MediaTuner,si2157,CONFIG_MEDIA_TUNER_SI2157)
+  DEPENDS+=+kmod-regmap
+endef
+
+define KernelPackage/media-tuner-si2157/description
+ Silicon Labs Si2157 silicon tuner driver.
+endef
+
+$(eval $(call KernelPackage,media-tuner-si2157))
 
 define KernelPackage/media-tuner-max2165
   TITLE:=Maxim MAX2165 silicon tuner
