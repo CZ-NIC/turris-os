@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dhparam
-PKG_VERSION:=1.0
+PKG_VERSION:=2.0
 
 PKG_MAINTAINER:=Michal Hrusecky <michal.hrusecky@nic.cz>
 
@@ -28,11 +28,26 @@ define Package/dhparam/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
+	if [ ! -f /etc/dhparam/dh-default.pem ]; then
+		if [ -f /etc/dhparams/dh2048.pem ]; then
+			ln -s /etc/dhparam/dh2048.pem /etc/dhparam/dh-default.pem
+		else
+			ln -s /etc/dhparam/dh4096.pem /etc/dhparam/dh-default.pem
+		fi
+	fi
 	[ -f /etc/dhparams/dh2048.pem ] || {
 		ln -s ../../usr/share/dhparam/dhparam.init /etc/init.d/dhparam
 		/etc/init.d/dhparam enable
 		/etc/init.d/dhparam start
 	}
+}
+endef
+
+define Package/$(PKG_NAME)/postrm
+#!/bin/sh
+[ -n "$$IPKG_INSTROOT" ] || {
+	rm /etc/dhparam/dh-default.pem
+	rm -f /etc/init.d/dhparam
 }
 endef
 
