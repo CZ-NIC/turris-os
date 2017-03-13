@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.6
+PKG_VERSION:=3.6.1
 
 PKG_MAINTAINER:=Michal Vaner <michal.vaner@nic.cz>
 
@@ -28,13 +28,13 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • foris: nový plugin pro snadné nastavení OpenVPN
- • suricata: nový balíček pro IDS
- • kernel: podpora CPUFreq, w1-gpio-cust a EC25-E LTE modulu na Omnii
- • nové verze různých balíčků, hlavně DNS resolverů" " • foris: new plugin for easy OpenVPN management
- • suricata: new package for IDS
- • kernel: support for CPUFreq, w1-gpio-cust and EC25-E LTE module on Omnia
- • updates to various packages, especially DNS resolvers"
+create_notification -s news " • dhparams: opraveno vytváření symlinků a tím i OpenVPN plugin
+ • util-linux: opraveno sestavování některých součástí a balíčků na nich závisejících
+ • luci-app-statistics: zabránění přepisu konfiguračních souborů
+ • vixie-cron: přidány prázdné adrešáře které jsou v současném stavu nutné pro běh" " • dhparams: fix symlink creation to fix OpenVPN plugin
+ • util-linux: fix building of some parts and dependent packages
+ • luci-app-statistics: mark configuration files as such to prevent overwriting
+ • vixie-cron: included empty currently needed directories"
 }
 endef
 
