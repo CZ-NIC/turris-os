@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dhparam
-PKG_VERSION:=2.0
+PKG_VERSION:=2.1
 
 PKG_MAINTAINER:=Michal Hrusecky <michal.hrusecky@nic.cz>
 
