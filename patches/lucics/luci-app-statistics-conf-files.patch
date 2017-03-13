@@ -1,0 +1,17 @@
+diff --git a/applications/luci-app-statistics/Makefile b/applications/luci-app-statistics/Makefile
+index af07cfbd0..835e9d7fe 100644
+--- a/applications/luci-app-statistics/Makefile
++++ b/applications/luci-app-statistics/Makefile
+@@ -11,6 +11,12 @@ LUCI_DEPENDS:= \
+ 	+collectd +rrdtool1 +collectd-mod-rrdtool +collectd-mod-iwinfo \
+ 	+collectd-mod-interface +collectd-mod-load +collectd-mod-network
+ 
++define Package/luci-app-statistics/conffiles
++/etc/config/luci_statistics
++endef
++
++PKG_RELEASE:=2
++
+ include ../../luci.mk
+ 
+ # call BuildPackage - OpenWrt buildroot signature
