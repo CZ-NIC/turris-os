@@ -109,7 +109,7 @@ endef
 
 define Package/libmount
 $(call Package/util-linux/Default)
-  DEPENDS:=+libblkid @USE_UCLIBC:+librt
+  DEPENDS:=+libblkid +USE_UCLIBC:librt
   TITLE:=mount library
   SECTION:=libs
   CATEGORY:=Libraries
@@ -159,7 +159,7 @@ endef
 define Package/blkdiscard
 $(call Package/util-linux/Default)
   TITLE:=discard sectors on a device
-  DEPENDS+=@USE_UCLIBC:+librt
+  DEPENDS+=+USE_UCLIBC:librt
   SUBMENU=disc
 endef
 
@@ -237,7 +237,7 @@ endef
 
 define Package/flock
 $(call Package/util-linux/Default)
-  DEPENDS+=@USE_UCLIBC:+librt
+  DEPENDS+=+USE_UCLIBC:librt
   TITLE:=manage locks from shell scripts
 endef
 
@@ -371,7 +371,7 @@ endef
 define Package/script-utils
 $(call Package/util-linux/Default)
   TITLE:=make and replay typescript of terminal session
-  DEPENDS+=@USE_UCLIBC:+librt
+  DEPENDS+=+USE_UCLIBC:librt
   SUBMENU=Terminal
 endef
 
@@ -417,7 +417,7 @@ endef
 define Package/uuidd
 $(call Package/util-linux/Default)
   TITLE:=UUID generation daemon
-  DEPENDS:= +libuuid @USE_UCLIBC:+librt
+  DEPENDS:= +libuuid +USE_UCLIBC:librt
 endef
 
 define Package/uuidd/description
