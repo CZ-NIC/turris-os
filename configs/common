@@ -161,4 +161,5 @@ CONFIG_PACKAGE_wl18xx-firmware=m
 CONFIG_PACKAGE_openwisp-config-cyassl=n
 CONFIG_PACKAGE_openwisp-config-nossl=n
 CONFIG_PACKAGE_openwisp-config-polarssl=n
-
+CONFIG_PACKAGE_transmission-daemon-polarssl=n
+CONFIG_PACKAGE_transmission-remote-polarssl=n
