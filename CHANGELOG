@@ -1,3 +1,4 @@
+* knot-resolver: update to test version with full forward support
 * knot-resolver: update to version 1.2.4
 * updater: clearer error message in case of no connectivity
 * updater: migrator: ignore getbranch-* packages
