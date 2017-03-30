@@ -39,7 +39,7 @@ TARGET_LDFLAGS += -Wl,--gc-sections
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) \
 		CC="$(TARGET_CC)" \
-		CFLAGS="$(TARGET_CFLAGS) -DHAVE_STDINT_H -DSendmail=\""/usr/sbin/sendmail -t"\" \
+		CFLAGS="$(TARGET_CFLAGS) -DHAVE_STDINT_H" \
 		LDFLAGS="$(TARGET_LDFLAGS)" \
 		mdadm
 endef
