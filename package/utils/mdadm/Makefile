@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mdadm
 PKG_VERSION:=3.2.5
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_URL:=@KERNEL/linux/utils/raid/mdadm
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
@@ -39,7 +39,7 @@ TARGET_LDFLAGS += -Wl,--gc-sections
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) \
 		CC="$(TARGET_CC)" \
-		CFLAGS="$(TARGET_CFLAGS) -DHAVE_STDINT_H" \
+		CFLAGS="$(TARGET_CFLAGS) -DHAVE_STDINT_H -DSendmail=\""/usr/sbin/sendmail -t"\" \
 		LDFLAGS="$(TARGET_LDFLAGS)" \
 		mdadm
 endef
