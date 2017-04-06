@@ -114,6 +114,7 @@ feeds/turrispackages/net/squid 1 2
 feeds/turrispackages/utils/coreutils 1 2
 feeds/turrispackages/utils/hd-idle 1 2
 feeds/turrispackages/utils/owfs 1 2
+feeds/turrispackages/utils/psmisc 1 2
 package/devel/gdb 2 3
 package/devel/oprofile 1 2
 package/devel/valgrind 1 2
