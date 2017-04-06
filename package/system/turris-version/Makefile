@@ -30,8 +30,16 @@ define Package/turris-version/postinst
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • logrotate: opravena výchozí konfigurace
  • openvpn: update na novější verzi
+ • mdadm: oprava mailových upozornění
+ • curl: oprava CVE-2017-7407
+ • kernel: oprava CVE-2017-7184
+ • ntpd: update na poslední verzi
  • knot-resolver: update na poslední verzi" " • logrotate: fix default configuration
  • openvpn: update to the newer version
+ • mdadm: fix mail notifications
+ • curl: fix CVE-2017-7407
+ • kernel: fix CVE-2017-7184
+ • ntpd: update to the latest version
  • knot-resolver: update to the latest version"
 }
 endef
