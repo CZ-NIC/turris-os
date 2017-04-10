@@ -1,6 +1,7 @@
 * knot-resolver: update to version 1.2.5
 * knot-resolver: update to test version with full forward support
-* knot-resolver: update to version 1.2.4
+* knot-resolver: update to version 1.2.5
+===================== 3.6 =======================
 * updater: clearer error message in case of no connectivity
 * updater: migrator: ignore getbranch-* packages
 * updater: reimplement files collisions checking
