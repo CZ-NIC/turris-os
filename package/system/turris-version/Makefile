@@ -32,12 +32,14 @@ create_notification -s news " • logrotate: opravena výchozí konfigurace
  • openvpn: update na novější verzi
  • mdadm: oprava mailových upozornění
  • curl: oprava CVE-2017-7407
+ • bird: oprava vytváření uživatele
  • kernel: oprava CVE-2017-7184
  • ntpd: update na poslední verzi
  • knot-resolver: update na poslední verzi" " • logrotate: fix default configuration
  • openvpn: update to the newer version
  • mdadm: fix mail notifications
  • curl: fix CVE-2017-7407
+ • bird: fix user creation
  • kernel: fix CVE-2017-7184
  • ntpd: update to the latest version
  • knot-resolver: update to the latest version"
