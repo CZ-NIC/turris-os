@@ -1,3 +1,10 @@
+* Foris: mention foris version
+* Foris: custom menu ordering (about page should be last)
+* Foris: foris will be run within '/foris/' ('/' -> '/foris/')
+* Foris: slovak and polish translations added
+* Foris: translation packages (foris*-l10n-*)
+* Foris: guest Wi-Fi
+* Foris: openvpn plugin updates - dns from vpn, route all traffic through vpn option
 * knot-resolver: update to version 1.2.5
 * knot-resolver: update to test version with full forward support
 * knot-resolver: update to version 1.2.5
