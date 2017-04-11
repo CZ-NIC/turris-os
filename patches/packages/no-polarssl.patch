@@ -1,0 +1,193 @@
+diff --git a/net/shadowsocks-libev/Makefile b/net/shadowsocks-libev/Makefile
+index 415c2dfc..bdb0f1d5 100644
+--- a/net/shadowsocks-libev/Makefile
++++ b/net/shadowsocks-libev/Makefile
+@@ -40,20 +40,15 @@ define Package/shadowsocks-libev/Default
+ endef
+ 
+ Package/shadowsocks-libev = $(call Package/shadowsocks-libev/Default,openssl,(OpenSSL),+libopenssl)
+-Package/shadowsocks-libev-polarssl = $(call Package/shadowsocks-libev/Default,polarssl,(PolarSSL),+libpolarssl)
+ 
+ define Package/shadowsocks-libev/description
+ Shadowsocks-libev is a lightweight secured socks5 proxy for embedded devices and low end boxes.
+ endef
+ 
+-Package/shadowsocks-libev-polarssl/description = $(Package/shadowsocks-libev/description)
+-
+ define Package/shadowsocks-libev/conffiles
+ /etc/config/shadowsocks-libev
+ endef
+ 
+-Package/shadowsocks-libev-polarssl/conffiles = $(Package/shadowsocks-libev/conffiles)
+-
+ define Package/shadowsocks-libev/postinst
+ #!/bin/sh
+ uci -q batch <<-EOF >/dev/null
+@@ -67,12 +62,6 @@ EOF
+ exit 0
+ endef
+ 
+-Package/shadowsocks-libev-polarssl/postinst = $(Package/shadowsocks-libev/postinst)
+-
+-ifeq ($(BUILD_VARIANT),polarssl)
+-	CONFIGURE_ARGS += --with-crypto-library=polarssl
+-endif
+-
+ define Package/shadowsocks-libev/install
+ 	$(INSTALL_DIR) $(1)/usr/bin
+ 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/ss-{redir,tunnel} $(1)/usr/bin
+@@ -85,7 +74,4 @@ define Package/shadowsocks-libev/install
+ 	$(INSTALL_DATA) ./files/firewall.include $(1)/usr/share/shadowsocks-libev/firewall.include
+ endef
+ 
+-Package/shadowsocks-libev-polarssl/install = $(Package/shadowsocks-libev/install)
+-
+ $(eval $(call BuildPackage,shadowsocks-libev))
+-$(eval $(call BuildPackage,shadowsocks-libev-polarssl))
+diff --git a/net/umurmur/Makefile b/net/umurmur/Makefile
+index 27254233..e0ee4546 100644
+--- a/net/umurmur/Makefile
++++ b/net/umurmur/Makefile
+@@ -52,18 +52,6 @@ define Package/umurmur-openssl/description
+   Uses OpenSSL library for SSL and crypto.
+ endef
+ 
+-define Package/umurmur-polarssl
+-  $(call Package/umurmur/Default)
+-  TITLE+= (with PolarSSL support)
+-  DEPENDS+= +libpolarssl
+-  VARIANT:=polarssl
+-endef
+-
+-define Package/umurmur-polarssl/description
+-  $(call Package/umurmur/Default/description)
+-  Uses the PolarSSL library for SSL and crypto.
+-endef
+-
+ define Build/Compile
+ 	CC="$(TARGET_CC)" \
+ 	CFLAGS="$(TARGET_CFLAGS)" \
+@@ -75,8 +63,6 @@ define Package/umurmur-openssl/conffiles
+ /etc/umurmur.conf
+ endef
+ 
+-Package/umurmur-polarssl/conffiles = $(Package/umurmur-openssl/conffiles)
+-
+ define Package/umurmur-openssl/install
+ 	$(INSTALL_DIR) $(1)/usr/bin
+ 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/umurmurd $(1)/usr/bin/
+@@ -87,17 +73,9 @@ define Package/umurmur-openssl/install
+ 	$(INSTALL_DIR) $(1)/etc/umurmur
+ endef
+ 
+-Package/umurmur-polarssl/install = $(Package/umurmur-openssl/install)
+-
+ ifeq ($(BUILD_VARIANT),openssl)
+   CONFIGURE_ARGS += \
+ 	--with-ssl=openssl
+ endif
+ 
+-ifeq ($(BUILD_VARIANT),polarssl)
+-  CONFIGURE_ARGS += \
+-	--with-ssl=polarssl
+-endif
+-
+ $(eval $(call BuildPackage,umurmur-openssl))
+-$(eval $(call BuildPackage,umurmur-polarssl))
+diff --git a/sound/pianod/Makefile b/sound/pianod/Makefile
+index 7fb48a9c..ad047d38 100644
+--- a/sound/pianod/Makefile
++++ b/sound/pianod/Makefile
+@@ -28,7 +28,7 @@ include $(INCLUDE_DIR)/package.mk
+ define Package/pianod
+   SECTION:=sound
+   CATEGORY:=Sound
+-  DEPENDS:=+libao +libfaad2 +libmad +libpolarssl +libjson-c +libgcrypt +libpthread
++  DEPENDS:=+libao +libfaad2 +libmad +gnutls +libjson-c +libgcrypt +libpthread
+   TITLE:=Pandora radio daemon
+   USERID:=pianod=88:pianod=88
+   URL:=http://deviousfish.com/pianod/
+@@ -58,7 +58,7 @@ define Package/pianod-client/description
+                  http://pianod-host:4446/pianod/viewer.html?server=pianod-host:4446
+ endef
+ 
+-CONFIGURE_ARGS+= --with-polarssl
++CONFIGURE_ARGS+= --without-polarssl
+ 
+ PIANOD_CLIENT:=pianod-client-compiled-51.tar.gz
+ 
+diff --git a/sound/shairport-sync/Makefile b/sound/shairport-sync/Makefile
+index 8c253f97..0f2f5568 100644
+--- a/sound/shairport-sync/Makefile
++++ b/sound/shairport-sync/Makefile
+@@ -46,18 +46,10 @@ define Package/shairport-sync-openssl
+   VARIANT:=openssl
+ endef
+ 
+-define Package/shairport-sync-polarssl
+-  $(Package/shairport-sync/default)
+-  TITLE+= (polarssl)
+-  DEPENDS+= +libpolarssl +libavahi-client +libsoxr
+-  VARIANT:=polarssl
+-  DEFAULT_VARIANT:=1
+-endef
+-
+ define Package/shairport-sync-mini
+   $(Package/shairport-sync/default)
+   TITLE+= (minimal)
+-  DEPENDS+= +libpolarssl
++  DEPENDS+= +libopenssl
+   VARIANT:=mini
+ endef
+ 
+@@ -72,28 +64,20 @@ define Package/shairport-sync/default/description
+   Also select kmod-usb-audio if you want to use USB-connected sound cards.
+ endef
+ Package/shairport-sync-openssl/description = $(Package/shairport-sync/default/description)
+-Package/shairport-sync-polarssl/description = $(Package/shairport-sync/default/description)
+ 
+ define Package/shairport-sync-mini/description
+   $(Package/shairport-sync/default/description)
+ 
+-  Minimal version uses PolarSSL and does not include libsoxr and avahi support.
++  Minimal version uses OpenSSL and does not include libsoxr and avahi support.
+ endef
+ 
+ CONFIGURE_ARGS+= \
+ 	--with-alsa \
+-	--with-metadata
+-
+-ifeq ($(BUILD_VARIANT),openssl)
+-  CONFIGURE_ARGS+= --with-ssl=openssl
+-endif
+-
+-ifeq ($(BUILD_VARIANT),polarssl)
+-  CONFIGURE_ARGS+= --with-ssl=polarssl
+-endif
++	--with-metadata \
++	--with-ssl=openssl
+ 
+ ifeq ($(BUILD_VARIANT),mini)
+-  CONFIGURE_ARGS+= --with-ssl=polarssl --with-tinysvcmdns
++  CONFIGURE_ARGS+= --with-tinysvcmdns
+ else
+   CONFIGURE_ARGS+= --with-avahi --with-soxr
+ endif
+@@ -103,7 +87,6 @@ define Package/shairport-sync/default/conffiles
+ endef
+ 
+ Package/shairport-sync-openssl/conffiles = $(Package/shairport-sync/default/conffiles)
+-Package/shairport-sync-polarssl/conffiles = $(Package/shairport-sync/default/conffiles)
+ Package/shairport-sync-mini/conffiles = $(Package/shairport-sync/default/conffiles)
+ 
+ define Package/shairport-sync/default/install
+@@ -118,9 +101,7 @@ define Package/shairport-sync/default/install
+ endef
+ 
+ Package/shairport-sync-openssl/install = $(Package/shairport-sync/default/install)
+-Package/shairport-sync-polarssl/install = $(Package/shairport-sync/default/install)
+ Package/shairport-sync-mini/install = $(Package/shairport-sync/default/install)
+ 
+ $(eval $(call BuildPackage,shairport-sync-openssl))
+-$(eval $(call BuildPackage,shairport-sync-polarssl))
+ $(eval $(call BuildPackage,shairport-sync-mini))
