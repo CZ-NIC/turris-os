@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.6
+PKG_VERSION:=3.7
 
 PKG_MAINTAINER:=Michal Vaner <michal.vaner@nic.cz>
 
@@ -28,13 +28,15 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • foris: nový plugin pro snadné nastavení OpenVPN
- • suricata: nový balíček pro IDS
- • kernel: podpora CPUFreq, w1-gpio-cust a EC25-E LTE modulu na Omnii
- • nové verze různých balíčků, hlavně DNS resolverů" " • foris: new plugin for easy OpenVPN management
- • suricata: new package for IDS
- • kernel: support for CPUFreq, w1-gpio-cust and EC25-E LTE module on Omnia
- • updates to various packages, especially DNS resolvers"
+create_notification -s news " • foris: URL změněno na /foris
+ • foris: jednoduché nastavení guest WiFi
+ • foris: slovenský a polský překlad
+ • foris: více možností u VPN
+ • updater: migrace Turris 1.0 a 1.1 na nový updater" " • foris: URL changed to /foris
+ • foris: simple guest WiFi setup
+ • foris: Slovak and Polish translation
+ • foris: more options for OpenVPN server
+ • updater: migration to new updater on Turris router 1.0 and 1.1"
 }
 endef
 
