@@ -1,9 +1,7 @@
-diff --git a/libopkg/opkg_conf.c b/libopkg/opkg_conf.c
-index 4711ce7..bac8305 100644
 --- a/libopkg/opkg_conf.c
 +++ b/libopkg/opkg_conf.c
-@@ -19,6 +19,8 @@
- #include "config.h"
+@@ -17,6 +17,8 @@
+ */
  
  #include <stdio.h>
 +#include <string.h>
@@ -11,61 +9,57 @@ index 4711ce7..bac8305 100644
  #include <sys/types.h>
  #include <sys/stat.h>
  #include <fcntl.h>
-@@ -370,7 +372,7 @@ opkg_conf_write_status_files(void)
-      list_for_each_entry(iter, &conf->pkg_dest_list.head, node) {
-           dest = (pkg_dest_t *)iter->data;
+@@ -389,7 +391,7 @@ int opkg_conf_write_status_files(void)
+ 	list_for_each_entry(iter, &conf->pkg_dest_list.head, node) {
+ 		dest = (pkg_dest_t *) iter->data;
  
--          dest->status_fp = fopen(dest->status_file_name, "w");
-+          dest->status_fp = fopen(dest->status_file_tmp_name, "w");
-           if (dest->status_fp == NULL && errno != EROFS) {
-                opkg_perror(ERROR, "Can't open status file %s",
-                     dest->status_file_name);
-@@ -408,6 +410,13 @@ opkg_conf_write_status_files(void)
-                opkg_perror(ERROR, "Couldn't close %s", dest->status_file_name);
- 	       ret = -1;
-           }
-+          if (rename(dest->status_file_tmp_name,
-+                     dest->status_file_name) == -1) {
-+               opkg_perror(ERROR, "Couldn't move %s into place %s: %s",
-+                           dest->status_file_tmp_name, dest->status_file_name,
-+                           strerror(errno));
-+               ret = -1;
-+          }
-      }
+-		dest->status_fp = fopen(dest->status_file_name, "w");
++		dest->status_fp = fopen(dest->status_file_tmp_name, "w");
+ 		if (dest->status_fp == NULL && errno != EROFS) {
+ 			opkg_perror(ERROR, "Can't open status file %s",
+ 				    dest->status_file_name);
+@@ -429,6 +431,13 @@ int opkg_conf_write_status_files(void)
+ 				    dest->status_file_name);
+ 			ret = -1;
+ 		}
++		if (rename(dest->status_file_tmp_name,
++			dest->status_file_name) == -1) {
++				opkg_perror(ERROR, "Couldn't move %s into place %s: %s",
++				dest->status_file_tmp_name, dest->status_file_name,
++				strerror(errno));
++				ret = -1;
++			}
+ 	}
  
-      return ret;
-diff --git a/libopkg/pkg_dest.c b/libopkg/pkg_dest.c
-index d56dd78..aced41f 100644
+ 	return ret;
 --- a/libopkg/pkg_dest.c
 +++ b/libopkg/pkg_dest.c
-@@ -55,6 +55,9 @@ int pkg_dest_init(pkg_dest_t *dest, const char *name, const char *root_dir,const
-     sprintf_alloc(&dest->status_file_name, "%s/%s",
- 		  dest->opkg_dir, OPKG_STATUS_FILE_SUFFIX);
+@@ -56,6 +56,9 @@ int pkg_dest_init(pkg_dest_t * dest, con
+ 	sprintf_alloc(&dest->status_file_name, "%s/%s",
+ 		      dest->opkg_dir, OPKG_STATUS_FILE_SUFFIX);
  
-+    sprintf_alloc(&dest->status_file_tmp_name, "%s.tmp",
-+		  dest->status_file_name);
++	sprintf_alloc(&dest->status_file_tmp_name, "%s.tmp",
++		dest->status_file_name);
 +
-     return 0;
+ 	return 0;
  }
  
-@@ -78,5 +81,8 @@ void pkg_dest_deinit(pkg_dest_t *dest)
-     free(dest->status_file_name);
-     dest->status_file_name = NULL;
+@@ -79,5 +82,8 @@ void pkg_dest_deinit(pkg_dest_t * dest)
+ 	free(dest->status_file_name);
+ 	dest->status_file_name = NULL;
  
-+    free(dest->status_file_tmp_name);
-+    dest->status_file_tmp_name = NULL;
++	free(dest->status_file_tmp_name);
++	dest->status_file_tmp_name = NULL;
 +
-     dest->root_dir = NULL;
+ 	dest->root_dir = NULL;
  }
-diff --git a/libopkg/pkg_dest.h b/libopkg/pkg_dest.h
-index 4ad417e..10855d2 100644
 --- a/libopkg/pkg_dest.h
 +++ b/libopkg/pkg_dest.h
-@@ -29,6 +29,7 @@ struct pkg_dest
-     char *lists_dir;
-     char *info_dir;
-     char *status_file_name;
-+    char *status_file_tmp_name;
-     FILE *status_fp;
+@@ -28,6 +28,7 @@ struct pkg_dest {
+ 	char *lists_dir;
+ 	char *info_dir;
+ 	char *status_file_name;
++	char *status_file_tmp_name;
+ 	FILE *status_fp;
  };
  

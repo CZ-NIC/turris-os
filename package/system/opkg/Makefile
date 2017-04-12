@@ -11,18 +11,15 @@ include $(INCLUDE_DIR)/version.mk
 include $(INCLUDE_DIR)/feeds.mk
 
 PKG_NAME:=opkg
-PKG_REV:=9c97d5ecd795709c8584e972bfdf3aee3a5b846d
-PKG_VERSION:=$(PKG_REV)
-PKG_RELEASE:=21
+PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=$(PKG_REV)
-PKG_SOURCE_SUBDIR:=opkg-$(PKG_VERSION)
-PKG_SOURCE_URL:=http://git.yoctoproject.org/git/opkg
-PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
-PKG_FIXUP:=autoreconf
-PKG_REMOVE_FILES = autogen.sh aclocal.m4
+PKG_SOURCE_URL:=https://git.lede-project.org/project/opkg-lede.git
+PKG_SOURCE_DATE:=2017-03-23
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
+PKG_SOURCE_SUBDIR:=$(PKG_NAME)
+PKG_SOURCE_VERSION:=1d0263bb40e3c099501fc1f2431907636230e7f2
+PKG_MIRROR_HASH:=1f527179e60b9404affa5f3c9c506d4249e085bf521f770819b8648273a1010c
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING
@@ -35,18 +32,22 @@ PKG_BUILD_PARALLEL:=1
 HOST_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
+HOST_BUILD_DEPENDS:=libubox/host
+
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/host-build.mk
+include $(INCLUDE_DIR)/cmake.mk
 
-define Package/opkg/Default
+define Package/opkg
   SECTION:=base
   CATEGORY:=Base system
   TITLE:=opkg package manager
-  URL:=http://wiki.openmoko.org/wiki/Opkg
+  DEPENDS:=+uclient-fetch +libpthread +libubox +curl +cznic-cacert-bundle
+  URL:=https://git.lede-project.org/?p=project/opkg-lede.git
   MENU:=1
 endef
 
-define Package/opkg/Default/description
+define Package/opkg/description
   Lightweight package management system
   opkg is the opkg Package Management System, for handling
   installation and removal of packages on a system. It can
@@ -66,84 +67,26 @@ config OPKG_SUPPORT_MD5
 	Old opkg used md5s, new uses sha. This options enables understanding both while prefering sha.
 endef
 
-define Package/opkg
-  $(call Package/opkg/Default)
-  VARIANT:=unsigned
-  DEPENDS+=+curl +cznic-cacert-bundle
-endef
-
-define Package/opkg/description
-  $(call Package/opkg/Default/description)
-endef
-
 define Package/opkg/conffiles
 /etc/opkg.conf
 /etc/opkg/keys/
 /etc/opkg/customfeeds.conf
 endef
 
+CMAKE_OPTIONS += \
+	-DBUILD_TESTS=OFF \
+	-DHOST_CPU=$(PKGARCH) \
+	-DPATH_SPEC="$(TARGET_INIT_PATH)" \
+	-DVERSION="$(PKG_SOURCE_VERSION) ($(PKG_SOURCE_DATE))"
 
-define Package/opkg-smime
-  $(call Package/opkg/Default)
-  TITLE+= (with S/MIME signature support)
-  DEPENDS+=+PACKAGE_opkg-smime:libopenssl
-  VARIANT:=smime
-endef
+CMAKE_HOST_OPTIONS += \
+	-DSTATIC_UBOX=ON \
+	-DBUILD_TESTS=OFF \
+	-DHOST_CPU=$(PKGARCH) \
+	-DLOCK_FILE=/tmp/opkg.lock \
+	-DVERSION="$(PKG_SOURCE_VERSION) ($(PKG_SOURCE_DATE))"
 
-define Package/opkg-smime/description
-  $(call Package/opkg/Default/description)
-
-  This package allows the Package index to be verified with S/MIME.
-endef
-
-define Package/opkg-smime/config
-config OPKG_SMIME_SUPPORT_MD5
-  bool
-  default n
-  depends on PACKAGE_opkg-smime
-  prompt "Support reading old md5 hashes."
-  help
-	Old opkg used md5s, new uses sha. This options enables understanding both while prefering sha.
-endef
-
-Package/opkg-smime/conffiles = $(Package/opkg/conffiles)
-
-TARGET_CFLAGS += $(if $(CONFIG_GCC_VERSION_4_3)$(CONFIG_GCC_VERSION_4_4),-Wno-array-bounds)
-TARGET_CFLAGS += -ffunction-sections -fdata-sections
-EXTRA_CFLAGS += $(TARGET_CPPFLAGS)
-
-CONFIGURE_ARGS += \
-	--disable-curl \
-	--disable-gpg \
-	--enable-sha256 \
-	--with-opkgetcdir=/etc \
-	--with-opkglockfile=/var/lock/opkg.lock
-
-ifeq ($(BUILD_VARIANT),smime)
-  CONFIGURE_ARGS += --enable-openssl --disable-usign
-  ifeq ($(CONFIG_OPKG_SMIME_SUPPORT_MD5),y)
-    CONFIGURE_ARGS += --enable-md5
-  else
-    CONFIGURE_ARGS += --disable-md5
-  endif
-else
-  ifndef CONFIG_SIGNED_PACKAGES
-    CONFIGURE_ARGS += --disable-usign
-  endif
-  ifeq ($(CONFIG_OPKG_SUPPORT_MD5),y)
-    CONFIGURE_ARGS += --enable-md5
-  else
-    CONFIGURE_ARGS += --disable-md5
-  endif
-endif
-
-MAKE_FLAGS = \
-		CC="$(TARGET_CC)" \
-		DESTDIR="$(PKG_INSTALL_DIR)" \
-		HOST_CPU="$(PKGARCH)" \
-		LDFLAGS="-Wl,--gc-sections" \
-
-define Package/opkg/Default/install
+define Package/opkg/install
 	$(INSTALL_DIR) $(1)/usr/lib/opkg
 	$(INSTALL_DIR) $(1)/bin
 	$(INSTALL_DIR) $(1)/etc/opkg
@@ -154,40 +97,12 @@ define Package/opkg/Default/install
 	$(VERSION_SED) $(1)/etc/opkg/distfeeds.conf
 	$(INSTALL_BIN) ./files/20_migrate-feeds $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/opkg-cl $(1)/bin/opkg-cl
-	$(INSTALL_BIN) ./files/opkg_wrapper.sh $(1)/bin/opkg
-endef
-
-define Package/opkg/install
-	$(call Package/opkg/Default/install,$(1),)
-  ifneq ($(CONFIG_SIGNED_PACKAGES),)
-	echo "# To disable signature checking DELETE the following line" >> $(1)/etc/opkg.conf
+    ifneq ($(CONFIG_SIGNED_PACKAGES),)
 	echo "option check_signature 1" >> $(1)/etc/opkg.conf
-  endif
+    endif
+	$(INSTALL_BIN) ./files/opkg_wrapper.sh $(1)/bin/opkg
 	mkdir $(1)/usr/sbin
 	$(INSTALL_BIN) ./files/opkg-key $(1)/usr/sbin/
-endef
-
-define Package/opkg-smime/install
-	$(call Package/opkg/Default/install,$(1),-smime)
-	$(INSTALL_DIR) $(1)/etc/ssl/certs
-	$(if $(CONFIG_OPKGSMIME_CERT),$(INSTALL_DATA) $(call qstrip,$(CONFIG_OPKGSMIME_CERT)) $(1)/etc/ssl/certs/opkg.pem,)
-endef
-
-define Build/InstallDev
-	mkdir -p $(1)/usr/include
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/libopkg $(1)/usr/include/
-endef
-
-
-HOST_CONFIGURE_ARGS+= \
-	--disable-curl \
-	--disable-gpg \
-	--enable-sha256 \
-	--with-opkgetcdir=/etc \
-	--with-opkglockfile=/tmp/opkg.lock
-
-define Host/Compile
-	+$(MAKE) $(HOST_JOBS) -C $(HOST_BUILD_DIR) CC="$(HOSTCC)" all
 endef
 
 define Host/Install
@@ -195,5 +110,4 @@ define Host/Install
 endef
 
 $(eval $(call BuildPackage,opkg))
-$(eval $(call BuildPackage,opkg-smime))
 $(eval $(call HostBuild))

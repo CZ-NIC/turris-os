@@ -1,47 +1,37 @@
 --- a/libopkg/opkg_download.c
 +++ b/libopkg/opkg_download.c
-@@ -157,23 +157,36 @@
- #else
-     {
-       int res;
--      const char *argv[8];
-+      const char *argv[13];
-       int i = 0;
+@@ -90,27 +90,19 @@ opkg_download(const char *src, const cha
+ 		const char *argv[8];
+ 		int i = 0;
  
--      argv[i++] = "wget";
--      argv[i++] = "-q";
--      if (conf->http_proxy || conf->ftp_proxy) {
--	argv[i++] = "-Y";
--	argv[i++] = "on";
-+      //argv[i++] = "get-api-crl";
-+      //argv[i++] = NULL;
-+      //res = xsystem(argv);
+-		argv[i++] = "wget";
+-		argv[i++] = "-q";
+-		if (conf->http_proxy || conf->ftp_proxy) {
+-			argv[i++] = "-Y";
+-			argv[i++] = "on";
+-		}
+-		argv[i++] = "-O";
++		i = 0;
 +
-+      if (0) {
-+	  opkg_msg(ERROR, "Failed to download CRL, get-api-crl returned %d.\n", res);
-+	  free(tmp_file_location);
-+	  return -1;
-       }
--      argv[i++] = "-O";
-+      
-+      i = 0;
-+
-+      argv[i++] = "curl";
-+      argv[i++] = "--compress";
-+      //argv[i++] = "--cacert";
-+      //argv[i++] = "/etc/ssl/startcom.pem";
-+      //argv[i++] = "--crlfile";
-+      //argv[i++] = "/etc/ssl/crl.pem";
-+      argv[i++] = "-f";
-+      argv[i++] = "-o";
-       argv[i++] = tmp_file_location;
-       argv[i++] = src;
-       argv[i++] = NULL;
-       res = xsystem(argv);
++		argv[i++] = "curl";
++		argv[i++] = "--compress";
++		argv[i++] = "-f";
++		argv[i++] = "-o";
+ 		argv[i++] = tmp_file_location;
+ 		argv[i++] = src;
+ 		argv[i++] = NULL;
+ 		res = xsystem(argv);
  
-       if (res) {
--	opkg_msg(ERROR, "Failed to download %s, wget returned %d.\n", src, res);
-+	opkg_msg(ERROR, "Failed to download %s, curl returned %d.\n", src, res);
- 	free(tmp_file_location);
- 	return -1;
-       }
+ 		if (res) {
+-			opkg_msg(ERROR,
+-				 "Failed to download %s, wget returned %d.\n",
+-				 src, res);
+-			if (res == 4)
+-				opkg_msg(ERROR,
+-					 "Check your network settings and connectivity.\n\n");
+-			free(tmp_file_location);
+-			return -1;
++			opkg_msg(ERROR, "Failed to download %s, curl returned %d.\n", src, res);
+ 		}
+ 	}
+ 
