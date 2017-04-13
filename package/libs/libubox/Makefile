@@ -92,8 +92,13 @@ define Package/libubox-lua/install
 	$(CP) $(PKG_BUILD_DIR)/lua/uloop.so $(1)/usr/lib/lua/
 endef
 
+CMAKE_HOST_OPTIONS += \
+	-DBUILD_LUA=OFF \
+	-DBUILD_EXAMPLES=OFF \
+
 $(eval $(call BuildPackage,libubox))
 $(eval $(call BuildPackage,libblobmsg-json))
 $(eval $(call BuildPackage,jshn))
 $(eval $(call BuildPackage,libjson-script))
 $(eval $(call BuildPackage,libubox-lua))
+$(eval $(call HostBuild))
