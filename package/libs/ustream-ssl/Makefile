@@ -36,25 +36,11 @@ define Package/libustream-openssl
   VARIANT:=openssl
 endef
 
-define Package/libustream-cyassl
-  $(Package/libustream/default)
-  TITLE += (cyassl)
-  DEPENDS += +PACKAGE_libustream-cyassl:libcyassl
-  VARIANT:=cyassl
-endef
-
-ifeq ($(BUILD_VARIANT),cyassl)
-  TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include/cyassl -DHAVE_SNI
-  CMAKE_OPTIONS += -DCYASSL=on
-endif
-
 define Package/libustream/default/install
 	$(INSTALL_DIR) $(1)/lib/
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libustream-ssl.so $(1)/lib/
 endef
 
 Package/libustream-openssl/install = $(Package/libustream/default/install)
-Package/libustream-cyassl/install = $(Package/libustream/default/install)
 
-$(eval $(call BuildPackage,libustream-cyassl))
 $(eval $(call BuildPackage,libustream-openssl))
