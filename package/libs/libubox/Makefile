@@ -20,6 +20,7 @@ PKG_MAINTAINER:=Felix Fietkau <nbd@openwrt.org>
 PKG_BUILD_DEPENDS:=lua
 
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/cmake.mk
 
 define Package/libubox
