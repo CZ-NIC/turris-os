@@ -103,7 +103,7 @@ index 7fb48a9c..ad047d38 100644
    SECTION:=sound
    CATEGORY:=Sound
 -  DEPENDS:=+libao +libfaad2 +libmad +libpolarssl +libjson-c +libgcrypt +libpthread
-+  DEPENDS:=+libao +libfaad2 +libmad +gnutls +libjson-c +libgcrypt +libpthread
++  DEPENDS:=+libao +libfaad2 +libmad +libgnutls +libjson-c +libgcrypt +libpthread
    TITLE:=Pandora radio daemon
    USERID:=pianod=88:pianod=88
    URL:=http://deviousfish.com/pianod/
