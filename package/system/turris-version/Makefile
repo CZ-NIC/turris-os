@@ -28,7 +28,7 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • knot-resolver: dočásný downgrade jelikož současná verze má občas problémy resolvovat google" " • knot-resolver: temporary downgrade to previous version as current one sometimes has troubles resolving google"
+create_notification -s news " • knot-resolver: robustnější zacházení s vadnými packety" " • knot-resolver: more robust handling of broken packets"
 }
 endef
 
