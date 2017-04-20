@@ -1,0 +1,11 @@
+--- a/libopkg/opkg_cmd.c
++++ b/libopkg/opkg_cmd.c
+@@ -1231,7 +1231,7 @@ static int opkg_compare_versions_cmd(int argc, char **argv)
+ 		pkg_deinit(p2);
+ 		free(p1);
+ 		free(p2);
+-		return rc ? 0 : 1;
++		return rc;
+ 	} else {
+ 		opkg_msg(ERROR,
+ 			 "opkg compare_versions <v1> <op> <v2>\n"
