@@ -132,5 +132,3 @@ define Package/openvpn-$(BUILD_VARIANT)/install
 endef
 
 $(eval $(call BuildPackage,openvpn-openssl))
-$(eval $(call BuildPackage,openvpn-mbedtls))
-$(eval $(call BuildPackage,openvpn-nossl))
