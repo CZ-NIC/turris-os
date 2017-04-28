@@ -218,13 +218,19 @@ default_postinst() {
 	[ -f ${IPKG_INSTROOT}/usr/lib/opkg/info/${pkgname}.postinst-pkg ] && ( . ${IPKG_INSTROOT}/usr/lib/opkg/info/${pkgname}.postinst-pkg )
 	[ -n "${IPKG_INSTROOT}" ] || rm -f /tmp/luci-indexcache 2>/dev/null
 
-	[ -n "${IPKG_INSTROOT}" ] || for i in `cat ${IPKG_INSTROOT}/usr/lib/opkg/info/${pkgname}.list | grep "^/etc/init.d/"`; do
-		if grep "^`basename $i`$" /etc/services_wanted >/dev/null || \
+	for i in `cat ${IPKG_INSTROOT}/usr/lib/opkg/info/${pkgname}.list | grep "^/etc/init.d/"`; do
+		if grep "^`basename $i`$" "${IPKG_INSTROOT}"/etc/services_wanted >/dev/null || \
 		   grep "^/etc/init.d/`basename $i`$" /usr/lib/opkg/info/base-files.list >/dev/null; then
-			$i enable
+			if grep '#!/bin/sh /etc/rc.common' "${IPKG_INSTROOT}"/$i >/dev/null; then
+				"{$IPKG_INSTROOT}"/etc/rc.common "${IPKG_INSTROOT}"/$i enable
+			elif [ -z "${IPKG_INSTROOT}" ]; then
+				$i enable
+			else
+				echo "Warning: init script $i isn't using rc.common and can't be activated"
+			fi
 		fi
 
-		if $i enabled && [ "$pkgname" \!= updater ]; then
+		[ -z "${IPKG_INSTROOT}" ] || if $i enabled && [ "$pkgname" \!= updater ]; then
 			$i restart
 		fi
 	done

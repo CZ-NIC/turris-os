@@ -112,12 +112,6 @@ $(curdir)/install: $(TMP_DIR)/.build
 		for script in ./usr/lib/opkg/info/*.postinst; do \
 			IPKG_INSTROOT=$(TARGET_DIR) $$(which bash) $$script; \
 		done; \
-		for script in ./etc/init.d/*; do \
-			grep '#!/bin/sh /etc/rc.common' $$script >/dev/null || continue; \
-			grep "^`basename $$script`$$" ./etc/services_wanted >/dev/null || \
-			grep "^/etc/init.d/`basename $$script`$$" ./usr/lib/opkg/info/base-files.list >/dev/null || continue; \
-			IPKG_INSTROOT=$(TARGET_DIR) $$(which bash) ./etc/rc.common $$script enable; \
-		done || true \
 	)
 	@-find $(TARGET_DIR) -name CVS   | $(XARGS) rm -rf
 	@-find $(TARGET_DIR) -name .svn  | $(XARGS) rm -rf
