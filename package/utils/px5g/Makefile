@@ -67,4 +67,3 @@ endef
 Package/px5g-standalone/install = $(Package/px5g-mbedtls/install)
 
 $(eval $(call BuildPackage,px5g-mbedtls))
-$(eval $(call BuildPackage,px5g-standalone))
