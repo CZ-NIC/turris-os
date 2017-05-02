@@ -92,6 +92,12 @@ Package 'opkg-trans' { replan = true }
 Install 'opkg-trans' 'updater-ng' { critical = true }
 Install 'userlists' { critical = true }
 
+-- Pull in foris translations
+for_l10n("foris-l10n-")
+for_l10n("foris-diagnostics-plugin-l10n-")
+for_l10n("foris-openvpn-plugin-l10n-")
+for_l10n("foris-tls-plugin-l10n-")
+
 -- Negative dependencies generated from file collisions
 EOF
 # Other lists
