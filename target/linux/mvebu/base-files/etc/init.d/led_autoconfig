@@ -12,7 +12,7 @@ start() {
 		[ -n "$PCI" ] || continue
 		REAL_PCI="`expr 4 - $PCI`"
 		PHY="`ls  -d 0000:00:0${REAL_PCI}.0/0000:0${REAL_PCI}:00.0/ieee80211/phy* 2> /dev/null | sed -n 's|.*/\(phy[0-9]\)|\1|p'`"
-		DEV="`ls  -d 0000:00:0${REAL_PCI}.0/0000:0${REAL_PCI}:00.0/ieee80211/phy*/device/net/wlan* 2> /dev/null | sed 's|.*/||'`"
+		DEV="`ls  -d 0000:00:0${REAL_PCI}.0/0000:0${REAL_PCI}:00.0/ieee80211/phy*/device/net/wlan* 2> /dev/null | sed 's|.*/||' | head -n 1`"
 		SATA="`ls -d 0000:00:0${REAL_PCI}.0/0000:0${REAL_PCI}:00.0/ata*/host*/target*/*/block/sd* 2> /dev/null | head -n 1 | sed 's|.*/||'`"
 		uci set system.@led[$i].sysfs="omnia-led:pci$PCI"
 		if [ "$PHY" ]; then
@@ -49,5 +49,12 @@ start() {
 			uci commit system
 			break
 		done
+	fi
+	# Update WAN configuration
+	if [ "`uci get system.led_wan.name`" = "Auto-configuration for WAN" ] && [ -n "`uci get network.wan.ifname`" ]; then
+		uci set system.led_wan.default="1"
+		uci set system.led_wan.trigger="netdev"
+		uci set system.led_wan.dev="`uci get network.wan.ifname`"
+		uci set system.led_wan.mode="link tx rx"
 	fi
 }
