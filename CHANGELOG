@@ -1,3 +1,4 @@
+* Foris: select languages to install in Updater tab
 * updater: automatic migration of old updater to updater-ng
 * updater: source opkg custom feeds (file /etc/opkg/customfeeds.conf)
 * pakon-guts: DNS-related features, init script
