@@ -173,15 +173,6 @@ fi
 COMMIT_DATE="`git log --format=format:%cD -1`"
 
 if [ "$TARGET_BOARD" = turris ]; then
-	#Build initramfs
-	echo -e "CONFIG_TARGET_ROOTFS_INITRAMFS=y\nCONFIG_TARGET_INITRAMFS_COMPRESSION_XZ=y" >> .config
-	make_defconfig
-	make target/linux/compile "$@"
-	[ \! -d ./logs ] || cp ./.config logs/config
-	[ \! -d ./logs ] || mv ./logs ./logs-initram
-
-	cp build_dir/target-powerpc_*/linux-mpc85xx_p2020-nand/zImage-initramfs bin/mpc85xx/turris-initramfs-zimage
-
 	# Preserve the uncompressed image too
 	mv build_dir/target-powerpc_*/root-mpc85xx bin/mpc85xx/root
 	cd bin/mpc85xx/root
@@ -281,20 +272,7 @@ if [ "$TARGET_BOARD" = "omnia" ]; then
 	done
 fi
 
-if [ "$TARGET_BOARD" = turris ]; then
-	# Build NOR FW
-	cp configs/config-turris-nor .config
-	[ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
-	make defconfig
-	make clean
-	make "$@"
-	[ \! -d ./logs ] || cp ./.config logs/config
-	[ \! -d ./logs ] || mv ./logs ./logs-nor
-	[ -d ./bin/mpc85xx/packages ] && rm -rf ./bin/mpc85xx/packages
-	[ -d ./bin-nor ] && rm -rf ./bin-nor
-	mv ./bin ./bin-nor
-
-elif [ "$TARGET_BOARD" = omnia ]; then
+if [ "$TARGET_BOARD" = omnia ]; then
 	cp configs/config-omnia-rescue .config
 	[ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
     # Ugly hack, make python compile first to avoid possible race
@@ -325,4 +303,6 @@ elif [ "$TARGET_BOARD" = omnia ]; then
 	cp build_dir/host/uboot-turris-omnia*/turris-omnia-uboot/* bin/mvebu-musl/x86-64
 	mv bin bin-nor
 	rm -rf bin-nor/mvebu-musl/packages
+elif [ "$TARGET_BOARD" = turris ]; then
+	cp -r turris-legacy/* .
 fi
