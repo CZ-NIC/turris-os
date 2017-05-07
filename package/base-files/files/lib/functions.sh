@@ -222,7 +222,7 @@ default_postinst() {
 		if grep "^`basename $i`$" "${IPKG_INSTROOT}"/etc/services_wanted >/dev/null || \
 		   grep "^/etc/init.d/`basename $i`$" /usr/lib/opkg/info/base-files.list >/dev/null; then
 			if grep '#!/bin/sh /etc/rc.common' "${IPKG_INSTROOT}"/$i >/dev/null; then
-				"{$IPKG_INSTROOT}"/etc/rc.common "${IPKG_INSTROOT}"/$i enable
+				"${$IPKG_INSTROOT}"/etc/rc.common "${IPKG_INSTROOT}"/$i enable
 			elif [ -z "${IPKG_INSTROOT}" ]; then
 				$i enable
 			else
