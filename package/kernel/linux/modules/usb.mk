@@ -61,6 +61,32 @@ endef
 
 $(eval $(call KernelPackage,usb-musb-hdrc))
 
+define KernelPackage/usb-udl
+  TITLE:=Support for DisplayLink USB graphics card
+  KCONFIG:= \
+	CONFIG_FB_UDL=m \
+	CONFIG_FB=m \
+	CONFIG_HDMI=y \
+  FILES:= \
+         $(LINUX_DIR)/drivers/video/fbdev/core/fb.ko \
+         $(LINUX_DIR)/drivers/video/fbdev/core/cfbcopyarea.ko \
+         $(LINUX_DIR)/drivers/video/fbdev/core/cfbfillrect.ko \
+         $(LINUX_DIR)/drivers/video/fbdev/core/cfbimgblt.ko \
+         $(LINUX_DIR)/drivers/video/fbdev/core/fb_sys_fops.ko \
+         $(LINUX_DIR)/drivers/video/fbdev/core/syscopyarea.ko \
+         $(LINUX_DIR)/drivers/video/fbdev/core/sysfillrect.ko \
+         $(LINUX_DIR)/drivers/video/fbdev/core/sysimgblt.ko \
+         $(LINUX_DIR)/drivers/video/fbdev/udlfb.ko
+  DEPENDS:=+kmod-dma-buf
+  AUTOLOAD:=$(call AutoLoad,99,fb fb_sys_fops syscopyarea sysfillrect sysimgblt cfbcopyarea cfbfillrect cfbimgblt udlfb)
+  $(call AddDepends/usb)
+endef
+
+define KernelPackage/usb-udl/description
+  Kernel support for DisplayLink USB graphics card.
+endef
+
+$(eval $(call KernelPackage,usb-udl))
 
 define KernelPackage/usb-musb-platformglue
   TITLE:=MUSB platform glue layer
