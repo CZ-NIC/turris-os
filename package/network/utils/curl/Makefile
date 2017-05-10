@@ -67,6 +67,7 @@ PKG_CONFIG_DEPENDS:= \
   CONFIG_LIBCURL_VERBOSE
 
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/host-build.mk
 
 define Package/curl/Default
   SECTION:=net
@@ -176,3 +177,4 @@ endef
 
 $(eval $(call BuildPackage,curl))
 $(eval $(call BuildPackage,libcurl))
+$(eval $(call HostBuild))
