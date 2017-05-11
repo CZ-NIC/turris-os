@@ -59,6 +59,8 @@ endif
 TARGET_CFLAGS += -Wl,--gc-sections -I$(STAGING_DIR)/usr/include
 
 define Build/Compile
+	# Ugly hack trying to make it build
+	sleep 30
 	$(TARGET_CC) $(TARGET_CPPFLAGS) $(TARGET_CFLAGS) -o $(PKG_BUILD_DIR)/px5g px5g.c $(TARGET_LDFLAGS)
 endef
 
