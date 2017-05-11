@@ -15,6 +15,8 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/px5g-$(BUILD_VARIANT)
 PKG_USE_MIPS16:=0
 
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
+PKG_BUILD_PARALLEL:=0
+PKG_BUILD_DEPENDS:=mbedtls/install
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -38,6 +40,7 @@ define Package/px5g-standalone
   SECTION:=utils
   CATEGORY:=Utilities
   SUBMENU:=Encryption
+  DEPENDS:=+libmbedtls
   TITLE:=X.509 certificate generator (standalone)
   VARIANT:=standalone
 endef
@@ -67,3 +70,4 @@ endef
 Package/px5g-standalone/install = $(Package/px5g-mbedtls/install)
 
 $(eval $(call BuildPackage,px5g-mbedtls))
+$(eval $(call BuildPackage,px5g-standalone))
