@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=lua
 PKG_VERSION:=5.1.5
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.lua.org/ftp/ \
@@ -132,7 +132,7 @@ endif
 
 define Host/Compile
 	$(MAKE) -C $(HOST_BUILD_DIR) \
-		CC="$(HOSTCC) -std=gnu99" \
+		CC="$(HOSTCC) $(FPIC) -std=gnu99" \
 		$(LUA_OS)
 endef
 
@@ -140,6 +140,8 @@ define Host/Install
 	$(MAKE) -C $(HOST_BUILD_DIR) \
 		INSTALL_TOP="$(STAGING_DIR_HOST)" \
 		install
+	$(INSTALL_DIR) $(STAGING_DIR_HOST)/lib/pkgconfig
+	$(CP) $(HOST_BUILD_DIR)/etc/lua.pc $(STAGING_DIR_HOST)/lib/pkgconfig/
 endef
 
 define Build/InstallDev
