@@ -220,7 +220,7 @@ default_postinst() {
 
 	for i in `cat ${IPKG_INSTROOT}/usr/lib/opkg/info/${pkgname}.list | grep "^/etc/init.d/"`; do
 		if grep "^`basename $i`$" "${IPKG_INSTROOT}"/etc/services_wanted >/dev/null || \
-		   grep "^/etc/init.d/`basename $i`$" /usr/lib/opkg/info/base-files.list >/dev/null; then
+		   grep "^/etc/init.d/`basename $i`$" "${IPKG_INSTROOT}"/usr/lib/opkg/info/base-files.list >/dev/null; then
 			if grep '#!/bin/sh /etc/rc.common' "${IPKG_INSTROOT}"/$i >/dev/null; then
 				"${IPKG_INSTROOT}"/etc/rc.common "${IPKG_INSTROOT}"/$i enable
 			elif [ -z "${IPKG_INSTROOT}" ]; then
