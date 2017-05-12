@@ -1,12 +1,14 @@
---- a/src/openvpn/syshead.h
-+++ b/src/openvpn/syshead.h
-@@ -589,9 +589,7 @@ socket_defined (const socket_descriptor_
+Index: openvpn-2.4.2/src/openvpn/syshead.h
+===================================================================
+--- openvpn-2.4.2.orig/src/openvpn/syshead.h
++++ openvpn-2.4.2/src/openvpn/syshead.h
+@@ -589,7 +589,9 @@ socket_defined(const socket_descriptor_t
  /*
   * Should we include OCC (options consistency check) code?
   */
--#ifndef ENABLE_SMALL
++#ifndef ENABLE_SMALL
  #define ENABLE_OCC
--#endif
++#endif
  
  /*
   * Should we include NTLM proxy functionality
