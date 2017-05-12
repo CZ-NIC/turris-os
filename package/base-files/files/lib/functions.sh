@@ -230,7 +230,7 @@ default_postinst() {
 			fi
 		fi
 
-		[ -z "${IPKG_INSTROOT}" ] || if $i enabled && [ "$pkgname" \!= updater ]; then
+		if [ -z "${IPKG_INSTROOT}" ] && $i enabled && [ "$pkgname" \!= updater ]; then
 			$i restart
 		fi
 	done
