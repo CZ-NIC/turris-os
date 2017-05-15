@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2006-2014 OpenWrt.org
+# Copyright (C) 2006-2016 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -7,21 +7,28 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=cmake
-PKG_VERSION:=2.8.12.2
+PKG_VERSION:=3.7.2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://www.cmake.org/files/v2.8/
-PKG_MD5SUM:=17c6513483d23590cbce6957ec6d1e66
+PKG_SOURCE_URL:=https://cmake.org/files/v3.7/ \
+		https://fossies.org/linux/misc/
+PKG_HASH:=dc1246c4e6d168ea4d6e042cfba577c1acd65feea27e56f5ff37df920c30cae0
 
 HOST_BUILD_PARALLEL:=1
 HOST_CONFIGURE_PARALLEL:=1
 
 include $(INCLUDE_DIR)/host-build.mk
 
-HOST_CONFIGURE_VARS :=
+HOST_CONFIGURE_VARS += \
+	MAKEFLAGS="$(HOST_JOBS)" \
+	CXXFLAGS="$(HOST_CFLAGS)"
 
 HOST_CONFIGURE_ARGS := \
-	--prefix=$(STAGING_DIR_HOST) \
-	$(if $(MAKE_JOBSERVER),--parallel="$(MAKE_JOBSERVER)")
+	$(if $(MAKE_JOBSERVER),--parallel="$(MAKE_JOBSERVER)") \
+	--prefix=$(STAGING_DIR_HOST)
+
+ifneq ($(findstring c,$(OPENWRT_VERBOSE)),)
+  HOST_MAKE_FLAGS += VERBOSE=1
+endif
 
 $(eval $(call HostBuild))
