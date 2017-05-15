@@ -1,19 +1,46 @@
-From f70d27f8fc0f34d3fb974efe49f8b6689ae35e7e Mon Sep 17 00:00:00 2001
+From f09f9f087365b0bdcc4759e7af616b8a3fed5a4c Mon Sep 17 00:00:00 2001
 From: Michal Hrusecky <Michal@Hrusecky.net>
-Date: Sun, 16 Oct 2016 13:20:34 +0200
+Date: Mon, 15 May 2017 11:18:19 +0200
 Subject: [PATCH] LXC customizations
 
 ---
- utils/lxc/Makefile                         | 22 +++++++++++++-
+ utils/luci-app-lxc/Makefile                |  2 +-
+ utils/luci-app-lxc/files/lxc.config        |  2 +-
+ utils/lxc/Makefile                         | 16 +++++++++-
+ utils/lxc/files/lxc-auto.config            |  9 +++++-
+ utils/lxc/files/lxc-auto.init              |  2 +-
  utils/lxc/patches/030-lxc-download.patch   | 47 +++++++++---------------------
- utils/lxc/patches/040-better-default.patch | 14 +++++++++
+ utils/lxc/patches/040-better-default.patch | 16 ++++++++++
  utils/lxc/patches/050-tx-off.patch         | 34 +++++++++++++++++++++
- 4 files changed, 82 insertions(+), 35 deletions(-)
+ 8 files changed, 89 insertions(+), 39 deletions(-)
  create mode 100644 utils/lxc/patches/040-better-default.patch
  create mode 100644 utils/lxc/patches/050-tx-off.patch
 
+diff --git a/utils/luci-app-lxc/Makefile b/utils/luci-app-lxc/Makefile
+index 210f030a..c78e9813 100644
+--- a/utils/luci-app-lxc/Makefile
++++ b/utils/luci-app-lxc/Makefile
+@@ -21,7 +21,7 @@ define Package/luci-app-lxc
+   CATEGORY:=LuCI
+   SUBMENU:=3. Applications
+   TITLE:=LXC management Web UI
+-  DEPENDS:=+luci-mod-admin-full +lxc +lxc-create +liblxc +rpcd-mod-lxc
++  DEPENDS:=+luci-mod-admin-full +lxc +lxc-create +liblxc +rpcd-mod-lxc +getopt +xz +gnupg +gnupg-utils +ethtool
+   MAINTAINER:=Petar Koretic <petar.koretic@sartura.hr>
+ endef
+ 
+diff --git a/utils/luci-app-lxc/files/lxc.config b/utils/luci-app-lxc/files/lxc.config
+index 5572c735..e332fee2 100644
+--- a/utils/luci-app-lxc/files/lxc.config
++++ b/utils/luci-app-lxc/files/lxc.config
+@@ -3,4 +3,4 @@
+ #
+ 
+ config lxc 'lxc'
+-	option url 'virtualwrt.org/containers/'
++	option url 'repo.turris.cz/lxc'
 diff --git a/utils/lxc/Makefile b/utils/lxc/Makefile
-index 0df1460..b859ca7 100644
+index 0df1460f..f93484e4 100644
 --- a/utils/lxc/Makefile
 +++ b/utils/lxc/Makefile
 @@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
@@ -25,17 +52,10 @@ index 0df1460..b859ca7 100644
  
  PKG_LICENSE:=LGPL-2.1+ BSD-2-Clause GPL-2.0
  PKG_MAINTAINER:=Luka Perkov <luka@openwrt.org>
-@@ -265,6 +265,27 @@ define GenPlugin
+@@ -265,6 +265,20 @@ define GenPlugin
    $$(eval $$(call BuildPackage,lxc-$(1)))
  endef
  
-+define Package/lxc-auto/postinst
-+#!/bin/sh
-+[ -n "$$IPKG_INSTROOT" ] || {
-+	/etc/init.d/lxc-auto enable
-+}
-+endef
-+
 +define Package/lxc-common/postinst
 +#!/bin/sh
 +[ -n "$$IPKG_INSTROOT" ] || {
@@ -53,8 +73,38 @@ index 0df1460..b859ca7 100644
  
  $(eval $(call BuildPackage,lxc))
  $(eval $(call BuildPackage,lxc-common))
+diff --git a/utils/lxc/files/lxc-auto.config b/utils/lxc/files/lxc-auto.config
+index b5a7ec99..1efa34e2 100644
+--- a/utils/lxc/files/lxc-auto.config
++++ b/utils/lxc/files/lxc-auto.config
+@@ -1,5 +1,12 @@
+ #config container
+ 	#option name container1
+-	#option timeout 300
++	# How long to give container to shutdown gracefully before killing it
++	# Default 300s
++	#option timeout 30
++	# Commnads to run before starting container
+ 	#list command '/bin/command --option'
+ 
++#config container
++	#option name container2
++	#option timeout 60
++
+diff --git a/utils/lxc/files/lxc-auto.init b/utils/lxc/files/lxc-auto.init
+index 937f0826..eca8872b 100755
+--- a/utils/lxc/files/lxc-auto.init
++++ b/utils/lxc/files/lxc-auto.init
+@@ -1,6 +1,6 @@
+ #!/bin/sh /etc/rc.common
+ 
+-. /lib/functions.sh
++. ${IPKG_INSTROOT}/lib/functions.sh
+ 
+ START=99
+ STOP=00
 diff --git a/utils/lxc/patches/030-lxc-download.patch b/utils/lxc/patches/030-lxc-download.patch
-index 295bae0..c628f24 100644
+index 295bae0a..1f119d4f 100644
 --- a/utils/lxc/patches/030-lxc-download.patch
 +++ b/utils/lxc/patches/030-lxc-download.patch
 @@ -1,43 +1,22 @@
@@ -114,32 +164,9 @@ index 295bae0..c628f24 100644
 - 
 -         if [ -d $LXC_CACHE_PATH ]; then
 -             rm -Rf $LXC_CACHE_PATH
-diff --git a/utils/luci-app-lxc/files/lxc.config b/utils/luci-app-lxc/files/lxc.config
-index 5572c73..b0e90f7 100644
---- a/utils/luci-app-lxc/files/lxc.config
-+++ b/utils/luci-app-lxc/files/lxc.config
-@@ -3,4 +3,4 @@
- #
- 
- config lxc 'lxc'
--	option url 'virtualwrt.org/containers/'
-+	option url 'repo.turris.cz/lxc'
-diff --git a/utils/luci-app-lxc/Makefile b/utils/luci-app-lxc/Makefile
-index 210f030..b1d16a4 100644
---- a/utils/luci-app-lxc/Makefile
-+++ b/utils/luci-app-lxc/Makefile
-@@ -21,7 +21,7 @@ define Package/luci-app-lxc
-   CATEGORY:=LuCI
-   SUBMENU:=3. Applications
-   TITLE:=LXC management Web UI
--  DEPENDS:=+luci-mod-admin-full +lxc +lxc-create +liblxc +rpcd-mod-lxc
-+  DEPENDS:=+luci-mod-admin-full +lxc +lxc-create +liblxc +rpcd-mod-lxc +getopt +xz +gnupg +gnupg-utils +ethtool
-   MAINTAINER:=Petar Koretic <petar.koretic@sartura.hr>
- endef
- 
 diff --git a/utils/lxc/patches/040-better-default.patch b/utils/lxc/patches/040-better-default.patch
 new file mode 100644
-index 0000000..b2bedb3
+index 00000000..24b52f2c
 --- /dev/null
 +++ b/utils/lxc/patches/040-better-default.patch
 @@ -0,0 +1,16 @@
@@ -161,7 +188,7 @@ index 0000000..b2bedb3
 ++lxc.network.hwaddr = x2:xx:xx:xx:xx:xx
 diff --git a/utils/lxc/patches/050-tx-off.patch b/utils/lxc/patches/050-tx-off.patch
 new file mode 100644
-index 0000000..62d15e8
+index 00000000..62d15e88
 --- /dev/null
 +++ b/utils/lxc/patches/050-tx-off.patch
 @@ -0,0 +1,34 @@
@@ -199,23 +226,5 @@ index 0000000..62d15e8
 +@@ -0,0 +1,2 @@
 ++#!/bin/sh
 ++[ -z "$5" ] || ethtool -K "$5" tx off
-diff --git a/utils/lxc/files/lxc-auto.config b/utils/lxc/files/lxc-auto.config
-index 5572c73..b0e90f7 100644
---- a/utils/lxc/files/lxc-auto.config	2016-11-18 11:16:17.152468041 +0100
-+++ b/utils/lxc/files/lxc-auto.config	2016-11-18 11:36:50.829639903 +0100
-@@ -1,5 +1,12 @@
- #config container
- 	#option name container1
--	#option timeout 300
-+	# How long to give container to shutdown gracefully before killing it
-+	# Default 300s
-+	#option timeout 30
-+	# Commnads to run before starting container
- 	#list command '/bin/command --option'
- 
-+#config container
-+	#option name container2
-+	#option timeout 60
-+
 -- 
-2.10.1
+2.13.0
