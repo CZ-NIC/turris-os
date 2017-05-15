@@ -121,6 +121,7 @@ CONFIG_SOCAT_SSL=y
 
 # Pakoň
 CONFIG_PACKAGE_pakon-guts=m
+CONFIG_PACKAGE_pakon-dev-detect=m
 
 # Build all firmwares
 CONFIG_PACKAGE_brcmfmac-firmware-43602a1-pcie=m
