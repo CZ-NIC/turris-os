@@ -16,7 +16,7 @@ PKG_USE_MIPS16:=0
 
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
 PKG_BUILD_PARALLEL:=0
-PKG_BUILD_DEPENDS:=mbedtls
+PKG_BUILD_DEPENDS:=libmbedtls
 
 include $(INCLUDE_DIR)/package.mk
 
