@@ -7,7 +7,7 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=libmbedtls
+PKG_NAME:=mbedtls
 PKG_VERSION:=2.4.2
 PKG_RELEASE:=1
 PKG_USE_MIPS16:=0
@@ -22,18 +22,27 @@ PKG_LICENSE:=GPL-2.0+
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
-define Package/libmbedtls/Default
+define Package/mbedtls/Default
   SUBMENU:=SSL
-  TITLE:=Embedded SSL (library)
+  TITLE:=Embedded SSL
   URL:=https://tls.mbed.org
+endef
+
+define Package/mbedtls/Default/description
+The aim of the mbedtls project is to provide a quality, open-source
+cryptographic library written in C and targeted at embedded systems.
+endef
+
+define Package/libmbedtls
+$(call Package/mbedtls/Default)
   SECTION:=libs
   CATEGORY:=Libraries
+  TITLE+= (library)
   ABI_VERSION:=$(PKG_VERSION)-$(PKG_RELEASE)
 endef
 
-define Package/libmbedtls/Default/description
-The aim of the mbedtls project is to provide a quality, open-source
-cryptographic library written in C and targeted at embedded systems.
+define Package/libmbedtls/description
+$(call Package/mbedtls/Default/description)
 This package contains the mbedtls library.
 endef
 
