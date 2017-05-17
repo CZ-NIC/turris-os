@@ -7,7 +7,7 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=mbedtls
+PKG_NAME:=polarssl
 PKG_VERSION:=1.3.11
 PKG_RELEASE:=1
 PKG_USE_MIPS16:=0
