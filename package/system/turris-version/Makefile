@@ -30,12 +30,18 @@ define Package/turris-version/postinst
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • foris: URL změněno na /foris
  • foris: jednoduché nastavení guest WiFi
- • foris: slovenský a polský překlad
+ • foris: slovenský, polský a francouzský překlad
+ • foris: možnost zvolit si nainstalované lokalizace
  • foris: více možností u VPN
+ • kernel: experimentální podpora grafických karet
+ • pakon: experimentální funkce pro detekci nových zařízení
  • updater: migrace Turris 1.0 a 1.1 na nový updater" " • foris: URL changed to /foris
  • foris: simple guest WiFi setup
- • foris: Slovak and Polish translation
+ • foris: Slovak, Polish and French translation
+ • foris: option to select localization to install
  • foris: more options for OpenVPN server
+ • kernel: experimental support for graphics cards
+ • pakon: experimental support for new devices detection
  • updater: migration to new updater on Turris router 1.0 and 1.1"
 }
 endef
