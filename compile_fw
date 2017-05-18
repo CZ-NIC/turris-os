@@ -211,6 +211,7 @@ if [ -n "$BUILD_ALL" ] && [ "$TARGET_BOARD" = omnia ]; then
 	done
 	make_defconfig
 	make "$@" PKG_BRANCH=${PKG_BRANCH/-/}
+	mkdir -p bin-nand/mvebu-musl/medkit/
 	mv bin/mvebu-musl/openwrt-mvebu-Turris-Omnia-rootfs.tar.gz bin-nand/mvebu-musl/medkit/omnia-medkit-`date -d "$COMMIT_DATE" +%Y%m%d%H%M`-minimal.tar.gz
 	OPKG_STATUS="`ls -1d build_dir/target-arm_*/root-mvebu*/usr/lib/opkg/status`"
 	ln -s omnia-medkit-`date -d "$COMMIT_DATE" +%Y%m%d%H%M`-minimal.tar.gz bin-nand/mvebu-musl/medkit/omnia-medkit-latest-minimal.tar.gz
