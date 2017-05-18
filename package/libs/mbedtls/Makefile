@@ -46,6 +46,20 @@ $(call Package/mbedtls/Default/description)
 This package contains the mbedtls library.
 endef
 
+define Package/libpolarssl
+$(call Package/mbedtls/Default)
+  SECTION:=libs
+  CATEGORY:=Libraries
+  DEPENDS:=+libmbedtls
+  TITLE+= (polarssl compatibility library)
+  ABI_VERSION:=$(PKG_VERSION)-$(PKG_RELEASE)
+endef
+
+define Package/libpolarssl/description
+$(call Package/mbedtls/Default/description)
+This package contains the polarss symlinks for mbedtls library.
+endef
+
 PKG_INSTALL:=1
 
 TARGET_CFLAGS += -ffunction-sections -fdata-sections
@@ -59,9 +73,11 @@ CMAKE_OPTIONS += \
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/mbedtls $(1)/usr/include/
+	$(LN) mbedtls $(1)/usr/include/polarssl
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/lib*.so* $(1)/usr/lib/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/lib*.a $(1)/usr/lib/
+	$(LN) libmbedtls.so $(1)/usr/lib/libpolarssl.so
 endef
 
 define Package/libmbedtls/install
@@ -69,4 +85,10 @@ define Package/libmbedtls/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/lib*.so* $(1)/usr/lib/
 endef
 
+define Package/libpolarssl/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(LN) libmbedtls.so $(1)/usr/lib/libpolarssl.so
+endef
+
 $(eval $(call BuildPackage,libmbedtls))
+$(eval $(call BuildPackage,libpolarssl))
