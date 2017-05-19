@@ -51,8 +51,9 @@ BUILD_DIR="$(mktemp -d /tmp/updater-medkit-XXXXXX)"
 ROOT=$BUILD_DIR/root
 mkdir $ROOT
 
+ln -s tmp $ROOT/var
 # Create lock required by updater
-mkdir -p $ROOT/var/lock
+mkdir -p $ROOT/tmp/lock
 # Create opkg status file and info file
 mkdir -p $ROOT/usr/lib/opkg/info
 touch $ROOT/usr/lib/opkg/status
