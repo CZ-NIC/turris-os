@@ -80,7 +80,17 @@ cat $OPENWRT_BIN/lists/base.lua | \
 	sed "s#https://api.turris.cz/openwrt-repo/omnia.*/packages#file://$OPENWRT_BIN/packages#;/^-- The fallback repository/,/^}$/d" > "$UPDATER_BASECONF"
 # Dump our entry file
 UPDATER_CONF="$BUILD_DIR/entry.lua"
-echo "Script 'base' 'file://$UPDATER_BASECONF'" > "$UPDATER_CONF"
+echo "
+l10n = {'cz', 'de'} -- table with selected localizations
+Export 'l10n'
+-- This is helper function for including localization packages.
+function for_l10n(fragment)
+	for _, lang in pairs(l10n or {}) do
+		Install(fragment .. lang, {ignore = {"missing"}})
+	end
+end
+Export 'for_l10n'
+Script 'base' 'file://$UPDATER_BASECONF'" > "$UPDATER_CONF"
 for USRL in cacerts luci-controls lxc nas netutils shell-utils webcam; do
 	echo "Script '$USRL' 'file://$OPENWRT_BIN/lists/$USRL.lua'" >> "$UPDATER_CONF"
 done
