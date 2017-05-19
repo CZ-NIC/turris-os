@@ -1,0 +1,138 @@
+diff --git a/blob.c b/blob.c
+index ec8617b..03d5e9c 100644
+--- a/blob.c
++++ b/blob.c
+@@ -192,6 +192,7 @@ static const int blob_type_minlen[BLOB_ATTR_LAST] = {
+ 	[BLOB_ATTR_INT16] = sizeof(uint16_t),
+ 	[BLOB_ATTR_INT32] = sizeof(uint32_t),
+ 	[BLOB_ATTR_INT64] = sizeof(uint64_t),
++	[BLOB_ATTR_DOUBLE] = sizeof(double),
+ };
+ 
+ bool
+diff --git a/blob.h b/blob.h
+index ab077ea..4e3c248 100644
+--- a/blob.h
++++ b/blob.h
+@@ -39,6 +39,7 @@ enum {
+ 	BLOB_ATTR_INT16,
+ 	BLOB_ATTR_INT32,
+ 	BLOB_ATTR_INT64,
++	BLOB_ATTR_DOUBLE,
+ 	BLOB_ATTR_LAST
+ };
+ 
+diff --git a/blobmsg.c b/blobmsg.c
+index 80b984a..09b04e7 100644
+--- a/blobmsg.c
++++ b/blobmsg.c
+@@ -20,6 +20,7 @@ static const int blob_type[__BLOBMSG_TYPE_LAST] = {
+ 	[BLOBMSG_TYPE_INT16] = BLOB_ATTR_INT16,
+ 	[BLOBMSG_TYPE_INT32] = BLOB_ATTR_INT32,
+ 	[BLOBMSG_TYPE_INT64] = BLOB_ATTR_INT64,
++	[BLOBMSG_TYPE_DOUBLE] = BLOB_ATTR_DOUBLE,
+ 	[BLOBMSG_TYPE_STRING] = BLOB_ATTR_STRING,
+ 	[BLOBMSG_TYPE_UNSPEC] = BLOB_ATTR_BINARY,
+ };
+diff --git a/blobmsg.h b/blobmsg.h
+index e58f95d..e567065 100644
+--- a/blobmsg.h
++++ b/blobmsg.h
+@@ -31,6 +31,7 @@ enum blobmsg_type {
+ 	BLOBMSG_TYPE_INT32,
+ 	BLOBMSG_TYPE_INT16,
+ 	BLOBMSG_TYPE_INT8,
++	BLOBMSG_TYPE_DOUBLE,
+ 	__BLOBMSG_TYPE_LAST,
+ 	BLOBMSG_TYPE_LAST = __BLOBMSG_TYPE_LAST - 1,
+ 	BLOBMSG_TYPE_BOOL = BLOBMSG_TYPE_INT8,
+@@ -113,6 +114,18 @@ int blobmsg_parse_array(const struct blobmsg_policy *policy, int policy_len,
+ int blobmsg_add_field(struct blob_buf *buf, int type, const char *name,
+                       const void *data, unsigned int len);
+ 
++static inline int
++blobmsg_add_double(struct blob_buf *buf, const char *name, double val)
++{
++	union {
++		double d;
++		uint64_t u64;
++	} v;
++	v.d = val;
++	v.u64 = cpu_to_be64(v.u64);
++	return blobmsg_add_field(buf, BLOBMSG_TYPE_DOUBLE, name, &v.u64, 8);
++}
++
+ static inline int
+ blobmsg_add_u8(struct blob_buf *buf, const char *name, uint8_t val)
+ {
+@@ -212,6 +225,16 @@ static inline uint64_t blobmsg_get_u64(struct blob_attr *attr)
+ 	return tmp;
+ }
+ 
++static inline double blobmsg_get_double(struct blob_attr *attr)
++{
++	union {
++		double d;
++		uint64_t u64;
++	} v;
++	v.u64 = blobmsg_get_u64(attr);
++	return v.d;
++}
++
+ static inline char *blobmsg_get_string(struct blob_attr *attr)
+ {
+ 	if (!attr)
+diff --git a/blobmsg_json.c b/blobmsg_json.c
+index ffde23d..c4e79b4 100644
+--- a/blobmsg_json.c
++++ b/blobmsg_json.c
+@@ -72,6 +72,9 @@ bool blobmsg_add_json_element(struct blob_buf *b, const char *name, json_object
+ 	case json_type_int:
+ 		blobmsg_add_u32(b, name, json_object_get_int(obj));
+ 		break;
++	case json_type_double:
++		blobmsg_add_double(b, name, json_object_get_double(obj));
++		break;
+ 	default:
+ 		return false;
+ 	}
+@@ -252,6 +255,9 @@ static void blobmsg_format_element(struct strbuf *s, struct blob_attr *attr, boo
+ 	case BLOBMSG_TYPE_INT64:
+ 		sprintf(buf, "%" PRId64, (int64_t) be64_to_cpu(*(uint64_t *)data));
+ 		break;
++	case BLOBMSG_TYPE_DOUBLE:
++		sprintf(buf, "%lf", blobmsg_get_double(attr));
++		break;
+ 	case BLOBMSG_TYPE_STRING:
+ 		blobmsg_format_string(s, data);
+ 		return;
+diff --git a/examples/blobmsg-example.c b/examples/blobmsg-example.c
+index 01b0518..1c86017 100644
+--- a/examples/blobmsg-example.c
++++ b/examples/blobmsg-example.c
+@@ -49,6 +49,9 @@ static void dump_attr_data(struct blob_attr *data, int indent, int next_indent)
+ 	case BLOBMSG_TYPE_INT64:
+ 		indent_printf(indent, "%"PRIu64"\n", blobmsg_get_u64(data));
+ 		break;
++	case BLOBMSG_TYPE_DOUBLE:
++		indent_printf(indent, "%lf\n", blobmsg_get_double(data));
++		break;
+ 	case BLOBMSG_TYPE_TABLE:
+ 	case BLOBMSG_TYPE_ARRAY:
+ 		if (!indent)
+@@ -113,6 +116,7 @@ fill_message(struct blob_buf *buf)
+ 	blobmsg_add_string(buf, "message", "Hello, world!");
+ 
+ 	tbl = blobmsg_open_table(buf, "testdata");
++	blobmsg_add_double(buf, "double", 1.337e2);
+ 	blobmsg_add_u32(buf, "hello", 1);
+ 	blobmsg_add_string(buf, "world", "2");
+ 	blobmsg_close_table(buf, tbl);
+@@ -121,6 +125,7 @@ fill_message(struct blob_buf *buf)
+ 	blobmsg_add_u32(buf, NULL, 0);
+ 	blobmsg_add_u32(buf, NULL, 1);
+ 	blobmsg_add_u32(buf, NULL, 2);
++	blobmsg_add_double(buf, "double", 1.337e2);
+ 	blobmsg_close_table(buf, tbl);
+ }
+ 

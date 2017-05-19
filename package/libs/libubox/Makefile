@@ -1,21 +1,21 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libubox
-PKG_VERSION:=2015-06-14
-PKG_RELEASE=$(PKG_SOURCE_VERSION)
+PKG_RELEASE=1
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=http://git.openwrt.org/project/libubox.git
+PKG_SOURCE_URL=$(LEDE_GIT)/project/libubox.git
+PKG_SOURCE_DATE:=2015-09-15
+PKG_SOURCE_VERSION:=136a5196266d03d537f822c4e67d2fde2ed59505
+PKG_VERSION:=$(PKG_SOURCE_DATE)
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=d1c66ef1131d14f0ed197b368d03f71b964e45f8
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
-PKG_MIRROR_MD5SUM:=
 CMAKE_INSTALL:=1
 
 PKG_LICENSE:=ISC
 PKG_LICENSE_FILES:=
 
-PKG_MAINTAINER:=Felix Fietkau <nbd@openwrt.org>
+PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 
 PKG_BUILD_DEPENDS:=lua
 
@@ -92,6 +92,7 @@ define Package/libubox-lua/install
 	$(INSTALL_DIR) $(1)/usr/lib/lua
 	$(CP) $(PKG_BUILD_DIR)/lua/uloop.so $(1)/usr/lib/lua/
 endef
+
 
 CMAKE_HOST_OPTIONS += \
 	-DBUILD_LUA=OFF \
