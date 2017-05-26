@@ -132,8 +132,8 @@ define Package/samba36-server/postinst
 if [ -z "$${IPKG_INSTROOT}" ]; then
 	if [ -s /etc/rc.d/S[0-9][0-9]samba ] && \
 	   [ "`ls -1 /etc/rc.d/S[0-9][0-9]samba | head -n 1`" \!= /etc/rc.d/`sed -n 's|START=\([0-9][0-9]\)|\1|p' /etc/init.d/samba` ]; then
-		rm /etc/rc.d/S[0-9][0-9]samba
-		rm /etc/rc.d/K[0-9][0-9]samba
+		rm -f /etc/rc.d/S[0-9][0-9]samba
+		rm -f /etc/rc.d/K[0-9][0-9]samba
 		/etc/init.d/samba enable
 	fi
         if /etc/init.d/samba enabled; then
