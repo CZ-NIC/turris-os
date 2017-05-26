@@ -122,6 +122,11 @@ for i in lists/*.list; do
 		fi
 	done
 done
+echo "
+config l10n 'l10n'
+	list langs 'cs'
+	list langs 'de'
+" >> package/feeds/turrispackages/opkg-trans/files/updater.config
 
 [ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
 
