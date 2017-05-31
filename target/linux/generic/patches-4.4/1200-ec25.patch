@@ -1,5 +1,7 @@
---- a/drivers/net/usb/qmi_wwan.c	2017-01-20 09:56:50.000000000 +0000
-+++ b/drivers/net/usb/qmi_wwan.c	2017-01-27 17:52:19.702055976 +0000
+Index: linux-4.4.70/drivers/net/usb/qmi_wwan.c
+===================================================================
+--- linux-4.4.70.orig/drivers/net/usb/qmi_wwan.c
++++ linux-4.4.70/drivers/net/usb/qmi_wwan.c
 @@ -14,7 +14,9 @@
  #include <linux/netdevice.h>
  #include <linux/ethtool.h>
@@ -116,7 +118,7 @@
  /* default ethernet address used by the modem */
  static const u8 default_modem_addr[ETH_ALEN] = {0x02, 0x50, 0xf3};
  
-@@ -80,6 +175,8 @@
+@@ -80,6 +175,8 @@ static const u8 buggy_fw_addr[ETH_ALEN]
   */
  static int qmi_wwan_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
  {
@@ -125,7 +127,7 @@
  	__be16 proto;
  
  	/* This check is no longer done by usbnet */
-@@ -94,15 +191,25 @@
+@@ -94,15 +191,25 @@ static int qmi_wwan_rx_fixup(struct usbn
  		proto = htons(ETH_P_IPV6);
  		break;
  	case 0x00:
@@ -151,7 +153,7 @@
  	if (skb_headroom(skb) < ETH_HLEN)
  		return 0;
  	skb_push(skb, ETH_HLEN);
-@@ -223,6 +330,20 @@
+@@ -223,6 +330,20 @@ err:
  	return rv;
  }
  
@@ -172,7 +174,7 @@
  static int qmi_wwan_bind(struct usbnet *dev, struct usb_interface *intf)
  {
  	int status = -1;
-@@ -257,7 +378,10 @@
+@@ -257,7 +378,10 @@ static int qmi_wwan_bind(struct usbnet *
  				"bogus CDC Union: master=%u, slave=%u\n",
  				cdc_union->bMasterInterface0,
  				cdc_union->bSlaveInterface0);
@@ -184,7 +186,7 @@
  		}
  	}
  
-@@ -280,6 +404,29 @@
+@@ -280,6 +404,29 @@ static int qmi_wwan_bind(struct usbnet *
  		usb_driver_release_interface(driver, info->data);
  	}
  
@@ -214,7 +216,7 @@
  	/* Never use the same address on both ends of the link, even if the
  	 * buggy firmware told us to. Or, if device is assigned the well-known
  	 * buggy firmware MAC address, replace it with a random address,
-@@ -294,6 +441,7 @@
+@@ -294,6 +441,7 @@ static int qmi_wwan_bind(struct usbnet *
  		dev->net->dev_addr[0] &= 0xbf;	/* clear "IP" bit */
  	}
  	dev->net->netdev_ops = &qmi_wwan_netdev_ops;
@@ -222,7 +224,7 @@
  err:
  	return status;
  }
-@@ -307,6 +455,12 @@
+@@ -307,6 +455,12 @@ static void qmi_wwan_unbind(struct usbne
  	if (info->subdriver && info->subdriver->disconnect)
  		info->subdriver->disconnect(info->control);
  
@@ -235,7 +237,7 @@
  	/* allow user to unbind using either control or data */
  	if (intf == info->control)
  		other = info->data;
-@@ -381,6 +535,16 @@
+@@ -381,6 +535,16 @@ static const struct driver_info	qmi_wwan
  	.rx_fixup       = qmi_wwan_rx_fixup,
  };
  
@@ -252,7 +254,7 @@
  #define HUAWEI_VENDOR_ID	0x12D1
  
  /* map QMI/wwan function by a fixed interface number */
-@@ -388,6 +552,11 @@
+@@ -388,6 +552,11 @@ static const struct driver_info	qmi_wwan
  	USB_DEVICE_INTERFACE_NUMBER(vend, prod, num), \
  	.driver_info = (unsigned long)&qmi_wwan_info
  
@@ -264,7 +266,7 @@
  /* Gobi 1000 QMI/wwan interface number is 3 according to qcserial */
  #define QMI_GOBI1K_DEVICE(vend, prod) \
  	QMI_FIXED_INTF(vend, prod, 3)
-@@ -717,8 +886,6 @@
+@@ -724,8 +893,6 @@ static const struct usb_device_id produc
  	{QMI_FIXED_INTF(0x1199, 0x9056, 8)},	/* Sierra Wireless Modem */
  	{QMI_FIXED_INTF(0x1199, 0x9057, 8)},
  	{QMI_FIXED_INTF(0x1199, 0x9061, 8)},	/* Sierra Wireless Modem */
@@ -273,7 +275,7 @@
  	{QMI_FIXED_INTF(0x1199, 0x9071, 8)},	/* Sierra Wireless MC74xx */
  	{QMI_FIXED_INTF(0x1199, 0x9071, 10)},	/* Sierra Wireless MC74xx */
  	{QMI_FIXED_INTF(0x1199, 0x9079, 8)},	/* Sierra Wireless EM74xx */
-@@ -727,6 +894,7 @@
+@@ -734,6 +901,7 @@ static const struct usb_device_id produc
  	{QMI_FIXED_INTF(0x1bbb, 0x0203, 2)},	/* Alcatel L800MA */
  	{QMI_FIXED_INTF(0x2357, 0x0201, 4)},	/* TP-LINK HSUPA Modem MA180 */
  	{QMI_FIXED_INTF(0x2357, 0x9000, 4)},	/* TP-LINK MA260 */
@@ -281,29 +283,29 @@
  	{QMI_FIXED_INTF(0x1bc7, 0x1200, 5)},	/* Telit LE920 */
  	{QMI_FIXED_INTF(0x1bc7, 0x1201, 2)},	/* Telit LE920 */
  	{QMI_FIXED_INTF(0x1c9e, 0x9b01, 3)},	/* XS Stick W100-2 from 4G Systems */
-@@ -739,14 +907,21 @@
+@@ -746,15 +914,21 @@ static const struct usb_device_id produc
  	{QMI_FIXED_INTF(0x0b3c, 0xc00b, 4)},	/* Olivetti Olicard 500 */
  	{QMI_FIXED_INTF(0x1e2d, 0x0060, 4)},	/* Cinterion PLxx */
  	{QMI_FIXED_INTF(0x1e2d, 0x0053, 4)},	/* Cinterion PHxx,PXxx */
-+	{QMI_FIXED_INTF(0x1e2d, 0x0082, 4)},	/* Cinterion PHxx,PXxx (2 RmNet) */
-+	{QMI_FIXED_INTF(0x1e2d, 0x0082, 5)},	/* Cinterion PHxx,PXxx (2 RmNet) */
-+	{QMI_FIXED_INTF(0x1e2d, 0x0083, 4)},	/* Cinterion PHxx,PXxx (1 RmNet + USB Audio)*/
++	{QMI_FIXED_INTF(0x1e2d, 0x0082, 4)},    /* Cinterion PHxx,PXxx (2 RmNet) */
++	{QMI_FIXED_INTF(0x1e2d, 0x0082, 5)},    /* Cinterion PHxx,PXxx (2 RmNet) */
++	{QMI_FIXED_INTF(0x1e2d, 0x0083, 4)},    /* Cinterion PHxx,PXxx (1 RmNet + USB Audio)*/
  	{QMI_FIXED_INTF(0x413c, 0x81a2, 8)},	/* Dell Wireless 5806 Gobi(TM) 4G LTE Mobile Broadband Card */
  	{QMI_FIXED_INTF(0x413c, 0x81a3, 8)},	/* Dell Wireless 5570 HSPA+ (42Mbps) Mobile Broadband Card */
  	{QMI_FIXED_INTF(0x413c, 0x81a4, 8)},	/* Dell Wireless 5570e HSPA+ (42Mbps) Mobile Broadband Card */
  	{QMI_FIXED_INTF(0x413c, 0x81a8, 8)},	/* Dell Wireless 5808 Gobi(TM) 4G LTE Mobile Broadband Card */
  	{QMI_FIXED_INTF(0x413c, 0x81a9, 8)},	/* Dell Wireless 5808e Gobi(TM) 4G LTE Mobile Broadband Card */
  	{QMI_FIXED_INTF(0x413c, 0x81b1, 8)},	/* Dell Wireless 5809e Gobi(TM) 4G LTE Mobile Broadband Card */
-+	{QMI_FIXED_INTF(0x413c, 0x81b3, 8)},	/* Dell Wireless 5809e Gobi(TM) 4G LTE Mobile Broadband Card (rev3) */
++	{QMI_FIXED_INTF(0x413c, 0x81b3, 8)},    /* Dell Wireless 5809e Gobi(TM) 4G LTE Mobile Broadband Card (rev3) */
  	{QMI_FIXED_INTF(0x03f0, 0x4e1d, 8)},	/* HP lt4111 LTE/EV-DO/HSPA+ Gobi 4G Module */
  	{QMI_FIXED_INTF(0x22de, 0x9061, 3)},	/* WeTelecom WPD-600N */
-+	{QMI_FIXED_INTF(0x1e0e, 0x9001, 5)},	/* SIMCom 7230E */
-+	{QMI_QUIRK_SET_DTR(0x2c7c, 0x0125, 4)},	/* Quectel EC25, EC20 R2.0  Mini PCIe */
-+	{QMI_QUIRK_SET_DTR(0x2c7c, 0x0121, 4)},	/* Quectel EC21 Mini PCIe */
+ 	{QMI_FIXED_INTF(0x1e0e, 0x9001, 5)},	/* SIMCom 7230E */
++	{QMI_QUIRK_SET_DTR(0x2c7c, 0x0125, 4)}, /* Quectel EC25, EC20 R2.0  Mini PCIe */
++	{QMI_QUIRK_SET_DTR(0x2c7c, 0x0121, 4)}, /* Quectel EC21 Mini PCIe */
  
  	/* 4. Gobi 1000 devices */
  	{QMI_GOBI1K_DEVICE(0x05c6, 0x9212)},	/* Acer Gobi Modem Device */
-@@ -864,3 +1039,4 @@
+@@ -872,3 +1046,4 @@ module_usb_driver(qmi_wwan_driver);
  MODULE_AUTHOR("Bjørn Mork <bjorn@mork.no>");
  MODULE_DESCRIPTION("Qualcomm MSM Interface (QMI) WWAN driver");
  MODULE_LICENSE("GPL");
