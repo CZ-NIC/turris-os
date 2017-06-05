@@ -31,6 +31,7 @@ define Package/odhcp6c
   CATEGORY:=Network
   TITLE:=Embedded DHCPv6-client for OpenWrt
   DEPENDS:=@IPV6
+  PROVIDES:=dhcpv6-server
 endef
 
 define Package/odhcp6c/postinst

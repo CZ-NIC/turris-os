@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dnsmasq
 PKG_VERSION:=2.73
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=http://thekelleys.org.uk/dnsmasq
@@ -39,6 +39,7 @@ endef
 define Package/dnsmasq
 $(call Package/dnsmasq/Default)
   VARIANT:=nodhcpv6
+  PROVIDES:=dhcp-server
 endef
 
 define Package/dnsmasq-dhcpv6
@@ -46,6 +47,7 @@ $(call Package/dnsmasq/Default)
   TITLE += (with DHCPv6 support)
   DEPENDS:=@IPV6
   VARIANT:=dhcpv6
+  PROVIDES:=dhcp-server, dhcpv6-server
 endef
 
 define Package/dnsmasq-full
@@ -54,6 +56,7 @@ $(call Package/dnsmasq/Default)
   DEPENDS:=+PACKAGE_dnsmasq_full_dnssec:libnettle \
 	+PACKAGE_dnsmasq_full_ipset:kmod-ipt-ipset
   VARIANT:=full
+  PROVIDES:=dhcp-server, dhcpv6-server, dns-resolver
 endef
 
 define Package/dnsmasq/description

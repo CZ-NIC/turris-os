@@ -35,6 +35,7 @@ define Package/odhcpd
   CATEGORY:=Network
   TITLE:=OpenWrt DHCP/DHCPv6(-PD)/RA Server & Relay
   DEPENDS:=+libubox +libuci +libubus
+  PROVIDES:=dhcp-server
 endef
 
 define Package/odhcpd/config
