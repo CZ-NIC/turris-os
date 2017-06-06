@@ -46,7 +46,7 @@ sub parse_config() {
 		chomp;
 		s/#.+$//;
 		next unless /\S/;
-		my @line = split /\s+/, $_, 3;
+		my @line = split /\s+/, $_, 4;
 		my @src;
 		$line++;
 
@@ -59,7 +59,7 @@ sub parse_config() {
 		$name{$line[1]} and die "Duplicate feed name '$line[1]', line: $line\n";
 		$name{$line[1]} = 1;
 
-		push @feeds, [$line[0], $line[1], \@src];
+		push @feeds, [$line[0], $line[1], \@src, $line[3]];
 	}
 	close FEEDS;
 }
@@ -157,11 +157,12 @@ my %update_method = (
 # src-git: pull broken
 # src-cpy: broken if `basename $src` != $name
 
-sub update_feed_via($$$$) {
+sub update_feed_via($$$$$) {
 	my $type = shift;
 	my $name = shift;
 	my $src = shift;
 	my $relocate = shift;
+	my $filter = shift;
 
 	my $m = $update_method{$type};
 	my $localpath = "./feeds/$name";
@@ -183,6 +184,11 @@ sub update_feed_via($$$$) {
 		# in case git hash has been provided don't update the feed
 	} else {
 		system("cd '$safepath'; $m->{'update'}") == 0 or return 1;
+	}
+
+	if($filter) {
+		system("cd '$safepath'; find ./[a-zA-Z0-9]* -name Makefile -not -regex '" . $filter . "' -exec dirname \\{\\} \\; | xargs rm -rf");
+		system("cd '$safepath'; find ./[a-zA-Z0-9]* -empty -exec rmdir \\{\\} \\; 2> /dev/null");
 	}
 
 	return 0;
@@ -647,12 +653,13 @@ sub uninstall {
 	return 0;
 }
 
-sub update_feed($$$$)
+sub update_feed($$$$$)
 {
 	my $type=shift;
 	my $name=shift;
 	my $src=shift;
 	my $perform_update=shift;
+	my $filter=shift;
 	my $force_relocate=update_location( $name, "@$src" );
 
 	if( $force_relocate ) {
@@ -666,7 +673,7 @@ sub update_feed($$$$)
 		my $failed = 1;
 		foreach my $feedsrc (@$src) {
 			warn "Updating feed '$name' from '$feedsrc' ...\n";
-			next unless update_feed_via($type, $name, $feedsrc, $force_relocate) == 0;
+			next unless update_feed_via($type, $name, $feedsrc, $force_relocate, $filter) == 0;
 			$failed = 0;
 			last;
 		}
@@ -711,18 +718,18 @@ sub update {
 
 	if ( ($#ARGV == -1) or $opts{a}) {
 		foreach my $feed (@feeds) {
-			my ($type, $name, $src) = @$feed;
-			update_feed($type, $name, $src, $perform_update) == 0 or $failed=1;
+			my ($type, $name, $src, $filter) = @$feed;
+			update_feed($type, $name, $src, $perform_update, $filter) == 0 or $failed=1;
 
 		}
 	} else {
 		while ($feed_name = shift @ARGV) {
 			foreach my $feed (@feeds) {
-				my ($type, $name, $src) = @$feed;
+				my ($type, $name, $src, $filter) = @$feed;
 				if($feed_name ne $name) {
 					next;
 				}
-				update_feed($type, $name, $src, $perform_update) == 0 or $failed=1;
+				update_feed($type, $name, $src, $perform_update, $filter) == 0 or $failed=1;
 			}
 		}
 	}
