@@ -1,0 +1,13 @@
+Index: uClibc++-0.2.4/include/map
+===================================================================
+--- uClibc++-0.2.4.orig/include/map
++++ uClibc++-0.2.4/include/map
+@@ -135,7 +135,7 @@ public:
+ 	using base::equal_range;
+ 	using base::swap;
+ 
+-	reference operator[](const key_type& k){
++	T& operator[](const key_type& k){
+ 		iterator i = lower_bound(k);
+ 		if (i == end() || base::c(k, i->first)) {
+ 			i = insert(make_pair(k, T())).first;
