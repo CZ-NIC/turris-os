@@ -73,14 +73,11 @@ CONFIGURE_ARGS += \
 	--with-default-terminfo-dir=/usr/share/terminfo
 
 HOST_CONFIGURE_ARGS += \
-	--without-cxx \
-	--without-cxx-binding \
 	--without-ada \
 	--without-debug \
 	--without-manpages \
 	--without-profile \
-	--without-tests \
-	--without-curses-h
+	--without-tests 
 
 
 ifeq ($(HOST_OS),FreeBSD)
@@ -165,14 +162,12 @@ define Build/InstallDev
 endef
 endif
 
-
 define Host/Compile
-	$(MAKE) -C $(HOST_BUILD_DIR) libs
-	$(MAKE) -C $(HOST_BUILD_DIR)/progs tic
+	cd $(HOST_BUILD_DIR); $(MAKE)
 endef
 
 define Host/Install
-	$(INSTALL_BIN) $(HOST_BUILD_DIR)/progs/tic $(STAGING_DIR_HOST)/bin/tic
+	make DESTDIR=$(STAGING_DIR_HOST) install
 endef
 
 $(eval $(call HostBuild))
