@@ -1,3 +1,6 @@
+* Foris: use openwrt ubus session
+* Foris: integrate with ubus-ws
+===================== 3.8 =======================
 * updater: syntax without brackets (so called morhered) is now marked as obsolete
 * userlists: now only minimal number of packages are handled as critical
 * userlists: unbound is no longer in base userlist on Omnia
