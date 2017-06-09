@@ -89,6 +89,7 @@ cat >> base.lua << EOF
 
 -- Make sure the updater is up to date before continuing
 Package 'opkg-trans' { replan = true }
+Package 'l10n_supported' { replan = true }
 Install 'opkg-trans' 'updater-ng' { critical = true }
 Install 'userlists' { critical = true }
 
