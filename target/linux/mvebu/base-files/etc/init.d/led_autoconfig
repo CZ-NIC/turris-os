@@ -56,5 +56,6 @@ start() {
 		uci set system.led_wan.trigger="netdev"
 		uci set system.led_wan.dev="`uci get network.wan.ifname`"
 		uci set system.led_wan.mode="link tx rx"
+		uci commit system
 	fi
 }
