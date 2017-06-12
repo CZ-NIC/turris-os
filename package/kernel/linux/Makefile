@@ -49,7 +49,7 @@ define Package/kernel
   TITLE:=Kernel package
   VERSION:=$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
   URL:=http://www.kernel.org/
-  DEPENDS:=+create_notification +TARGET_mpc85xx_p2020_nand_TURRISNAND:uboot-turris
+  DEPENDS:=+create_notification +TARGET_mpc85xx_p2020_nand_TURRISNAND:uboot-turris +TARGET_mpc85xx_p2020_nand_TURRISNAND:mtd-utils-flash-erase
 endef
 
 ifdef CONFIG_TARGET_mvebu_Turris-Omnia
