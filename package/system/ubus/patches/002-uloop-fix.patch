@@ -1,0 +1,24 @@
+diff --git a/libubus-req.c b/libubus-req.c
+index bf19f36..73cb439 100644
+--- a/libubus-req.c
++++ b/libubus-req.c
+@@ -134,7 +134,6 @@ int ubus_complete_request(struct ubus_context *ctx, struct ubus_request *req,
+ 	int64_t timeout = 0, time_end = 0;
+ 
+ 	if (!registered) {
+-		uloop_init();
+ 		ubus_add_uloop(ctx);
+ 	}
+ 
+diff --git a/libubus.c b/libubus.c
+index bfbaeb6..20dbd48 100644
+--- a/libubus.c
++++ b/libubus.c
+@@ -277,6 +277,7 @@ static void ubus_default_connection_lost(struct ubus_context *ctx)
+ 
+ int ubus_connect_ctx(struct ubus_context *ctx, const char *path)
+ {
++	uloop_init();
+ 	memset(ctx, 0, sizeof(*ctx));
+ 
+ 	ctx->sock.fd = -1;
