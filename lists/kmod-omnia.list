@@ -1,0 +1,20 @@
+# Turris Omnia specific drivers
+switch-mvsw61xx
+i2c-mv64xxx
+usb-serial-qualcomm
+thermal-armada
+
+mvsdio
+wdt-orion
+
+# Various led triggers
+ledtrig-default-on
+ledtrig-gpio
+ledtrig-heartbeat
+ledtrig-morse
+ledtrig-netdev
+ledtrig-netfilter
+ledtrig-oneshot
+ledtrig-timer
+ledtrig-transient
+ledtrig-usbdev

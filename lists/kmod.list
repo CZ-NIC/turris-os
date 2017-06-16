@@ -1,0 +1,7 @@
+nf-nathelper
+usb-uhci
+usb3
+
+# Wi-Fi drivers
+ath10k 
+ath9k
