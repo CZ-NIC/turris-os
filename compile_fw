@@ -66,75 +66,6 @@ cat configs/common configs/$TARGET_BOARD | sed -e "s|@BOARD@|$TARGET_BOARD|" -e 
 [ -n "$BUILD_ALL" ] && echo "CONFIG_ALL=y" >> .config && echo "CONFIG_SDK=y" >> .config && echo CONFIG_IB=y >> .config && CONFIG_IB_STANDALONE=n >> .config
 echo CONFIG_ALL_KMODS=y >> .config
 
-# Include important userlists
-# Base list generation
-cat > base.lua << EOF
--- The basic repository
-Repository 'turris' 'https://api.turris.cz/openwrt-repo/${TARGET_BOARD}${REAL_PKG_BRANCH}/packages' {
-	subdirs = {'base', $(echo $(sed -n 's|^src-git[[:blank:]]\+\([^[:blank:]]*\)[[:blank:]]\+http.*|\1|p' ./feeds.conf.default) | sed -e 's|\([^[:blank:]]\+\)|'"'\\1'|g" -e 's|\ |,\ |g')}
-}
-EOF
-if [ -z "$BUILD_ALL" ]; then
-cat >> base.lua << EOF
-
--- The fallback repository
-Repository 'turris-fallback' 'https://api.turris.cz/openwrt-repo/${TARGET_BOARD}-nightly/packages' {
-	subdirs = {'base', $(echo $(sed -n 's|^src-git[[:blank:]]\+\([^[:blank:]]*\)[[:blank:]]\+http.*|\1|p' ./feeds.conf.default) | sed -e 's|\([^[:blank:]]\+\)|'"'\\1'|g" -e 's|\ |,\ |g')},
-	priority = 40,
-	ignore = {'missing'}
-}
-EOF
-fi
-cat >> base.lua << EOF
-
--- Make sure the updater is up to date before continuing
-Package 'updater-ng' { replan = (features and features.replan_string and 'immediate' or true) }
-Package 'l10n_supported' { replan = (features and features.replan_string and 'finished' or true) }
-Package 'nuci' { replan = (features and features.replan_string and 'finished' or false) }
-Install 'updater-ng' { critical = true }
-Install 'userlists' { critical = true }
--- Updater won't remove package before replanning so add dependency on empty opkg-trans package if installed version contains files
-if not features or installed['opkg-trans'] and tonumber(string.match(installed['opkg-trans'].version, '%d*')) < 59 then
-	Package('updater-ng', { deps = Package('opkg-trans') }) -- Note: we can't use just string as that is broken in updater v58
-end
-
-
--- Pull in foris translations
-if for_l10n then
-	for_l10n("foris-l10n-")
-	for_l10n("foris-diagnostics-plugin-l10n-")
-	for_l10n("foris-openvpn-plugin-l10n-")
-	for_l10n("foris-tls-plugin-l10n-")
-end
-
--- Negative dependencies generated from file collisions
-EOF
-# Other lists
-echo 'config pkglists pkglists' > package/feeds/turrispackages/updater-ng/files/updater.config
-for i in lists/*.list; do
-	[ "`basename ${i/.list}`" = base ] || echo "	list lists '`basename ${i/.list}`'" >> package/feeds/turrispackages/updater-ng/files/updater.config
-	cat "$i" "${i/%list/${TARGET_BOARD}}" | sed 's|#.*||' 2> /dev/null | while read PKG; do
-		if expr "$PKG" : CONFIG_;then
-			if [ "$TARGET_BOARD" = omnia ]; then
-				echo "$PKG" | sed 's|=m|=y|' >> .config
-			else
-				echo "$PKG" >> .config
-			fi
-		elif [ -n "$PKG" ]; then
-			if [ "$TARGET_BOARD" = omnia ] || [ "$i" = lists/base.list ]; then
-				echo "CONFIG_PACKAGE_$PKG=y" >> .config
-			else
-				echo "CONFIG_PACKAGE_$PKG=m" >> .config
-			fi
-		fi
-	done
-done
-echo "
-config l10n 'l10n'
-	list langs 'cs'
-	list langs 'de'
-" >> package/feeds/turrispackages/updater-ng/files/updater.config
-
 [ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
 
 
@@ -145,8 +76,6 @@ if [ -f "$HOME"/mime.key ]; then
 	cp "$HOME/mime.pub" key-build.pub
 fi
 
-
-[ "${TARGET_BOARD}" = omnia ] || echo "CONFIG_PACKAGE_updater-ng=m" >> ./.config
 
 make_defconfig
 
@@ -179,7 +108,6 @@ if [ -n "`cat logs/package/error.txt 2> /dev/null`" ] && [ -z "$PKG_BRANCH" ]; t
 fi
 
 [ \! -d ./logs ] || cp ./.config logs/config
-
 [ \! -d ./logs ] || mv ./logs ./logs-nand
 
 COMMIT_DATE="`git log --format=format:%cD -1`"
@@ -191,13 +119,6 @@ if [ "$TARGET_BOARD" = turris ]; then
 	rm var
 	find -type l ! -exec test -r {} \; -delete
 	cd ../../..
-elif [ "$TARGET_BOARD" = omnia ]; then
-	# Preserve the uncompressed image too
-	mv build_dir/target-arm_*/root-mvebu* bin/mvebu-musl/root
-	pushd bin/mvebu-musl/root
-	rm var
-	find -type l ! -exec test -r {} \; -delete
-	popd
 fi
 
 # Clean
@@ -205,87 +126,50 @@ fi
 mv ./bin ./bin-nand
 [ -d ./tmp ] && rm -rf ./tmp
 
-# Generate lists
 PUB_BIN_DIR="`ls -1d bin-nand/* | head -n1`"
-mkdir -p $PUB_BIN_DIR/lists
+# Generate lists
+[ -n "$BUILD_ALL" ] || USRLISTS_ARGS="--minimal"
+scripts/gen-userlists.sh --model $TARGET_BOARD --branch ${PKG_BRANCH#-} $USRLISTS_ARGS $PUB_BIN_DIR/lists
 
-# On Omnia full build generate a minimal image as well and use it for base list
-if [ -n "$BUILD_ALL" ] && [ "$TARGET_BOARD" = omnia ]; then
-	make dirclean
-	cat configs/common configs/$TARGET_BOARD | sed -e "s|@BOARD@|$TARGET_BOARD|" -e "s|@BRANCH@|$PKG_BRANCH|" > .config
-	echo CONFIG_ALL_KMODS=y >> .config
-	cat "lists/base.list" "lists/base.${TARGET_BOARD}" | sed 's|#.*||' 2> /dev/null | while read PKG; do
-		if expr "$PKG" : CONFIG_;then
-			echo "$PKG" >> .config
-		elif [ -n "$PKG" ]; then
-			echo "CONFIG_PACKAGE_$PKG=y" >> .config
-		fi
-	done
-	make_defconfig
-	make "$@" PKG_BRANCH=${PKG_BRANCH/-/}
-	mkdir -p bin-nand/mvebu-musl/medkit/
-	mv bin/mvebu-musl/openwrt-mvebu-Turris-Omnia-rootfs.tar.gz bin-nand/mvebu-musl/medkit/omnia-medkit-`date -d "$COMMIT_DATE" +%Y%m%d%H%M`-minimal.tar.gz
-	OPKG_STATUS="`ls -1d build_dir/target-arm_*/root-mvebu*/usr/lib/opkg/status`"
-	ln -s omnia-medkit-`date -d "$COMMIT_DATE" +%Y%m%d%H%M`-minimal.tar.gz bin-nand/mvebu-musl/medkit/omnia-medkit-latest-minimal.tar.gz
-else
-	OPKG_STATUS="`ls -1d bin-nand/*/root/usr/lib/opkg/status`"
-fi
-
-echo Install $(sed -n 's|Package: \(.*\)|"\1"|p' $OPKG_STATUS | egrep -v '"updater(|-deps|-consolidator)"') " { critical = true }" >> base.lua
-[ \! -f "lists/base_add" ]               || echo Install $(cat "lists/base_add.$TARGET_BOARD" | sed 's|^\([^#]\+\)$|"\1"|') " { critical = true }" >> base.lua
-[ \! -f "lists/base_add.$TARGET_BOARD" ] || echo Install $(cat "lists/base_add.$TARGET_BOARD" | sed 's|^\([^#]\+\)$|"\1"|') " { critical = true }" >> base.lua
-mv base.lua $PUB_BIN_DIR/lists
 # Generate packages that block each other, based on their file collisions
 # For some reason, mktemp -d doesn't work with TMPDIR set, so avoid that here.
 # This is deactivated for now until updater #186 is resolved.
 #TMPDIR= ./scripts/negative_deps.pl $PUB_BIN_DIR >>$PUB_BIN_DIR/lists/base.lua
-echo '-- Install everything that was in the image' >>$PUB_BIN_DIR/lists/base.lua
-for i in lists/*.list; do
-	LUA="$(basename $i .list).lua"
-	[ "$i" = lists/base.list ] || echo 'if features and features.provides then' > $PUB_BIN_DIR/lists/"$LUA"
-	echo -n "  Install" >> $PUB_BIN_DIR/lists/"$LUA"
-	grep -h -v CONFIG_ "$i" "${i/%list/${TARGET_BOARD}}" 2> /dev/null | grep . | grep -v '^#' | while read pkg; do
-		echo -n " \"$pkg\"" >> $PUB_BIN_DIR/lists/"$LUA"
-	done
-	echo " { ignore = { 'missing' } }" >> $PUB_BIN_DIR/lists/"$LUA"
-	sed -i '/^  Install[[:blank:]]*$/ d' $PUB_BIN_DIR/lists/"$LUA"
-	[ "$i" = lists/base.list ] || echo 'end' >> $PUB_BIN_DIR/lists/"$LUA"
-	if [ -f "$HOME"/mime.key ]; then
-		staging_dir/host/bin/usign -S -m $PUB_BIN_DIR/lists/"$LUA" -s "$HOME"/mime.key
-	fi
-done
-for i in lists/*.lua; do
-	if [ -r "$i" ]; then
-		cp $i $PUB_BIN_DIR/lists
-		if [ -f "$HOME"/mime.key ]; then
-			staging_dir/host/bin/usign -S -m $PUB_BIN_DIR/lists/$(basename $i) -s "$HOME"/mime.key
+
+# Sign all lists
+if [ -f "$HOME"/mime.key ]; then
+	for i in $PUB_BIN_DIR/lists/*.lua; do
+		if [ -r "$i" ]; then
+			staging_dir/host/bin/usign -S -m $i -s "$HOME"/mime.key
 		fi
+	done
+fi
+
+# Generate medkit(s)
+medkit_build() {
+	local MED_TAR="omnia-medkit-$(date -d "$COMMIT_DATE" +%Y%m%d%H%M)-$1.tar.gz"
+	[ "$1" = "minimal" ] && MED_ARGS="--minimal" || MED_ARGS=""
+	fakeroot ./scripts/updater-medkit.sh $MED_ARGS bin-nand/mvebu-musl "$MED_PATH/$MED_TAR"
+	pushd "$MED_PATH"
+	ln -s "$MED_TAR" omnia-medkit-latest-$1.tar.gz
+	if [ -f "$HOME"/mime.key ]; then
+		staging_dir/host/bin/usign -S -m "$MED_TAR" -s "$HOME"/mime.key
+		ln -s "$MED_TAR".sig omnia-medkit-latest-$1.tar.gz.sig
 	fi
-done
+	md5sum "$MED_TAR" > "$MED_TAR".md5
+	ln -s "$MED_TAR".md5 omnia-medkit-laster-$1.tar.gz.md5
+	sha256sum "$MED_TAR" > "$MED_TAR".sha256
+	ln -s "$MED_TAR".sha256 omnia-medkit-laster-$1.tar.gz.sha256
+	popd
+}
 if [ "$TARGET_BOARD" = "omnia" ]; then
 	rm -f $PUB_BIN_DIR/*.ext4 $PUB_BIN_DIR/*sums
-	if [ -n "$BUILD_ALL" ]; then
-		FLAVOR="full"
-	else
-		FLAVOR="minimal"
-		MED_ARGS="--minimal"
-	fi
-	MED_PATH="bin-nand/mvebu-musl/medkit"
-	MED_TAR="omnia-medkit-$(date -d "$COMMIT_DATE" +%Y%m%d%H%M)-$FLAVOR.tar.gz"
-	mkdir -p "$MED_PATH"
 	make package/curl/host/install package/libevent2/host/install package/lua/host/install
-	make package/updater-ng/host/install
-	fakeroot ./scripts/updater-medkit.sh $MED_ARGS bin-nand/mvebu-musl "$MED_PATH/$MED_TAR"
-	ln -s "$MED_TAR" "$MED_PATH"/omnia-medkit-latest-$FLAVOR.tar.gz
-	for i in $PUB_BIN_DIR/medkit/*.tar.gz; do
-		if [ -f "$HOME"/mime.key ]; then
-			staging_dir/host/bin/usign -S -m "$i" -s "$HOME"/mime.key
-		fi
-		pushd "`dirname $i`"
-		md5sum "`basename $i`" > "`basename $i`".md5
-		sha256sum "`basename $i`" > "`basename $i`".sha256
-		popd
-	done
+	make package/opkg-trans/host/install
+	MED_PATH="bin-nand/mvebu-musl/medkit"
+	mkdir -p "$MED_PATH"
+	[ -n "$BUILD_ALL" ] && medkit_build full
+	medkit_build minimal
 fi
 
 if [ "$TARGET_BOARD" = omnia ]; then
