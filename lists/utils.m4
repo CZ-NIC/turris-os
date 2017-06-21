@@ -12,15 +12,26 @@ ifelse(_BRANCH_,deploy,`undefine(`_BRANCH_')',)
 define(`file2args',`syscmd(test -f _INCLUDE_`'$1)ifelse(sysval,0,,`errprint(File $1 is missing!)m4exit(`1')')dnl
 esyscmd(`sed "/^#/d;s/\s//g;/^\s*\$/d" '_INCLUDE_`$1 | paste -sd "," | tr -d "\n"')')
 
-# Expand second argument for for all arguments after second one defined as macro
+# Expand second argument for all arguments after second one defined as macro
 # with name of first argument.
 # Usage: foreach(X,Text(X),a,b)
 define(`foreach',`ifelse(eval($#>2),1,`pushdef(`$1',`$3')$2`'popdef(`$1')`'ifelse(eval($#>3),1,`$0(`$1',`$2',shift(shift(shift($@))))')')')
 
-#
+# Expand second argument for all arguments after third one defined as macri with
+# name of fist argument. Every argument is then joined by third argument.
+# Usage: foreach_join(X,TEXT(X),Y,a,b)
+define(`foreach_join',`ifelse(eval($#>3),1,`pushdef(`$1',`$4')$2`'ifelse(eval($#>4),1,`$3')`'popdef(`$1')`'ifelse(eval($#>4),1,`$0(`$1',`$2',`$3',shift(shift(shift(shift($@)))))')')')
+
+# Add languages packages for Luci
+# Usage: _LUCI_I18N_(APP)
 define(`_LUCI_I18N_',`local luci_i18n = {["en"] = true} -- we always install English localization
 for _, lang in pairs(l10n or {}) do
 	luci_i18n[lang] = true
+end
+for lang in pairs(luci_i18n) do
+	for _, pkg in pairs({foreach_join(X,`"X"',`, ',$@)}) do
+		Install("luci-i18n-" .. pkg .. "-" .. lang, { ignore = {"missing"} })
+	end
 end')
 
 divert(0)dnl

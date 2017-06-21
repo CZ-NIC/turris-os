@@ -34,12 +34,7 @@ Install "wget" "rsync" "rsyncd" "samba36-client" "samba36-server"
 Install foreach(PKG,`"luci-app-PKG" ',hd-idle,minidlna,samba)
 Install "luci-mod-admin-full"
 
-_LUCI_I18N_
-for lang in pairs(luci_i18n) do
-	for _, pkg in pairs({"hd-idle", "minidlna", "samba"}) do
-		Install("luci-i18n-" .. pkg .. "-" .. lang, { ignore = {"missing"} })
-	end
-end
+_LUCI_I18N_(hd-idle, minidlna, samba)
 
 -- Encryption --
 Install "cryptsetup-openssl" "kmod-cryptodev" "kmod-crypto-user"

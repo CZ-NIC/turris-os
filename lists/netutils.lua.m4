@@ -19,7 +19,4 @@ Install foreach(MOD,`"kmod-MOD" ',nf-nathelper-extra,usb-net-rndis,usb-net-qmi-w
 
 -- Luci
 Install "luci-app-ddns" "luci-proto-3g"
-_LUCI_I18N_
-for lang in pairs(luci_i18n) do
-	Install("luci-i18n-ddns-" .. lang, { ignore = {"missing"} })
-end
+_LUCI_I18N_(ddns)

@@ -69,14 +69,9 @@ Install "ca-certificates"
 Install "hostapd-common" "wireless-tools" "wpad" "iw" "iwinfo" ifelse(_BOARD_,omnia,"ath10k-firmware-qca988x")
 
 -- Terminal tools
-Install "bash" "coreutils" "diffutils" "htop" "curl" "vim-full" "terminfo" "psmisc" "tar"
+Install "bash" "coreutils" "diffutils" "htop" "curl" "vim-full" "terminfo" "psmisc"
 
 -- Luci
 Install "luci"
-Install foreach(PKG,`"luci-PKG" ',base,proto-ipv6,proto-ppp,app-commands,app-rainbow)
-_LUCI_I18N_
-for lang in pairs(luci_i18n) do
-	for _, pkg in pairs({"base", "commands"}) do
-		Install("luci-i18n-" .. pkg .. "-" .. lang, { ignore = {"missing"} })
-	end
-end
+Install foreach(PKG,`"luci-PKG" ',base,proto-ipv6,proto-ppp,app-commands)
+_LUCI_I18N_(base, commands)
