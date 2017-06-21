@@ -24,7 +24,6 @@ CONFIG_OPENSSL_ENGINE_CRYPTO=y
 CONFIG_OPENSSL_ENGINE_DIGEST=y
 
 # Important packages
-CONFIG_PACKAGE_updater-ng=y
 CONFIG_PACKAGE_kmod-wdt-orion=y
 CONFIG_PACKAGE_ath10k-firmware-qca988x-ct=m
 CONFIG_PACKAGE_ath10k-firmware-qca9884-ct=m
@@ -76,3 +75,6 @@ CONFIG_PACKAGE_knot-libknot=y
 CONFIG_PACKAGE_knot-libzscanner=y
 CONFIG_PACKAGE_luajit=y
 CONFIG_PACKAGE_libgnutls=y
+
+# Other packages
+CONFIG_PACKAGE_sfpswitch=y

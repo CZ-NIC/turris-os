@@ -89,6 +89,7 @@ CONFIG_PKG_RELRO_FULL=y
 # Opkg configuration
 CONFIG_OPKG_SUPPORT_MD5=y
 CONFIG_PACKAGE_updater-migrate=m
+CONFIG_PACKAGE_updater-ng=y
 CONFIG_PACKAGE_opkg-trans=m
 
 # Few useful kernel options
@@ -103,6 +104,140 @@ CONFIG_KERNEL_SPI_SPIDEV=y
 # Few handy customizations
 CONFIG_BUSYBOX_CONFIG_FEATURE_FLOAT_SLEEP=y
 CONFIG_BUSYBOX_CONFIG_UDHCP_INSTALL_SIMPLE_SCRIPT=n
+
+# Packages used in base list
+CONFIG_PACKAGE_cznic-repo-keys=y
+CONFIG_PACKAGE_shadow=y
+CONFIG_PACKAGE_shadow-utils=y
+CONFIG_PACKAGE_i2c-tools=y
+CONFIG_PACKAGE_dnsmasq=y
+CONFIG_PACKAGE_unbound=y
+CONFIG_PACKAGE_unbound-anchor=y
+CONFIG_PACKAGE_oneshot=y
+CONFIG_PACKAGE_foris-diagnostics-plugin=y
+CONFIG_PACKAGE_luci-app-commands=y
+CONFIG_PACKAGE_schnapps=y
+CONFIG_PACKAGE_lighttpd-mod-setenv=y
+CONFIG_PACKAGE_diffutils=y
+
+# Packages used in luci-controls list
+CONFIG_PACKAGE_luci-app-ahcp=y
+CONFIG_PACKAGE_luci-app-firewall=y
+CONFIG_PACKAGE_luci-app-minidlna=y
+CONFIG_PACKAGE_luci-app-mjpg-streamer=y
+CONFIG_PACKAGE_luci-app-statistics=y
+CONFIG_PACKAGE_luci-app-rainbow=y
+CONFIG_PACKAGE_luci-app-tinyproxy=y
+CONFIG_PACKAGE_luci-app-transmission=y
+CONFIG_PACKAGE_luci-app-upnp=y
+CONFIG_PACKAGE_luci-app-wol=y
+CONFIG_PACKAGE_luci-proto-openconnect=y
+CONFIG_PACKAGE_luci-proto-relay=y
+CONFIG_PACKAGE_luci-proto-vpnc=y
+
+# Packages used in nas list
+CONFIG_PACKAGE_kmod-cryptodev=m
+CONFIG_PACKAGE_mountd=m
+CONFIG_PACKAGE_mount-utils=m
+CONFIG_PACKAGE_losetup=m
+CONFIG_PACKAGE_lsblk=m
+CONFIG_PACKAGE_blkid=m
+CONFIG_PACKAGE_file=m
+CONFIG_PACKAGE_fdisk=m
+CONFIG_PACKAGE_cfdisk=m
+CONFIG_PACKAGE_sfdisk=m
+CONFIG_PACKAGE_hdparm=m
+CONFIG_PACKAGE_resize2fs=m
+CONFIG_PACKAGE_partx-utils=m
+CONFIG_PACKAGE_acl=m
+CONFIG_PACKAGE_attr=m
+CONFIG_PACKAGE_smartd=m
+CONFIG_PACKAGE_smartmontools=m
+CONFIG_PACKAGE_swap-utils=m
+CONFIG_PACKAGE_sshfs=m
+CONFIG_PACKAGE_ntfs-3g=m
+CONFIG_PACKAGE_ntfs-3g-utils=m
+CONFIG_PACKAGE_dosfsck=m
+CONFIG_PACKAGE_xfs-fsck=m
+CONFIG_PACKAGE_mkhfs=m
+CONFIG_PACKAGE_hfsfsck=m
+CONFIG_PACKAGE_nfs-kernel-server=m
+CONFIG_PACKAGE_nfs-kernel-server-utils=m
+CONFIG_PACKAGE_block-mount=m
+CONFIG_PACKAGE_badblocks=m
+CONFIG_PACKAGE_davfs2=m
+CONFIG_PACKAGE_fuse-utils=m
+CONFIG_PACKAGE_e2fsprogs=m
+CONFIG_PACKAGE_cifsmount=m
+CONFIG_PACKAGE_xfs-growfs=m
+CONFIG_PACKAGE_xfs-mkfs=m
+CONFIG_PACKAGE_mdadm=m
+CONFIG_PACKAGE_mkdosfs=m
+CONFIG_PACKAGE_lvm2=m
+CONFIG_PACKAGE_wget=m
+CONFIG_PACKAGE_rsync=m
+CONFIG_PACKAGE_rsyncd=m
+CONFIG_PACKAGE_luci-app-samba=m
+CONFIG_PACKAGE_samba36-client=m
+CONFIG_PACKAGE_samba36-server=m
+CONFIG_PACKAGE_luci-app-hd-idle=m
+CONFIG_PACKAGE_cryptsetup-openssl=m
+CONFIG_PACKAGE_blkdiscard=m
+CONFIG_PACKAGE_fstrim=m
+
+# Packages used in printserver list
+CONFIG_PACKAGE_cups=m
+CONFIG_PACKAGE_cups-client=m
+CONFIG_PACKAGE_luci-app-cups=m
+CONFIG_PACKAGE_gutenprint-cups=m
+CONFIG_PACKAGE_openprinting-cups-filters=m
+CONFIG_PACKAGE_ghostscript=m
+CONFIG_PACKAGE_ghostscript-fonts-std=m
+CONFIG_PACKAGE_ghostscript-gnu-gs-fonts-other=m
+CONFIG_PACKAGE_usbutils=m
+CONFIG_PACKAGE_hplip=m
+CONFIG_PACKAGE_luci-app-p910nd=m
+
+# Packages used in netutils list
+CONFIG_PACKAGE_wol=m
+CONFIG_PACKAGE_tcpdump=m
+CONFIG_PACKAGE_udev=m
+CONFIG_PACKAGE_bind-client=y
+CONFIG_PACKAGE_bind-dig=y
+CONFIG_PACKAGE_br2684ctl=m
+CONFIG_PACKAGE_comgt=m
+CONFIG_PACKAGE_uqmi=m
+CONFIG_PACKAGE_ppp-mod-pppoa=m
+CONFIG_PACKAGE_pptpd=m
+CONFIG_PACKAGE_usb-modeswitch=m
+CONFIG_PACKAGE_ds-lite=m
+CONFIG_PACKAGE_6in4=m
+CONFIG_PACKAGE_6rd=m
+CONFIG_PACKAGE_6to4=m
+CONFIG_PACKAGE_luci-app-ddns=m
+CONFIG_PACKAGE_luci-proto-3g=m
+
+# Packages used in lxc list
+CONFIG_PACKAGE_luci-app-lxc=m
+CONFIG_PACKAGE_lxc=m
+CONFIG_PACKAGE_lxc-attach=m
+CONFIG_PACKAGE_lxc-auto=m
+CONFIG_PACKAGE_lxc-create=m
+CONFIG_PACKAGE_lxc-info=m
+CONFIG_PACKAGE_lxc-ls=m
+CONFIG_PACKAGE_lxc-monitor=m
+CONFIG_PACKAGE_lxc-monitord=m
+CONFIG_PACKAGE_lxc-snapshot=m
+CONFIG_PACKAGE_lxc-start=m
+CONFIG_PACKAGE_lxc-stop=m
+CONFIG_PACKAGE_gnupg=m
+CONFIG_PACKAGE_gnupg-utils=m
+CONFIG_PACKAGE_tar=m
+
+# Packages used in webcam list
+CONFIG_PACKAGE_fswebcam=m
+CONFIG_PACKAGE_motion=m
+CONFIG_PACKAGE_ffmpeg=m
 
 # Ucollect and stuff
 CONFIG_PACKAGE_ucollect-badconf=m

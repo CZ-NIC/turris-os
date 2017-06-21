@@ -15,7 +15,7 @@ Install "usb-modeswitch" "usbutils"
 Install "ds-lite" "6in4" "6rd" "6to4"
 
 -- Kernel
-Install foreach(MOD,`"kmod-MOD" ',nf-nathelper-extra,usb-net-rndis,usb-qmi-wwan,serial-option)
+Install foreach(MOD,`"kmod-MOD" ',nf-nathelper-extra,usb-net-rndis,usb-net-qmi-wwan,usb-serial-option)
 
 -- Luci
 Install "luci-app-ddns" "luci-proto-3g"
