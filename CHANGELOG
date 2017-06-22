@@ -1,3 +1,4 @@
+* openvpn: update to version 2.4.3 (with security fix)
 * pakon-dev-detect: new package
 * ucollect-flow: More flags are reported.
 * Foris: select languages to install in Updater tab
