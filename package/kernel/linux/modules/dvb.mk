@@ -342,7 +342,7 @@ define DvbFrontend
   SUBMENU:=$(DVB_MENU)
   KCONFIG:= \
 	$2
-  DEPENDS:=+kmod-i2c-core +kmod-dvb-core
+  DEPENDS:=+kmod-i2c-core +kmod-dvb-core +kmod-i2c-mux +kmod-regmap
   FILES:=$(LINUX_DIR)/drivers/media/dvb-frontends/$1.ko
   AUTOLOAD:=$(call AutoProbe,$1)
 endef
