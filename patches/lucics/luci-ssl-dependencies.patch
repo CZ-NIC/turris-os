@@ -1,0 +1,13 @@
+diff --git a/collections/luci-ssl/Makefile b/collections/luci-ssl/Makefile
+index 07c9c5068..968d79fb9 100644
+--- a/collections/luci-ssl/Makefile
++++ b/collections/luci-ssl/Makefile
+@@ -10,7 +10,7 @@ LUCI_TYPE:=col
+ LUCI_BASENAME:=ssl
+ 
+ LUCI_TITLE:=Standard OpenWrt set with HTTPS support
+-LUCI_DEPENDS:=+luci +libustream-polarssl +px5g
++LUCI_DEPENDS:=+luci +libustream-openssl +px5g
+ 
+ include ../../luci.mk
+ 
