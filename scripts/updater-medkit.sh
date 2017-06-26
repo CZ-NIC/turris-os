@@ -93,7 +93,7 @@ function for_l10n(fragment)
 	end
 end
 Export 'for_l10n'" > "$UPDATER_CONF"
-echo "Script 'base' 'file://$UPDATER_BASECONF'" > "$UPDATER_CONF"
+echo "Script 'base' 'file://$UPDATER_BASECONF'" >> "$UPDATER_CONF"
 for USRL in cacerts luci-controls lxc nas netutils shell-utils webcam; do
 	echo "Script '$USRL' 'file://$OPENWRT_BIN/lists/$USRL.lua'" >> "$UPDATER_CONF"
 done
