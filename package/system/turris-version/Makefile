@@ -32,10 +32,12 @@ create_notification -s news " • kernel: update na novější verzi řešící
  • openvpn: update na novější verzi řešící různé bezpečnostní chyby
  • knot: update na novější verzi řešící různé bezpečnostní chyby
  • luci-ssl: oprava závislostí
+ • foris: oprava sbírání dat
  • printing: odebrán cups z printing userlistu pro staré turrisy" " • kernel: security update to the newer version
  • opnvpn: security update to the newer version
  • knot: security update to the newer version
  • luci-ssl: fix dependencies
+ • foris: fix data collecting
  • printing: cups removed from userlist for old turris routers"
 }
 endef
