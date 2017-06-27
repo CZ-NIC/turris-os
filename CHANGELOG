@@ -1,3 +1,4 @@
+* Foris: update approvals
 * jansson: update to version 2.10
 * libuv: update to version 1.12.0
 * liburcu: update to version 0.10.0
@@ -6,6 +7,7 @@
 * GnuTLS: update to version 3.5.13
 * knot: update to version 2.5.1
 * knot-resolver: update to version 1.3.0
+===================== 3.7 =======================
 * openvpn: update to version 2.4.3 (with security fix)
 * pakon-dev-detect: new package
 * ucollect-flow: More flags are reported.
