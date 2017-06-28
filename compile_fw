@@ -145,31 +145,29 @@ if [ -f "$HOME"/mime.key ]; then
 	done
 fi
 
-# Generate medkit(s)
-medkit_build() {
-	local MED_TAR="omnia-medkit-$(date -d "$COMMIT_DATE" +%Y%m%d%H%M)-$1.tar.gz"
-	[ "$1" = "minimal" ] && MED_ARGS="--minimal" || MED_ARGS=""
-	fakeroot ./scripts/updater-medkit.sh $MED_ARGS bin-nand/mvebu-musl "$MED_PATH/$MED_TAR"
-	pushd "$MED_PATH"
-	ln -s "$MED_TAR" omnia-medkit-latest-$1.tar.gz
-	if [ -f "$HOME"/mime.key ]; then
-		staging_dir/host/bin/usign -S -m "$MED_TAR" -s "$HOME"/mime.key
-		ln -s "$MED_TAR".sig omnia-medkit-latest-$1.tar.gz.sig
-	fi
-	md5sum "$MED_TAR" > "$MED_TAR".md5
-	ln -s "$MED_TAR".md5 omnia-medkit-laster-$1.tar.gz.md5
-	sha256sum "$MED_TAR" > "$MED_TAR".sha256
-	ln -s "$MED_TAR".sha256 omnia-medkit-laster-$1.tar.gz.sha256
-	popd
-}
 if [ "$TARGET_BOARD" = "omnia" ]; then
 	rm -f $PUB_BIN_DIR/*.ext4 $PUB_BIN_DIR/*sums
-	make package/curl/host/install package/libevent2/host/install package/lua/host/install
-	make package/opkg-trans/host/install
-	MED_PATH="bin-nand/mvebu-musl/medkit"
-	mkdir -p "$MED_PATH"
-	[ -n "$BUILD_ALL" ] && medkit_build full
-	medkit_build minimal
+	if [ -n "$BUILD_ALL" ]; then
+		# Compile host tools
+		make package/curl/host/install package/libevent2/host/install package/lua/host/install
+		make package/opkg-trans/host/install
+		# Generate medkit
+		MED_PATH="bin-nand/mvebu-musl/medkit"
+		MED_TAR="omnia-medkit-$(date -d "$COMMIT_DATE" +%Y%m%d%H%M).tar.gz"
+		mkdir -p "$MED_PATH"
+		fakeroot ./scripts/updater-medkit.sh $MED_ARGS bin-nand/mvebu-musl "$MED_PATH/$MED_TAR"
+		pushd "$MED_PATH"
+		ln -s "$MED_TAR" omnia-medkit-latest.tar.gz
+		if [ -f "$HOME"/mime.key ]; then
+			staging_dir/host/bin/usign -S -m "$MED_TAR" -s "$HOME"/mime.key
+			ln -s "$MED_TAR".sig omnia-medkit-latest.tar.gz.sig
+		fi
+		md5sum "$MED_TAR" > "$MED_TAR".md5
+		ln -s "$MED_TAR".md5 omnia-medkit-laster.tar.gz.md5
+		sha256sum "$MED_TAR" > "$MED_TAR".sha256
+		ln -s "$MED_TAR".sha256 omnia-medkit-laster.tar.gz.sha256
+		popd
+	fi
 fi
 
 if [ "$TARGET_BOARD" = omnia ]; then
