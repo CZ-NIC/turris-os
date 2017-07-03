@@ -1,0 +1,21 @@
+diff --git a/net/sqm-scripts/patches/01-restart-fix.patch b/net/sqm-scripts/patches/01-restart-fix.patch
+new file mode 100644
+index 00000000..9a838007
+--- /dev/null
++++ b/net/sqm-scripts/patches/01-restart-fix.patch
+@@ -0,0 +1,15 @@
++diff --git a/src/run-openwrt.sh b/src/run-openwrt.sh
++index b4f518c..c2103c0 100644
++--- a/src/run-openwrt.sh
+++++ b/src/run-openwrt.sh
++@@ -71,7 +71,9 @@ run_sqm_scripts() {
++       "${SQM_LIB_DIR}/stop-sqm"
++     fi
++ 
++-    [ "$ACTION" = "start" ] && "${SQM_LIB_DIR}/start-sqm"
+++    if [ "$ACTION" = "start" ]; then
+++      "${SQM_LIB_DIR}/start-sqm"
+++    fi
++ }
++ 
++ config_foreach run_sqm_scripts
