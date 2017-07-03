@@ -90,7 +90,7 @@ cat >> base.lua << EOF
 -- Make sure the updater is up to date before continuing
 Package 'updater-ng' { replan = 'immediate' }
 Package 'l10n_supported' { replan = 'finished' }
-Package 'nuci' { replan = finished' }
+Package 'nuci' { replan = 'finished' }
 Install 'updater-ng' { critical = true }
 Install 'userlists' { critical = true }
 
