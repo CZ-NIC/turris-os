@@ -14,10 +14,20 @@ Repository "turris-fallback" "https://api.turris.cz/openwrt-repo/_BOARD_-_BRANCH
 	ignore = {"missing"}
 }
 ')popdef(`SUBDIRS')
--- Make sure the updater is up to date before continuing
-Package 'opkg-trans' { replan = true }
-Install 'opkg-trans' 'updater-ng' { critical = true }
-Install 'userlists' { critical = true }
+-- Updater itself
+Install 'updater-ng' 'userlists' { critical = true }
+-- Updater before v59.0 has no support for replan as string and it would complain about it. This is helper function to overcome that.
+local function replan_str(str, bl)
+	return (features and features.replan_string and str or bl)
+end
+Package 'updater-ng' { replan = replan_str('immediate', true) }
+Package 'l10n_supported' { replan = replan_str('finished', true) }
+Package 'nuci' { replan = replan_str('finished', false) }
+-- Updater won't remove package before replanning so add dependency on empty opkg-trans package if we have installed version with those files
+if installed['opkg-trans'] and tonumber(string.match(installed['opkg-trans'].version, '%d*')) < 59 then
+	Package 'updater-ng' { deps = 'opkg-trans' }
+end
+
 
 -- Critical minimum
 Install "base-files" "busybox" { critical = true }
