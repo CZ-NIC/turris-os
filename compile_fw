@@ -105,9 +105,9 @@ end
 -- Negative dependencies generated from file collisions
 EOF
 # Other lists
-echo 'config pkglists pkglists' > package/feeds/turrispackages/opkg-trans/files/updater.config
+echo 'config pkglists pkglists' > package/feeds/turrispackages/updater-ng/files/updater.config
 for i in lists/*.list; do
-	[ "`basename ${i/.list}`" = base ] || echo "	list lists '`basename ${i/.list}`'" >> package/feeds/turrispackages/opkg-trans/files/updater.config
+	[ "`basename ${i/.list}`" = base ] || echo "	list lists '`basename ${i/.list}`'" >> package/feeds/turrispackages/updater-ng/files/updater.config
 	cat "$i" "${i/%list/${TARGET_BOARD}}" | sed 's|#.*||' 2> /dev/null | while read PKG; do
 		if expr "$PKG" : CONFIG_;then
 			if [ "$TARGET_BOARD" = omnia ]; then
@@ -128,7 +128,7 @@ echo "
 config l10n 'l10n'
 	list langs 'cs'
 	list langs 'de'
-" >> package/feeds/turrispackages/opkg-trans/files/updater.config
+" >> package/feeds/turrispackages/updater-ng/files/updater.config
 
 [ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
 
@@ -269,7 +269,7 @@ if [ "$TARGET_BOARD" = "omnia" ]; then
 	MED_TAR="omnia-medkit-$(date -d "$COMMIT_DATE" +%Y%m%d%H%M)-$FLAVOR.tar.gz"
 	mkdir -p "$MED_PATH"
 	make package/curl/host/install package/libevent2/host/install package/lua/host/install
-	make package/opkg-trans/host/install
+	make package/updater-ng/host/install
 	fakeroot ./scripts/updater-medkit.sh $MED_ARGS bin-nand/mvebu-musl "$MED_PATH/$MED_TAR"
 	ln -s "$MED_TAR" "$MED_PATH"/omnia-medkit-latest-$FLAVOR.tar.gz
 	for i in $PUB_BIN_DIR/medkit/*.tar.gz; do

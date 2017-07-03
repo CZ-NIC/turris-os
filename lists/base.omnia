@@ -5,7 +5,6 @@ openssh-server
 schnapps
 diffutils
 sfpswitch
-opkg-trans
 updater-ng
 kmod-tun
 bash
