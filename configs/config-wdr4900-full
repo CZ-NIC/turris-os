@@ -1109,7 +1109,6 @@ CONFIG_PACKAGE_foris=y
 # CONFIG_PACKAGE_init-thermometer is not set
 CONFIG_PACKAGE_libatsha204=y
 CONFIG_PACKAGE_libnetconf=y
-CONFIG_PACKAGE_logsend=y
 CONFIG_PACKAGE_nethist=y
 CONFIG_PACKAGE_nikola=y
 CONFIG_PACKAGE_start-indicator=y
