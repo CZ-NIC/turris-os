@@ -1,6 +1,6 @@
-SHA256(openwrt-mpc85xx-p2020-nor-jffs2-128k.img)= daab1738737d2f04fe073ed2e06ff5dd04b52ef4f9618d76e31dd90e8c473084
-SHA256(openwrt-mpc85xx-p2020-nor-turris-nor-uboot.bin)= 0c80c86d555b13f1df695944c873a8b2b5bd24a39d3cc2d0fff543cb372f1673
-SHA256(openwrt-mpc85xx-p2020-nor-turris-nor.bin)= 30c1ed617ebd3189acc75cf685688e5bb65439642978921149e8b4de34b98c98
+SHA256(openwrt-mpc85xx-p2020-nor-jffs2-128k.img)= 01a3acd5cb2f90010250734982020d7b81ecea2e2708ef6543b851a0ac8f99fe
+SHA256(openwrt-mpc85xx-p2020-nor-turris-nor-uboot.bin)= d799a486208ddc2dc29857eb46dea538679b30a735aee7d57144484a30587488
+SHA256(openwrt-mpc85xx-p2020-nor-turris-nor.bin)= 6c51c75b3fc670b27cff390da9f8e321593eb5f47a66c7ce4b852f5b71c646a7
 SHA256(openwrt-mpc85xx-p2020-nor-turris-nor.fdt)= 6627c6e3b1c870f6e004db3db6145cf150c55b9f59713cb205b1c6a44d5b3e6c
-SHA256(openwrt-mpc85xx-p2020-nor-zImage)= aee40cb03691143a72a3f812a72b49018d00dfa4be5129b99137e6e8570d22b5
+SHA256(openwrt-mpc85xx-p2020-nor-zImage)= ea7d426d5d9af3261eaec5e334add4488f7dcd45b100c7cfbd98c6078a03b15c
 SHA256(sha256sums)= e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
