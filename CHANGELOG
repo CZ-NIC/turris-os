@@ -1,3 +1,4 @@
+* pakon-guts: less verbose logging, increase CPU priority
 * Kill logsend
 * Foris: update approvals
 * jansson: update to version 2.10
