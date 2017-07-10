@@ -95,7 +95,7 @@ Install 'updater-ng' { critical = true }
 Install 'userlists' { critical = true }
 -- Updater won't remove package before replanning so add dependency on empty opkg-trans package if installed version contains files
 if installed['opkg-trans'] and tonumber(string.match(installed['opkg-trans'].version, '%d*')) < 59 then
-	Package 'updater-ng' { deps = Package('opkg-trans') } -- Note: we can't use just string as that is broken in updater v58
+	Package('updater-ng', { deps = Package('opkg-trans') }) -- Note: we can't use just string as that is broken in updater v58
 end
 
 
