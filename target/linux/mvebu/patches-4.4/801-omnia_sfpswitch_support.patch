@@ -725,20 +725,18 @@
  	return ret;
  }
  
-@@ -2902,17 +3225,23 @@ err_cleanup_rxqs:
+@@ -2902,15 +3225,21 @@ err_cleanup_rxqs:
  static int mvneta_stop(struct net_device *dev)
  {
  	struct mvneta_port *pp = netdev_priv(dev);
 +	struct platform_device *pdev;
- 	int cpu;
  
  	mvneta_stop_dev(pp);
  	mvneta_mdio_remove(pp);
 +#ifdef CONFIG_HOTPLUG_CPU
  	unregister_cpu_notifier(&pp->cpu_notifier);
 +#endif
- 	for_each_present_cpu(cpu)
- 		smp_call_function_single(cpu, mvneta_percpu_disable, pp, true);
+ 	on_each_cpu(mvneta_percpu_disable, pp, true);
  	free_percpu_irq(dev->irq, pp->ports);
  	mvneta_cleanup_rxqs(pp);
  	mvneta_cleanup_txqs(pp);
@@ -749,7 +747,7 @@
  	return 0;
  }
  
-@@ -2943,10 +3272,43 @@ int mvneta_ethtool_get_settings(struct n
+@@ -2941,10 +3270,43 @@ int mvneta_ethtool_get_settings(struct n
  int mvneta_ethtool_set_settings(struct net_device *dev, struct ethtool_cmd *cmd)
  {
  	struct mvneta_port *pp = netdev_priv(dev);
@@ -794,9 +792,9 @@
  	return phy_ethtool_sset(pp->phy_dev, cmd);
  }
  
-@@ -3098,6 +3460,106 @@ static int mvneta_ethtool_get_sset_count
- 	return -EOPNOTSUPP;
+@@ -3106,6 +3468,106 @@ static u16 mvneta_select_queue(struct ne
  }
+ 
  
 +static u32 mvneta_ethtool_get_rxfh_indir_size(struct net_device *dev)
 +{
@@ -901,7 +899,7 @@
  static const struct net_device_ops mvneta_netdev_ops = {
  	.ndo_open            = mvneta_open,
  	.ndo_stop            = mvneta_stop,
-@@ -3122,6 +3584,10 @@ const struct ethtool_ops mvneta_eth_tool
+@@ -3131,6 +3593,10 @@ const struct ethtool_ops mvneta_eth_tool
  	.get_strings	= mvneta_ethtool_get_strings,
  	.get_ethtool_stats = mvneta_ethtool_get_stats,
  	.get_sset_count	= mvneta_ethtool_get_sset_count,
@@ -912,7 +910,7 @@
  };
  
  /* Initialize hw */
-@@ -3230,9 +3696,6 @@ static int mvneta_port_power_up(struct m
+@@ -3239,9 +3705,6 @@ static int mvneta_port_power_up(struct m
  		return -EINVAL;
  	}
  
@@ -922,7 +920,7 @@
  	/* Cancel Port Reset */
  	ctrl &= ~MVNETA_GMAC2_PORT_RESET;
  	mvreg_write(pp, MVNETA_GMAC_CTRL_2, ctrl);
-@@ -3250,15 +3713,12 @@ static int mvneta_probe(struct platform_
+@@ -3259,15 +3722,12 @@ static int mvneta_probe(struct platform_
  	const struct mbus_dram_target_info *dram_target_info;
  	struct resource *res;
  	struct device_node *dn = pdev->dev.of_node;
@@ -938,7 +936,7 @@
  	int err;
  	int cpu;
  
-@@ -3272,52 +3732,26 @@ static int mvneta_probe(struct platform_
+@@ -3281,52 +3741,26 @@ static int mvneta_probe(struct platform_
  		goto err_free_netdev;
  	}
  
@@ -999,7 +997,7 @@
  	}
  
  	clk_prepare_enable(pp->clk);
-@@ -3384,12 +3818,6 @@ static int mvneta_probe(struct platform_
+@@ -3393,12 +3827,6 @@ static int mvneta_probe(struct platform_
  	if (err < 0)
  		goto err_free_stats;
  
@@ -1012,7 +1010,7 @@
  	dram_target_info = mv_mbus_dram_info();
  	if (dram_target_info)
  		mvneta_conf_mbus_windows(pp, dram_target_info);
-@@ -3404,7 +3832,7 @@ static int mvneta_probe(struct platform_
+@@ -3413,7 +3841,7 @@ static int mvneta_probe(struct platform_
  	dev->features = NETIF_F_SG | NETIF_F_IP_CSUM | NETIF_F_TSO;
  	dev->hw_features |= dev->features;
  	dev->vlan_features |= dev->features;
@@ -1021,7 +1019,7 @@
  	dev->gso_max_segs = MVNETA_MAX_TSO_SEGS;
  
  	err = register_netdev(dev);
-@@ -3416,26 +3844,23 @@ static int mvneta_probe(struct platform_
+@@ -3425,26 +3853,23 @@ static int mvneta_probe(struct platform_
  	netdev_info(dev, "Using %s mac address %pM\n", mac_from,
  		    dev->dev_addr);
  
@@ -1055,7 +1053,7 @@
  err_free_irq:
  	irq_dispose_mapping(dev->irq);
  err_free_netdev:
-@@ -3449,12 +3874,12 @@ static int mvneta_remove(struct platform
+@@ -3458,12 +3883,12 @@ static int mvneta_remove(struct platform
  	struct net_device  *dev = platform_get_drvdata(pdev);
  	struct mvneta_port *pp = netdev_priv(dev);
  
