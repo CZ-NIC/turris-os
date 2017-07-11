@@ -1,14 +1,27 @@
 diff --git a/net/sqm-scripts/patches/01-restart-fix.patch b/net/sqm-scripts/patches/01-restart-fix.patch
 new file mode 100644
-index 00000000..9a838007
+index 00000000..b54cf208
 --- /dev/null
 +++ b/net/sqm-scripts/patches/01-restart-fix.patch
-@@ -0,0 +1,15 @@
+@@ -0,0 +1,28 @@
 +diff --git a/src/run-openwrt.sh b/src/run-openwrt.sh
-+index b4f518c..c2103c0 100644
++index b4f518c..1a31a6a 100644
 +--- a/src/run-openwrt.sh
 ++++ b/src/run-openwrt.sh
-+@@ -71,7 +71,9 @@ run_sqm_scripts() {
++@@ -34,7 +34,11 @@ run_sqm_scripts() {
++ 
++     [ -z "$RUN_IFACE" -o "$RUN_IFACE" = "$IFACE" ] || return
++ 
++-    [ $(config_get "$section" enabled) -ne 1 ] && ACTION=stop
+++    if [ $(config_get "$section" enabled) -ne 1 ]; then
+++        ACTION=stop
+++    else
+++        ACTION=start
+++    fi
++ 
++     export UPLINK=$(config_get "$section" upload)
++     export DOWNLINK=$(config_get "$section" download)
++@@ -71,7 +75,9 @@ run_sqm_scripts() {
 +       "${SQM_LIB_DIR}/stop-sqm"
 +     fi
 + 
