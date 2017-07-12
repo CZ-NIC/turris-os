@@ -1,6 +1,19 @@
+diff --git a/net/sqm-scripts/Makefile b/net/sqm-scripts/Makefile
+index 3aa81b18..3df1e8d8 100644
+--- a/net/sqm-scripts/Makefile
++++ b/net/sqm-scripts/Makefile
+@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
+ PKG_NAME:=sqm-scripts
+ PKG_SOURCE_VERSION:=8217081f7e52af342c362b29480461575c496387
+ PKG_VERSION:=1.1.3
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ PKG_LICENSE:=GPLv2
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE).tar.xz
 diff --git a/net/sqm-scripts/patches/01-restart-fix.patch b/net/sqm-scripts/patches/01-restart-fix.patch
 new file mode 100644
-index 00000000..b54cf208
+index 00000000..c7a6b709
 --- /dev/null
 +++ b/net/sqm-scripts/patches/01-restart-fix.patch
 @@ -0,0 +1,28 @@
