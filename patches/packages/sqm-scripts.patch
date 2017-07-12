@@ -1,11 +1,11 @@
 diff --git a/net/sqm-scripts/Makefile b/net/sqm-scripts/Makefile
-index 3aa81b18..3df1e8d8 100644
+index 00c6e373..83a2b721 100644
 --- a/net/sqm-scripts/Makefile
 +++ b/net/sqm-scripts/Makefile
 @@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
  PKG_NAME:=sqm-scripts
- PKG_SOURCE_VERSION:=8217081f7e52af342c362b29480461575c496387
- PKG_VERSION:=1.1.3
+ PKG_SOURCE_VERSION:=56677e61a0d410d744e0382c35980dd44aaa072b
+ PKG_VERSION:=1.0.7
 -PKG_RELEASE:=1
 +PKG_RELEASE:=2
  PKG_LICENSE:=GPLv2
