@@ -1,3 +1,4 @@
+* ucollect: Drop NAT detector
 * pakon-guts: less verbose logging, increase CPU priority
 * Kill logsend
 * Foris: update approvals
