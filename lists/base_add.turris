@@ -15,5 +15,5 @@ nuci-nethist
 logrotate
 foris
 nethist
-https-cert
+lighttd-https-cert
 lm-sensors

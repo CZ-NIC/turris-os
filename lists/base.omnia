@@ -30,6 +30,6 @@ nuci-nethist
 logrotate
 foris
 nethist
-https-cert
+lighttpd-https-cert
 lm-sensors
 kmod-usb-serial-qualcomm
