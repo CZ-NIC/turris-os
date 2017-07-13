@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.7.1
+PKG_VERSION:=3.7.2
 
 PKG_MAINTAINER:=Michal Vaner <michal.vaner@nic.cz>
 
@@ -29,18 +29,12 @@ define Package/turris-version/postinst
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • kernel: update na novější verzi řešící různé bezpečnostní chyby
- • openvpn: update na novější verzi řešící různé bezpečnostní chyby
- • knot: update na novější verzi řešící různé bezpečnostní chyby
- • luci-ssl: oprava závislostí
- • transmission-web: oprava sestavení
- • foris: oprava sbírání dat
- • printing: odebrán cups z printing userlistu pro staré turrisy" " • kernel: security update to the newer version
- • opnvpn: security update to the newer version
- • knot: security update to the newer version
- • luci-ssl: fix dependencies
- • transmission-web: fix build
- • foris: fix data collecting
- • printing: cups removed from userlist for old turris routers"
+ • php: update na novější verzi řešící různé bezpečnostní chyby
+ • gnutls: update na novější verzi řešící různé chyby
+ • unbound: update na novější verzi řešící různé chyby" " • kernel: security update to the newer version
+ • php: security update to the newer version
+ • gnutls: update to the newer version fixing various issues
+ • unbound: update to the newer version fixing various issues"
 }
 endef
 
