@@ -30,10 +30,16 @@ define Package/turris-version/postinst
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • kernel: update na novější verzi řešící různé bezpečnostní chyby
  • php: update na novější verzi řešící různé bezpečnostní chyby
+ • bind: update na novější verzi řešící různé bezpečnostní chyby
+ • pcre: update na novější verzi řešící různé bezpečnostní chyby
  • gnutls: update na novější verzi řešící různé chyby
+ • updater: opraveny drobné chyby týkající se přechodu ze starého updateru
  • unbound: update na novější verzi řešící různé chyby" " • kernel: security update to the newer version
  • php: security update to the newer version
+ • bind: security update to the newer version
+ • pcre: security update to the newer version
  • gnutls: update to the newer version fixing various issues
+ • gnutls: fixing various small errors regarding migration from old updater
  • unbound: update to the newer version fixing various issues"
 }
 endef
