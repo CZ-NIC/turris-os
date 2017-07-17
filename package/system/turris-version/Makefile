@@ -33,13 +33,13 @@ create_notification -s news " • kernel: update na novější verzi řešící
  • bind: update na novější verzi řešící různé bezpečnostní chyby
  • pcre: update na novější verzi řešící různé bezpečnostní chyby
  • gnutls: update na novější verzi řešící různé chyby
- • updater: opraveny drobné chyby týkající se přechodu ze starého updateru
+ • updater: opraveny různé drobnosti
  • unbound: update na novější verzi řešící různé chyby" " • kernel: security update to the newer version
  • php: security update to the newer version
  • bind: security update to the newer version
  • pcre: security update to the newer version
  • gnutls: update to the newer version fixing various issues
- • gnutls: fixing various small errors regarding migration from old updater
+ • updater: fixing various small errors
  • unbound: update to the newer version fixing various issues"
 }
 endef
