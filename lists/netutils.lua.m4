@@ -1,5 +1,7 @@
 include(utils.m4)dnl Include utility macros
 dnl
+_FEATURE_GUARD_
+
 -- Tools
 Install "wol" "tcpdump"
 Install "relayd" "udev"
@@ -20,3 +22,5 @@ Install foreach(MOD,`"kmod-MOD" ',nf-nathelper-extra,usb-net-rndis,usb-net-qmi-w
 -- Luci
 Install "luci-app-ddns" "luci-proto-3g"
 _LUCI_I18N_(ddns)
+
+_END_FEATURE_GUARD_

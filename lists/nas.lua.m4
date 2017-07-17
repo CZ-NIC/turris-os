@@ -1,5 +1,7 @@
 include(utils.m4)dnl Include utility macros
 dnl
+_FEATURE_GUARD_
+
 -- Kernel --
 Install "kmod-ata-ahci"
 -- File systems
@@ -41,3 +43,5 @@ Install "cryptsetup-openssl" "kmod-cryptodev" "kmod-crypto-user"
 Install foreach(CRP,`"kmod-crypto-CRP" ',cbc,ctr,pcbc,des,ecb,xts)
 Install foreach(CRP,`"kmod-crypto-CRP" ',cmac,crc32c,sha1,sha256,sha512,md4,md5,hmac)
 Install foreach(CRP,`"kmod-crypto-CRP" ',seqiv,ccm,deflate)
+
+_END_FEATURE_GUARD_

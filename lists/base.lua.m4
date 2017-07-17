@@ -39,12 +39,6 @@ if features and features.provides then
 	Install "dns-resolver" { critical = true } -- if we don't support Provides than updater would report that this package is missing
 end
 
--- Utility minimum
-Install "ip" "iptables" "ip6tables"
-Install "shadow" "shadow-utils" "uboot-envtools" "i2c-tools"
-Install "openssh-client" "openssh-client-utils" "openssh-moduli" "openssh-server" "openssh-sftp-client" "openssh-sftp-server" "openssl-util"
-Install "bind-client" "bind-dig"
-
 -- OpenWRT minimum
 Install "procd" "ubus" "uci" "netifd" "firewall" "swconfig" { critical = true}
 Install "ebtables" "odhcpd" "odhcp6c" "rpcd" "opkg"
@@ -56,6 +50,19 @@ end
 Install "vixie-cron" "syslog-ng3" "logrotate"
 Install "dnsmasq" "ppp" "ppp-mod-pppoe"
 ifelse(_BOARD_,omnia,Install "knot-resolver",Install "unbound" "unbound-anchor") { critical = (not features or not features.provides) } -- This should be critical only if we ignored dns-resolver
+
+-- Certificates
+Install "dnssec-rootkey" "cznic-cacert-bundle" "cznic-repo-keys" "cznic-repo-keys-test" { critical = true }
+-- Note: We don't ensure safety of these CAs
+Install "ca-certificates"
+
+_FEATURE_GUARD_
+
+-- Utility
+Install "ip" "iptables" "ip6tables"
+Install "shadow" "shadow-utils" "uboot-envtools" "i2c-tools"
+Install "openssh-client" "openssh-client-utils" "openssh-moduli" "openssh-server" "openssh-sftp-client" "openssh-sftp-server" "openssl-util"
+Install "bind-client" "bind-dig"
 
 -- Turris utility
 Install "user_notify" "oneshot" "libatsha204" "sfpswitch" ifelse(_BOARD_,omnia,"rainbow-omnia","rainbow") "watchdog_adjust" "daemon-watchdog" "update_mac"
@@ -70,11 +77,6 @@ Install "turris-version" "lighttpd-https-cert" "start-indicator"
 Install "conntrack-tools"
 Install "lighttpd-mod-setenv" -- Missing dependency of luci (setenv used in /etc/lighttpd/conf.d/luci.conf)
 
--- Certificates
-Install "dnssec-rootkey" "cznic-cacert-bundle" "cznic-repo-keys" "cznic-repo-keys-test" { critical = true }
--- Note: We don't ensure safety of these CAs
-Install "ca-certificates"
-
 -- Wifi
 Install "hostapd-common" "wireless-tools" "wpad" "iw" "iwinfo" ifelse(_BOARD_,omnia,"ath10k-firmware-qca988x")
 
@@ -85,3 +87,5 @@ Install "bash" "coreutils" "diffutils" "htop" "curl" "vim-full" "terminfo" "psmi
 Install "luci"
 Install foreach(PKG,`"luci-PKG" ',base,proto-ipv6,proto-ppp,app-commands)
 _LUCI_I18N_(base, commands)
+
+_END_FEATURE_GUARD_

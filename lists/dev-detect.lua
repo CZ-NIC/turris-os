@@ -1,1 +1,0 @@
-Install "pakon-dev-detect"

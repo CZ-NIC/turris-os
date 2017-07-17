@@ -1,1 +1,0 @@
-Install "luci-app-majordomo"

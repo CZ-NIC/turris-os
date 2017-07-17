@@ -34,4 +34,10 @@ for lang in pairs(luci_i18n) do
 	end
 end')
 
+# Feature guard
+# Some packages might not be installable without some features. Skipping every
+# additional packages ensures that at least updater is updated.
+define(`_FEATURE_GUARD_', `if features and features.provides and features.conflicts then -- Advanced dependencies guard')
+define(`_END_FEATURE_GUARD_', `end')
+
 divert(0)dnl
