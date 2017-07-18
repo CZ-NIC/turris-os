@@ -1,5 +1,5 @@
 diff --git a/net/sqm-scripts/Makefile b/net/sqm-scripts/Makefile
-index 00c6e373..83a2b721 100644
+index 00c6e373..82ed1432 100644
 --- a/net/sqm-scripts/Makefile
 +++ b/net/sqm-scripts/Makefile
 @@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
@@ -7,10 +7,30 @@ index 00c6e373..83a2b721 100644
  PKG_SOURCE_VERSION:=56677e61a0d410d744e0382c35980dd44aaa072b
  PKG_VERSION:=1.0.7
 -PKG_RELEASE:=1
-+PKG_RELEASE:=2
++PKG_RELEASE:=3
  PKG_LICENSE:=GPLv2
  
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE).tar.xz
+@@ -83,5 +83,19 @@ uci -q get ucitrack.@sqm[0] > /dev/null && {
+ }
+ endef
+ 
++define Package/sqm-scripts/postinst
++#!/bin/sh
++set -x
++[ -n "$$IPKG_INSTROOT" ] || {
++/etc/init.d/sqm-scripts enable
++}
++endef
++
++define Package/sqm-scripts/prerm
++#!/bin/sh
++set -x
++/etc/init.d/sqm-scripts disable
++endef
++
+ $(eval $(call BuildPackage,sqm-scripts))
+ $(eval $(call BuildPackage,luci-app-sqm))
 diff --git a/net/sqm-scripts/patches/01-restart-fix.patch b/net/sqm-scripts/patches/01-restart-fix.patch
 new file mode 100644
 index 00000000..c7a6b709
