@@ -6,7 +6,6 @@ node-serialport  # depends on node
 libseccomp  # PPC not supported in v2.2.1 yet
 micropython  # incompatible with PPC
 vala
-wireguard # Need kernel 4.1 at least
 ghostscript
 yate
 netopeer2-cli
@@ -15,7 +14,6 @@ seafile-ccnet
 fossil
 libnetconf2
 seafile-server
-kmod-sched-cake # Doesn't build against 3.18 kernel
 https_dns_proxy
 crtmpserver
 upmpdcli
