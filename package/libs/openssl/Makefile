@@ -35,6 +35,7 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_OPENSSL_WITH_SSL3
 
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/host-build.mk
 
 ifneq ($(CONFIG_CCACHE),)
 HOSTCC=$(HOSTCC_NOCACHE)
@@ -157,7 +158,30 @@ define Build/Configure
 		depend
 endef
 
+define Host/Configure
+	cd $(HOST_BUILD_DIR); perl Configure --openssldir=$(STAGING_DIR_HOST)/openssl-host linux-x86_64 shared 
+endef
+
+define Host/Compile
+	+LD_LIBRARY_PATH=$(HOST_BUILD_DIR) $(MAKE) $(HOST_JOBS) -C $(HOST_BUILD_DIR) \
+		$(OPENSSL_MAKEFLAGS) \
+		all
+	+LD_LIBRARY_PATH=$(HOST_BUILD_DIR) $(MAKE) $(HOST_JOBS) -C $(HOST_BUILD_DIR) \
+		$(OPENSSL_MAKEFLAGS) \
+		build-shared
+	# Work around openssl build bug to link libssl.so with libcrypto.so.
+	-rm $(HOST_BUILD_DIR)/libssl.so.*.*.*
+	+LD_LIBRARY_PATH=$(HOST_BUILD_DIR) $(MAKE) $(HOST_JOBS) -C $(HOST_BUILD_DIR) \
+		$(OPENSSL_MAKEFLAGS) \
+		do_linux-shared
+	LD_LIBRARY_PATH=$(HOST_BUILD_DIR) $(MAKE) -C $(HOST_BUILD_DIR) \
+		$(OPENSSL_MAKEFLAGS) \
+		install
+endef
+
+
 TARGET_CFLAGS += $(FPIC)
+HOST_CFLAGS += $(FPIC)
 
 define Build/Compile
 	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
@@ -218,3 +242,4 @@ endef
 
 $(eval $(call BuildPackage,libopenssl))
 $(eval $(call BuildPackage,openssl-util))
+$(eval $(call HostBuild))

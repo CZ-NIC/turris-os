@@ -21,4 +21,4 @@ sysrepod
 libmraa
 libupm
 freeswitch
-mariadb
+mysql
