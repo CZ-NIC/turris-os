@@ -23,8 +23,8 @@ end
 Package 'updater-ng' { replan = replan_str('immediate', true) }
 Package 'l10n_supported' { replan = replan_str('finished', true) }
 Package 'nuci' { replan = replan_str('finished', false) }
--- Updater won't remove package before replanning so add dependency on empty opkg-trans package if we have installed version with those files
-if installed['opkg-trans'] and tonumber(string.match(installed['opkg-trans'].version, '%d*')) < 59 then
+-- Updater won't remove package before replanning so add dependency on empty opkg-trans package if we have installed version with those files (variable installed is broken in Updater 30 so we check features variable too)
+if not features or installed['opkg-trans'] and tonumber(string.match(installed['opkg-trans'].version, '%d*')) < 59 then
 	Package 'updater-ng' { deps = 'opkg-trans' }
 end
 
