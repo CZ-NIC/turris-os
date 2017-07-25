@@ -1,3 +1,4 @@
+* Foris: splitted into foris-wizard and foris-config web apps
 * Foris: use openwrt ubus session
 * Foris: integrate with ubus-ws
 ===================== 3.8 =======================
