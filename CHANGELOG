@@ -1,3 +1,6 @@
+* userlists: now only minimal number of packages are handled as critical
+* userlists: unbound is no longer in base userlist on Omnia
+* Drop getbranch package
 * suricata: 4.0.0 (final)
 * Foris: simple QoS for guest network
 * Foris: dns from dhcp
