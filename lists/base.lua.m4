@@ -65,7 +65,7 @@ Install "openssh-client" "openssh-client-utils" "openssh-moduli" "openssh-server
 Install "bind-client" "bind-dig"
 
 -- Turris utility
-Install "user_notify" "oneshot" "libatsha204" "sfpswitch" ifelse(_BOARD_,omnia,"rainbow-omnia","rainbow") "watchdog_adjust" "daemon-watchdog" "update_mac"
+Install "user_notify" "oneshot" "libatsha204" "sfpswitch" ifelse(_BOARD_,omnia,"rainbow-omnia","rainbow") "watchdog_adjust" "daemon-watchdog" "update_mac" "switch-branch"
 ifelse(_BOARD_,omnia,Install "schnapps"
 )dnl
 Install "foris" "foris-diagnostics-plugin"
