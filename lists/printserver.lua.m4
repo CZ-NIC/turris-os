@@ -4,17 +4,17 @@ _FEATURE_GUARD_
 
 -- Tools
 ifelse(_BOARD_,omnia,dnl
-`Install "cups" "cups-client"
-Install "openprinting-cups-filters" "gutenprint-cups" "ghostscript" "ghostscript-fonts-std" "ghostscript-gnu-gs-fonts-other"
-Install "hplip"'
+`Install("cups", "cups-client")
+Install("openprinting-cups-filters", "gutenprint-cups", "ghostscript", "ghostscript-fonts-std", "ghostscript-gnu-gs-fonts-other")
+Install("hplip")'
 )dnl
-Install "usbutils"
+Install("usbutils")
 
 -- Kernel
-Install "kmod-usb2" "kmod-usb-printer"
+Install("kmod-usb2", "kmod-usb-printer")
 
 -- Luci
-Install "luci-app-p910nd"ifelse(_BOARD_,omnia,` "luci-app-cups"')
+Install("luci-app-p910nd"ifelse(_BOARD_,omnia,`, "luci-app-cups"'))
 _LUCI_I18N_(p910nd)
 
 _END_FEATURE_GUARD_
