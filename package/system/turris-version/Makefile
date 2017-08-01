@@ -30,9 +30,11 @@ define Package/turris-version/postinst
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • kernel: update na novější verzi
  • tcpdump: update na novější verzi řešící různé bezpečnostní chyby
- • updater: opraveny různé drobnosti" " • kernel: update to the newer version
+ • updater: opraveny různé drobnosti
+ • pakon-guts: snížení podrobnosti logů" " • kernel: update to the newer version
  • tcpdump: security update to the newer version
  • updater: fixing various small errors"
+ • pakon-guts: decrease log verbosity"
 }
 endef
 
