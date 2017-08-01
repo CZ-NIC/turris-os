@@ -150,7 +150,7 @@ if [ "$TARGET_BOARD" = "omnia" ]; then
 	if [ -n "$BUILD_ALL" ]; then
 		# Compile host tools
 		make package/curl/host/install package/libevent2/host/install package/lua/host/install
-		make package/opkg-trans/host/install
+		make package/updater-ng/host/install
 		# Generate medkit
 		MED_PATH="bin-nand/mvebu-musl/medkit"
 		MED_TAR="omnia-medkit-$(date -d "$COMMIT_DATE" +%Y%m%d%H%M).tar.gz"
