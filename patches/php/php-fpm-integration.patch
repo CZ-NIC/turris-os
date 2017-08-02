@@ -1,0 +1,61 @@
+From 49e1475c270e840b879283bc517ab0fc4e53ef48 Mon Sep 17 00:00:00 2001
+From: Michal Hrusecky <michal.hrusecky@nic.cz>
+Date: Wed, 2 Aug 2017 14:45:36 +0200
+Subject: [PATCH] php-fpm: Better lighttpd integration
+
+---
+ lang/php7/Makefile               | 9 ++++++---
+ lang/php7/files/php-fpm.lighttpd | 7 +++++++
+ 2 files changed, 13 insertions(+), 3 deletions(-)
+ create mode 100644 lang/php7/files/php-fpm.lighttpd
+
+diff --git a/lang/php7/Makefile b/lang/php7/Makefile
+index f7bdd66e..ff51a89e 100644
+--- a/lang/php7/Makefile
++++ b/lang/php7/Makefile
+@@ -6,7 +6,7 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=php
+-PKG_VERSION:=7.1.6
++PKG_VERSION:=7.1.7
+ PKG_RELEASE:=1
+ 
+ PKG_MAINTAINER:=Michael Heimpold <mhei@heimpold.de>
+@@ -16,8 +16,8 @@ PKG_LICENSE_FILES:=LICENSE
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+ PKG_SOURCE_URL:=http://www.php.net/distributions/
+-PKG_MD5SUM:=eafc7a79cc8cc62c9292c96f9c9ccf90
+-PKG_HASH:=01584dc521ab7ec84b502b61952f573652fe6aa00c18d6d844fb9209f14b245b
++PKG_MD5SUM:=0d42089729be7b2bb0308cbe189c2782f9cb4b07078c8a235495be5874fff729
++PKG_HASH:=0d42089729be7b2bb0308cbe189c2782f9cb4b07078c8a235495be5874fff729
+ 
+ PKG_FIXUP:=libtool autoreconf
+ PKG_BUILD_PARALLEL:=1
+@@ -493,6 +493,9 @@ define Package/php7-fpm/install
+ 
+ 	$(INSTALL_DIR) $(1)/etc/init.d
+ 	$(INSTALL_BIN) ./files/php7-fpm.init $(1)/etc/init.d/php7-fpm
++
++	$(INSTALL_DIR) $(1)/etc/lighttpd/modules.d/
++	$(INSTALL_DATA) ./files/php-fpm.lighttpd $(1)/etc/lighttpd/modules.d/30-php-fpm.load
+ endef
+ 
+ define Build/Prepare
+diff --git a/lang/php7/files/php-fpm.lighttpd b/lang/php7/files/php-fpm.lighttpd
+new file mode 100644
+index 00000000..031b26fc
+--- /dev/null
++++ b/lang/php7/files/php-fpm.lighttpd
+@@ -0,0 +1,7 @@
++fastcgi.server += ( ".php" =>
++        ((
++                "socket" => "/var/run/php7-fpm.sock",
++                "broken-scriptfilename" => "enable",
++                "fix-root-scriptname" => "enable"
++        ))
++)
+-- 
+2.13.3
+
