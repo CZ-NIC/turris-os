@@ -153,6 +153,7 @@ if [ "$TARGET_BOARD" = "omnia" ]; then
 		make package/curl/host/install package/libevent2/host/install package/lua/host/install
 		make package/updater-ng/host/install
 		# Generate medkit
+		BASE_PATH="`pwd`"
 		MED_PATH="bin-nand/mvebu-musl/medkit"
 		MED_TAR="omnia-medkit-$(date -d "$COMMIT_DATE" +%Y%m%d%H%M).tar.gz"
 		mkdir -p "$MED_PATH"
@@ -160,7 +161,7 @@ if [ "$TARGET_BOARD" = "omnia" ]; then
 		pushd "$MED_PATH"
 		ln -s "$MED_TAR" omnia-medkit-latest.tar.gz
 		if [ -f "$HOME"/mime.key ]; then
-			staging_dir/host/bin/usign -S -m "$MED_TAR" -s "$HOME"/mime.key
+			"$BASE_PATH"/staging_dir/host/bin/usign -S -m "$MED_TAR" -s "$HOME"/mime.key
 			ln -s "$MED_TAR".sig omnia-medkit-latest.tar.gz.sig
 		fi
 		md5sum "$MED_TAR" > "$MED_TAR".md5
