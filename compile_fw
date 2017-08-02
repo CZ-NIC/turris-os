@@ -137,6 +137,7 @@ scripts/gen-userlists.sh --model $TARGET_BOARD --branch ${PKG_BRANCH#-} $USRLIST
 #TMPDIR= ./scripts/negative_deps.pl $PUB_BIN_DIR >>$PUB_BIN_DIR/lists/base.lua
 
 # Sign all lists
+make package/system/usign/host/install
 if [ -f "$HOME"/mime.key ]; then
 	for i in $PUB_BIN_DIR/lists/*.lua; do
 		if [ -r "$i" ]; then
