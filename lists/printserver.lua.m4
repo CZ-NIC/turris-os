@@ -8,7 +8,6 @@ ifelse(_BOARD_,omnia,dnl
 Install("openprinting-cups-filters", "gutenprint-cups", "ghostscript", "ghostscript-fonts-std", "ghostscript-gnu-gs-fonts-other")
 Install("hplip")'
 )dnl
-Install("usbutils")
 
 -- Kernel
 Install("kmod-usb2", "kmod-usb-printer")

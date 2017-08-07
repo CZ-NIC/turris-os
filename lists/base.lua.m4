@@ -63,6 +63,7 @@ Install("ip", "iptables", "ip6tables")
 Install("shadow", "shadow-utils", "uboot-envtools", "i2c-tools")
 Install("openssh-client", "openssh-client-utils", "openssh-moduli", "openssh-server", "openssh-sftp-client", "openssh-sftp-server", "openssl-util")
 Install("bind-client", "bind-dig")
+Install("pciutils", "usbutils", "lsof")
 
 -- Turris utility
 Install("user_notify", "oneshot", "libatsha204", "sfpswitch", ifelse(_BOARD_,omnia,"rainbow-omnia","rainbow"), "watchdog_adjust", "daemon-watchdog", "update_mac", "switch-branch")

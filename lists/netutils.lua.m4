@@ -11,7 +11,7 @@ Install("openvpn-openssl")
 -- 3G
 Install("br2684ctl", "comgt", "uqmi")
 Install("ppp-mod-pppoa", "pptpd")
-Install("usb-modeswitch", "usbutils")
+Install("usb-modeswitch")
 
 -- IPv6
 Install("ds-lite", "6in4", "6rd", "6to4")
