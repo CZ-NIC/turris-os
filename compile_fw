@@ -93,6 +93,9 @@ set -- "$@" PKG_BRANCH=${PKG_BRANCH/-/}
 
 make "$@"
 
+# Get Turris OS and OpenWRT version
+./scripts/unpack-version.sh bin/*/packages bin/*/
+
 if [ -n "$PRIMARY_ONLY" ] ; then
 	# If we want only the primary system and want to use the build directory for more tests, exit now
 	exit
