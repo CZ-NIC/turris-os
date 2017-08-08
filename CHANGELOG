@@ -1,3 +1,4 @@
+* updater: syntax without brackets (so called morhered) is now marked as obsolete
 * userlists: now only minimal number of packages are handled as critical
 * userlists: unbound is no longer in base userlist on Omnia
 * Drop getbranch package
