@@ -13,7 +13,7 @@ TURRIS_PKG=base/turris-version_*.ipk
 TURRIS_VERSION=./etc/turris-version
 
 unpack_files() {
-	local PKG=`realpath "$SOURCE"`/"$1"
+	local PKG=`readlink -f "$SOURCE"`/"$1"
 	local DIR="$2"
 	local FILES="${@:3}"
 	(cd "$DIR" && tar -xzOf $PKG ./data.tar.gz | tar -xz $FILES)
