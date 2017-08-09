@@ -15,8 +15,8 @@ TURRIS_VERSION=./etc/turris-version
 unpack_files() {
 	local PKG=`readlink -f "$SOURCE"`/"$1"
 	local DIR="$2"
-	local FILES="${@:3}"
-	(cd "$DIR" && tar -xzOf $PKG ./data.tar.gz | tar -xz $FILES)
+	shift 2
+	(cd "$DIR" && tar -xzOf $PKG ./data.tar.gz | tar -xz "$@")
 }
 
 TMPDIR=`mktemp -d`
