@@ -374,7 +374,7 @@ $(eval $(call KernelPackage,fs-nfs-common-v4))
 define KernelPackage/fs-nfsd
   SUBMENU:=$(FS_MENU)
   TITLE:=NFS kernel server support
-  DEPENDS:=+kmod-fs-nfs-common +kmod-fs-exportfs
+  DEPENDS:=+kmod-fs-nfs-common +kmod-fs-exportfs +PACKAGE_kmod-fs-nfs-common-v4:kmod-fs-nfs-common-v4
   KCONFIG:= \
 	CONFIG_NFSD \
 	CONFIG_NFSD_FAULT_INJECTION=n
