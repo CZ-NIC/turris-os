@@ -1,0 +1,31 @@
+diff --git a/lang/php7/files/php.ini b/lang/php7/files/php.ini
+index c88ab0a4..d08815a0 100644
+--- a/lang/php7/files/php.ini
++++ b/lang/php7/files/php.ini
+@@ -42,7 +42,7 @@ expose_php = On
+ max_execution_time = 30	; Maximum execution time of each script, in seconds.
+ max_input_time = 60	; Maximum amount of time each script may spend parsing request data.
+ ;max_input_nesting_level = 64
+-memory_limit = 8M	; Maximum amount of memory a script may consume.
++memory_limit = 128M	; Maximum amount of memory a script may consume.
+ 
+ ; Error handling and logging
+ 
+@@ -123,7 +123,7 @@ default_mimetype = "text/html"
+ 
+ ; UNIX: "/path1:/path2"
+ ;include_path = ".:/php/includes"
+-doc_root = "/www"
++doc_root = "/srv/www"
+ user_dir =
+ extension_dir = "/usr/lib/php"
+ enable_dl = On
+@@ -139,7 +139,7 @@ cgi.fix_pathinfo=1
+ 
+ file_uploads = On
+ upload_tmp_dir = "/tmp"
+-upload_max_filesize = 2M
++upload_max_filesize = 256M
+ max_file_uploads = 20
+ 
+ ; Fopen wrappers
