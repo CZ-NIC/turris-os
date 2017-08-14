@@ -358,7 +358,6 @@ define KernelPackage/fs-nfs-common-v4
 	CONFIG_SUNRPC_GSS\
 	CONFIG_NFS_V4=y\
 	CONFIG_NFSD_V4=y
-  DEPENDS:= @BROKEN
   FILES+=$(LINUX_DIR)/net/sunrpc/auth_gss/auth_rpcgss.ko
   AUTOLOAD=$(call AutoLoad,30,auth_rpcgss)
 endef
