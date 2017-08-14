@@ -357,7 +357,8 @@ define KernelPackage/fs-nfs-common-v4
   KCONFIG+=\
 	CONFIG_SUNRPC_GSS\
 	CONFIG_NFS_V4=y\
-	CONFIG_NFSD_V4=y
+	CONFIG_NFSD_V4=y \
+	CONFIG_NFSD_PNFS=y
   FILES+=$(LINUX_DIR)/net/sunrpc/auth_gss/auth_rpcgss.ko
   AUTOLOAD=$(call AutoLoad,30,auth_rpcgss)
 endef
