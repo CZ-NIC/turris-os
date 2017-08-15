@@ -1,6 +1,6 @@
 include(utils.m4)dnl Include utility macros
 dnl
-pushdef(`SUBDIRS',``subdirs = {"base", "turrispackages", "lucics", "packages", "routing", "management", "telephony", "printing"}'')dnl
+pushdef(`SUBDIRS',``subdirs = {"base", "turrispackages", "php", "hardware", "lucics", "packages", "routing", "management", "telephony", "printing"}'')dnl
 dnl
 -- The basic repository
 Repository("turris", "https://api.turris.cz/openwrt-repo/_BOARD_`'ifdef(`_BRANCH_',-_BRANCH_)/packages", {
