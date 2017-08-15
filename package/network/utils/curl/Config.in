@@ -4,16 +4,13 @@ comment "SSL support"
 
 choice
 	prompt "Selected SSL library"
-	default LIBCURL_OPENSSL
+	default LIBCURL_MBEDTLS
 
-	config LIBCURL_POLARSSL
-		bool "PolarSSL"
+	config LIBCURL_MBEDTLS
+		bool "mbed TLS"
 
 	config LIBCURL_CYASSL
 		bool "CyaSSL"
-
-	config LIBCURL_AXTLS
-		bool "axTLS"
 
 	config LIBCURL_OPENSSL
 		bool "OpenSSL"
@@ -25,14 +22,6 @@ choice
 		bool "No SSL support"
 
 endchoice
-
-config LIBCURL_COOKIES
-	bool "Enable cookies support"
-	default y
-
-config LIBCURL_CRYPTO_AUTH
-	bool "Enable cryptographic authentication"
-	default y
 
 comment "Supported protocols"
 
@@ -138,7 +127,7 @@ config LIBCURL_THREADED_RESOLVER
 
 config LIBCURL_ZLIB
 	bool "Enable zlib support"
-	default y
+	default n
 
 config LIBCURL_UNIX_SOCKETS
 	bool "Enable unix domain socket support"
@@ -157,6 +146,11 @@ config LIBCURL_LIBCURL_OPTION
 
 config LIBCURL_VERBOSE
 	bool "Enable verbose error strings"
+	default n
+
+config LIBCURL_NTLM
+	bool "Enable NTLM support"
+	depends on LIBCURL_CRYPTO_AUTH && !LIBCURL_NOSSL
 	default n
 
 endif
