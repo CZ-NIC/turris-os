@@ -151,7 +151,7 @@ define Package/busybox/install
 	$(INSTALL_BIN) ./files/sysntpd $(1)/etc/init.d/sysntpd
 	$(INSTALL_BIN) ./files/ntpd-hotplug $(1)/usr/sbin/ntpd-hotplug
 	$(INSTALL_DIR) $(1)/etc/init.d
-	for i in passwd cmp xz unxz xzcat killall free top pgrep wget; do \
+	for i in passwd cmp xz unxz xzcat killall free top pgrep wget timeout; do \
 	[ \! -s $(1)/usr/bin/$$$$i ] || ( rm -f $(1)/usr/bin/$$$$i &&	ln -s busybox $(1)/bin/$$$$i ); \
 	done
  ifeq ($(CONFIG_BUSYBOX_CONFIG_UDHCP_INSTALL_SIMPLE_SCRIPT),y)
