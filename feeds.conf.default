@@ -1,4 +1,4 @@
-src-git turrispackages https://gitlab.labs.nic.cz/turris/turris-os-packages.git^8f6c0ced19c459a8e34dbe979ebb86018cdf7fb9
+src-git turrispackages https://gitlab.labs.nic.cz/turris/turris-os-packages.git^c6719bdb359d5ddfdc18b7f640e7fb3690e4dfeb
 src-git hardware https://github.com/xtompok/turris-packages.git^d81453b1df48ec1c8945feaf96a1e744c3218b38
 src-git php https://github.com/openwrt/packages.git^d6c333b705e53b99bd216f0a7e5c22aa493dfefc .*php.*
 src-git lucics https://gitlab.labs.nic.cz/turris/luci-cs.git^49c3edd5861fd032fa8379ceda525c27a908a114
