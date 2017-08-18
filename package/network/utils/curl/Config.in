@@ -127,7 +127,7 @@ config LIBCURL_THREADED_RESOLVER
 
 config LIBCURL_ZLIB
 	bool "Enable zlib support"
-	default n
+	default y
 
 config LIBCURL_UNIX_SOCKETS
 	bool "Enable unix domain socket support"
