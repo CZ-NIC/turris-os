@@ -49,7 +49,7 @@ if features and features.provides then
 end
 Install("vixie-cron", "syslog-ng3", "logrotate")
 Install("dnsmasq", "ppp", "ppp-mod-pppoe")
-ifelse(_BOARD_,omnia,`Install("knot-resolver"',`Install("unbound", "unbound-anchor"'), { critical = (not features or not features.provides) }) -- This should be critical only if we ignored dns-resolver
+ifelse(_BOARD_,omnia,`Install("knot-resolver"',`Install("unbound", "unbound-anchor", "unbound-control"'), { critical = (not features or not features.provides) }) -- This should be critical only if we ignored dns-resolver
 
 -- Certificates
 Install("dnssec-rootkey", "cznic-cacert-bundle", "cznic-repo-keys", "cznic-repo-keys-test", { critical = true })
