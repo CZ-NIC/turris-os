@@ -21,3 +21,6 @@ dahdi-tools-libtonezone
 libpri
 subversion
 apinger
+go
+meek
+obfs4proxy
