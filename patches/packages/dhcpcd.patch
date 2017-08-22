@@ -2,11 +2,12 @@ diff --git a/net/dhcpcd/Makefile b/net/dhcpcd/Makefile
 index 9add7347..00732e6d 100644
 --- a/net/dhcpcd/Makefile
 +++ b/net/dhcpcd/Makefile
-@@ -45,6 +45,8 @@ define Package/dhcpcd/description
+@@ -45,6 +45,9 @@ define Package/dhcpcd/description
      * ARP ping profiles
  endef
  
 +TARGET_CXXFLAGS+=-D_GNU_SOURCE
++TARGET_CFLAGS+=-D_GNU_SOURCE
 +
  CONFIGURE_ARGS+=	--prefix=/ --sbindir=/sbin \
  			--libexecdir=/lib/dhcpcd --dbdir=/var/dhcpcd
