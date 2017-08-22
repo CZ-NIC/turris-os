@@ -182,6 +182,7 @@ define Package/base-files/postinst
 	rm -f /$$default_script
 	done
 }
+touch "$$IPKG_INSTROOT/etc/config/ucollect"
 endef
 
 ifneq ($(DUMP),1)
