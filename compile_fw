@@ -132,7 +132,8 @@ mv ./bin ./bin-nand
 PUB_BIN_DIR="`ls -1d bin-nand/* | head -n1`"
 # Generate lists
 [ -n "$BUILD_ALL" ] || USRLISTS_ARGS="--minimal"
-scripts/gen-userlists.sh --model $TARGET_BOARD --branch ${PKG_BRANCH#-} $USRLISTS_ARGS $PUB_BIN_DIR/lists
+LIST_BRANCH="$(echo "$GIT_BRANCH" | sed 's|.*/||')"
+scripts/gen-userlists.sh --model $TARGET_BOARD --branch "${LIST_BRANCH}" $USRLISTS_ARGS $PUB_BIN_DIR/lists
 
 # Generate packages that block each other, based on their file collisions
 # For some reason, mktemp -d doesn't work with TMPDIR set, so avoid that here.
