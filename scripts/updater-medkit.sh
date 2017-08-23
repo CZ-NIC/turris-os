@@ -91,7 +91,7 @@ end
 Export 'for_l10n'
 
 Script 'base' 'file://$UPDATER_BASECONF'" > "$UPDATER_CONF"
-for USRL in cacerts luci-controls lxc nas netutils shell-utils webcam; do
+for USRL in cacerts luci-controls nas netutils; do
 	echo "Script '$USRL' 'file://$OPENWRT_BIN/lists/$USRL.lua'" >> "$UPDATER_CONF"
 done
 # Run updater to pull in packages from base list
