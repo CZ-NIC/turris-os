@@ -132,7 +132,8 @@ mv ./bin ./bin-nand
 PUB_BIN_DIR="`ls -1d bin-nand/* | head -n1`"
 # Generate lists
 [ -n "$BUILD_ALL" ] || USRLISTS_ARGS="--minimal"
-LIST_BRANCH="$(echo "$GIT_BRANCH" | sed 's|.*/||')"
+LIST_BRANCH="${PKG_BRANCH#-}"
+[ -n "$LIST_BRANCH" ] || LIST_BRANCH="$(echo "$GIT_BRANCH" | sed 's|.*/||')"
 scripts/gen-userlists.sh --model $TARGET_BOARD --branch "${LIST_BRANCH}" $USRLISTS_ARGS $PUB_BIN_DIR/lists
 
 # Generate packages that block each other, based on their file collisions
