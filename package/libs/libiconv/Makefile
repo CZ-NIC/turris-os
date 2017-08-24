@@ -36,13 +36,15 @@ define Build/Configure
 endef
 
 define Build/Compile
-	$(TARGET_CC) $(TARGET_CFLAGS) -c $(PKG_BUILD_DIR)/iconv.c -o $(PKG_BUILD_DIR)/iconv.o -I$(PKG_BUILD_DIR)/include $(FPIC)
+	$(TARGET_CC) $(TARGET_CFLAGS) -c $(PKG_BUILD_DIR)/iconv.c -o $(PKG_BUILD_DIR)/iconv.o -I$(PKG_BUILD_DIR)/include -fPIC
 	$(TARGET_CROSS)ar rcs $(PKG_BUILD_DIR)/libiconv.a $(PKG_BUILD_DIR)/iconv.o
+	$(TARGET_CC) -shared -o $(PKG_BUILD_DIR)/libiconv-stub.so $(PKG_BUILD_DIR)/iconv.o
 endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib/libiconv-stub/lib
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/libiconv.a $(1)/usr/lib/libiconv-stub/lib/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/libiconv-stub.so $(1)/usr/lib/
 
 	$(INSTALL_DIR) $(1)/usr/lib/libiconv-stub/include
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/include/iconv.h $(1)/usr/lib/libiconv-stub/include/
@@ -52,8 +54,8 @@ define Build/InstallDev
 endef
 
 define Package/libiconv/install
-	$(INSTALL_DIR) $(1)/tmp
-	touch $(1)/tmp/.libiconv-placeholder
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/libiconv-stub.so $(1)/usr/lib
 endef
 
 define Host/Prepare
