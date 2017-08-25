@@ -104,12 +104,6 @@ fi
 # Nice junit export
 ./scripts/generate_junit.sh
 
-if [ -n "`cat logs/package/error.txt 2> /dev/null`" ] && [ -z "$PKG_BRANCH" ]; then
-	echo "Following packages are failing in stable release"
-	cat logs/package/error.txt
-	exit 1
-fi
-
 [ \! -d ./logs ] || cp ./.config logs/config
 [ \! -d ./logs ] || mv ./logs ./logs-nand
 
