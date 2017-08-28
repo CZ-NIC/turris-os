@@ -148,3 +148,10 @@ package/feeds/telephony/pcapsipdump 1 2
 package/network/ipv6/thc-ipv6 1 2
 package/network/utils/iftop 1 2
 package/feeds/packages/cshark X 1
+package/feeds/turrispackages/motion 3 4
+package/feeds/turrispackages/minidlna 4 5
+package/feeds/turrispackages/mpd 2 3
+package/feeds/packages/forked-daapd 1 2
+package/feeds/packages/squeezelite 1 2
+package/feeds/telephony/baresip 1 2
+package/feeds/telephony/pjproject 1 2
