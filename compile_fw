@@ -164,9 +164,9 @@ if [ "$TARGET_BOARD" = "omnia" ]; then
 			ln -s "$MED_TAR".sig omnia-medkit-latest.tar.gz.sig
 		fi
 		md5sum "$MED_TAR" > "$MED_TAR".md5
-		ln -s "$MED_TAR".md5 omnia-medkit-laster.tar.gz.md5
+		ln -s "$MED_TAR".md5 omnia-medkit-latest.tar.gz.md5
 		sha256sum "$MED_TAR" > "$MED_TAR".sha256
-		ln -s "$MED_TAR".sha256 omnia-medkit-laster.tar.gz.sha256
+		ln -s "$MED_TAR".sha256 omnia-medkit-latest.tar.gz.sha256
 		popd
 	fi
 fi
