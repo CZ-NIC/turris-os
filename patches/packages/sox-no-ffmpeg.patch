@@ -1,0 +1,338 @@
+From 1bd7eac967b710da1b7ade6bce6c4a9fcb403654 Mon Sep 17 00:00:00 2001
+From: Ted Hess <thess@kitschensync.net>
+Date: Thu, 5 Jan 2017 12:54:22 -0500
+Subject: [PATCH] sox: Upgrade to 14.4.2. ffmpeg no longer required
+
+Signed-off-by: Ted Hess <thess@kitschensync.net>
+---
+ sound/sox/Makefile                                 |  11 +-
+ sound/sox/patches/001-cross_compile.patch          |  22 ++--
+ sound/sox/patches/010-fix_uclibc_build_issue.patch |  12 +-
+ sound/sox/patches/020-ffmpeg-0.11.patch            | 129 ---------------------
+ sound/sox/patches/020-ffmpeg-2.x.patch             |  72 ------------
+ 5 files changed, 22 insertions(+), 224 deletions(-)
+ delete mode 100644 sound/sox/patches/020-ffmpeg-0.11.patch
+ delete mode 100644 sound/sox/patches/020-ffmpeg-2.x.patch
+
+diff --git a/sound/sox/Makefile b/sound/sox/Makefile
+index eda080fa8b..11402f8e42 100644
+--- a/sound/sox/Makefile
++++ b/sound/sox/Makefile
+@@ -1,6 +1,6 @@
+ #
+ # Copyright (C) 2008 David Cooper <dave@kupesoft.com>
+-# Copyright (C) 2006-2014 OpenWrt.org
++# Copyright (C) 2006-2017 OpenWrt
+ #
+ # This is free software, licensed under the GNU General Public License v2.
+ # See /LICENSE for more information.
+@@ -9,12 +9,12 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=sox
+-PKG_VERSION:=14.4.1
+-PKG_RELEASE:=3
++PKG_VERSION:=14.4.2
++PKG_RELEASE:=1
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+ PKG_SOURCE_URL:=@SF/sox
+-PKG_MD5SUM:=ff9ca6aca972549de0e80e8e30ed379c
++PKG_MD5SUM:=81a6956d4330e75b5827316e44ae381e6f1e8928003c6aa45896da9041ea149c
+ 
+ PKG_MAINTAINER:=Ted Hess <thess@kitschensync.net>
+ PKG_LICENSE:=LGPL-2.1 GPL-2.0
+@@ -33,7 +33,7 @@ define Package/sox
+   CATEGORY:=Sound
+   DEPENDS:=+BUILD_PATENTED:lame-lib +BUILD_PATENTED:libmad +BUILD_PATENTED:libid3tag \
+ 		+libvorbis +libvorbisidec +alsa-lib +libsndfile +libflac \
+-		+libmagic +libpng +libffmpeg
++		+libmagic +libpng
+   TITLE:=Sox is a general purpose sound converter/player/recorder
+   URL:=http://sox.sourceforge.net/
+ endef
+@@ -54,7 +54,6 @@ define Build/Configure
+ 		--without-libltdl \
+ 		--with-ogg \
+ 		--with-flac \
+-		--with-ffmpeg \
+ 		--without-amr-wb \
+ 		--without-amr-nb \
+ 		--without-samplerate \
+diff --git a/sound/sox/patches/001-cross_compile.patch b/sound/sox/patches/001-cross_compile.patch
+index 7996ece926..badd531df5 100644
+--- a/sound/sox/patches/001-cross_compile.patch
++++ b/sound/sox/patches/001-cross_compile.patch
+@@ -1,22 +1,22 @@
+ --- a/src/Makefile.am
+ +++ b/src/Makefile.am
+-@@ -144,7 +144,7 @@ EXTRA_DIST = monkey.wav optional-fmts.am
++@@ -145,7 +145,7 @@ EXTRA_DIST = monkey.wav optional-fmts.am
+  	     CMakeLists.txt soxconfig.h.cmake \
+  	     tests.sh testall.sh tests.bat testall.bat test-comments
+  
+--all: sox$(EXEEXT) play rec soxi sox_sample_test$(EXEEXT) example0$(EXEEXT) example1$(EXEEXT) example2$(EXEEXT) example3$(EXEEXT) example4$(EXEEXT) example5$(EXEEXT)
+-+all: sox$(EXEEXT) play rec
++-all: sox$(EXEEXT) play$(EXEEXT) rec$(EXEEXT) soxi$(EXEEXT) sox_sample_test$(EXEEXT) example0$(EXEEXT) example1$(EXEEXT) example2$(EXEEXT) example3$(EXEEXT) example4$(EXEEXT) example5$(EXEEXT) example6$(EXEEXT)
+++all: sox$(EXEEXT) play$(EXEEXT) rec$(EXEEXT)
+  
+- play rec: sox$(EXEEXT)
++ play$(EXEEXT) rec$(EXEEXT) soxi$(EXEEXT): sox$(EXEEXT)
+  	if test "$(PLAYRECLINKS)" = "yes"; then	\
+---- sox-14.4.1/src/Makefile.in
+-+++ sox-14.4.1/src/Makefile.in
+-@@ -2904,7 +2904,7 @@
+- 	uninstall-libLTLIBRARIES uninstall-pkglibLTLIBRARIES
++--- a/src/Makefile.in
+++++ b/src/Makefile.in
++@@ -3020,7 +3020,7 @@ uninstall-am: uninstall-binPROGRAMS unin
++ 	uninstall-pkglibLTLIBRARIES
+  
+  
+--all: sox$(EXEEXT) play rec soxi sox_sample_test$(EXEEXT) example0$(EXEEXT) example1$(EXEEXT) example2$(EXEEXT) example3$(EXEEXT) example4$(EXEEXT) example5$(EXEEXT)
+-+all: sox$(EXEEXT) play rec
++-all: sox$(EXEEXT) play$(EXEEXT) rec$(EXEEXT) soxi$(EXEEXT) sox_sample_test$(EXEEXT) example0$(EXEEXT) example1$(EXEEXT) example2$(EXEEXT) example3$(EXEEXT) example4$(EXEEXT) example5$(EXEEXT) example6$(EXEEXT)
+++all: sox$(EXEEXT) play$(EXEEXT) rec$(EXEEXT)
+  
+- play rec: sox$(EXEEXT)
++ play$(EXEEXT) rec$(EXEEXT) soxi$(EXEEXT): sox$(EXEEXT)
+  	if test "$(PLAYRECLINKS)" = "yes"; then	\
+diff --git a/sound/sox/patches/010-fix_uclibc_build_issue.patch b/sound/sox/patches/010-fix_uclibc_build_issue.patch
+index 06454cdf5a..6a06301e62 100644
+--- a/sound/sox/patches/010-fix_uclibc_build_issue.patch
++++ b/sound/sox/patches/010-fix_uclibc_build_issue.patch
+@@ -1,15 +1,15 @@
+---- sox-14.4.1.orig/src/formats.c
+-+++ sox-14.4.1/src/formats.c
+-@@ -409,7 +409,7 @@ static void UNUSED rewind_pipe(FILE * fp
++--- a/src/formats.c
+++++ b/src/formats.c
++@@ -413,7 +413,7 @@ static void UNUSED rewind_pipe(FILE * fp
+  #if defined _FSTDIO || defined _NEWLIB_VERSION || defined __APPLE__
+    fp->_p -= PIPE_AUTO_DETECT_SIZE;
+    fp->_r += PIPE_AUTO_DETECT_SIZE;
+ -#elif defined __GLIBC__
+ +#elif defined __GLIBC__ && ! defined __UCLIBC__
+    fp->_IO_read_ptr = fp->_IO_read_base;
+- #elif defined _MSC_VER || defined _WIN32 || defined _WIN64 || defined _ISO_STDIO_ISO_H
+-   fp->_ptr = fp->_base;
+-@@ -417,7 +417,6 @@ static void UNUSED rewind_pipe(FILE * fp
++ #elif defined _MSC_VER || defined _WIN32 || defined _WIN64 || \
++       defined _ISO_STDIO_ISO_H || defined __sgi
++@@ -422,7 +422,6 @@ static void UNUSED rewind_pipe(FILE * fp
+    /* To fix this #error, either simply remove the #error line and live without
+     * file-type detection with pipes, or add support for your compiler in the
+     * lines above.  Test with cat monkey.wav | ./sox --info - */
+diff --git a/sound/sox/patches/020-ffmpeg-0.11.patch b/sound/sox/patches/020-ffmpeg-0.11.patch
+deleted file mode 100644
+index 61f6e23295..0000000000
+--- a/sound/sox/patches/020-ffmpeg-0.11.patch
++++ /dev/null
+@@ -1,129 +0,0 @@
+---- a/configure
+-+++ b/configure
+-@@ -15825,9 +15825,9 @@
+-   cat >>confdefs.h <<_ACEOF
+- #define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+- _ACEOF
+-- { $as_echo "$as_me:${as_lineno-$LINENO}: checking for av_open_input_file in -lavformat" >&5
+--$as_echo_n "checking for av_open_input_file in -lavformat... " >&6; }
+--if ${ac_cv_lib_avformat_av_open_input_file+:} false; then :
+-+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for avformat_open_input in -lavformat" >&5
+-+$as_echo_n "checking for avformat_open_input in -lavformat... " >&6; }
+-+if ${ac_cv_lib_avformat_avformat_open_input+:} false; then :
+-   $as_echo_n "(cached) " >&6
+- else
+-   ac_check_lib_save_LIBS=$LIBS
+-@@ -15841,27 +15841,27 @@
+- #ifdef __cplusplus
+- extern "C"
+- #endif
+--char av_open_input_file ();
+-+char avformat_open_input ();
+- int
+- main ()
+- {
+--return av_open_input_file ();
+-+return avformat_open_input ();
+-   ;
+-   return 0;
+- }
+- _ACEOF
+- if ac_fn_c_try_link "$LINENO"; then :
+--  ac_cv_lib_avformat_av_open_input_file=yes
+-+  ac_cv_lib_avformat_avformat_open_input=yes
+- else
+--  ac_cv_lib_avformat_av_open_input_file=no
+-+  ac_cv_lib_avformat_avformat_open_input=no
+- fi
+- rm -f core conftest.err conftest.$ac_objext \
+-     conftest$ac_exeext conftest.$ac_ext
+- LIBS=$ac_check_lib_save_LIBS
+- fi
+--{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_avformat_av_open_input_file" >&5
+--$as_echo "$ac_cv_lib_avformat_av_open_input_file" >&6; }
+--if test "x$ac_cv_lib_avformat_av_open_input_file" = xyes; then :
+-+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_avformat_avformat_open_input" >&5
+-+$as_echo "$ac_cv_lib_avformat_avformat_open_input" >&6; }
+-+if test "x$ac_cv_lib_avformat_avformat_open_input" = xyes; then :
+-   for ac_header in libavcodec/avcodec.h ffmpeg/avcodec.h
+- do :
+-   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+-diff -Naur sox-14.4.0-orig/src/ffmpeg.c sox-14.4.0/src/ffmpeg.c
+---- sox-14.4.0-orig/src/ffmpeg.c	2012-06-12 00:35:53.459027469 -0400
+-+++ sox-14.4.0/src/ffmpeg.c	2012-06-12 00:36:26.539028545 -0400
+-@@ -93,7 +93,7 @@
+- #if LIBAVCODEC_VERSION_INT < ((52<<16)+(0<<8)+0)
+-   enc->error_resilience = 1;
+- #else
+--  enc->error_recognition = 1;
+-+  enc->err_recognition = 1;
+- #endif
+- 
+-   if (!codec || avcodec_open(enc, codec) < 0)
+-@@ -157,7 +157,7 @@
+- static int startread(sox_format_t * ft)
+- {
+-   priv_t * ffmpeg = (priv_t *)ft->priv;
+--  AVFormatParameters params;
+-+  AVDictionary *params;
+-   int ret;
+-   int i;
+- 
+-@@ -172,7 +172,7 @@
+- 
+-   /* Open file and get format */
+-   memset(&params, 0, sizeof(params));
+--  if ((ret = av_open_input_file(&ffmpeg->ctxt, ft->filename, NULL, 0, &params)) < 0) {
+-+  if ((ret = avformat_open_input(&ffmpeg->ctxt, ft->filename, NULL, &params)) < 0) {
+-     lsx_fail("ffmpeg cannot open file for reading: %s (code %d)", ft->filename, ret);
+-     return SOX_EOF;
+-   }
+-@@ -231,7 +231,7 @@
+-     /* If input buffer empty, read more data */
+-     if (ffmpeg->audio_buf_index * 2 >= ffmpeg->audio_buf_size) {
+-       if ((ret = av_read_frame(ffmpeg->ctxt, pkt)) < 0 &&
+--	  (ret == AVERROR_EOF || url_ferror(ffmpeg->ctxt->pb)))
+-+	  (ret == AVERROR_EOF || ffmpeg->ctxt->pb->error))
+- 	break;
+-       ffmpeg->audio_buf_size = audio_decode_frame(ffmpeg, ffmpeg->audio_buf_aligned, AVCODEC_MAX_AUDIO_FRAME_SIZE);
+-       ffmpeg->audio_buf_index = 0;
+-@@ -373,13 +373,6 @@
+-       return SOX_EOF;
+-   }
+- 
+--  /* set the output parameters (must be done even if no
+--     parameters). */
+--  if (av_set_parameters(ffmpeg->ctxt, NULL) < 0) {
+--    lsx_fail("ffmpeg invalid output format parameters");
+--    return SOX_EOF;
+--  }
+--
+-   /* Next line for debugging */
+-   /* dump_format(ffmpeg->ctxt, 0, ft->filename, 1); */
+- 
+-@@ -391,14 +384,14 @@
+- 
+-   /* open the output file, if needed */
+-   if (!(ffmpeg->fmt->flags & AVFMT_NOFILE)) {
+--    if (url_fopen(&ffmpeg->ctxt->pb, ft->filename, URL_WRONLY) < 0) {
+-+    if (avio_open(&ffmpeg->ctxt->pb, ft->filename, AVIO_FLAG_WRITE) < 0) {
+-       lsx_fail("ffmpeg could not open `%s'", ft->filename);
+-       return SOX_EOF;
+-     }
+-   }
+- 
+-   /* write the stream header, if any */
+--  av_write_header(ffmpeg->ctxt);
+-+  avformat_write_header(ffmpeg->ctxt, NULL);
+- 
+-   return SOX_SUCCESS;
+- }
+-@@ -478,7 +471,7 @@
+- #if (LIBAVFORMAT_VERSION_INT < 0x340000)
+-     url_fclose(&ffmpeg->ctxt->pb);
+- #else
+--    url_fclose(ffmpeg->ctxt->pb);
+-+    avio_close(ffmpeg->ctxt->pb);
+- #endif
+-   }
+-
+diff --git a/sound/sox/patches/020-ffmpeg-2.x.patch b/sound/sox/patches/020-ffmpeg-2.x.patch
+deleted file mode 100644
+index 44e7ebbe98..0000000000
+--- a/sound/sox/patches/020-ffmpeg-2.x.patch
++++ /dev/null
+@@ -1,72 +0,0 @@
+---- a/src/ffmpeg.c
+-+++ b/src/ffmpeg.c
+-@@ -50,6 +50,10 @@
+- #include <ctype.h>
+- #include "ffmpeg.h"
+- 
+-+#ifndef AVCODEC_MAX_AUDIO_FRAME_SIZE
+-+#define AVCODEC_MAX_AUDIO_FRAME_SIZE	192000
+-+#endif
+-+
+- #ifndef CODEC_TYPE_AUDIO
+- #define CODEC_TYPE_AUDIO AVMEDIA_TYPE_AUDIO
+- #endif
+-@@ -96,7 +100,7 @@ static int stream_component_open(priv_t
+-   enc->err_recognition = 1;
+- #endif
+- 
+--  if (!codec || avcodec_open(enc, codec) < 0)
+-+  if (!codec || avcodec_open2(enc, codec, NULL) < 0)
+-     return -1;
+-   if (enc->codec_type != AVMEDIA_TYPE_AUDIO) {
+-     lsx_fail("ffmpeg CODEC %x is not an audio CODEC", enc->codec_type);
+-@@ -178,7 +182,7 @@ static int startread(sox_format_t * ft)
+-   }
+- 
+-   /* Get CODEC parameters */
+--  if ((ret = av_find_stream_info(ffmpeg->ctxt)) < 0) {
+-+  if ((ret = avformat_find_stream_info(ffmpeg->ctxt, NULL)) < 0) {
+-     lsx_fail("ffmpeg could not find CODEC parameters for %s", ft->filename);
+-     return SOX_EOF;
+-   }
+-@@ -256,7 +260,7 @@ static int stopread(sox_format_t * ft)
+-   if (ffmpeg->audio_stream >= 0)
+-     stream_component_close(ffmpeg, ffmpeg->audio_stream);
+-   if (ffmpeg->ctxt) {
+--    av_close_input_file(ffmpeg->ctxt);
+-+    avformat_close_input(&ffmpeg->ctxt);
+-     ffmpeg->ctxt = NULL; /* safety */
+-   }
+- 
+-@@ -267,16 +271,21 @@ static int stopread(sox_format_t * ft)
+- /*
+-  * add an audio output stream
+-  */
+-+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(54, 28, 0)
+-+static AVStream *add_audio_stream(sox_format_t * ft, AVFormatContext *oc, enum AVCodecID codec_id)
+-+#else
+- static AVStream *add_audio_stream(sox_format_t * ft, AVFormatContext *oc, enum CodecID codec_id)
+-+#endif
+- {
+-   AVCodecContext *c;
+-   AVStream *st;
+- 
+--  st = av_new_stream(oc, 1);
+-+  st = avformat_new_stream(oc, NULL);
+-   if (!st) {
+-     lsx_fail("ffmpeg could not alloc stream");
+-     return NULL;
+-   }
+-+  st->id = 1;
+- 
+-   c = st->codec;
+-   c->codec_id = codec_id;
+-@@ -306,7 +315,7 @@ static int open_audio(priv_t * ffmpeg, A
+-   }
+- 
+-   /* open it */
+--  if (avcodec_open(c, codec) < 0) {
+-+  if (avcodec_open2(c, codec, NULL) < 0) {
+-     lsx_fail("ffmpeg could not open CODEC");
+-     return SOX_EOF;
+-   }
