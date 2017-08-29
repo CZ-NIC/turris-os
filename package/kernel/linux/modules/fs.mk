@@ -356,12 +356,20 @@ define KernelPackage/fs-nfs-common-v4
   TITLE:=Common NFS V4 filesystem modules
   KCONFIG+=\
 	CONFIG_SUNRPC_GSS\
-	CONFIG_NFS_V4=y\
+	CONFIG_NFS_V4 \
+	CONFIG_NFS_V4_1=y \
+	CONFIG_NFS_V4_2=y \
+	CONFIG_NFS_V4_1_IMPLEMENTATION_ID_DOMAIN="kernel.org" \
+	CONFIG_NFS_V4_1_MIGRATION=y \
 	CONFIG_NFSD_V4=y \
 	CONFIG_NFSD_PNFS=y
-  DEPENDS:=+kmod-fs-nfs-common +kmod-lib-oid-registry
-  FILES+=$(LINUX_DIR)/net/sunrpc/auth_gss/auth_rpcgss.ko
-  AUTOLOAD=$(call AutoLoad,30,auth_rpcgss)
+  DEPENDS:=+kmod-fs-nfs-common +kmod-fs-nfs +kmod-lib-oid-registry
+  FILES+=$(LINUX_DIR)/net/sunrpc/auth_gss/auth_rpcgss.ko \
+		$(LINUX_DIR)/fs/nfs/nfsv4.ko \
+		$(LINUX_DIR)/fs/nfs/filelayout/nfs_layout_nfsv41_files.ko \
+		$(LINUX_DIR)/fs/nfs/blocklayout/blocklayoutdriver.ko \
+		$(LINUX_DIR)/fs/nfs/flexfilelayout/nfs_layout_flexfiles.ko
+  AUTOLOAD=$(call AutoLoad,30,auth_rpcgss nfsv4 nfs_layout_nfsv41_files)
 endef
 
 define KernelPackage/fs-nfs-common-v4/description
