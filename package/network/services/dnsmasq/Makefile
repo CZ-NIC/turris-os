@@ -47,8 +47,8 @@ $(call Package/dnsmasq/Default)
   TITLE += (with DHCPv6 support)
   DEPENDS:=@IPV6
   VARIANT:=dhcpv6
-  PROVIDES:=dnsmasq dhcp-server dhcpv6-server
-  CONFLICTS:=dnsmasq
+  PROVIDES:=dhcp-server dhcpv6-server
+  CONFLICTS:=dnsmasq dnsmasq-full
 endef
 
 define Package/dnsmasq-full
@@ -57,8 +57,8 @@ $(call Package/dnsmasq/Default)
   DEPENDS:=+PACKAGE_dnsmasq_full_dnssec:libnettle \
 	+PACKAGE_dnsmasq_full_ipset:kmod-ipt-ipset
   VARIANT:=full
-  PROVIDES:=dnsmasq dhcp-server dhcpv6-server dns-resolver
-  CONFLICTS:=dnsmasq
+  PROVIDES:=dhcp-server dhcpv6-server dns-resolver
+  CONFLICTS:=dnsmasq dnsmasq-dhcpv6
 endef
 
 define Package/dnsmasq/description
