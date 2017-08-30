@@ -38,6 +38,7 @@ create_notification -s news " • foris: možnost nastavit limity pro návště
  • mariadb: nový balíček
  • nextcloud: základní podpora zatím bez integrace
  • turris 1.X: kernel 4.4 a podpora migrace na btrfs na Micro SD kartě
+ • nfsv4: základní podpora
  • hardware feed: přidáno několik balíčků týkající se práce s hardware" " • foris: option to set bandwidth limits for guest network
  • foris: option to propagate client names into local DNS
  • foris and updater: delayed updates
@@ -47,6 +48,7 @@ create_notification -s news " • foris: možnost nastavit limity pro návště
  • php7: newly supported
  • mariadb: new package
  • nextcloud: basic support without much integration
+ • nfsv4: basic support
  • hardware feed: few hardware related packages"
 }
 endef
