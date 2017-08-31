@@ -11,7 +11,7 @@ include $(INCLUDE_DIR)/version.mk
 include $(INCLUDE_DIR)/feeds.mk
 
 PKG_NAME:=opkg
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://git.lede-project.org/project/opkg-lede.git
@@ -42,7 +42,7 @@ define Package/opkg
   SECTION:=base
   CATEGORY:=Base system
   TITLE:=opkg package manager
-  DEPENDS:=+uclient-fetch +libpthread +libubox +curl +cznic-cacert-bundle
+  DEPENDS:=+uclient-fetch +libpthread +libubox +curl +cznic-cacert-bundle +switch-branch
   URL:=https://git.lede-project.org/?p=project/opkg-lede.git
   MENU:=1
 endef
@@ -103,6 +103,12 @@ define Package/opkg/install
 	$(INSTALL_BIN) ./files/opkg_wrapper.sh $(1)/bin/opkg
 	mkdir $(1)/usr/sbin
 	$(INSTALL_BIN) ./files/opkg-key $(1)/usr/sbin/
+endef
+
+define Package/opkg/postinst
+[ -n "$$IPKG_INSTROOT" ] || {
+	switch-branch --verify
+}
 endef
 
 define Host/Install
