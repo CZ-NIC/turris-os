@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.7.4
+PKG_VERSION:=3.7.5
 
 PKG_MAINTAINER:=Michal Vaner <michal.vaner@nic.cz>
 
@@ -28,7 +28,7 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • knot-resolver: opravena kritická chyba v DNSSEC validaci" " • knot-resolver: fix a critical DNSSEC flaw"
+create_notification -s news " • updater: opravena chyba v migraci na 3.8" " • updater: fixed a bug causing troubles while updating to 3.8"
 }
 endef
 
