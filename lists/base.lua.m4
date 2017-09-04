@@ -68,8 +68,8 @@ Install("bind-client", "bind-dig")
 Install("pciutils", "usbutils", "lsof")
 
 -- Turris utility
-Install("user_notify", "oneshot", "libatsha204", "sfpswitch", ifelse(_BOARD_,omnia,"rainbow-omnia","rainbow"), "watchdog_adjust", "daemon-watchdog", "update_mac", "switch-branch")
-ifelse(_BOARD_,omnia,Install("schnapps")
+Install("user_notify", "oneshot", "libatsha204", ifelse(_BOARD_,omnia,"rainbow-omnia","rainbow"), "watchdog_adjust", "daemon-watchdog", "update_mac", "switch-branch")
+ifelse(_BOARD_,omnia,`Install("schnapps", "sfpswitch")'
 )dnl
 Install("foris", "foris-diagnostics-plugin")
 if for_l10n then
