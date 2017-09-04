@@ -47,9 +47,11 @@ Install("ebtables", "odhcpd", "odhcp6c", "rpcd", "opkg")
 if features and features.provides then
 	Install("dhcp-server", "dhcpv6-server", "syslog", "cron")
 end
-Install("vixie-cron", "syslog-ng3", "logrotate")
-Install("dnsmasq", "ppp", "ppp-mod-pppoe")
-ifelse(_BOARD_,omnia,`Install("knot-resolver"',`Install("unbound", "unbound-anchor"'), { critical = (not features or not features.provides) }) -- This should be critical only if we ignored dns-resolver
+Install("vixie-cron", "syslog-ng3", { priority = 40 })
+Install("logrotate")
+Install("dnsmasq", { priority = 40 })
+ifelse(_BOARD_,omnia,`Install("knot-resolver"',`Install("unbound", "unbound-anchor"'), { critical = (not features or not features.provides), priority = 40 }) -- This should be critical only if we ignored dns-resolver
+Install("ppp", "ppp-mod-pppoe")
 
 -- Certificates
 Install("dnssec-rootkey", "cznic-cacert-bundle", "cznic-repo-keys", "cznic-repo-keys-test", { critical = true })
