@@ -43,6 +43,7 @@ CONFIG_KERNEL_MEMCG=y
 CONFIG_KERNEL_MEMCG_SWAP=y
 CONFIG_LXC_BUSYBOX_OPTIONS=y
 CONFIG_LXC_KERNEL_OPTIONS=y
+CONFIG_RSYNC_xattr=y
 
 # Make sure we use real strip, that one leaves the debug link in
 CONFIG_USE_STRIP=y
