@@ -64,6 +64,7 @@ feeds/packages/net/opennhrp 2 3
 feeds/packages/net/polipo 1 2
 feeds/packages/net/privoxy 1 2
 feeds/packages/net/prosody 1 2
+feeds/packages/net/rsync 1 2
 feeds/packages/net/snort 4 5
 feeds/packages/net/sshfs 1 2
 feeds/packages/net/sslh 2 3
