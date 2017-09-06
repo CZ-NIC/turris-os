@@ -1,0 +1,13 @@
+diff --git a/net/rsync/Makefile b/net/rsync/Makefile
+index f9fa0475..161b25bf 100644
+--- a/net/rsync/Makefile
++++ b/net/rsync/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=rsync
+ PKG_VERSION:=3.1.2
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://rsync.samba.org/ftp/rsync/src
