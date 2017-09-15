@@ -25,7 +25,7 @@ Package('l10n_supported', { replan = replan_str('finished', true) })
 Package('nuci', { replan = replan_str('finished', false) })
 -- Updater won't remove package before replanning so add dependency on empty opkg-trans package if we have installed version with those files (We would like to use version_match but this condition has the same effect because version_match was defined later than packages were merged.)
 if not version_match then
-	Package('updater-ng', { deps = 'opkg-trans' })
+	Package('updater-ng', { deps = {'opkg-trans', 'updater'} })
 end
 
 
