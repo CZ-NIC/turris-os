@@ -18,8 +18,6 @@ CONFIG_BUSYBOX_CONFIG_NC_SERVER=y
 CONFIG_BUSYBOX_CONFIG_TIMEOUT=y
 CONFIG_VERSION_REPO="https://repo.turris.cz/@BOARD@@BRANCH@/packages/"
 CONFIG_VERSION_NICK="@BOARD@"
-CONFIG_DEFAULT_updater=n
-# CONFIG_PACKAGE_updater is not set
 
 # Disable package signing for now (we don't preserve signing key)
 CONFIG_SIGNED_PACKAGES=n
@@ -89,9 +87,9 @@ CONFIG_PKG_RELRO_FULL=y
 
 # Opkg configuration
 CONFIG_OPKG_SUPPORT_MD5=y
-CONFIG_PACKAGE_updater-migrate=m
 CONFIG_PACKAGE_updater-ng=y
 CONFIG_PACKAGE_opkg-trans=m
+CONFIG_PACKAGE_updater=m
 
 # Few useful kernel options
 CONFIG_KERNEL_AIO=y

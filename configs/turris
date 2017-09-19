@@ -43,9 +43,6 @@ CONFIG_KERNEL_STOP_MACHINE=y
 CONFIG_KERNEL_TREE_RCU=y
 CONFIG_KERNEL_XPS=y
 
-CONFIG_PACKAGE_updater-consolidator=y
-CONFIG_PACKAGE_updater-deps=y
-
 # Packages that are compiled in on Omnia
 CONFIG_PACKAGE_daemon-watchdog=m
 CONFIG_PACKAGE_watchdog_adjust=m
