@@ -95,7 +95,8 @@ load_led() {
 
 start() {
 	[ -e /sys/class/leds/ ] && {
+		sleep 3
 		config_load system
 		config_foreach load_led led
-	}
+	} &
 }
