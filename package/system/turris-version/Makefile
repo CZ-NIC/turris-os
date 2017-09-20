@@ -29,9 +29,9 @@ define Package/turris-version/postinst
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • knot-resolver: automatické vypnutí forwardování pokud nefunguje
- • updater: řešení konfliktu updateru-ng, updateru a opkg-trans
+ • nextcloud: update na nejnovější verzi
  • transmission-web: znovu opraveno sestavení balíčku" " • knot-resolver: automaticly turn off forwarding if it doesn't work
- • updater: fix conflict between updateru-ng, updateru and opkg-trans
+ • nextcloud: update to the latest version
  • transmission-web: refix package build"
 }
 endef
