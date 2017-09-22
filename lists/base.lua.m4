@@ -32,13 +32,9 @@ ifelse(_BOARD_,turris,`	-- On Turris 1.x we do the same also for updater as we a
 end
 
 
-kernel_reboot = "immediate"
-if features and features.replan_string then -- Delayed reboot is broken before updater version 58.4.5 (WARN not defined) and replan_string was introduced with version 59.0
-	kernel_reboot = "delayed"
-end
 -- Critical minimum
 Install("base-files", "busybox", { critical = true })
-Package("kernel", { reboot = kernel_reboot })
+Package("kernel", { reboot = "delayed" })
 forInstallCritical(kmod,file2args(kmod.list))
 forInstallCritical(kmod,file2args(kmod-_BOARD_.list))
 Install("fstools"ifelse(_BOARD_,omnia,`, "btrfs-progs"'), { critical = true })
