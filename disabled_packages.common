@@ -3,8 +3,6 @@ libinput # doesn't make sense on Turris
 flashrom # doesn't make sense on Turris
 batmand # needs complete repackaging
 bmx7 # needs polarssl
-python-cffi
-python-cryptography # depends on python-cffi
 # packages we gave on fixing right now and should be rechecked later
 kamailio4
 asterisk13
