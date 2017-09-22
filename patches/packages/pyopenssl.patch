@@ -1,0 +1,12 @@
+diff --git a/lang/python-pyopenssl/Makefile b/lang/python-pyopenssl/Makefile
+index d79261ba..f9957218 100644
+--- a/lang/python-pyopenssl/Makefile
++++ b/lang/python-pyopenssl/Makefile
+@@ -29,6 +29,7 @@ define Package/python-pyopenssl
+ 	CATEGORY:=Languages
+ 	SUBMENU:=Python
+ 	TITLE:=python-pyopenssl
++	PROVIDES:=pyopenssl
+ 	URL:=https://github.com/pyca/pyopenssl
+ 	DEPENDS:=+python-light +python-cryptography +python-six
+ endef
