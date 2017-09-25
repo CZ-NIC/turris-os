@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.8.1
+PKG_VERSION:=3.8.2
 
 PKG_MAINTAINER:=Michal Vaner <michal.vaner@nic.cz>
 
@@ -28,11 +28,13 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • knot-resolver: automatické vypnutí forwardování pokud nefunguje
- • nextcloud: update na nejnovější verzi
- • transmission-web: znovu opraveno sestavení balíčku" " • knot-resolver: automaticly turn off forwarding if it doesn't work
- • nextcloud: update to the latest version
- • transmission-web: refix package build"
+create_notification -s news " • knot-resolver: automatické dočasné vypnutí IPv6 pokud nefunguje
+ • mac80211: pár oprav převzaných z LEDE
+ • updater: oprava schvalování aktualizací a aktualizace Turrisů 1.x z továrního nastavení
+ • nextcloud-install: lepší práce s databází" " • knot-resolver: automaticly temporally turn off IPv6 if it doesn't work
+ • mac80211: few fixes from LEDE
+ • updater: fix approving of automatic updates
+ • nextcloud-install: better database handling"
 }
 endef
 
