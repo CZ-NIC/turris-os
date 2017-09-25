@@ -30,10 +30,9 @@ define Package/turris-version/postinst
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • knot-resolver: automatické dočasné vypnutí IPv6 pokud nefunguje
  • mac80211: pár oprav převzaných z LEDE
- • updater: oprava schvalování aktualizací a aktualizace Turrisů 1.x z továrního nastavení
+ • updater: oprava aktualizace Turrisů 1.x z továrního nastavení
  • nextcloud-install: lepší práce s databází" " • knot-resolver: automaticly temporally turn off IPv6 if it doesn't work
  • mac80211: few fixes from LEDE
- • updater: fix approving of automatic updates
  • nextcloud-install: better database handling"
 }
 endef
