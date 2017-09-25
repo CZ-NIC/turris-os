@@ -17,7 +17,7 @@ ifelse(_BOARD_,omnia,`Install("kmod-ata-ahci-platform", "kmod-ata-mvebu-ahci", "
 
 -- Tools --
 Install("mount-utils", "losetup", "lsblk", "blkid", "file")
-Install("fdisk", "cfdisk", "sfdisk", "hdparm", "resize2fs", "partx-utils")
+Install("fdisk", "cfdisk", "hdparm", "resize2fs", "partx-utils")
 Install("acl", "attr")
 Install("mountd", "smartd", "smartmontools")
 Install("swap-utils")
