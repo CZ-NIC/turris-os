@@ -46,7 +46,7 @@ end
 Install("procd", "ubus", "uci", "netifd", "firewall", "swconfig", { critical = true})
 Install("ebtables", "odhcpd", "odhcp6c", "rpcd", "opkg")
 ifelse(_BOARD_,omnia,`-- When we are updating from way old kernel we can have swconfig and kernel module mismatch resulting in to the unconfigured switch. This ensures that new swconfig is running on new kernel
-if not version_match or version_match(installed["kmod-swconfig"].version, "<4.4.40") then
+if not version_match or version_match(installed["kernel"].version, "<4.4.40") then
 	Package("swconfig", { reboot = "immediate" })
 end'
 )dnl
