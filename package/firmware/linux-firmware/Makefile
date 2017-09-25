@@ -8,18 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=linux-firmware
-PKG_SOURCE_VERSION:=42ad5367dd38371b2a1bb263b6efa85f9b92fc93
-PKG_VERSION:=2016-09-21-$(PKG_SOURCE_VERSION)
+PKG_SOURCE_VERSION:=a61ac5cf8374edbfe692d12f805a1b194f7fead2
+PKG_VERSION:=2017-09-06-$(PKG_SOURCE_VERSION)
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_SOURCE_SUBDIR)
-PKG_SOURCE_URL:=\
-	https://kernel.googlesource.com/pub/scm/linux/kernel/git/firmware/linux-firmware \
-	https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
-PKG_MIRROR_MD5SUM:=762d7f4a87e944338c2871c953603377
+PKG_SOURCE_URL:=https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
+PKG_MIRROR_MD5SUM:=b827bf760de57b907df159c8d38d7c3fb5b4a691781114c47739e20bffb3a312
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 
