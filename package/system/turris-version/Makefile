@@ -32,9 +32,11 @@ create_notification -s news " • knot-resolver: automatické dočasné vypnut�
  • mac80211: pár oprav převzaných z LEDE
  • nethist: opraveno padání při větším množství rozhraní
  • updater: oprava aktualizace Turrisů 1.x z továrního nastavení
+ • dnsmasq a swconfig: oprava nefunkční dhcp a switche po aktualizaci Turris Omnia z továrního nastavení
  • nextcloud-install: lepší práce s databází" " • knot-resolver: automaticly temporally turn off IPv6 if it doesn't work
  • mac80211: few fixes from LEDE
  • nethist: fixed crash when too many interfaces are present on the router
+ • dnsmasq and swconfig: fix broken dhcp and switch after Turris Omnia update from factory
  • nextcloud-install: better database handling"
 }
 endef
