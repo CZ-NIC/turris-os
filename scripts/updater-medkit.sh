@@ -81,18 +81,18 @@ cat $OPENWRT_BIN/lists/base.lua | \
 # Dump our entry file
 UPDATER_CONF="$BUILD_DIR/entry.lua"
 echo "l10n = {'cs', 'de'} -- table with selected localizations
-Export 'l10n'
+Export('l10n')
 -- This is helper function for including localization packages.
 function for_l10n(fragment)
 	for _, lang in pairs(l10n or {}) do
 		Install(fragment .. lang, {ignore = {'missing'}})
 	end
 end
-Export 'for_l10n'
+Export('for_l10n')
 
-Script 'base' 'file://$UPDATER_BASECONF'" > "$UPDATER_CONF"
+Script('base', 'file://$UPDATER_BASECONF')" > "$UPDATER_CONF"
 for USRL in cacerts luci-controls nas netutils; do
-	echo "Script '$USRL' 'file://$OPENWRT_BIN/lists/$USRL.lua'" >> "$UPDATER_CONF"
+	echo "Script('$USRL', 'file://$OPENWRT_BIN/lists/$USRL.lua')" >> "$UPDATER_CONF"
 done
 # Run updater to pull in packages from base list
 pkgupdate --usign=staging_dir/host/bin/usign -R $ABSOUT --batch file://$UPDATER_CONF
