@@ -95,7 +95,7 @@ for USRL in cacerts luci-controls nas netutils; do
 	echo "Script '$USRL' 'file://$OPENWRT_BIN/lists/$USRL.lua'" >> "$UPDATER_CONF"
 done
 # Run updater to pull in packages from base list
-pkgupdate --usign=staging_dir/host/bin/usign --out-or-root -R $ABSOUT --batch file://$UPDATER_CONF
+pkgupdate --usign=staging_dir/host/bin/usign --out-of-root -R $ABSOUT --batch file://$UPDATER_CONF
 
 # Run all postinst scripts because as we are bootstrapping environment some
 # packages on beginning might have failed to be settled correctly (for example rc
