@@ -1,0 +1,12 @@
+diff --git a/lang/twisted/Makefile b/lang/twisted/Makefile
+index 0b917ddf..55dae8da 100644
+--- a/lang/twisted/Makefile
++++ b/lang/twisted/Makefile
+@@ -29,6 +29,7 @@ $(call include_mk, python-package.mk)
+ define Package/twisted
+   SUBMENU:=Python
+   SECTION:=lang
++  PROVIDES:=python-twisted
+   CATEGORY:=Languages
+   TITLE:=Python networking engine
+   URL:=http://twistedmatrix.com/
