@@ -1,0 +1,15 @@
+--- a/net/bridge/br_multicast.c	2017-09-29 13:08:16.382407178 +0200
++++ b/net/bridge/br_multicast.c	2017-09-29 13:07:53.152407750 +0200
+@@ -680,6 +680,12 @@
+ 				struct net_bridge_port *port,
+ 				const unsigned char *src)
+ {
++	/* temporary dirty solution for ticket #000735 */
++	if ((void *) src < (void *) 0x9000) {
++		/* pr_err("src = %p\n", p, src); */
++		return false;
++	}
++
+ 	if (p->port != port)
+ 		return false;
+ 
