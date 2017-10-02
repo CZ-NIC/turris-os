@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dnsmasq
-PKG_VERSION:=2.73
-PKG_RELEASE:=5
+PKG_VERSION:=2.78
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=http://thekelleys.org.uk/dnsmasq
-PKG_MD5SUM:=b8bfe96d22945c8cf4466826ba9b21bd
+PKG_MD5SUM:=89949f438c74b0c7543f06689c319484bd126cc4b1f8c745c742ab397681252b
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING
@@ -34,6 +34,7 @@ define Package/dnsmasq/Default
   CATEGORY:=Base system
   TITLE:=DNS and DHCP server
   URL:=http://www.thekelleys.org.uk/dnsmasq/
+  DEPENDS:=+libubus
 endef
 
 define Package/dnsmasq
