@@ -13,7 +13,7 @@ forInstall(kmod-md,linear,multipath,raid0,raid1,raid10,raid456)
 -- Additional kernel drivers
 Install("kmod-usb-storage-extras", "kmod-usb2")
 ifelse(_BOARD_,turris,`Install("kmod-mmc-fsl-p2020", "kmod-fs-reiserfs", "reiserfsprogs")')dnl
-ifelse(_BOARD_,omnia,`Install("kmod-ata-ahci-platform", "kmod-ata-mvebu-ahci", "kmod-crypto-marvell-cesa", "blkdiscard", "fstrim")')
+ifelse(_BOARD_,omnia,`Install("kmod-ata-ahci-platform", "kmod-ata-mvebu-ahci", "kmod-crypto-marvell-cesa", "blkdiscard", "fstrim", "asm1062-fix")')
 
 -- Tools --
 Install("mount-utils", "losetup", "lsblk", "blkid", "file")

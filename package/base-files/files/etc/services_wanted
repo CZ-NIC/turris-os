@@ -35,3 +35,4 @@ start-indicator
 setup_led
 lxc-auto
 cups
+asm1062-fix
