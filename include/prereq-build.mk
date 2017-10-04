@@ -151,7 +151,7 @@ $(eval $(call SetupHostCommand,file,Please install the 'file' package, \
 	file --version 2>&1 | grep file))
 
 $(eval $(call SetupHostCommand,openssl,Please install the 'openssl' utility, \
-	openssl version | grep OpenSSL))
+	openssl version | grep SSL))
 
 
 # Install ldconfig stub
