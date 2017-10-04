@@ -15,7 +15,7 @@ SCAN_DEPS=modules/*.mk $(TOPDIR)/target/linux/*/modules.mk $(TOPDIR)/include/net
 
 PKG_LICENSE:=GPLv2
 PKG_LICENSE_FILES:=
-PKG_VERSION:=2
+PKG_VERSION:=3
 
 export SHELL:=/bin/sh
 .ONESHELL:
@@ -107,7 +107,18 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
 
 	echo "Erasing and flashing kernel partition."
 	if [ -f /lib/uboot/uboot-1.installed ]; then
-		flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
+		( flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) && \
+		head -c `wc -c /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) | sed 's| .*||'` > /tmp/zimage-check && \
+		cmp /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) /tmp/zimage-check ) || \
+		( mtd erase /dev/mtd7 && mtd write /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) /dev/mtd7 && \
+		head -c `wc -c /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) | sed 's| .*||'` > /tmp/zimage-check && \
+		cmp /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) /tmp/zimage-check ) || \
+		( flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) && \
+		head -c `wc -c /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) | sed 's| .*||'` > /tmp/zimage-check && \
+		cmp /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) /tmp/zimage-check ) || \
+		( mtd erase /dev/mtd7 && mtd write /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) /dev/mtd7 && \
+		head -c `wc -c /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) | sed 's| .*||'` > /tmp/zimage-check && \
+		cmp /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) /tmp/zimage-check )
 	else
 		echo "[ -f /lib/uboot/uboot-1.installed ] && \\\\" > /etc/uci-defaults/11-flash_kernel
 		echo "flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) && \\\\" >> /etc/uci-defaults/11-flash_kernel
