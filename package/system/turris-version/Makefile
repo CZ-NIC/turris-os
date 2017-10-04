@@ -29,7 +29,9 @@ define Package/turris-version/postinst
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • kernel: více odolný proces instalace kernelu
+ • mtd a mtd-utils: přeinstalace
  • turris-btrfs: různé opravy" " • kernel: more resilient flashing process
+ • mtd and mtd-utils: reinstall
  • turris-btrfs: various fixes"
 }
 endef

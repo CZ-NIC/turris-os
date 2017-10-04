@@ -156,3 +156,5 @@ package/feeds/packages/forked-daapd 1 2
 package/feeds/packages/squeezelite 1 2
 package/feeds/telephony/baresip 1 2
 package/feeds/telephony/pjproject 1 2
+package/feeds/turrispackages/mtd-utils 3 4
+package/system/mtd 21 22
