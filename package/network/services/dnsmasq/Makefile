@@ -46,7 +46,7 @@ endef
 define Package/dnsmasq-dhcpv6
 $(call Package/dnsmasq/Default)
   TITLE += (with DHCPv6 support)
-  DEPENDS:=@IPV6
+  DEPENDS:=@IPV6 +libubus
   VARIANT:=dhcpv6
   PROVIDES:=dhcp-server dhcpv6-server
   CONFLICTS:=dnsmasq dnsmasq-full
@@ -56,7 +56,7 @@ define Package/dnsmasq-full
 $(call Package/dnsmasq/Default)
   TITLE += (with DNSSEC, DHCPv6, Auth DNS, IPset enabled by default)
   DEPENDS:=+PACKAGE_dnsmasq_full_dnssec:libnettle \
-	+PACKAGE_dnsmasq_full_ipset:kmod-ipt-ipset
+	+PACKAGE_dnsmasq_full_ipset:kmod-ipt-ipset +libubus
   VARIANT:=full
   PROVIDES:=dhcp-server dhcpv6-server dns-resolver
   CONFLICTS:=dnsmasq dnsmasq-dhcpv6
