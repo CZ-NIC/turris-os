@@ -108,10 +108,10 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
 	echo "Erasing and flashing kernel partition."
 	if [ -f /lib/uboot/uboot-1.installed ]; then
 		( flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) && \
-		head -c `wc -c /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) | sed 's| .*||'` > /tmp/zimage-check && \
+		head -c `wc -c /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) | sed 's| .*||'` /dev/mtd7 > /tmp/zimage-check && \
 		cmp /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) /tmp/zimage-check ) || \
 		( mtd erase /dev/mtd7 && mtd write /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) /dev/mtd7 && \
-		head -c `wc -c /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) | sed 's| .*||'` > /tmp/zimage-check && \
+		head -c `wc -c /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) | sed 's| .*||'` /dev/mtd7 > /tmp/zimage-check && \
 		cmp /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) /tmp/zimage-check )
 	else
 		echo "[ -f /lib/uboot/uboot-1.installed ] && \\\\" > /etc/uci-defaults/11-flash_kernel
