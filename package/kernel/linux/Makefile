@@ -49,7 +49,7 @@ define Package/kernel
   TITLE:=Kernel package
   VERSION:=$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
   URL:=http://www.kernel.org/
-  DEPENDS:=+create_notification +TARGET_mpc85xx_p2020_nand_TURRISNAND:uboot-turris +TARGET_mpc85xx_p2020_nand_TURRISNAND:mtd-utils-flash-erase
+  DEPENDS:=+create_notification +TARGET_mpc85xx_p2020_nand_TURRISNAND:uboot-turris +TARGET_mpc85xx_p2020_nand_TURRISNAND:mtd-utils-flash-erase +TARGET_mpc85xx_p2020_nand_TURRISNAND:mtd-utils-nandwrite +TARGET_mpc85xx_p2020_nand_TURRISNAND:mtd
 endef
 
 ifdef CONFIG_TARGET_mvebu_Turris-Omnia
@@ -107,12 +107,6 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
 
 	echo "Erasing and flashing kernel partition."
 	if [ -f /lib/uboot/uboot-1.installed ]; then
-		( flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) && \
-		head -c `wc -c /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) | sed 's| .*||'` > /tmp/zimage-check && \
-		cmp /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) /tmp/zimage-check ) || \
-		( mtd erase /dev/mtd7 && mtd write /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) /dev/mtd7 && \
-		head -c `wc -c /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) | sed 's| .*||'` > /tmp/zimage-check && \
-		cmp /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) /tmp/zimage-check ) || \
 		( flash_erase /dev/mtd7 0 0 && nandwrite -p /dev/mtd7 /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) && \
 		head -c `wc -c /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) | sed 's| .*||'` > /tmp/zimage-check && \
 		cmp /boot/zImage-$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC) /tmp/zimage-check ) || \
