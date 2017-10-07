@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.8.2.1
+PKG_VERSION:=3.8.3
 
 PKG_MAINTAINER:=Michal Vaner <michal.vaner@nic.cz>
 
@@ -28,11 +28,13 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • kernel: více odolný proces instalace kernelu
- • mtd a mtd-utils: přeinstalace
- • turris-btrfs: různé opravy" " • kernel: more resilient flashing process
- • mtd and mtd-utils: reinstall
- • turris-btrfs: various fixes"
+create_notification -s news " • dnsmasq: oprava různých bezpečnostních problémů
+ • kernel: nová verze opravující drobné problémy
+ • openssh: nová verze opravující bezpečnostní problémy
+ • asm1062: oprava problémů se SATA řadičem" " • dnsmasq: various security fixes
+ • kernel: various small fixes
+ • openssh: security update
+ • asm+éžě: workaround for error with SATA controller"
 }
 endef
 
