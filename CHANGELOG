@@ -1,3 +1,8 @@
+* curl: update to version 7.56.0
+* ntpd: update to version 4.2.8p10
+* irssi: update to version 1.0.4
+* tor: update to version 0.2.9.12
+* bash: enabled job control
 * Foris: new configuration backend added
 * Foris: splitted into foris-wizard and foris-config web apps
 * Foris: use openwrt ubus session
