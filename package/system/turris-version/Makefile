@@ -34,7 +34,7 @@ create_notification -s news " • dnsmasq: oprava různých bezpečnostních pr
  • asm1062: oprava problémů se SATA řadičem" " • dnsmasq: various security fixes
  • kernel: various small fixes
  • openssh: security update
- • asm+éžě: workaround for error with SATA controller"
+ • asm1062: workaround for error with SATA controller"
 }
 endef
 
