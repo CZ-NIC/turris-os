@@ -14,7 +14,7 @@
 +		i = 0;
 +
 +		argv[i++] = "curl";
-+		argv[i++] = "--compress";
++		argv[i++] = "--compressed";
 +		argv[i++] = "-f";
 +		argv[i++] = "-o";
  		argv[i++] = tmp_file_location;
