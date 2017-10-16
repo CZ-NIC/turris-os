@@ -402,20 +402,6 @@ ifeq ($(BUILD_VARIANT),supplicant-full)
   endef
 endif
 
-define Package/hostapd/preinst
-#!/bin/sh
-if [ -z "$${IPKG_INSTROOT}" ]; then
-	/sbin/wifi down
-fi
-endef
-
-define Package/hostapd/postinst
-#!/bin/sh
-if [ -z "$${IPKG_INSTROOT}" ]; then
-	/sbin/wifi up
-fi
-endef
-
 Package/hostapd-mini/postinst = $(Package/hostapd/postinst)
 Package/wpad/postinst = $(Package/hostapd/postinst)
 Package/wpad-mini/postinst = $(Package/hostapd/postinst)
