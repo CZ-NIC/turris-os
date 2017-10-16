@@ -402,16 +402,6 @@ ifeq ($(BUILD_VARIANT),supplicant-full)
   endef
 endif
 
-Package/hostapd-mini/postinst = $(Package/hostapd/postinst)
-Package/wpad/postinst = $(Package/hostapd/postinst)
-Package/wpad-mini/postinst = $(Package/hostapd/postinst)
-Package/wpad-mesh/postinst = $(Package/hostapd/postinst)
-
-Package/hostapd-mini/preinst = $(Package/hostapd/preinst)
-Package/wpad/preinst = $(Package/hostapd/preinst)
-Package/wpad-mini/preinst = $(Package/hostapd/preinst)
-Package/wpad-mesh/preinst = $(Package/hostapd/preinst)
-
 $(eval $(call BuildPackage,hostapd))
 $(eval $(call BuildPackage,hostapd-mini))
 $(eval $(call BuildPackage,wpad))
