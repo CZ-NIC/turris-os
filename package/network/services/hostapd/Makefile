@@ -370,6 +370,13 @@ ifneq ($(LOCAL_TYPE),supplicant)
   endef
 endif
 
+define Package/wpad/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+       /sbin/wifi up
+fi
+endef
+
 define Package/wpad/install
 	$(call Install/hostapd,$(1))
 	$(call Install/supplicant,$(1))
