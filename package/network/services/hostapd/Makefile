@@ -370,6 +370,13 @@ ifneq ($(LOCAL_TYPE),supplicant)
   endef
 endif
 
+define Package/wpad/preinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+       /sbin/wifi down
+fi
+endef
+
 define Package/wpad/postinst
 #!/bin/sh
 if [ -z "$${IPKG_INSTROOT}" ]; then
