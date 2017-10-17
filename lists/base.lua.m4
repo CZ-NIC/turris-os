@@ -36,6 +36,7 @@ end
 Install("base-files", "busybox", { critical = true })
 Package("kernel", { reboot = "delayed" })
 Package("wpad", { reboot = "delayed" })
+Package("kmod-mac80211", { reboot = "delayed" })
 forInstallCritical(kmod,file2args(kmod.list))
 forInstallCritical(kmod,file2args(kmod-_BOARD_.list))
 Install("fstools"ifelse(_BOARD_,omnia,`, "btrfs-progs"'), { critical = true })
