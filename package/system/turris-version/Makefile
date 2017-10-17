@@ -28,7 +28,7 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • hostapd: oprava bezpečnostních problémů KRACK" " • hostapd: fix KRACK security issues"
+create_notification -s news " • hostapd a mac80211: oprava bezpečnostních problémů KRACK" " • hostapd and mac80211: fix KRACK security issues"
 }
 endef
 
