@@ -229,10 +229,10 @@ new file mode 100644
 index 0000000..e69de29
 diff --git a/python/tests/fixtures.py b/python/tests/fixtures.py
 new file mode 100644
-index 0000000..13de21f
+index 0000000..e9d28b4
 --- /dev/null
 +++ b/python/tests/fixtures.py
-@@ -0,0 +1,224 @@
+@@ -0,0 +1,226 @@
 +import os
 +from multiprocessing import Process, Value
 +import pytest
@@ -265,6 +265,8 @@ index 0000000..13de21f
 +@pytest.fixture(scope="session")
 +def ubusd_test():
 +    ubusd_instance = subprocess.Popen(["ubusd", "-s", UBUSD_TEST_SOCKET_PATH])
++    while not os.path.exists(UBUSD_TEST_SOCKET_PATH):
++        time.sleep(0.2)
 +    yield ubusd_instance
 +    ubusd_instance.kill()
 +    os.unlink(UBUSD_TEST_SOCKET_PATH)
@@ -459,7 +461,7 @@ index 0000000..13de21f
 +        pass
 diff --git a/python/tests/test_connection.py b/python/tests/test_connection.py
 new file mode 100644
-index 0000000..151304a
+index 0000000..d5ee835
 --- /dev/null
 +++ b/python/tests/test_connection.py
 @@ -0,0 +1,646 @@
@@ -1085,7 +1087,7 @@ index 0000000..151304a
 +            object_test["pass%d" % index] = True
 +        return passed
 +
-+    with CheckRefCount(path, time, event_name):
++    with CheckRefCount(path, time):
 +
 +        for _ in range(5):
 +            ubus.connect(socket_path=path)
@@ -1111,10 +1113,10 @@ index 0000000..151304a
 +            object_test = {"pass%d" % e: False for e in range(counts)}
 diff --git a/python/ubus_python.c b/python/ubus_python.c
 new file mode 100644
-index 0000000..2a4e214
+index 0000000..b7844c3
 --- /dev/null
 +++ b/python/ubus_python.c
-@@ -0,0 +1,1295 @@
+@@ -0,0 +1,1307 @@
 +
 +#include <Python.h>
 +#include <dlfcn.h>
@@ -1591,10 +1593,12 @@ index 0000000..2a4e214
 +static void ubus_python_event_handler(struct ubus_context *ctx, struct ubus_event_handler *ev,
 +			const char *type, struct blob_attr *msg)
 +{
++	PyGILState_STATE gstate = PyGILState_Ensure();
++
 +	// Prepare event
 +	PyObject *event = PyString_FromString(type);
 +	if (!event) {
-+		return;
++		goto event_handler_cleanup0;
 +	}
 +
 +	// Prepare json data
@@ -1634,8 +1638,11 @@ index 0000000..2a4e214
 +event_handler_cleanup1:
 +	Py_DECREF(event);
 +
++event_handler_cleanup0:
 +	// Clear python exceptions
 +	PyErr_Clear();
++
++	PyGILState_Release(gstate);
 +}
 +
 +PyDoc_STRVAR(
@@ -1779,6 +1786,7 @@ index 0000000..2a4e214
 +		return NULL;
 +	}
 +
++	Py_BEGIN_ALLOW_THREADS
 +	if (timeout == 0) {
 +		// process events directly without uloop
 +		ubus_handle_event(ctx);
@@ -1796,6 +1804,7 @@ index 0000000..2a4e214
 +			uloop_timeout_cancel(&u_timeout);
 +		}
 +	}
++	Py_END_ALLOW_THREADS
 +
 +	Py_INCREF(Py_None);
 +	return Py_None;
@@ -1853,14 +1862,17 @@ index 0000000..2a4e214
 +		return UBUS_STATUS_INVALID_ARGUMENT;
 +	}
 +
++	PyGILState_STATE gstate = PyGILState_Ensure();
++
++	int retval = UBUS_STATUS_OK;
 +	// Get python method
 +	PyObject *methods = container_of(obj, ubus_Object, object)->methods;
 +	PyObject *python_method = PyDict_GetItemString(methods, method);
 +	if (!python_method) {
-+		return UBUS_STATUS_METHOD_NOT_FOUND;
++		retval = UBUS_STATUS_METHOD_NOT_FOUND;
++		goto method_handler_exit;
 +	}
 +
-+	int retval = UBUS_STATUS_OK;
 +	// prepare json data
 +	char *str = blobmsg_format_json(msg, true);
 +	if (!str) {
@@ -1917,6 +1929,8 @@ index 0000000..2a4e214
 +
 +	// Clear python exceptions
 +	PyErr_Clear();
++
++	PyGILState_Release(gstate);
 +
 +	return retval;
 +}
