@@ -1,0 +1,54 @@
+From f2699a18b5b395fe9acb615d2e82ff4a4c8ff00f Mon Sep 17 00:00:00 2001
+From: Daniel Stenberg <daniel@haxx.se>
+Date: Thu, 5 Oct 2017 00:20:34 +0200
+Subject: [PATCH] build: fix --disable-crypto-auth
+
+Reported-by: Wyatt O'Day
+Fixes #1945
+Closes #1947
+---
+ lib/urldata.h   |  2 +-
+ lib/vtls/vtls.c | 10 ++++++++++
+ 2 files changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/lib/urldata.h b/lib/urldata.h
+index 66e4596fdc..964999c1fc 100644
+--- a/lib/urldata.h
++++ b/lib/urldata.h
+@@ -1453,7 +1453,7 @@ enum dupstring {
+   STRING_PROXY_SERVICE_NAME, /* Proxy service name */
+ #endif
+ #if !defined(CURL_DISABLE_CRYPTO_AUTH) || defined(USE_KERBEROS5) || \
+-    defined(USE_SPNEGO)
++  defined(USE_SPNEGO) || defined(HAVE_GSSAPI)
+   STRING_SERVICE_NAME,    /* Service name */
+ #endif
+   STRING_MAIL_FROM,
+diff --git a/lib/vtls/vtls.c b/lib/vtls/vtls.c
+index bb8fda4196..f956525208 100644
+--- a/lib/vtls/vtls.c
++++ b/lib/vtls/vtls.c
+@@ -1059,6 +1059,7 @@ bool Curl_none_false_start(void)
+   return FALSE;
+ }
+ 
++#ifndef CURL_DISABLE_CRYPTO_AUTH
+ CURLcode Curl_none_md5sum(unsigned char *input, size_t inputlen,
+                           unsigned char *md5sum, size_t md5len UNUSED_PARAM)
+ {
+@@ -1073,6 +1074,15 @@ CURLcode Curl_none_md5sum(unsigned char *input, size_t inputlen,
+   Curl_MD5_final(MD5pw, md5sum);
+   return CURLE_OK;
+ }
++#else
++CURLcode Curl_none_md5sum(unsigned char *input UNUSED_PARAM,
++                          size_t inputlen UNUSED_PARAM,
++                          unsigned char *md5sum UNUSED_PARAM,
++                          size_t md5len UNUSED_PARAM)
++{
++  return CURLE_NOT_BUILT_IN;
++}
++#endif
+ 
+ static int Curl_multissl_init(void)
+ {
