@@ -1113,10 +1113,10 @@ index 0000000..d5ee835
 +            object_test = {"pass%d" % e: False for e in range(counts)}
 diff --git a/python/ubus_python.c b/python/ubus_python.c
 new file mode 100644
-index 0000000..b7844c3
+index 0000000..98b9607
 --- /dev/null
 +++ b/python/ubus_python.c
-@@ -0,0 +1,1307 @@
+@@ -0,0 +1,1313 @@
 +
 +#include <Python.h>
 +#include <dlfcn.h>
@@ -1628,7 +1628,11 @@ index 0000000..b7844c3
 +	}
 +
 +	PyObject *result = PyObject_CallObject(listener->callback, callback_arglist);
-+	Py_DECREF(result);  // we don't much about the result
++	if (result) {
++		Py_DECREF(result);  // result of the callback is quite useless
++	} else {
++		PyErr_Print();
++	}
 +	Py_DECREF(callback_arglist);
 +
 +event_handler_cleanup3:
@@ -1895,6 +1899,7 @@ index 0000000..b7844c3
 +
 +	PyObject *handler = PyObject_CallObject((PyObject *)&ubus_ResponseHandlerType, NULL);
 +	if (!handler) {
++		PyErr_Print();
 +		goto method_handler_cleanup2;
 +	}
 +	((ubus_ResponseHandler *)handler)->req = req;
@@ -1910,6 +1915,7 @@ index 0000000..b7844c3
 +	PyObject *result = PyObject_CallObject(callable, callback_arglist);
 +	Py_DECREF(callback_arglist);
 +	if (!result) {
++		PyErr_Print();
 +		retval = UBUS_STATUS_UNKNOWN_ERROR;
 +	} else {
 +		Py_DECREF(result);  // we don't care about the result
