@@ -6,7 +6,7 @@
 * Foris: new configuration backend added
 * Foris: splitted into foris-wizard and foris-config web apps
 * Foris: use openwrt ubus session
-* Foris: integrate with ubus-ws
+* Foris: integrate with foris-ws (websocket server for foris)
 ===================== 3.8 =======================
 * updater: syntax without brackets (so called morhered) is now marked as obsolete
 * userlists: now only minimal number of packages are handled as critical
