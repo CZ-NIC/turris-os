@@ -154,6 +154,7 @@ config_list_foreach() {
 }
 
 insert_modules() {
+	[ -d "/lib/modules/$(uname -r)" ] || return
 	for m in $*; do
 		if [ -f /etc/modules.d/$m ]; then
 			sed 's/^[^#]/insmod &/' /etc/modules.d/* | ash 2>&- || :
