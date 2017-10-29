@@ -11,7 +11,7 @@ include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/version.mk
 
 PKG_NAME:=base-files
-PKG_RELEASE:=185
+PKG_RELEASE:=186
 
 PKG_FILE_DEPENDS:=$(PLATFORM_DIR)/ $(GENERIC_PLATFORM_DIR)/base-files/
 PKG_BUILD_DEPENDS:=opkg/host usign/host
@@ -176,10 +176,10 @@ define Package/base-files/postinst
 #!/bin/sh
 [ -n "$$IPKG_INSTROOT" ] || {
 	grep etc/init.d /usr/lib/opkg/info/base-files.list | while read service; do
-       /$$service enable
+		/$$service enable
 	done
 	grep etc/uci-defaults /usr/lib/opkg/info/base-files.list | while read default_script; do
-	rm -f /$$default_script
+		rm -f /$$default_script
 	done
 }
 touch "$$IPKG_INSTROOT/etc/config/ucollect"
