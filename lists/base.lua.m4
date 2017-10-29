@@ -71,7 +71,7 @@ Install("ca-certificates")
 _FEATURE_GUARD_
 
 -- Utility
-Install("ip", "iptables", "ip6tables")
+Install("ip-full", "iptables", "ip6tables")
 Install("shadow", "shadow-utils", "uboot-envtools", "i2c-tools")
 Install("openssh-client", "openssh-client-utils", "openssh-moduli", "openssh-server", "openssh-sftp-client", "openssh-sftp-server", "openssl-util")
 Install("bind-client", "bind-dig")
