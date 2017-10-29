@@ -2,7 +2,7 @@ divert(-1)
 
 # We require the _BOARD_ variable to be defined so let's check
 ifdef(`_BOARD_',,`errprint(`_BOARD_ have to be defied when gerating new userlist. For example pass argument -D _BOARD_=turris to m4.')m4exit(`1')')
-# Also we need the _BRANCH_ variable, but if it isn't defined than it means deploy
+# Also we use the _BRANCH_ variable, but if it isn't defined than it means deploy
 # and if defined as deploy then we undefine it.
 ifelse(_BRANCH_,deploy,`undefine(`_BRANCH_')',)
 
@@ -24,7 +24,7 @@ define(`foreach_join',`ifelse(eval($#>3),1,`pushdef(`$1',`$4')$2`'ifelse(eval($#
 
 # Generate Install command with given PKGBASE and PKGPARTs joined: PKGBASE-PKGPART
 # Usage: forInstall(PKGBASE, PKGPARTa, PKGPARTb)
-define(`forInstall',`Install(foreach_join(PKGPART,`"$1-PKGPART"',`, ',shift($@)))')
+define(`forInstall',`Install(foreach_join(PKGPART,`"$1-PKGPART"',`, ',shift($@)), { priority = 40 })')
 define(`forInstallCritical',`Install(foreach_join(PKGPART,`"$1-PKGPART"',`, ',shift($@)), { critical = true })')
 
 # Add languages packages for Luci
@@ -35,7 +35,7 @@ for _, lang in pairs(l10n or {}) do
 end
 for lang in pairs(luci_i18n) do
 	for _, pkg in pairs({foreach_join(X,`"X"',`, ',$@)}) do
-		Install("luci-i18n-" .. pkg .. "-" .. lang, { ignore = {"missing"} })
+		Install("luci-i18n-" .. pkg .. "-" .. lang, { ignore = {"missing"}, priority = 40 })
 	end
 end')
 
