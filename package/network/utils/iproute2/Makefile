@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=iproute2
 PKG_VERSION:=4.0.0
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=http://kernel.org/pub/linux/utils/net/iproute2/
@@ -31,14 +31,15 @@ define Package/iproute2/Default
   MAINTAINER:=Russell Senior <russell@personaltelco.net>
   DEPENDS:= +libnl-tiny
   VARIANT:=$(1)
+  PROVIDES:=$(3)
 endef
 
-define Package/ip
-$(call Package/iproute2/Default,tiny,Also full)
+define Package/ip-tiny
+$(call Package/iproute2/Default,tiny,Minimal, ip)
   CONFLICTS:=ip-full
 endef
 
-Package/ip-full=$(call Package/iproute2/Default,full,Full)
+Package/ip-full=$(call Package/iproute2/Default,full,Full,ip)
 
 define Package/ip/conffiles
 /etc/iproute2/rt_tables
@@ -69,12 +70,9 @@ $(call Package/iproute2/Default)
   TITLE:=Socket statistics utility
 endef
 
-# We want a full-featured ip command on turris routers. But attempts to
-# use ip-full fail miserably, because just everything out there depends
-# on ip. So we make ip mean the same as ip-full.
-#ifeq ($(BUILD_VARIANT),tiny)
-#  IP_CONFIG_TINY:=y
-#endif
+ifeq ($(BUILD_VARIANT),tiny)
+  IP_CONFIG_TINY:=y
+endif
 
 define Build/Configure
 	$(SED) "s,-I/usr/include/db3,," $(PKG_BUILD_DIR)/Makefile
@@ -147,7 +145,7 @@ define Package/ss/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/misc/ss $(1)/usr/sbin/
 endef
 
-$(eval $(call BuildPackage,ip))
+$(eval $(call BuildPackage,ip-tiny))
 $(eval $(call BuildPackage,ip-full))
 $(eval $(call BuildPackage,tc))
 $(eval $(call BuildPackage,genl))

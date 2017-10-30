@@ -132,3 +132,14 @@ if board:match("[Oo]mnia") then
 		Package("swconfig", { reboot = "immediate" })
 	end
 end
+
+--[[
+In Turris OS 3.9 the package ip was renamed to ip-tiny to be consistent with lede.
+But various packages requires package ip. In new updater we solve it using
+Provides field but this won't work with all updater versions. This hack adds
+virtual package ip for such updater version and basically just rebinds it to
+ip-full.
+]]
+if not features.provides then
+	Package("ip", { virtual = true, deps = {"ip-full"} })
+end
