@@ -83,9 +83,7 @@ Install("lighttpd-mod-setenv", { priority = 40 }) -- Missing dependency of luci 
 
 -- Wifi
 Install("hostapd-common", "wireless-tools", "wpad", "iw", "iwinfo", { priority = 40 })
-if model:match("[Oo]mnia") then
-	Install("ath10k-firmware-qca988x", { priority = 40 })
-end
+Install("ath10k-firmware-qca988x", { priority = 40 })
 
 -- Terminal tools
 Install("bash", "coreutils", "diffutils", "htop", "curl", "vim-full", "terminfo", "psmisc", { priority = 40 })
