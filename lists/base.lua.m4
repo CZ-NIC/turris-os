@@ -21,7 +21,7 @@ Package("kmod-mac80211", { reboot = "delayed" })
 forInstallCritical(kmod,file2args(kmod.list))
 forInstallCritical(kmod,file2args(kmod-_BOARD_.list))
 Install("fstools", { critical = true })
-if board:match("[Oo]mnia") then
+if model:match("[Oo]mnia") then
 	Install("btrfs-progs", { critical = true })
 end
 if features and features.provides then
@@ -41,7 +41,7 @@ Install("vixie-cron", "syslog-ng3", { priority = 40 })
 Install("logrotate", { priority = 40 })
 Install("dnsmasq", { priority = 40 })
 -- Note: Following packages should be critical only if we ignored dns-resolver
-if board:match("[Oo]mnia") then
+if model:match("[Oo]mnia") then
 	Install("knot-resolver", { critical = (not features or not features.provides), priority = 40 })
 else
 	Install("unbound", "unbound-anchor", { critical = (not features or not features.provides), priority = 40 })
@@ -64,7 +64,7 @@ Install("pciutils", "usbutils", "lsof", { priority = 40 })
 
 -- Turris utility
 Install("user_notify", "oneshot", "libatsha204", "watchdog_adjust", "daemon-watchdog", "update_mac", "switch-branch", { priority = 40 })
-if board:match("[Oo]mnia") then
+if model:match("[Oo]mnia") then
 	Install("rainbow-omnia", { priority = 40 })
 	Install("schnapps", "sfpswitch", { priority = 40 })
 else
@@ -83,7 +83,7 @@ Install("lighttpd-mod-setenv", { priority = 40 }) -- Missing dependency of luci 
 
 -- Wifi
 Install("hostapd-common", "wireless-tools", "wpad", "iw", "iwinfo", { priority = 40 })
-if board:match("[Oo]mnia") then
+if model:match("[Oo]mnia") then
 	Install("ath10k-firmware-qca988x", { priority = 40 })
 end
 
@@ -126,7 +126,7 @@ is running on new kernel.
 Note: version_match was introduced after installed started working so we check
 if it's defined if we can use isntalled.
 ]]
-if board:match("[Oo]mnia") then
+if model:match("[Oo]mnia") then
 	if not version_match or not installed["kmod-swconfig"] or version_match(installed["kmod-swconfig"].version, "<4.4.40") then
 		Package("swconfig", { reboot = "immediate" })
 	end
