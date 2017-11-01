@@ -127,8 +127,7 @@ Note: version_match was introduced after installed started working so we check
 if it's defined if we can use isntalled.
 ]]
 if board:match("[Oo]mnia") then
-	if not version_match or not installed["kmod-swconfig"] or \
-		version_match(installed["kmod-swconfig"].version, "<4.4.40") then
+	if not version_match or not installed["kmod-swconfig"] or version_match(installed["kmod-swconfig"].version, "<4.4.40") then
 		Package("swconfig", { reboot = "immediate" })
 	end
 end
