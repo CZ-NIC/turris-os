@@ -1,0 +1,23 @@
+diff --git a/libs/zmq/Makefile b/libs/zmq/Makefile
+index 5ad53844..e7199287 100644
+--- a/libs/zmq/Makefile
++++ b/libs/zmq/Makefile
+@@ -10,15 +10,15 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=zeromq
+-PKG_VERSION:=4.1.4
++PKG_VERSION:=4.2.2
+ PKG_RELEASE:=1
+ PKG_MAINTAINER:=Dirk Chang <dirk@kooiot.com>
+ PKG_LICENSE:=GPL-3.0+
+ PKG_LICENSE_FILES:=LICENCE.txt
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+-PKG_SOURCE_URL:= https://github.com/zeromq/zeromq4-1/releases/download/v$(PKG_VERSION)/
+-PKG_MD5SUM:=a611ecc93fffeb6d058c0e6edf4ad4fb
++PKG_SOURCE_URL:= https://github.com/zeromq/libzmq/releases/download/v$(PKG_VERSION)/
++PKG_MD5SUM:=92eb80643024ad0b0e6e78a54496a257
+ 
+ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
+ PKG_BUILD_DEPENDS:=libuuid
