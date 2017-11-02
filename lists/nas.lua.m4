@@ -4,7 +4,7 @@ _FEATURE_GUARD_
 -- Kernel --
 Install("kmod-ata-ahci", { priority = 40 })
 -- File systems
-forInstall(kmod-fs,afs,autofs4,btrfs,cifs,configfs,cramfs,exfat,exportfs,ext4,fscache,f2fs,hfs,hfsplus,isofs,jfs,minix,msdos,nfs,nfsd,ntfs,udf,vfat,xfs, { priority = 40 })
+forInstall(kmod-fs,afs,autofs4,btrfs,cifs,configfs,cramfs,exfat,exportfs,ext4,fscache,f2fs,hfs,hfsplus,isofs,jfs,minix,msdos,nfs,nfsd,ntfs,udf,vfat,xfs)
 -- Native language support
 forInstall(kmod-nls,cp1250,cp1251,cp437,cp775,cp850,cp852,cp862,cp864,cp866,cp932,iso8859-1,iso8859-13,iso8859-15,iso8859-2,iso8859-6,iso8859-8,koi8r,utf8)
 -- Raid

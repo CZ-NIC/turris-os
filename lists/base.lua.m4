@@ -68,7 +68,7 @@ if model:match("[Oo]mnia") then
 	Install("rainbow-omnia", { priority = 40 })
 	Install("schnapps", "sfpswitch", { priority = 40 })
 else
-	Install("rainbow", { priority - 40 })
+	Install("rainbow", { priority = 40 })
 end
 
 Install("foris", "foris-diagnostics-plugin", { priority = 40 })
