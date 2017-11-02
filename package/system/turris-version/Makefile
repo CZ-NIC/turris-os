@@ -30,12 +30,14 @@ define Package/turris-version/postinst
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • updater: oprava schvalování aktualizací
  • resolver: různé opravy hlavně ohledně lokálních jmen
- • knot-resolver: update na novou verzi
+ • knot-resolver: update na novější verzi
  • unbound: update na novou verzi
- • curl, ntpd, irssi a tor: bezpečnostní aktualizace" " • updater: fix apdate approvals
+ • syslog-ng: opraven init script
+ • curl, ntpd, irssi a tor: bezpečnostní aktualizace" " • updater: fix update approvals
  • resolver: various fixes mainly regarding local domain names
- • knot-resolver: update to the latest version
+ • knot-resolver: update to the newer version
  • unbound: update to the latest version
+ • syslog-ng: fixed init script
  • curl, ntpd, irssi a tor: security updates"
 }
 endef
