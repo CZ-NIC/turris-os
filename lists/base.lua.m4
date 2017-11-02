@@ -21,7 +21,7 @@ Package("kmod-mac80211", { reboot = "delayed" })
 forInstallCritical(kmod,file2args(kmod.list))
 forInstallCritical(kmod,file2args(kmod-_BOARD_.list))
 Install("fstools", { critical = true })
-if model:match("[Oo]mnia") then
+if not model or model:match("[Oo]mnia") then
 	Install("btrfs-progs", { critical = true })
 end
 if features and features.provides then
@@ -41,10 +41,11 @@ Install("vixie-cron", "syslog-ng3", { priority = 40 })
 Install("logrotate", { priority = 40 })
 Install("dnsmasq", { priority = 40 })
 -- Note: Following packages should be critical only if we ignored dns-resolver
-if model:match("[Oo]mnia") then
-	Install("knot-resolver", { critical = (not features or not features.provides), priority = 40 })
-else
+if not model or model:match("^[Tt]urris$") then
 	Install("unbound", "unbound-anchor", { critical = (not features or not features.provides), priority = 40 })
+end
+if not model or not model:match("^[Tt]urris$") then
+	Install("knot-resolver", { critical = (not features or not features.provides), priority = 40 })
 end
 Install("ppp", "ppp-mod-pppoe", { priority = 40 })
 
@@ -110,7 +111,7 @@ defined later than packages were merged.)
 ]]
 if not version_match then
 	Package('updater-ng', { deps = {'opkg-trans'} })
-	if model:match("^[Tt]urris$") then
+	if not model or model:match("^[Tt]urris$") then
 		-- On Turris 1.x we do the same also for updater as we are migrating from it in Turris OS 3.7.3'
 		Package('updater-ng', { deps = {'updater'} })
 	end
@@ -124,7 +125,7 @@ is running on new kernel.
 Note: version_match was introduced after installed started working so we check
 if it's defined if we can use isntalled.
 ]]
-if model:match("[Oo]mnia") then
+if not model or model:match("[Oo]mnia") then
 	if not version_match or not installed["kmod-swconfig"] or version_match(installed["kmod-swconfig"].version, "<4.4.40") then
 		Package("swconfig", { reboot = "immediate" })
 	end
