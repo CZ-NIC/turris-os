@@ -5,7 +5,7 @@ _FEATURE_GUARD_
 -- so we are just skipping them.
 
 -- Tools
-if not model:match("[Tt]urris") then
+if not model:match("^[Tt]urris$") then
 	Install("cups", "cups-client", { priority = 40 })
 	Install("openprinting-cups-filters", "gutenprint-cups", "ghostscript", "ghostscript-fonts-std", "ghostscript-gnu-gs-fonts-other", { priority = 40 })
 	Install("hplip", { priority = 40 })
@@ -16,7 +16,7 @@ Install("kmod-usb2", "kmod-usb-printer", { priority = 40 })
 
 -- Luci
 Install("luci-app-p910nd", { priority = 40 })
-if not model:match("[Tt]urris") then
+if not model:match("^[Tt]urris$") then
 	Install("luci-app-cups", { priority = 40 })
 end
 _LUCI_I18N_(p910nd)

@@ -11,10 +11,10 @@ forInstall(kmod-nls,cp1250,cp1251,cp437,cp775,cp850,cp852,cp862,cp864,cp866,cp93
 forInstall(kmod-md,linear,multipath,raid0,raid1,raid10,raid456)
 -- Additional kernel drivers
 Install("kmod-usb-storage-extras", "kmod-usb2", { priority = 40 })
-if model:match("[Tt]urris") then
-	Install("kmod-mmc-fsl-p2020", "kmod-fs-reiserfs", "reiserfsprogs", { priority = 40 })
-elseif model:match("[Oo]mnia") then
+if model:match("[Oo]mnia") then
 	Install("kmod-ata-ahci-platform", "kmod-ata-mvebu-ahci", "kmod-crypto-marvell-cesa", "blkdiscard", "fstrim", "asm1062-fix", { priority = 40 })
+elseif model:match("^[Tt]urris$") then
+	Install("kmod-mmc-fsl-p2020", "kmod-fs-reiserfs", "reiserfsprogs", { priority = 40 })
 end
 
 -- Tools --

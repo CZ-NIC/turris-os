@@ -110,7 +110,7 @@ defined later than packages were merged.)
 ]]
 if not version_match then
 	Package('updater-ng', { deps = {'opkg-trans'} })
-	if model:match("[Tt]urris") then
+	if model:match("^[Tt]urris$") then
 		-- On Turris 1.x we do the same also for updater as we are migrating from it in Turris OS 3.7.3'
 		Package('updater-ng', { deps = {'updater'} })
 	end
