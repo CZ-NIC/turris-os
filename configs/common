@@ -258,9 +258,7 @@ CONFIG_PACKAGE_socat=m
 CONFIG_SOCAT_SSL=y
 
 # Pakoň
-CONFIG_PACKAGE_pakon-guts=m
 CONFIG_PACKAGE_pakon-dev-detect=m
-
 CONFIG_PACKAGE_pakon-light=m
 
 # Build all firmwares
