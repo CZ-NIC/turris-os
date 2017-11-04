@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=openssl
 PKG_BASE:=1.0.2
-PKG_BUGFIX:=k
+PKG_BUGFIX:=m
 PKG_VERSION:=$(PKG_BASE)$(PKG_BUGFIX)
 PKG_RELEASE:=1
 PKG_USE_MIPS16:=0
@@ -22,7 +22,7 @@ PKG_SOURCE_URL:=http://www.openssl.org/source/ \
 	http://www.openssl.org/source/old/$(PKG_BASE)/ \
 	ftp://ftp.funet.fi/pub/crypt/mirrors/ftp.openssl.org/source \
 	ftp://ftp.sunet.se/pub/security/tools/net/openssl/source/
-PKG_SHA256SUM:=6b3977c61f2aedf0f96367dcfb5c6e578cf37e7b8d913b4ecb6643c3cb88d8c0
+PKG_SHA256SUM:=8c6ff15ec6b319b50788f42c7abc2890c08ba5a1cdcd3810eb9092deada37b0f
 
 PKG_LICENSE:=OpenSSL
 PKG_LICENSE_FILES:=LICENSE
@@ -159,7 +159,7 @@ define Build/Configure
 endef
 
 define Host/Configure
-	cd $(HOST_BUILD_DIR); perl Configure --openssldir=$(STAGING_DIR_HOST)/openssl-host linux-x86_64 shared 
+	cd $(HOST_BUILD_DIR); perl Configure --openssldir=$(STAGING_DIR_HOST)/openssl-host linux-x86_64 shared
 endef
 
 define Host/Compile
