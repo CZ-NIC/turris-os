@@ -1113,10 +1113,10 @@ index 0000000..d5ee835
 +            object_test = {"pass%d" % e: False for e in range(counts)}
 diff --git a/python/ubus_python.c b/python/ubus_python.c
 new file mode 100644
-index 0000000..98b9607
+index 0000000..4dd643e
 --- /dev/null
 +++ b/python/ubus_python.c
-@@ -0,0 +1,1313 @@
+@@ -0,0 +1,1324 @@
 +
 +#include <Python.h>
 +#include <dlfcn.h>
@@ -1381,22 +1381,26 @@ index 0000000..98b9607
 +
 +PyDoc_STRVAR(
 +	disconnect_doc,
-+	"disconnect()\n"
++	"disconnect(deregister=True)\n"
 +	"\n"
++	":param deregister: Deregisters object and handlers from ubus as well.\n"
++	":type deregister: bool\n"
 +	"Disconnects from ubus and disposes all connection structures.\n"
 +);
 +
-+void dispose_connection(void)
++void dispose_connection(bool deregister)
 +{
 +	if (ctx != NULL) {
-+		// remove objects
-+		for (int i = 0; i < objects_size; i++) {
-+			ubus_remove_object(ctx, &objects[i]->object);
-+		}
++		if (deregister) {
++			// remove objects
++			for (int i = 0; i < objects_size; i++) {
++				ubus_remove_object(ctx, &objects[i]->object);
++			}
 +
-+		// remove listeners
-+		for (int i = 0; i < listerners_size; i++) {
-+			ubus_unregister_event_handler(ctx, &listeners[i]->handler);
++			// remove listeners
++			for (int i = 0; i < listerners_size; i++) {
++				ubus_unregister_event_handler(ctx, &listeners[i]->handler);
++			}
 +		}
 +
 +		ubus_free(ctx);
@@ -1439,7 +1443,14 @@ index 0000000..98b9607
 +		PyErr_Format(PyExc_RuntimeError, MSG_NOT_CONNECTED);
 +		return NULL;
 +	}
-+	dispose_connection();
++
++	PyObject* deregister = Py_True;
++	static char *kwlist[] = {"deregister", NULL};
++	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O!", kwlist, &PyBool_Type, &deregister)){
++		return NULL;
++	}
++
++	dispose_connection(PyObject_IsTrue(deregister));
 +
 +	Py_INCREF(Py_None);
 +	return Py_None;
@@ -1501,7 +1512,7 @@ index 0000000..98b9607
 +				PyExc_IOError,
 +				"Failed to connect to the ubus socket '%s'\n", socket_path
 +		);
-+		dispose_connection();
++		dispose_connection(true);
 +		return NULL;
 +	}
 +	ubus_add_uloop(ctx);
@@ -2387,7 +2398,7 @@ index 0000000..98b9607
 +}
 +
 +static PyMethodDef ubus_methods[] = {
-+	{"disconnect", (PyCFunction)ubus_python_disconnect, METH_NOARGS, disconnect_doc},
++	{"disconnect", (PyCFunction)ubus_python_disconnect, METH_VARARGS|METH_KEYWORDS, disconnect_doc},
 +	{"connect", (PyCFunction)ubus_python_connect, METH_VARARGS|METH_KEYWORDS, connect_doc},
 +	{"get_connected", (PyCFunction)ubus_python_get_connected, METH_NOARGS, get_connected_doc},
 +	{"get_socket_path", (PyCFunction)ubus_python_get_socket_path, METH_NOARGS, get_socket_path_doc},
