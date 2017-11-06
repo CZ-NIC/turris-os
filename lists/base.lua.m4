@@ -65,7 +65,7 @@ Install("pciutils", "usbutils", "lsof", { priority = 40 })
 
 -- Turris utility
 Install("user_notify", "oneshot", "libatsha204", "watchdog_adjust", "daemon-watchdog", "update_mac", "switch-branch", { priority = 40 })
-if model:match("[Oo]mnia") then
+if not model or model:match("[Oo]mnia") then
 	Install("rainbow-omnia", { priority = 40 })
 	Install("schnapps", "sfpswitch", { priority = 40 })
 else
