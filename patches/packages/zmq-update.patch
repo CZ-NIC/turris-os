@@ -17,7 +17,7 @@ index 5ad53844..e7199287 100644
 -PKG_SOURCE_URL:= https://github.com/zeromq/zeromq4-1/releases/download/v$(PKG_VERSION)/
 -PKG_MD5SUM:=a611ecc93fffeb6d058c0e6edf4ad4fb
 +PKG_SOURCE_URL:= https://github.com/zeromq/libzmq/releases/download/v$(PKG_VERSION)/
-+PKG_MD5SUM:=92eb80643024ad0b0e6e78a54496a257
++PKG_MD5SUM:=52499909b29604c1e47a86f1cb6a9115
  
  PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
  PKG_BUILD_DEPENDS:=libuuid
