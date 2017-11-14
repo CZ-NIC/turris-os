@@ -65,8 +65,14 @@ define KernelPackage/usb-udl
   TITLE:=Support for DisplayLink USB graphics card
   KCONFIG:= \
 	CONFIG_FB_UDL=m \
+	CONFIG_FB_CFB_FILLRECT=m \
+	CONFIG_FB_CFB_COPYAREA=m \
+	CONFIG_FB_CFB_IMAGEBLIT=m \
+	CONFIG_FB_SYS_FILLRECT=m \
+	CONFIG_FB_SYS_COPYAREA=m \
+	CONFIG_FB_SYS_IMAGEBLIT=m \
 	CONFIG_FB=m \
-	CONFIG_HDMI=y \
+	CONFIG_HDMI=y
   FILES:= \
          $(LINUX_DIR)/drivers/video/fbdev/core/fb.ko \
          $(LINUX_DIR)/drivers/video/fbdev/core/cfbcopyarea.ko \
