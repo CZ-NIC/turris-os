@@ -65,9 +65,6 @@ define KernelPackage/usb-udl
   TITLE:=Support for DisplayLink USB graphics card
   KCONFIG:= \
 	CONFIG_FB_UDL=m \
-	CONFIG_FB_CFB_FILLRECT=m \
-	CONFIG_FB_CFB_COPYAREA=m \
-	CONFIG_FB_CFB_IMAGEBLIT=m \
 	CONFIG_FB_SYS_FILLRECT=m \
 	CONFIG_FB_SYS_COPYAREA=m \
 	CONFIG_FB_SYS_IMAGEBLIT=m \
@@ -75,16 +72,13 @@ define KernelPackage/usb-udl
 	CONFIG_HDMI=y
   FILES:= \
          $(LINUX_DIR)/drivers/video/fbdev/core/fb.ko \
-         $(LINUX_DIR)/drivers/video/fbdev/core/cfbcopyarea.ko \
-         $(LINUX_DIR)/drivers/video/fbdev/core/cfbfillrect.ko \
-         $(LINUX_DIR)/drivers/video/fbdev/core/cfbimgblt.ko \
          $(LINUX_DIR)/drivers/video/fbdev/core/fb_sys_fops.ko \
          $(LINUX_DIR)/drivers/video/fbdev/core/syscopyarea.ko \
          $(LINUX_DIR)/drivers/video/fbdev/core/sysfillrect.ko \
          $(LINUX_DIR)/drivers/video/fbdev/core/sysimgblt.ko \
          $(LINUX_DIR)/drivers/video/fbdev/udlfb.ko
   DEPENDS:=+kmod-dma-buf
-  AUTOLOAD:=$(call AutoLoad,99,fb fb_sys_fops syscopyarea sysfillrect sysimgblt cfbcopyarea cfbfillrect cfbimgblt udlfb)
+  AUTOLOAD:=$(call AutoLoad,99,fb fb_sys_fops syscopyarea sysfillrect sysimgblt udlfb)
   $(call AddDepends/usb)
 endef
 
