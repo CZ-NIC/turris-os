@@ -90,6 +90,8 @@ CONFIG_OPKG_SUPPORT_MD5=y
 CONFIG_PACKAGE_updater-ng=y
 CONFIG_PACKAGE_opkg-trans=m
 CONFIG_PACKAGE_updater=m
+CONFIG_PACKAGE_updater-ng-opkg=m
+CONFIG_PACKAGE_updater-ng-localrepo=m
 
 # Few useful kernel options
 CONFIG_KERNEL_AIO=y
