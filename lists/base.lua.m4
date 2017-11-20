@@ -56,6 +56,13 @@ Install("ca-certificates", { priority = 40 })
 
 _FEATURE_GUARD_
 
+-- Updater utility
+Install('updater-ng-opkg', { priority = 40 })
+if features.replan_string then
+	Package('updater-ng-opkg', { replan = 'finished' })
+	Package('updater-ng-localrepo', { replan = 'finished' })
+end
+
 -- Utility
 Install("ip-full", "iptables", "ip6tables", { priority = 40 })
 Install("shadow", "shadow-utils", "uboot-envtools", "i2c-tools", { priority = 40 })
