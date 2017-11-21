@@ -29,3 +29,28 @@ index c88ab0a4..d08815a0 100644
  max_file_uploads = 20
  
  ; Fopen wrappers
+diff --git a/lang/php7/files/opcache.ini b/lang/php7/files/opcache.ini
+new file mode 100644
+index 00000000..031b26fc
+--- /dev/null
++++ b/lang/php7/files/opcache.ini
+@@ -0,0 +1,7 @@
++opcache.enable=1
++opcache.enable_cli=1
++opcache.interned_strings_buffer=8
++opcache.max_accelerated_files=10000
++opcache.memory_consumption=128
++opcache.save_comments=1
++opcache.revalidate_freq=1
+diff --git a/lang/php7/Makefile b/lang/php7/Makefile
+index f7bdd66e..922f5ccc 100644
+--- a/lang/php7/Makefile
++++ b/lang/php7/Makefile
+@@ -537,6 +540,7 @@ define BuildModule
+ 	$(INSTALL_DIR) $$(1)/usr/lib/php
+ 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/modules/$(subst -,_,$(1)).so $$(1)/usr/lib/php/
+ 	$(INSTALL_DIR) $$(1)/etc/php7
++	[ \! -f ./files/$(subst -,_,$(1)).ini ] || cp ./files/$(subst -,_,$(1)).ini $$(1)/etc/php7/99_$(subst -,_,$(1)).ini
+       ifeq ($(5),zend)
+ 	echo "zend_extension=/usr/lib/php/$(subst -,_,$(1)).so" > $$(1)/etc/php7/$(if $(4),$(4),20)_$(subst -,_,$(1)).ini
+       else
