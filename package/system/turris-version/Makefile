@@ -8,9 +8,9 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.8
+PKG_VERSION:=3.9
 
-PKG_MAINTAINER:=Michal Vaner <michal.vaner@nic.cz>
+PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -28,28 +28,17 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • foris: možnost nastavit limity pro návštěvnickou síť
- • foris: možnost nechat propagovat jména klientů do lokálního DNS
- • foris a updater: možnost odložených aktualizací
- • foris: ruský, dánský a litevský překlad
- • userlisty: prořezány závisloti
- • suricata: update na novou verzi, modulárnější konfigurace, podpůrné balíčky
- • php7: přidána podpora
- • mariadb: nový balíček
- • nextcloud: základní podpora zatím bez integrace
- • turris 1.X: kernel 4.4 a podpora migrace na btrfs na Micro SD kartě
- • nfsv4: základní podpora
- • hardware feed: přidáno několik balíčků týkající se práce s hardware" " • foris: option to set bandwidth limits for guest network
- • foris: option to propagate client names into local DNS
- • foris and updater: delayed updates
- • foris: russian, danish and lithuanian translations added
- • userlists: trimed down dependencies
- • suricata: new version, more modular configuration, helper packages
- • php7: newly supported
- • mariadb: new package
- • nextcloud: basic support without much integration
- • nfsv4: basic support
- • hardware feed: few hardware related packages"
+create_notification -s news " • netmetr: možnost aktivního měření propustnosti linky
+ • ssh-honeypot: migrace na systém haas
+ • updater: přesun konfiguračních souborů a změna algoritmu řazení
+ • foris: velký úklid v backendu
+ • pakon: experimentální CLI utitlita pro integraci se Suricatou
+ • aktualizace různých blíčků" " • netmetr: active bandwidth testing tool
+ • ssh-honeypot: migration to haas service
+ • updater: move and slit of configuration files and better sorting algorithm
+ • foris: big backend cleanup
+ • pakon: experimental Suricata integration CLI utility
+ • various package updates"
 }
 endef
 
