@@ -69,6 +69,13 @@ echo Reboot faked!" > $BUILD_DIR/bin/reboot
 chmod +x $BUILD_DIR/bin/reboot
 export PATH="$(readlink -f $BUILD_DIR/bin):$PATH"
 
+# Create /tmp/sysinfo files
+# TODO we should use some internal option of updater it self
+mkdir -p /tmp/sysinfo
+echo "Turris Omnia" > /tmp/sysinfo/model
+# We are only using board_name anyway atm.
+echo "rtunknown" > /tmp/sysinfo/board_name  
+
 ABSOUT="$(readlink -f $ROOT)"
 # First install base files before anything else
 BASE_FILES="$(ls $OPENWRT_BIN/packages/base/base-files*.ipk | head -1)" # ls magic to get full name of package file
