@@ -30,14 +30,14 @@ define Package/turris-version/postinst
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • netmetr: možnost aktivního měření propustnosti linky
  • ssh-honeypot: migrace na systém haas
- • updater: přesun konfiguračních souborů a změna algoritmu řazení
+ • updater: přesun konfiguračních souborů
  • foris: velký úklid v backendu
- • pakon: experimentální CLI utitlita pro integraci se Suricatou
+ • pakon: parental control / sledování sítě, technologické demo (CLI)
  • aktualizace různých blíčků" " • netmetr: active bandwidth testing tool
  • ssh-honeypot: migration to haas service
- • updater: move and slit of configuration files and better sorting algorithm
+ • updater: moving and splitting configuration files
  • foris: big backend cleanup
- • pakon: experimental Suricata integration CLI utility
+ • pakon: parental control / network monitoring, CLI only preview
  • various package updates"
 }
 endef
