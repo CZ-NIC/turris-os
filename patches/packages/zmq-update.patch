@@ -2,7 +2,7 @@ diff --git a/libs/zmq/Makefile b/libs/zmq/Makefile
 index 5ad53844..5c165664 100644
 --- a/libs/zmq/Makefile
 +++ b/libs/zmq/Makefile
-@@ -10,15 +10,15 @@
+@@ -10,21 +10,22 @@
  include $(TOPDIR)/rules.mk
  
  PKG_NAME:=zeromq
@@ -21,6 +21,13 @@ index 5ad53844..5c165664 100644
  
  PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
  PKG_BUILD_DEPENDS:=libuuid
+ 
+ PKG_FIXUP:=autoreconf
+ 
++TARGET_LDFLAGS += -lm
+ PKG_INSTALL:=1
+ 
+ 
 diff --git a/libs/zmq/patches/020-map_with_const_string_with_ublic++.patch b/libs/zmq/patches/020-map_with_const_string_with_ublic++.patch
 index 3e13e272..8ab7a9eb 100644
 --- a/libs/zmq/patches/020-map_with_const_string_with_ublic++.patch
