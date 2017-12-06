@@ -28,8 +28,8 @@ define KernelPackage/ath10k-ct
   TITLE:=ath10k-ct driver optimized for CT ath10k firmware
   DEPENDS:=+kmod-mac80211 +kmod-cfg80211 +kmod-thermal +kmod-ath +@DRIVER_11N_SUPPORT @PCI_SUPPORT +@DRIVER_11AC_SUPPORT +@KERNEL_RELAY
   FILES:=\
-	$(PKG_BUILD_DIR)/ath10k/ath10k_pci.ko \
-	$(PKG_BUILD_DIR)/ath10k/ath10k_core.ko
+	$(PKG_BUILD_DIR)/ath10k$(CT_KVER)/ath10k_pci.ko \
+	$(PKG_BUILD_DIR)/ath10k$(CT_KVER)/ath10k_core.ko
   AUTOLOAD:=$(call AutoLoad,50,compat cfg80211 mac80211 ath ath10k_core ath10k_pci)
 endef
 
