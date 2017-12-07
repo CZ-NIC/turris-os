@@ -1,0 +1,46 @@
+From 48c31ca61f10205b0f269de8483559ce39e30698 Mon Sep 17 00:00:00 2001
+From: Michal Hrusecky <Michal@Hrusecky.net>
+Date: Thu, 7 Dec 2017 23:15:14 +0100
+Subject: [PATCH] Fix about page on old Turris routers
+
+---
+ cznic/foris-controller/Makefile                     |  2 +-
+ cznic/foris-controller/patches/foris-controller.patch | 13 +++++++++++++
+ 2 files changed, 14 insertions(+), 1 deletion(-)
+ create mode 100644 cznic/foris-controller/files/foris-controller.patch
+
+diff --git a/cznic/foris-controller/Makefile b/cznic/foris-controller/Makefile
+index 541d76f61..3ab1080dc 100644
+--- a/cznic/foris-controller/Makefile
++++ b/cznic/foris-controller/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=foris-controller
+ PKG_VERSION:=0.7.3
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ PKG_SOURCE_SUBDIR:=$(PKG_NAME)
+ PKG_SOURCE_PROTO:=git
+ PKG_SOURCE_URL:=https://gitlab.labs.nic.cz/turris/foris-controller
+diff --git a/cznic/foris-controller/patches/foris-controller.patch b/cznic/foris-controller/patches/foris-controller.patch
+new file mode 100644
+index 000000000..b663344f3
+--- /dev/null
++++ b/cznic/foris-controller/patches/foris-controller.patch
+@@ -0,0 +1,13 @@
++diff --git a/foris_controller_backends/about/__init__.py b/foris_controller_backends/about/__init__.py
++index a7f4cb0..3baf57b 100644
++--- a/foris_controller_backends/about/__init__.py
+++++ b/foris_controller_backends/about/__init__.py
++@@ -49,7 +49,7 @@ class TemperatureCmds(BaseCmdLine):
++         :rtype: int
++         """
++         return int(self._trigger_and_parse(
++-            ("thermometer", ), r'^CPU:\s+([0-9]+)$', (1, )))
+++            ("thermometer", ), r'.*CPU:\s+([0-9]+)$', (1, )))
++ 
++ 
++ class SystemInfoCmds(BaseCmdLine):
+-- 
+2.15.1
+
