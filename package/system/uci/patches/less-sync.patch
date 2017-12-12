@@ -2,11 +2,13 @@ Index: uci-2015-04-09.1/file.c
 ===================================================================
 --- uci-2015-04-09.1.orig/file.c
 +++ uci-2015-04-09.1/file.c
-@@ -721,6 +721,7 @@ static void uci_file_commit(struct uci_c
+@@ -721,6 +721,9 @@ static void uci_file_commit(struct uci_c
  {
  	struct uci_package *p = *package;
  	FILE *f1, *f2 = NULL;
++#ifndef __UCLIBC__
 +	int syncfd = 0;
++#endif
  	char *name = NULL;
  	char *path = NULL;
  	char *filename = NULL;
