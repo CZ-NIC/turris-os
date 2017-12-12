@@ -1,7 +1,6 @@
-From 12fac09b437a1dc8a0f253e265934a8aaf4d2f8b Mon Sep 17 00:00:00 2001
 From: Jouni Malinen <j@w1.fi>
 Date: Sun, 1 Oct 2017 12:32:57 +0300
-Subject: [PATCH 5/8] Fix PTK rekeying to generate a new ANonce
+Subject: [PATCH] Fix PTK rekeying to generate a new ANonce
 
 The Authenticator state machine path for PTK rekeying ended up bypassing
 the AUTHENTICATION2 state where a new ANonce is generated when going
@@ -14,13 +13,9 @@ for the purpose of starting new 4-way handshake to rekey PTK.
 
 Signed-off-by: Jouni Malinen <j@w1.fi>
 ---
- src/ap/wpa_auth.c | 24 +++++++++++++++++++++---
- 1 file changed, 21 insertions(+), 3 deletions(-)
 
-Index: hostapd-2016-12-19/src/ap/wpa_auth.c
-===================================================================
---- hostapd-2016-12-19.orig/src/ap/wpa_auth.c
-+++ hostapd-2016-12-19/src/ap/wpa_auth.c
+--- a/src/ap/wpa_auth.c
++++ b/src/ap/wpa_auth.c
 @@ -1912,6 +1912,21 @@ SM_STATE(WPA_PTK, AUTHENTICATION2)
  }
  

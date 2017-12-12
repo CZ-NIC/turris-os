@@ -1,7 +1,6 @@
-From 6c4bed4f47d1960ec04981a9d50e5076aea5223d Mon Sep 17 00:00:00 2001
 From: Jouni Malinen <j@w1.fi>
 Date: Fri, 22 Sep 2017 11:03:15 +0300
-Subject: [PATCH 6/8] TDLS: Reject TPK-TK reconfiguration
+Subject: [PATCH] TDLS: Reject TPK-TK reconfiguration
 
 Do not try to reconfigure the same TPK-TK to the driver after it has
 been successfully configured. This is an explicit check to avoid issues
@@ -20,11 +19,7 @@ the peer uses a very unlikely "random nonce" of all zeros.
 
 Signed-off-by: Jouni Malinen <j@w1.fi>
 ---
- src/rsn_supp/tdls.c | 38 ++++++++++++++++++++++++++++++++++++--
- 1 file changed, 36 insertions(+), 2 deletions(-)
 
-diff --git a/src/rsn_supp/tdls.c b/src/rsn_supp/tdls.c
-index e424168..9eb9738 100644
 --- a/src/rsn_supp/tdls.c
 +++ b/src/rsn_supp/tdls.c
 @@ -112,6 +112,7 @@ struct wpa_tdls_peer {
@@ -35,7 +30,7 @@ index e424168..9eb9738 100644
  	int tpk_success;
  	int tpk_in_progress;
  
-@@ -192,6 +193,20 @@ static int wpa_tdls_set_key(struct wpa_sm *sm, struct wpa_tdls_peer *peer)
+@@ -192,6 +193,20 @@ static int wpa_tdls_set_key(struct wpa_s
  	u8 rsc[6];
  	enum wpa_alg alg;
  
@@ -56,7 +51,7 @@ index e424168..9eb9738 100644
  	os_memset(rsc, 0, 6);
  
  	switch (peer->cipher) {
-@@ -209,12 +224,15 @@ static int wpa_tdls_set_key(struct wpa_sm *sm, struct wpa_tdls_peer *peer)
+@@ -209,12 +224,15 @@ static int wpa_tdls_set_key(struct wpa_s
  		return -1;
  	}
  
@@ -72,7 +67,7 @@ index e424168..9eb9738 100644
  	return 0;
  }
  
-@@ -696,7 +714,7 @@ static void wpa_tdls_peer_clear(struct wpa_sm *sm, struct wpa_tdls_peer *peer)
+@@ -696,7 +714,7 @@ static void wpa_tdls_peer_clear(struct w
  	peer->cipher = 0;
  	peer->qos_info = 0;
  	peer->wmm_capable = 0;
@@ -89,7 +84,7 @@ index e424168..9eb9738 100644
  	wpa_hexdump(MSG_DEBUG, "TDLS: Initiator Nonce for TPK handshake",
  		    peer->inonce, WPA_NONCE_LEN);
  	os_memcpy(ftie->Snonce, peer->inonce, WPA_NONCE_LEN);
-@@ -1751,6 +1770,19 @@ static int wpa_tdls_addset_peer(struct wpa_sm *sm, struct wpa_tdls_peer *peer,
+@@ -1751,6 +1770,19 @@ static int wpa_tdls_addset_peer(struct w
  }
  
  
@@ -127,6 +122,3 @@ index e424168..9eb9738 100644
  	}
  
  #if 0
--- 
-2.7.4
-
