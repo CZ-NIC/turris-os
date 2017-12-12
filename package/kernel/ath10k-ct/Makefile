@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ath10k-ct
-PKG_VERSION:=2017-06-13
+PKG_VERSION:=2017-05-16
 PKG_RELEASE=1
 
 PKG_LICENSE:=GPLv2
@@ -10,13 +10,11 @@ PKG_LICENSE_FILES:=
 PKG_SOURCE_URL:=https://github.com/greearb/ath10k-ct.git
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=bded1823912549017d819d1796273b3134c3de20
+PKG_SOURCE_VERSION:=c048ef0c3eedf99b41bc12b3f4e47ef3d9fab484
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.xz
 
 PKG_MAINTAINER:=Ben Greear <greearb@candelatech.com>
 PKG_BUILD_PARALLEL:=1
-
-CT_KVER="-4.13"
 
 STAMP_CONFIGURED_DEPENDS := $(STAGING_DIR)/usr/include/mac80211-backport/backport/autoconf.h
 
@@ -28,8 +26,8 @@ define KernelPackage/ath10k-ct
   TITLE:=ath10k-ct driver optimized for CT ath10k firmware
   DEPENDS:=+kmod-mac80211 +kmod-cfg80211 +kmod-thermal +kmod-ath +@DRIVER_11N_SUPPORT @PCI_SUPPORT +@DRIVER_11AC_SUPPORT +@KERNEL_RELAY
   FILES:=\
-	$(PKG_BUILD_DIR)/ath10k$(CT_KVER)/ath10k_pci.ko \
-	$(PKG_BUILD_DIR)/ath10k$(CT_KVER)/ath10k_core.ko
+	$(PKG_BUILD_DIR)/ath10k/ath10k_pci.ko \
+	$(PKG_BUILD_DIR)/ath10k/ath10k_core.ko
   AUTOLOAD:=$(call AutoLoad,50,compat cfg80211 mac80211 ath ath10k_core ath10k_pci)
 endef
 
@@ -78,7 +76,7 @@ define Build/Compile
 	+$(MAKE) $(CT_MAKEDEFS) $(PKG_JOBS) -C "$(LINUX_DIR)" \
 		ARCH="$(LINUX_KARCH)" \
 		CROSS_COMPILE="$(TARGET_CROSS)" \
-		SUBDIRS="$(PKG_BUILD_DIR)/ath10k$(CT_KVER)" \
+		SUBDIRS="$(PKG_BUILD_DIR)/ath10k" \
 		NOSTDINC_FLAGS="$(NOSTDINC_FLAGS)" \
 		modules
 endef
