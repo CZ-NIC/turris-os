@@ -10,21 +10,27 @@ Index: uci-2015-04-09.1/file.c
  	char *name = NULL;
  	char *path = NULL;
  	char *filename = NULL;
-@@ -796,13 +797,16 @@ static void uci_file_commit(struct uci_c
+@@ -796,13 +797,23 @@ static void uci_file_commit(struct uci_c
  done:
  	free(name);
  	free(path);
++#ifndef __UCLIBC__
 +	syncfs(fileno(f1));
++#endif
  	uci_close_stream(f1);
  	if (do_rename && rename(filename, p->path)) {
++#ifndef __UCLIBC__
 +		syncfd = open(filename, O_RDONLY | O_NONBLOCK);
 +		if (syncfd > 0)
 +			syncfs(syncfd);
++#endif
  		unlink(filename);
  		UCI_THROW(ctx, UCI_ERR_IO);
  	}
  	free(filename);
--	sync();
++#ifdef __UCLIBC__
+	sync();
++#endif
  	if (ctx->err)
  		UCI_THROW(ctx, ctx->err);
  }
