@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.9
+PKG_VERSION:=3.9.1
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,17 +28,21 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • netmetr: možnost aktivního měření propustnosti linky
- • ssh-honeypot: migrace na systém haas
- • updater: přesun konfiguračních souborů
- • foris: velký úklid v backendu
- • pakon: parental control / sledování sítě, technologické demo (CLI)
- • aktualizace různých blíčků" " • netmetr: active bandwidth testing tool
- • ssh-honeypot: migration to haas service
- • updater: moving and splitting configuration files
- • foris: big backend cleanup
- • pakon: parental control / network monitoring, CLI only preview
- • various package updates"
+create_notification -s news " • coreutils: update na poslední verzi
+ • uci: méně volání sync - teoreticky o něco málo rychlejší commit
+ • hostapd: aktualizace patchů z LEDE
+ • kernel: update a fat driver zakompilován natvrdo do kernelu na starých Turrisech
+ • pakon: robustnější instalace
+ • updater: robustnější aktualizace a opravy lokálních rep
+ • knot-resolver: aktualizace na nejnovější verzi
+ • foris: aktualizované překlady a více diagnostik" " • coreutils: update to the latest version
+ • uci: less sync calls - in theory a little faster commits
+ • hostapd: updated patches from LEDE
+ • kernel: update to the latest version
+ • pakon: more robust installation
+ • updater: more robust updates and fixes to local repos handling
+ • knot-resolver: update to the latest version
+ • foris: updated translations and more diagnostics"
 }
 endef
 
