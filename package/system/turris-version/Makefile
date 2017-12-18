@@ -33,16 +33,18 @@ create_notification -s news " • coreutils: update na poslední verzi
  • hostapd: aktualizace patchů z LEDE
  • kernel: update a fat driver zakompilován natvrdo do kernelu na starých Turrisech
  • pakon: robustnější instalace
+ • haas-proxy: robustnější integrace do firewallu
  • updater: robustnější aktualizace a opravy lokálních rep
  • knot-resolver: aktualizace na nejnovější verzi
- • foris: aktualizované překlady a více diagnostik" " • coreutils: update to the latest version
+ • foris: aktualizované překlady a více diagnostik, oprava chyby na stránce o routeru" " • coreutils: update to the latest version
  • uci: less sync calls - in theory a little faster commits
  • hostapd: updated patches from LEDE
  • kernel: update to the latest version
  • pakon: more robust installation
+ • haas-proxy: more robust firewall integration
  • updater: more robust updates and fixes to local repos handling
  • knot-resolver: update to the latest version
- • foris: updated translations and more diagnostics"
+ • foris: updated translations and more diagnostics, fixed error on about page"
 }
 endef
 
