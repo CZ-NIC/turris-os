@@ -31,20 +31,20 @@ define Package/turris-version/postinst
 create_notification -s news " • coreutils: update na poslední verzi
  • uci: méně volání sync - teoreticky o něco málo rychlejší commit
  • hostapd: aktualizace patchů z LEDE
- • kernel: update a fat driver zakompilován natvrdo do kernelu na starých Turrisech
+ • kernel: update, fat driver zakompilován do kernelu na Turrisech 1.X a oprava problému s LXC
  • pakon: robustnější instalace
  • haas-proxy: robustnější integrace do firewallu
  • updater: robustnější aktualizace a opravy lokálních rep
  • knot-resolver: aktualizace na nejnovější verzi
- • foris: aktualizované překlady a více diagnostik, oprava chyby na stránce o routeru" " • coreutils: update to the latest version
+ • foris: aktualizované překlady a více diagnostik, oprava různých drobných chyb" " • coreutils: update to the latest version
  • uci: less sync calls - in theory a little faster commits
  • hostapd: updated patches from LEDE
- • kernel: update to the latest version
+ • kernel: update to the latest version, fix for problems with LXC containers
  • pakon: more robust installation
  • haas-proxy: more robust firewall integration
  • updater: more robust updates and fixes to local repos handling
  • knot-resolver: update to the latest version
- • foris: updated translations and more diagnostics, fixed error on about page"
+ • foris: updated translations and more diagnostics, fixed various minor bugs"
 }
 endef
 
