@@ -85,7 +85,7 @@ if for_l10n then
 	for_l10n("foris-diagnostics-plugin-l10n-")
 end
 Install("nuci", "nuci-nethist", { priority = 40 })
-Install("turris-version", "lighttpd-https-cert", "start-indicator", { priority = 40 })
+Install("turris-version", "lighttpd-https-cert", "lighttpd-mod-openssl", "start-indicator", { priority = 40 })
 Install("conntrack-tools", { priority = 40 })
 Install("lighttpd-mod-setenv", { priority = 40 }) -- Missing dependency of luci (setenv used in /etc/lighttpd/conf.d/luci.conf)
 
