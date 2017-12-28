@@ -202,6 +202,14 @@ Signed-off-by: Jonas Gorski <jogo@openwrt.org>
  		net->ipv6.ip6_blk_hole_entry->dst.dev = dev;
  		net->ipv6.ip6_blk_hole_entry->rt6i_idev = in6_dev_get(dev);
  #endif
+@@ -3387,6 +3425,7 @@
+ 		in6_dev_put(net->ipv6.ip6_null_entry->rt6i_idev);
+ #ifdef CONFIG_IPV6_MULTIPLE_TABLES
+ 		in6_dev_put(net->ipv6.ip6_prohibit_entry->rt6i_idev);
++		in6_dev_put(net->ipv6.ip6_policy_failed_entry->rt6i_idev);
+ 		in6_dev_put(net->ipv6.ip6_blk_hole_entry->rt6i_idev);
+ #endif
+ 	}
 @@ -3575,6 +3614,17 @@ static int __net_init ip6_route_net_init
  	net->ipv6.ip6_blk_hole_entry->dst.ops = &net->ipv6.ip6_dst_ops;
  	dst_init_metrics(&net->ipv6.ip6_blk_hole_entry->dst,
