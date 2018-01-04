@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.9.1
+PKG_VERSION:=3.9.2
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,23 +28,19 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • coreutils: update na poslední verzi
- • uci: méně volání sync - teoreticky o něco málo rychlejší commit
- • hostapd: aktualizace patchů z LEDE
- • kernel: update, fat driver zakompilován do kernelu na Turrisech 1.X a oprava problému s LXC
- • pakon: robustnější instalace
- • haas-proxy: robustnější integrace do firewallu
- • updater: robustnější aktualizace a opravy lokálních rep
- • knot-resolver: aktualizace na nejnovější verzi
- • foris: aktualizované překlady a více diagnostik, oprava různých drobných chyb" " • coreutils: update to the latest version
- • uci: less sync calls - in theory a little faster commits
- • hostapd: updated patches from LEDE
- • kernel: update to the latest version, fix for problems with LXC containers
- • pakon: more robust installation
- • haas-proxy: more robust firewall integration
- • updater: more robust updates and fixes to local repos handling
- • knot-resolver: update to the latest version
- • foris: updated translations and more diagnostics, fixed various minor bugs"
+create_notification -s news " • openssl: bezpečnostní aktualizace
+ • musl & busybox: použití silnějších hashů na hesla ve výchozím stavu
+ • kernel: update na poslední verzi
+ • netmetr: oprava přepisování konfigurace
+ • libtiff, socat, rsync: bezpečnostní aktualizace
+ • tvheadend: update na poslední verzi
+ • suricata: lepší integrace do firewallu" " • openssl: security update
+ • musl & busybox: use stronger password hash by default
+ • kernel: update to the latest version
+ • netmetr: fix configuration reset
+ • libtiff, socat, rsync: security updates
+ • tvheadend: update to the latest version
+ • suricata: better integration into firewall"
 }
 endef
 
