@@ -32,13 +32,13 @@ create_notification -s news " • openssl: bezpečnostní aktualizace
  • musl & busybox: použití silnějších hashů na hesla ve výchozím stavu
  • kernel: update na poslední verzi
  • netmetr: oprava přepisování konfigurace
- • libtiff, socat, rsync: bezpečnostní aktualizace
+ • libtiff, socat, rsync, coreutils: bezpečnostní aktualizace
  • tvheadend: update na poslední verzi
  • suricata: oprava chyby spouštění na některých routerech, zlepšení výkonu" " • openssl: security update
  • musl & busybox: use stronger password hash by default
  • kernel: update to the latest version
  • netmetr: fix configuration reset
- • libtiff, socat, rsync: security updates
+ • libtiff, socat, rsync, coreutils: security updates
  • tvheadend: update to the latest version
  • suricata: fix startup issue on some routers, performance tweaks"
 }
