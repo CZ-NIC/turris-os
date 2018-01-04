@@ -34,13 +34,13 @@ create_notification -s news " • openssl: bezpečnostní aktualizace
  • netmetr: oprava přepisování konfigurace
  • libtiff, socat, rsync: bezpečnostní aktualizace
  • tvheadend: update na poslední verzi
- • suricata: lepší integrace do firewallu" " • openssl: security update
+ • suricata: oprava chyby spouštění na některých routerech, zlepšení výkonu" " • openssl: security update
  • musl & busybox: use stronger password hash by default
  • kernel: update to the latest version
  • netmetr: fix configuration reset
  • libtiff, socat, rsync: security updates
  • tvheadend: update to the latest version
- • suricata: better integration into firewall"
+ • suricata: fix startup issue on some routers, performance tweaks"
 }
 endef
 
