@@ -10,7 +10,6 @@ asterisk11
 gcc
 elektra-kdb
 libextractor
-qemu-ga
 lcdgrilo
 grilo-plugins
 hamlib
@@ -19,6 +18,5 @@ sysrepod
 libmraa
 libupm
 freeswitch
-mysql
 libtool-bin
-mocp
+moc
