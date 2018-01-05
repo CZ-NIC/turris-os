@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.9.1
+PKG_VERSION:=3.9.2
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,23 +28,19 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • coreutils: update na poslední verzi
- • uci: méně volání sync - teoreticky o něco málo rychlejší commit
- • hostapd: aktualizace patchů z LEDE
- • kernel: update a fat driver zakompilován natvrdo do kernelu na starých Turrisech
- • pakon: robustnější instalace
- • haas-proxy: robustnější integrace do firewallu
- • updater: robustnější aktualizace a opravy lokálních rep
- • knot-resolver: aktualizace na nejnovější verzi
- • foris: aktualizované překlady a více diagnostik, oprava chyby na stránce o routeru" " • coreutils: update to the latest version
- • uci: less sync calls - in theory a little faster commits
- • hostapd: updated patches from LEDE
+create_notification -s news " • openssl: bezpečnostní aktualizace
+ • musl & busybox: použití silnějších hashů na hesla ve výchozím stavu
+ • kernel: update na poslední verzi
+ • netmetr: oprava přepisování konfigurace
+ • libtiff, socat, rsync, coreutils, php: bezpečnostní aktualizace
+ • tvheadend: update na poslední verzi
+ • suricata: oprava chyby spouštění na některých routerech, zlepšení výkonu" " • openssl: security update
+ • musl & busybox: use stronger password hash by default
  • kernel: update to the latest version
- • pakon: more robust installation
- • haas-proxy: more robust firewall integration
- • updater: more robust updates and fixes to local repos handling
- • knot-resolver: update to the latest version
- • foris: updated translations and more diagnostics, fixed error on about page"
+ • netmetr: fix configuration reset
+ • libtiff, socat, rsync, coreutils, php: security updates
+ • tvheadend: update to the latest version
+ • suricata: fix startup issue on some routers, performance tweaks"
 }
 endef
 
