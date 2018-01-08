@@ -33,15 +33,17 @@ create_notification -s news " • openssl: bezpečnostní aktualizace
  • kernel: update na poslední verzi
  • netmetr: oprava přepisování konfigurace
  • updater: různé drobné opravy
- • libtiff, socat, rsync, coreutils, php: bezpečnostní aktualizace
+ • libtiff, socat, rsync, coreutils, php, irssi: bezpečnostní aktualizace
  • tvheadend: update na poslední verzi
+ • knot-resolver & unbound: upravy v lokalnich domenach
  • suricata: oprava chyby spouštění na některých routerech, zlepšení výkonu" " • openssl: security update
  • musl & busybox: use stronger password hash by default
  • kernel: update to the latest version
  • netmetr: fix configuration reset
  • updater: various small fixes
- • libtiff, socat, rsync, coreutils, php: security updates
+ • libtiff, socat, rsync, coreutils, php, irssi: security updates
  • tvheadend: update to the latest version
+ • knot-resolver & unbound: fixes in local domains
  • suricata: fix startup issue on some routers, performance tweaks"
 }
 endef
