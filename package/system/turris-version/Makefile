@@ -28,20 +28,20 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • openssl: bezpečnostní aktualizace
+create_notification -s news " • hass: update na novou verzi
  • musl & busybox: použití silnějších hashů na hesla ve výchozím stavu
  • kernel: update na poslední verzi
  • netmetr: oprava přepisování konfigurace
  • updater: různé drobné opravy
- • libtiff, socat, rsync, coreutils, php, irssi: bezpečnostní aktualizace
+ • openssl, libtiff, socat, rsync, coreutils, php, irssi: bezpečnostní aktualizace
  • tvheadend: update na poslední verzi
  • knot-resolver & unbound: upravy v lokalnich domenach
- • suricata: oprava chyby spouštění na některých routerech, zlepšení výkonu" " • openssl: security update
+ • suricata: oprava chyby spouštění na některých routerech, zlepšení výkonu" " • haas: update to the latest version
  • musl & busybox: use stronger password hash by default
  • kernel: update to the latest version
  • netmetr: fix configuration reset
  • updater: various small fixes
- • libtiff, socat, rsync, coreutils, php, irssi: security updates
+ • openssl, libtiff, socat, rsync, coreutils, php, irssi: security updates
  • tvheadend: update to the latest version
  • knot-resolver & unbound: fixes in local domains
  • suricata: fix startup issue on some routers, performance tweaks"
