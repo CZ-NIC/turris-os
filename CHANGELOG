@@ -1,3 +1,5 @@
+* knot-resolver: patch version 1.5.1 (CVE-2018-1000002)
+* knot-resolver: update to version 1.5.1
 * unbound: update to version 1.6.7
 * knot-resolver: update to version 1.5.0
 * curl: update to version 7.56.0
