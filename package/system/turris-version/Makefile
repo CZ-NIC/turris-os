@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.9.3
+PKG_VERSION:=3.9.4
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,7 +28,13 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • knot-resolver: bezpečnostní oprava" " • knot-resolver: security update"
+create_notification -s news " • hass: update na novou verzi
+ • haas: robustnější registrace
+ • kernel: update na poslední verzi, ovladače na Sierra Wireless EM7565
+ • poco: bezpečnostní aktualizace" " • haas: update to the latest version
+ • haas: more robust registration
+ • kernel: update to the latest version, Sierra Wireless EM7565 drivers
+ • poco: security updates"
 }
 endef
 
