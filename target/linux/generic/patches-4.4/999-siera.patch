@@ -1,0 +1,82 @@
+Sierra Wireless EM7565 devices use the DEVICE_SWI layout for their
+serial ports
+
+T:  Bus=01 Lev=03 Prnt=29 Port=01 Cnt=02 Dev#= 31 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=1199 ProdID=9091 Rev= 0.06
+S:  Manufacturer=Sierra Wireless, Incorporated
+S:  Product=Sierra Wireless EM7565 Qualcomm Snapdragon X16 LTE-A
+S:  SerialNumber=xxxxxxxx
+C:* #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=qcserial
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=qcserial
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=qcserial
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 8 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+E:  Ad=86(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+E:  Ad=8e(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=0f(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+but need sendsetup = true for the GPS port to make it work properly.
+Add a new DEVICE_SW2 layout variant and use it for the EM7565 PID 0x9091.
+Add a DEVICE_SWI entry for the EM7565 QDL PID 0x9090.
+
+Signed-off-by: Reinhard Speyerer <rspmn@xxxxxxxx>
+---
+[The corresponding qmi_wwan patch will be submitted by Sebastian Sjoholm.]
+
+Index: linux-4.4.112/drivers/usb/serial/qcserial.c
+===================================================================
+--- linux-4.4.112.orig/drivers/usb/serial/qcserial.c
++++ linux-4.4.112/drivers/usb/serial/qcserial.c
+@@ -30,6 +30,7 @@ enum qcserial_layouts {
+ 	QCSERIAL_G1K = 1,	/* Gobi 1000 */
+ 	QCSERIAL_SWI = 2,	/* Sierra Wireless */
+ 	QCSERIAL_HWI = 3,	/* Huawei */
++	QCSERIAL_SW2 = 4,   /* SWI with sendsetup for GPS port */
+ };
+ 
+ #define DEVICE_G1K(v, p) \
+@@ -38,6 +39,8 @@ enum qcserial_layouts {
+ 	USB_DEVICE(v, p), .driver_info = QCSERIAL_SWI
+ #define DEVICE_HWI(v, p) \
+ 	USB_DEVICE(v, p), .driver_info = QCSERIAL_HWI
++#define DEVICE_SW2(v, p) \
++	USB_DEVICE(v, p), .driver_info = QCSERIAL_SW2
+ 
+ static const struct usb_device_id id_table[] = {
+ 	/* Gobi 1000 devices */
+@@ -167,7 +170,7 @@ static const struct usb_device_id id_tab
+ 	{DEVICE_SWI(0x1199, 0x907a)},	/* Sierra Wireless EM74xx QDL */
+ 	{DEVICE_SWI(0x1199, 0x907b)},	/* Sierra Wireless EM74xx */
+ 	{DEVICE_SWI(0x1199, 0x9090)},	/* Sierra Wireless EM7565 QDL */
+-	{DEVICE_SWI(0x1199, 0x9091)},	/* Sierra Wireless EM7565 */
++	{DEVICE_SW2(0x1199, 0x9091)},	/* Sierra Wireless EM7565 */
+ 	{DEVICE_SWI(0x413c, 0x81a2)},	/* Dell Wireless 5806 Gobi(TM) 4G LTE Mobile Broadband Card */
+ 	{DEVICE_SWI(0x413c, 0x81a3)},	/* Dell Wireless 5570 HSPA+ (42Mbps) Mobile Broadband Card */
+ 	{DEVICE_SWI(0x413c, 0x81a4)},	/* Dell Wireless 5570e HSPA+ (42Mbps) Mobile Broadband Card */
+@@ -335,6 +338,7 @@ static int qcprobe(struct usb_serial *se
+ 		}
+ 		break;
+ 	case QCSERIAL_SWI:
++	case QCSERIAL_SW2:
+ 		/*
+ 		 * Sierra Wireless layout:
+ 		 * 0: DM/DIAG (use libqcdm from ModemManager for communication)
+@@ -348,7 +352,8 @@ static int qcprobe(struct usb_serial *se
+ 			break;
+ 		case 2:
+ 			dev_dbg(dev, "NMEA GPS interface found\n");
+-			sendsetup = true;
++			if (id->driver_info == QCSERIAL_SW2)
++				sendsetup = true;
+ 			break;
+ 		case 3:
+ 			dev_dbg(dev, "Modem port found\n");
