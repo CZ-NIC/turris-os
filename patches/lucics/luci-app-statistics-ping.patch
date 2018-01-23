@@ -1,0 +1,33 @@
+diff --git a/applications/luci-app-statistics/Makefile b/applications/luci-app-statistics/Makefile
+index af07cfbd0..392e8b065 100644
+--- a/applications/luci-app-statistics/Makefile
++++ b/applications/luci-app-statistics/Makefile
+@@ -11,12 +11,12 @@ LUCI_DEPENDS:= \
+ 	+collectd +rrdtool1 +collectd-mod-rrdtool +collectd-mod-iwinfo \
+ 	+collectd-mod-interface +collectd-mod-load +collectd-mod-network
+ 
+ define Package/luci-app-statistics/conffiles
+ /etc/config/luci_statistics
+ endef
+ 
+-PKG_RELEASE:=2
++PKG_RELEASE:=3
+ 
+ include ../../luci.mk
+ 
+ # call BuildPackage - OpenWrt buildroot signature
+diff --git a/applications/luci-app-statistics/luasrc/statistics/rrdtool/definitions/ping.lua b/applications/luci-app-statistics/luasrc/statistics/rrdtool/definitions/ping.lua
+index 6ecdb5c8a..9164a7b18 100644
+--- a/applications/luci-app-statistics/luasrc/statistics/rrdtool/definitions/ping.lua
++++ b/applications/luci-app-statistics/luasrc/statistics/rrdtool/definitions/ping.lua
+@@ -10,8 +10,8 @@ function rrdargs( graph, plugin, plugin_instance, dtype )
+ 		  vlabel = "ms",
+ 		  number_format = "%5.1lf ms",
+ 		  data = {
+-			sources = { ping = { "value" } },
+-			options = { ping__value = {
++			sources = { ping = { "ping" } },
++			options = { ping__ping = {
+ 				noarea = true, overlay = true, title = "%di" } }
+ 		} },
+ 
