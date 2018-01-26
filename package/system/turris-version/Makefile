@@ -31,10 +31,12 @@ define Package/turris-version/postinst
 create_notification -s news " • hass: update na novou verzi
  • haas: robustnější registrace
  • kernel: update na poslední verzi, ovladače na Sierra Wireless EM7565
- • poco: bezpečnostní aktualizace" " • haas: update to the latest version
+ • nextcloud: update na poslední verzi
+ • poco, mariadb, curl, unbound, bind: bezpečnostní aktualizace" " • haas: update to the latest version
  • haas: more robust registration
  • kernel: update to the latest version, Sierra Wireless EM7565 drivers
- • poco: security updates"
+ • nextcloud: update to the latest version
+ • poco, mariadb, curl, unbound, bind: security updates"
 }
 endef
 
