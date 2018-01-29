@@ -32,10 +32,12 @@ create_notification -s news " • hass: update na novou verzi
  • haas: robustnější registrace
  • kernel: update na poslední verzi, ovladače na Sierra Wireless EM7565
  • nextcloud: update na poslední verzi
+ • foris: oprava DNS tabu pro uživatele pod smlouvou, pročistění závislostí
  • poco, mariadb, curl, unbound, bind: bezpečnostní aktualizace" " • haas: update to the latest version
  • haas: more robust registration
  • kernel: update to the latest version, Sierra Wireless EM7565 drivers
  • nextcloud: update to the latest version
+ • foris: cleanup some dependencies
  • poco, mariadb, curl, unbound, bind: security updates"
 }
 endef
