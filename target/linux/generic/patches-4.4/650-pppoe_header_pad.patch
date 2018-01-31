@@ -1,20 +1,22 @@
---- a/drivers/net/ppp/pppoe.c
-+++ b/drivers/net/ppp/pppoe.c
-@@ -877,7 +877,7 @@ static int pppoe_sendmsg(struct socket *
+Index: linux-4.4.114/drivers/net/ppp/pppoe.c
+===================================================================
+--- linux-4.4.114.orig/drivers/net/ppp/pppoe.c
++++ linux-4.4.114/drivers/net/ppp/pppoe.c
+@@ -880,7 +880,7 @@ static int pppoe_sendmsg(struct socket *
  		goto end;
  
- 
--	skb = sock_wmalloc(sk, total_len + dev->hard_header_len + 32,
-+	skb = sock_wmalloc(sk, total_len + dev->hard_header_len + 32 + NET_SKB_PAD,
- 			   0, GFP_KERNEL);
+ 	hlen = LL_RESERVED_SPACE(dev);
+-	skb = sock_wmalloc(sk, hlen + sizeof(*ph) + total_len +
++	skb = sock_wmalloc(sk, hlen + NET_SKB_PAD + sizeof(*ph) + total_len +
+ 			   dev->needed_tailroom, 0, GFP_KERNEL);
  	if (!skb) {
  		error = -ENOMEM;
-@@ -885,7 +885,7 @@ static int pppoe_sendmsg(struct socket *
+@@ -888,7 +888,7 @@ static int pppoe_sendmsg(struct socket *
  	}
  
  	/* Reserve space for headers. */
--	skb_reserve(skb, dev->hard_header_len);
-+	skb_reserve(skb, dev->hard_header_len + NET_SKB_PAD);
+-	skb_reserve(skb, hlen);
++	skb_reserve(skb, hlen + NET_SKB_PAD);
  	skb_reset_network_header(skb);
  
  	skb->dev = dev;
