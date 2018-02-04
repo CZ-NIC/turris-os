@@ -28,9 +28,9 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • hass: oprava párování sezení
+create_notification -s news " • hass: oprava párování sezení a vypnutí logování ve výchozím nastavení
  • updater: oprava závislostí
- • suricata: možné obejití chyb s IPv6" " • haas: fix session pairing
+ • suricata: možné obejití chyb s IPv6" " • haas: fix session pairing and disable logging in default settings
  • updater: fix dependencies
  • suricata: workaround for some IPv6 issues"
 }
