@@ -431,6 +431,18 @@ endef
 
 $(eval $(call KernelPackage,dvb-mn88473))
 
+#define KernelPackage/dvb-m88ds3103
+#  TITLE:=Montage Technology M88DS3103
+#  $(call DvbFrontend,m88ds3103,CONFIG_DVB_M88DS3103)
+#  DEPENDS+=+kmod-i2c-mux
+#endef
+
+#define KernelPackage/dvb-m88ds3103/description
+#  Montage Technology M88DS3103
+#endef
+
+#$(eval $(call KernelPackage,dvb-m88ds3103))
+
 define KernelPackage/dvb-zl10353
   TITLE:=Zarlink ZL10353 based tuner
   $(call DvbFrontend,zl10353,CONFIG_DVB_ZL10353)
