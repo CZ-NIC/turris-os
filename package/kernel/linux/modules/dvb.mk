@@ -222,6 +222,20 @@ endef
 
 $(eval $(call KernelPackage,dvb-usb-ttusb2))
 
+define KernelPackage/dvb-usb-cxusb
+  TITLE:=Conexant USB2.0 hybrid reference design support
+  KCONFIG:=CONFIG_DVB_USB_CXUSB
+  FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb/dvb-usb-cxusb.ko
+  AUTOLOAD:=$(call AutoProbe,dvb-usb-cxusb)
+  $(call AddDepends/dvb-usb, +kmod-dvb-tuner-dib0070)
+endef
+
+define KernelPackage/dvb-usb-cxusb/description
+ Conexant USB2.0 hybrid reference design support
+endef
+
+$(eval $(call KernelPackage,dvb-usb-cxusb))
+
 # --------------------------- DVB USB v2 drivers ------------------------------
 
 define KernelPackage/dvb-usb-v2
