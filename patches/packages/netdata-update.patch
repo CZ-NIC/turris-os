@@ -42,8 +42,8 @@ index e88221e0..08f2bda5 100644
  define Package/netdata
    SECTION:=admin
    CATEGORY:=Administration
--  DEPENDS:=+zlib
-+  DEPENDS:=+zlib +libuuid +libmnl
+-  DEPENDS:=+zlib +USE_UCLIBC:libpthread
++  DEPENDS:=+zlib +USE_UCLIBC:libpthread +libuuid +libmnl
    TITLE:=Real-time performance monitoring tool
 -  URL:=http://netdata.firehol.org/
 +  URL:=https://my-netdata.io/
