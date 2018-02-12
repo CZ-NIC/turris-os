@@ -48,7 +48,7 @@ index 0df1460f..f93484e4 100644
  PKG_NAME:=lxc
  PKG_VERSION:=1.1.5
 -PKG_RELEASE:=3
-+PKG_RELEASE:=9
++PKG_RELEASE:=10
  
  PKG_LICENSE:=LGPL-2.1+ BSD-2-Clause GPL-2.0
  PKG_MAINTAINER:=Luka Perkov <luka@openwrt.org>
@@ -226,5 +226,23 @@ index 00000000..62d15e88
 +@@ -0,0 +1,2 @@
 ++#!/bin/sh
 ++[ -z "$5" ] || ethtool -K "$5" tx off
+diff --git a/utils/lxc/patches/060-foris-integration.patch b/utils/lxc/patches/060-foris-integration.patch
+new file mode 100644
+index 00000000..24b52f2c
+--- /dev/null
++++ b/utils/lxc/patches/060-foris-integration.patch
+@@ -0,0 +1,12 @@
++Index: lxc-1.1.5/templates/lxc-download.in
++===================================================================
++--- lxc-1.1.5.orig/templates/lxc-download.in
+++++ lxc-1.1.5/templates/lxc-download.in
++@@ -583,6 +583,7 @@ if [ -e "$(relevant_file create-message)
++     echo ""
++     echo "---"
++     cat "$(relevant_file create-message)"
+++    [ \! -x /usr/bin/create_notification ] || create_notification -s update "$(cat "$(relevant_file create-message)")" "$(cat "$(relevant_file create-message)")"
++ fi
++ 
++ exit 0
 -- 
 2.13.0
