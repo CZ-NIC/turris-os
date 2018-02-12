@@ -1,0 +1,27 @@
+From 3677c51a3b297565bd7e97c0fa785a304870b3c5 Mon Sep 17 00:00:00 2001
+From: Rich Felker <dalias@aerifal.cx>
+Date: Wed, 6 Dec 2017 13:14:22 -0500
+Subject: [PATCH 2/2] adjust fopencookie structure tag for ABI-compat
+
+stdio types use the struct tag names from glibc libio to match C++
+ABI.
+---
+ include/stdio.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/stdio.h b/include/stdio.h
+index 2932c76f..7c4f9ee4 100644
+--- a/include/stdio.h
++++ b/include/stdio.h
+@@ -188,7 +188,7 @@ typedef ssize_t (cookie_write_function_t)(void *, const char *, size_t);
+ typedef int (cookie_seek_function_t)(void *, off_t *, int);
+ typedef int (cookie_close_function_t)(void *);
+ 
+-typedef struct {
++typedef struct _IO_cookie_io_functions_t {
+ 	cookie_read_function_t *read;
+ 	cookie_write_function_t *write;
+ 	cookie_seek_function_t *seek;
+-- 
+2.16.1
+
