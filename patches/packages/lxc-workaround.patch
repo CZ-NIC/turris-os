@@ -1,0 +1,49 @@
+diff --git a/utils/luci-app-lxc/files/controller/lxc.lua b/utils/luci-app-lxc/files/controller/lxc.lua
+index ea7adbaf..4bb3dbbf 100644
+--- a/utils/luci-app-lxc/files/controller/lxc.lua
++++ b/utils/luci-app-lxc/files/controller/lxc.lua
+@@ -22,8 +22,11 @@ if not conn then
+     error("Failed to connect to ubus")
+ end
+ 
+-
+-function fork_exec(command)
++function fork_exec(command, args)
++	if not args then
++		args = { "-c", command }
++		command = "/bin/sh"
++	end
+ 	local pid = nixio.fork()
+ 	if pid > 0 then
+ 		return
+@@ -43,7 +46,7 @@ function fork_exec(command)
+ 		end
+ 
+ 		-- replace with target command
+-		nixio.exec("/bin/sh", "-c", command)
++		nixio.exece(command, args, nil)
+ 	end
+ end
+ 
+@@ -110,7 +113,7 @@ function lxc_create(lxc_name, lxc_template)
+ 	local lxc_dist = lxc_template:gsub("(.*):(.*)", '%1')
+ 	local lxc_release = lxc_template:gsub("(.*):(.*)", '%2')
+ 
+-	local data = conn:call("lxc", "create", { name = lxc_name, template = "download", args = { "--server", url,  "--no-validate", "--dist", lxc_dist, "--release", lxc_release, "--arch", target } } )
++	fork_exec("/usr/bin/lxc-create", {"-n", lxc_name, "-t", "download", "--", "--server", url, "--dist", lxc_dist, "--release", lxc_release, "--arch", target })
+ 
+ 	luci.http.write(data)
+ end
+diff --git a/utils/luci-app-lxc/Makefile b/utils/luci-app-lxc/Makefile
+index 210f030a..b53fe07d 100644
+--- a/utils/luci-app-lxc/Makefile
++++ b/utils/luci-app-lxc/Makefile
+@@ -8,7 +8,7 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=luci-app-lxc
+-PKG_RELEASE:=20160616
++PKG_RELEASE:=20160616-1
+ 
+ PKG_LICENSE:=Apache-2.0
+ 
