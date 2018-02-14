@@ -1,6 +1,15 @@
 #!/bin/sh
 set -e
 
+if [ "$#" = 0 ] ;
+then
+	TESTS=" IP4 IP4GATE IP6 IP6GATE DNS DNSSEC "
+else
+	TESTS=" $@ "
+fi
+
+TESTS="$(echo "$TESTS" | sed -e 's/\s/X/g')"
+
 # IP addresses and DNS names we are testing against
 IP4='217.31.205.50 198.41.0.4 199.7.83.42 8.8.8.8'
 IP6='2001:1488:0:3::2 2001:500:3::42 2001:500:2d::d 2606:2800:220:6d:26bf:1447:1097:aa7'
@@ -92,31 +101,45 @@ RES_DNS=false
 RES_DNSSEC=false
 
 # IPv4 gateway
-do_tests_positive ping_ip4 $GW4 && RES_IP4_G=true || :
-echo_res $RES_IP4_G "IPv4 Gateway"
-# IPv4
-if $RES_IP4_G; then
-	do_tests_positive ping_ip4 $IP4 && RES_IP4=true || :
+if [ -z "${TESTS##*XIP4GATEX*}" ]; then
+	do_tests_positive ping_ip4 $GW4 && RES_IP4_G=true || :
+	echo_res $RES_IP4_G "IPv4 Gateway"
 fi
-echo_res $RES_IP4 "IPv4"
+
+# IPv4
+if [ -z "${TESTS##*XIP4X*}" ]; then
+	if $RES_IP4_G; then
+		do_tests_positive ping_ip4 $IP4 && RES_IP4=true || :
+	fi
+	echo_res $RES_IP4 "IPv4"
+fi
 
 # IPv6 gateway
-do_tests_positive ping_ip6 $GW6 && RES_IP6_G=true || :
-echo_res $RES_IP6_G "IPv6 Gateway"
-# IPv6
-if $RES_IP6_G; then
-	do_tests_positive ping_ip6 $IP6 && RES_IP6=true || :
+if [ -z "${TESTS##*XIP6GATEX*}" ]; then
+	do_tests_positive ping_ip6 $GW6 && RES_IP6_G=true || :
+	echo_res $RES_IP6_G "IPv6 Gateway"
 fi
-echo_res $RES_IP6 "IPv6"
+# IPv6
+if [ -z "${TESTS##*XIP6X*}" ]; then
+	if $RES_IP6_G; then
+		do_tests_positive ping_ip6 $IP6 && RES_IP6=true || :
+	fi
+	echo_res $RES_IP6 "IPv6"
+fi
 
 # DNS
-if $RES_IP4 || $RES_IP6; then
-	do_tests_positive dig_name $NAMES && RES_DNS=true || :
+if [ -z "${TESTS##*XDNSX*}" ]; then
+	if $RES_IP4 || $RES_IP6; then
+		do_tests_positive dig_name $NAMES && RES_DNS=true || :
+	fi
+	echo_res $RES_DNS "DNS"
 fi
-echo_res $RES_DNS "DNS"
+
 # DNSSEC
-if $RES_DNS; then
-	# Bad names shouldn't be resolved
-	do_tests_negative dig_name $BAD_NAMES && RES_DNSSEC=true || :
+if [ -z "${TESTS##*XDNSSECX*}" ]; then
+	if $RES_DNS; then
+		# Bad names shouldn't be resolved
+		do_tests_negative dig_name $BAD_NAMES && RES_DNSSEC=true || :
+	fi
+	echo_res $RES_DNSSEC "DNSSEC"
 fi
-echo_res $RES_DNSSEC "DNSSEC"
