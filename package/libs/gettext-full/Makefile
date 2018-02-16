@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gettext-full
 PKG_VERSION:=0.19.4
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=gettext-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@GNU/gettext
@@ -84,9 +84,15 @@ define Package/libintl-full/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libintl.so* $(1)/usr/lib/
 endef
 
+define Build/Compile
+	$(call Build/Compile/Default,)
+	$(INSTALL_DIR) $(PKG_INSTALL_DIR)/usr/bin
+	$(TARGET_CC) -o $(PKG_INSTALL_DIR)/usr/bin/gettext_filter $(TARGET_CFLAGS) $(TARGET_LDFLAGS) -L$(PKG_BUILD_DIR)/gettext-tools/intl/.libs -lintl ./files/gettext_filter.c
+endef
+
 define Package/gettext/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(CP) $(PKG_INSTALL_DIR)/usr/bin/gettext $(1)/usr/bin
+	$(CP) $(PKG_INSTALL_DIR)/usr/bin/gettext* $(1)/usr/bin
 endef
 
 $(eval $(call HostBuild))
