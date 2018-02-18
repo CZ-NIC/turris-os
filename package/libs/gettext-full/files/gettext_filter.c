@@ -9,6 +9,7 @@ int main(void) {
 	unsigned char last_c = 0;
 	char* buffer = NULL;
 	int buf_len = 0, i = 0;
+	setlocale(LC_ALL, "");
 	bindtextdomain(getenv("GETTEXT_DOMAIN"), "/usr/share/locale/");
 	textdomain(getenv("GETTEXT_DOMAIN"));
 	while((c=getchar()) != EOF) {
