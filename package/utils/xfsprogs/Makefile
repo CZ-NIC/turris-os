@@ -1,4 +1,4 @@
-# 
+#
 # Copyright (C) 2006-2012 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=xfsprogs
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_VERSION:=3.1.7
 PKG_SOURCE_URL:=ftp://oss.sgi.com/projects/xfs/previous/
 PKG_MD5SUM:=049cf9873794ea49d0bb3f12d45748a4
@@ -32,6 +32,11 @@ endef
 define Package/xfs-mkfs
 $(call Package/xfsprogs/default)
   TITLE:=Utility for creating XFS filesystems
+endef
+
+define Package/xfs-admin
+$(call Package/xfsprogs/default)
+  TITLE:=Utilities for changing parameters of an XFS filesystems
 endef
 
 define Package/xfs-fsck
@@ -74,6 +79,12 @@ define Package/xfs-mkfs/install
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/sbin/mkfs.xfs $(1)/sbin
 endef
 
+define Package/xfs-admin/install
+	mkdir -p $(1)/sbin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/xfs_db $(1)/sbin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/xfs_admin $(1)/sbin
+endef
+
 define Package/xfs-fsck/install
 	mkdir -p $(1)/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/sbin/xfs_repair $(1)/sbin
@@ -85,6 +96,7 @@ define Package/xfs-growfs/install
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/xfs_growfs $(1)/sbin
 endef
 
+$(eval $(call BuildPackage,xfs-admin))
 $(eval $(call BuildPackage,xfs-mkfs))
 $(eval $(call BuildPackage,xfs-fsck))
 $(eval $(call BuildPackage,xfs-growfs))
