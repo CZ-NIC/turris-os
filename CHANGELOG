@@ -1,3 +1,4 @@
+* xfsprogs: add package with xfs_admin tool
 * irssi: update to version 1.0.7 (security fix)
 * unzip: patch version 6.0 (security fix)
 * libtasn1: update to version 4.13 (security fix)
