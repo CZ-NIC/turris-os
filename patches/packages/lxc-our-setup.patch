@@ -240,7 +240,7 @@ index 00000000..24b52f2c
 +     echo ""
 +     echo "---"
 +     cat "$(relevant_file create-message)"
-++    [ \! -x /usr/bin/create_notification ] || create_notification -s update "$(cat "$(relevant_file create-message)")" "$(cat "$(relevant_file create-message)")"
+++    [ \! -x /usr/bin/create_notification ] || create_notification -s update "$(cat "$(relevant_file create-message)")"
 + fi
 + 
 + exit 0
