@@ -48,7 +48,7 @@ index 0df1460f..f93484e4 100644
  PKG_NAME:=lxc
  PKG_VERSION:=1.1.5
 -PKG_RELEASE:=3
-+PKG_RELEASE:=10
++PKG_RELEASE:=11
  
  PKG_LICENSE:=LGPL-2.1+ BSD-2-Clause GPL-2.0
  PKG_MAINTAINER:=Luka Perkov <luka@openwrt.org>
@@ -236,11 +236,23 @@ index 00000000..24b52f2c
 +===================================================================
 +--- lxc-1.1.5.orig/templates/lxc-download.in
 ++++ lxc-1.1.5/templates/lxc-download.in
-+@@ -583,6 +583,7 @@ if [ -e "$(relevant_file create-message)
++@@ -583,6 +583,19 @@ if [ -e "$(relevant_file create-message)
 +     echo ""
 +     echo "---"
 +     cat "$(relevant_file create-message)"
-++    [ \! -x /usr/bin/create_notification ] || create_notification -s update "$(cat "$(relevant_file create-message)")"
+++    if [ -x /usr/bin/create_notification ]; then
+++        if [ -x /usr/bin/gettext_filter ]; then
+++            export GETTEXT_DOMAIN="user-notify"
+++            export LANG="$(uci -q get foris.settings.lang)"
+++            create_notification -s update \
+++                "$(cat "$(relevant_file create-message)" | \
+++                 sed -e "s|${DOWNLOAD_DIST}|%1|" -e "s|${DOWNLOAD_RELEASE}|%2|" | \
+++                 sed 's|^\(.\+\)$|_(\1)|' | GETTEXT_DOMAIN="user-notify" gettext_filter | \
+++                 sed -e "s|%1|${DOWNLOAD_DIST}|" -e "s|%2|${DOWNLOAD_RELEASE}|")"
+++        else
+++            create_notification -s update "$(cat "$(relevant_file create-message)")"
+++        fi
+++    fi
 + fi
 + 
 + exit 0
