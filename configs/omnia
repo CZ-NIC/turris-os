@@ -78,3 +78,15 @@ CONFIG_PACKAGE_libgnutls=y
 
 # Other packages
 CONFIG_PACKAGE_sfpswitch=y
+
+
+#updated packages
+CONFIG_PACKAGE_rsync=y
+CONFIG_PACKAGE_isc-dhcp=y
+CONFIG_PACKAGE_unzip=y
+CONFIG_PACKAGE_irssi=y
+CONFIG_PACKAGE_libvorbis=y
+CONFIG_PACKAGE_libtasn1=y
+
+
+
