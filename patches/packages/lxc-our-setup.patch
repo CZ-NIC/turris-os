@@ -231,7 +231,7 @@ new file mode 100644
 index 00000000..24b52f2c
 --- /dev/null
 +++ b/utils/lxc/patches/060-foris-integration.patch
-@@ -0,0 +1,12 @@
+@@ -0,0 +1,24 @@
 +Index: lxc-1.1.5/templates/lxc-download.in
 +===================================================================
 +--- lxc-1.1.5.orig/templates/lxc-download.in
