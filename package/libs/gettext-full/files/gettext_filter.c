@@ -21,6 +21,7 @@ int main(void) {
 				}
 				translating = 0;
 				last_c = 0;
+				i = 0;
 			} else {
 				if(i >= buf_len) {
 					buf_len = buf_len + 4094;
