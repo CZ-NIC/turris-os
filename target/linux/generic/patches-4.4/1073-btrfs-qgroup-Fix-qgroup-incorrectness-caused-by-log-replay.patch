@@ -23,17 +23,19 @@ Acked-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
  fs/btrfs/tree-log.c | 16 ++++++++++++++++
  1 file changed, 16 insertions(+)
 
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -26,6 +26,7 @@
- #include "print-tree.h"
+Index: linux-4.4.117/fs/btrfs/tree-log.c
+===================================================================
+--- linux-4.4.117.orig/fs/btrfs/tree-log.c
++++ linux-4.4.117/fs/btrfs/tree-log.c
+@@ -27,6 +27,7 @@
  #include "backref.h"
  #include "hash.h"
+ #include "inode-map.h"
 +#include "qgroup.h"
  
  /* magic values for the inode_only field in btrfs_log_inode:
   *
-@@ -679,6 +680,21 @@
+@@ -680,6 +681,21 @@ static noinline int replay_one_extent(st
  		ins.type = BTRFS_EXTENT_ITEM_KEY;
  		offset = key->offset - btrfs_file_extent_offset(eb, item);
  
