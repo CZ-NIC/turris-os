@@ -130,7 +130,7 @@ mismatch resulting in to the unconfigured switch. This ensures that new swconfig
 is running on new kernel.
 
 Note: version_match was introduced after installed started working so we check
-if it's defined if we can use isntalled.
+if it's defined if we can use installed.
 ]]
 if not model or model:match("[Oo]mnia") then
 	if not version_match or not installed["kmod-swconfig"] or version_match(installed["kmod-swconfig"].version, "<4.4.40") then
@@ -144,7 +144,20 @@ But various packages requires package ip. In new updater we solve it using
 Provides field but this won't work with all updater versions. This hack adds
 virtual package ip for such updater version and basically just rebinds it to
 ip-full.
+There is a problem with executing this multiple times. Updater adds candidate for
+every Package command execution. But in older versions it also checks if virtual
+package has only one candidate. But because this script is executed twice (because
+it was invalidly specified as userlist) we have two candidates and error about
+invalid virtual package is reported. Setting flag on first pass trough ensures
+that we won't run it more than once. If updater fails then flags are not saved. If
+updater successes then  it had to update it self to never version with provides
+supported.
+Note that flags are not available in new version of updater. They were dropped
+with version 60.0.
 ]]
 if not features or not features.provides then
-	Package("ip", { virtual = true, deps = {"ip-full"} })
+	if flags[""] == nil then
+		Package("ip", { virtual = true, deps = {"ip-full"} })
+		flags[""] = true
+	end
 end
