@@ -87,7 +87,7 @@ endef
 define Build/Compile
 	$(call Build/Compile/Default,)
 	$(INSTALL_DIR) $(PKG_INSTALL_DIR)/usr/bin
-	$(TARGET_CC) -o $(PKG_INSTALL_DIR)/usr/bin/gettext_filter $(TARGET_CFLAGS) $(TARGET_LDFLAGS) -L$(PKG_BUILD_DIR)/gettext-tools/intl/.libs -lintl ./files/gettext_filter.c
+	$(TARGET_CC) -o $(PKG_INSTALL_DIR)/usr/bin/gettext_filter $(TARGET_CFLAGS) $(TARGET_LDFLAGS) -I$(PKG_BUILD_DIR)/gettext-tools/intl -L$(PKG_BUILD_DIR)/gettext-tools/intl/.libs -lintl ./files/gettext_filter.c
 endef
 
 define Package/gettext/install
