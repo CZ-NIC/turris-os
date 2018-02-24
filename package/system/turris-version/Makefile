@@ -28,7 +28,7 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • hass: update a oprava logování a firewallu
+create_notification -s news " • haas: update a oprava logování a firewallu
  • irssi, rsync, dovecot, squid, mxml, libvorbis, libtasn1, unzip, php: bezpečnostní aktualizace
  • xfsprogs: přidán nástroj xfs_admin
  • uClibc: zapnuty silnější hashe
