@@ -3,8 +3,10 @@ Subject: [PATCH] build: add a hack for removing non-essential module info
 
 Signed-off-by: Felix Fietkau <nbd@openwrt.org>
 ---
---- a/include/linux/module.h
-+++ b/include/linux/module.h
+Index: linux-4.4.118/include/linux/module.h
+===================================================================
+--- linux-4.4.118.orig/include/linux/module.h
++++ linux-4.4.118/include/linux/module.h
 @@ -169,9 +169,10 @@ void trim_init_extable(struct module *m)
  
  /* Generic info of form tag = "info" */
@@ -53,8 +55,10 @@ Signed-off-by: Felix Fietkau <nbd@openwrt.org>
  
  /* Given an address, look for it in the exception tables */
  const struct exception_table_entry *search_exception_tables(unsigned long add);
---- a/include/linux/moduleparam.h
-+++ b/include/linux/moduleparam.h
+Index: linux-4.4.118/include/linux/moduleparam.h
+===================================================================
+--- linux-4.4.118.orig/include/linux/moduleparam.h
++++ linux-4.4.118/include/linux/moduleparam.h
 @@ -16,6 +16,16 @@
  /* Chosen so that structs with an unsigned long line up. */
  #define MAX_PARAM_PREFIX_LEN (64 - sizeof(unsigned long))
@@ -91,9 +95,11 @@ Signed-off-by: Felix Fietkau <nbd@openwrt.org>
  
  struct kernel_param;
  
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -2026,6 +2026,13 @@ config MODULE_COMPRESS_XZ
+Index: linux-4.4.118/init/Kconfig
+===================================================================
+--- linux-4.4.118.orig/init/Kconfig
++++ linux-4.4.118/init/Kconfig
+@@ -2033,6 +2033,13 @@ config MODULE_COMPRESS_XZ
  
  endchoice
  
@@ -107,9 +113,11 @@ Signed-off-by: Felix Fietkau <nbd@openwrt.org>
  endif # MODULES
  
  config MODULES_TREE_LOOKUP
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -2840,6 +2840,7 @@ static struct module *setup_load_info(st
+Index: linux-4.4.118/kernel/module.c
+===================================================================
+--- linux-4.4.118.orig/kernel/module.c
++++ linux-4.4.118/kernel/module.c
+@@ -2880,6 +2880,7 @@ static void check_modinfo_retpoline(stru
  
  static int check_modinfo(struct module *mod, struct load_info *info, int flags)
  {
@@ -117,7 +125,7 @@ Signed-off-by: Felix Fietkau <nbd@openwrt.org>
  	const char *modmagic = get_modinfo(info, "vermagic");
  	int err;
  
-@@ -2865,6 +2866,7 @@ static int check_modinfo(struct module *
+@@ -2911,6 +2912,7 @@ static int check_modinfo(struct module *
  		pr_warn("%s: module is from the staging directory, the quality "
  			"is unknown, you have been warned.\n", mod->name);
  	}
@@ -125,9 +133,11 @@ Signed-off-by: Felix Fietkau <nbd@openwrt.org>
  
  	/* Set up license info based on the info section */
  	set_license(mod, get_modinfo(info, "license"));
---- a/scripts/mod/modpost.c
-+++ b/scripts/mod/modpost.c
-@@ -1963,7 +1963,9 @@ static void read_symbols(char *modname)
+Index: linux-4.4.118/scripts/mod/modpost.c
+===================================================================
+--- linux-4.4.118.orig/scripts/mod/modpost.c
++++ linux-4.4.118/scripts/mod/modpost.c
+@@ -1964,7 +1964,9 @@ static void read_symbols(char *modname)
  		symname = remove_dot(info.strtab + sym->st_name);
  
  		handle_modversions(mod, &info, sym, symname);
@@ -137,7 +147,7 @@ Signed-off-by: Felix Fietkau <nbd@openwrt.org>
  	}
  	if (!is_vmlinux(modname) ||
  	     (is_vmlinux(modname) && vmlinux_section_warnings))
-@@ -2107,7 +2109,9 @@ static void add_header(struct buffer *b,
+@@ -2108,7 +2110,9 @@ static void add_header(struct buffer *b,
  	buf_printf(b, "#include <linux/vermagic.h>\n");
  	buf_printf(b, "#include <linux/compiler.h>\n");
  	buf_printf(b, "\n");
@@ -147,13 +157,23 @@ Signed-off-by: Felix Fietkau <nbd@openwrt.org>
  	buf_printf(b, "\n");
  	buf_printf(b, "__visible struct module __this_module\n");
  	buf_printf(b, "__attribute__((section(\".gnu.linkonce.this_module\"))) = {\n");
-@@ -2124,16 +2128,20 @@ static void add_header(struct buffer *b,
+@@ -2125,24 +2129,30 @@ static void add_header(struct buffer *b,
  
  static void add_intree_flag(struct buffer *b, int is_intree)
  {
 +#ifndef CONFIG_MODULE_STRIPPED
  	if (is_intree)
  		buf_printf(b, "\nMODULE_INFO(intree, \"Y\");\n");
++#endif
+ }
+ 
+ /* Cannot check for assembler */
+ static void add_retpoline(struct buffer *b)
+ {
++#ifndef CONFIG_MODULE_STRIPPED
+ 	buf_printf(b, "\n#ifdef RETPOLINE\n");
+ 	buf_printf(b, "MODULE_INFO(retpoline, \"Y\");\n");
+ 	buf_printf(b, "#endif\n");
 +#endif
  }
  
@@ -168,7 +188,7 @@ Signed-off-by: Felix Fietkau <nbd@openwrt.org>
  }
  
  /* In kernel, this size is defined in linux/module.h;
-@@ -2237,11 +2245,13 @@ static void add_depends(struct buffer *b
+@@ -2246,11 +2256,13 @@ static void add_depends(struct buffer *b
  
  static void add_srcversion(struct buffer *b, struct module *mod)
  {
@@ -182,7 +202,7 @@ Signed-off-by: Felix Fietkau <nbd@openwrt.org>
  }
  
  static void write_if_changed(struct buffer *b, const char *fname)
-@@ -2475,7 +2485,9 @@ int main(int argc, char **argv)
+@@ -2485,7 +2497,9 @@ int main(int argc, char **argv)
  		add_staging_flag(&buf, mod->name);
  		err |= add_versions(&buf, mod);
  		add_depends(&buf, mod, modules);
