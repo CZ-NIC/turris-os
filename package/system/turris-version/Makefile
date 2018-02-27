@@ -35,12 +35,12 @@ create_notification -s news " • haas: update a oprava logování a firewallu
  • luci-lxc: oprava vytváření kontejnerů
  • kernel: aktualizace, přidány moduly pro dvb-mn88473, dvb-usb-cxusb
  • dnsmasq: oprava sekvenčního přiřazování adres
- • suricata: oprava obejití chyb s IPv6" " • haas: update and fix loging and firewall
+ • suricata: oprava obejití chyb s IPv6" " • haas: update and fix logging and firewall
  • irssi, rsync, dovecot, squid, mxml, libvorbis, libtasn1, unzip, php: security updates
  • xfsprogs: add xfs_admin tool
  • luci-lxc: fix container creation
  • kernel: update, modules for dvb-mn88473 and dvb-usb-cxusb added
- • dnsmasq: fix sequential ip assignement
+ • dnsmasq: fix sequential ip assignment
  • suricata: fix workaround for some IPv6 issues"
 }
 endef
