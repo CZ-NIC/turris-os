@@ -159,7 +159,7 @@ insert_modules() {
 		if [ -f /etc/modules.d/$m ]; then
 			sed 's/^[^#]/insmod &/' /etc/modules.d/$m | ash 2>&- || :
 		else
-			modprobe $m
+			modprobe $m || :
 		fi
 	done
 }
