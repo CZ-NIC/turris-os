@@ -158,3 +158,4 @@ package/feeds/telephony/baresip 1 2
 package/feeds/telephony/pjproject 1 2
 package/feeds/packages/tar 2 3
 package/feeds/packages/python-pyopenssl 1 2
+feeds/turrispackages/utils/collectd 3 4
