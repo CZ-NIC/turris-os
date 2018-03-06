@@ -1,0 +1,405 @@
+From 6572ba1839c60f17e928bc8de2b7686317ea493f Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Tue, 6 Mar 2018 14:54:46 +0100
+Subject: [PATCH] mosquitto: update to version 1.4.15 (security fix)
+
+* CVE-2017-7652 - If a SIGHUP is sent to the broker when there are no more file descriptors, then opening the configuration file will fail and security settings will be set back to their default values.
+* CVE-2017-7651 - Unauthenticated clients can cause excessive memory use by setting "remaining length" to be a large value. This is now mitigated by limiting the size of remaining length to valid values. A memory_limit configuration option has also been added to allow the overall memory used by the broker to be limited.
+
+Issue #173
+---
+ net/mosquitto/Config.in                            |  4 +-
+ net/mosquitto/Makefile                             | 70 ++++++++++++----------
+ net/mosquitto/files/etc/init.d/mosquitto           | 49 +++++++++++++--
+ .../patches/100-remove-build-timestamps.patch      | 56 +++++++++++++++++
+ 4 files changed, 141 insertions(+), 38 deletions(-)
+ create mode 100644 net/mosquitto/patches/100-remove-build-timestamps.patch
+
+diff --git a/net/mosquitto/Config.in b/net/mosquitto/Config.in
+index 9b169c5..4599736 100644
+--- a/net/mosquitto/Config.in
++++ b/net/mosquitto/Config.in
+@@ -1,13 +1,13 @@
+ config MOSQUITTO_LWS
+     bool "libwebsockets support"
+-    depends on PACKAGE_mosquitto
++    depends on PACKAGE_mosquitto-ssl
+     default y
+     help
+         Includes websockets support in the broker, via libwebsockets
+ 
+ config MOSQUITTO_PASSWD
+     bool "Include mosquitto_passwd utility"
+-    depends on PACKAGE_mosquitto
++    depends on PACKAGE_mosquitto-ssl
+     default y
+     help
+         mosquitto_passwd is a tool for managing password files for mosquitto.
+diff --git a/net/mosquitto/Makefile b/net/mosquitto/Makefile
+index 7fecd2f..412c391 100644
+--- a/net/mosquitto/Makefile
++++ b/net/mosquitto/Makefile
+@@ -9,19 +9,19 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=mosquitto
+-PKG_VERSION:=1.4.9
+-PKG_RELEASE:=1
++PKG_VERSION:=1.4.15
++PKG_RELEASE:=3
+ PKG_LICENSE:=BSD-3-Clause
+ PKG_LICENSE_FILES:=LICENSE.txt
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://mosquitto.org/files/source/
+-PKG_MD5SUM:=67943e2c5afebf7329628616eb2c41c5
++PKG_MD5SUM:=7d3b3e245a3b4ec94b05678c8199c806359737949f4cfe0bf936184f6ca89a83
+ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
+ 
+ include $(INCLUDE_DIR)/package.mk
+ 
+-define Package/$(PKG_NAME)/default
++define Package/mosquitto/default
+   SECTION:=net
+   CATEGORY:=Network
+   TITLE:=mosquitto - an MQTT message broker
+@@ -31,24 +31,26 @@ define Package/$(PKG_NAME)/default
+   USERID:=mosquitto=200:mosquitto=200
+ endef
+ 
+-define Package/$(PKG_NAME)
++define Package/mosquitto-ssl
+     $(call Package/mosquitto/default)
+     TITLE+= (with SSL support)
+     DEPENDS+= +libopenssl +MOSQUITTO_LWS:libwebsockets-openssl
+     VARIANT:=ssl
++    PROVIDES:=mosquitto
+ endef
+ 
+-define Package/$(PKG_NAME)-nossl
+-    $(call Package/$(PKG_NAME)/default)
++define Package/mosquitto-nossl
++    $(call Package/mosquitto/default)
+     TITLE+= (without SSL support)
+     VARIANT:=nossl
++    PROVIDES:=mosquitto
+ endef
+ 
+-define Package/$(PKG_NAME)/config
++define Package/mosquitto-ssl/config
+ 	source "$(SOURCE)/Config.in"
+ endef
+ 
+-define Package/$(PKG_NAME)/default/description
++define Package/mosquitto/default/description
+ Mosquitto is an open source (BSD licensed) message broker that implements
+ the MQTT protocol version 3.1 and 3.1.1. MQTT provides a lightweight
+ method of carrying out messaging using a publish/subscribe model.
+@@ -56,13 +58,14 @@ method of carrying out messaging using a publish/subscribe model.
+ This package also includes some basic support for configuring via UCI
+ endef
+ 
+-define Package/$(PKG_NAME)/description
+-	$(call Package/$(PKG_NAME)/default/description)
+-	This package is built with SSL support
++define Package/mosquitto-ssl/description
++	$(call Package/mosquitto/default/description)
++This package is built with SSL support.  TLS-PSK will be included (in both
++the client and broker) if OpenSSL is built with TLS-PSK support.
+ endef
+ 
+-define Package/$(PKG_NAME)-nossl/description
+-        $(call Package/$(PKG_NAME)/default/description)
++define Package/mosquitto-nossl/description
++        $(call Package/mosquitto/default/description)
+         This package is built WITHOUT SSL support.
+ endef
+ 
+@@ -71,11 +74,12 @@ define Package/mosquitto-client/default
+     $(Package/mosquitto/default)
+     TITLE:= mosquitto - client tools
+     DEPENDS+=+libcares
++    PROVIDES:=mosquitto-client
+ endef
+-define Package/mosquitto-client
++define Package/mosquitto-client-ssl
+     $(call Package/mosquitto-client/default)
+     TITLE+= (With SSL support)
+-    DEPENDS+=+libmosquitto
++    DEPENDS+=+libmosquitto-ssl
+     VARIANT:=ssl
+ endef
+ define Package/mosquitto-client-nossl
+@@ -90,7 +94,7 @@ define Package/mosquitto-client/default/description
+ and subscribing to topics.
+ endef
+ 
+-define Package/mosquitto-client/description
++define Package/mosquitto-client-ssl/description
+ $(call Package/mosquitto-client/default/description)
+         This package is built with SSL support
+ endef
+@@ -105,9 +109,10 @@ define Package/libmosquitto/default
+     CATEGORY:=Libraries
+     DEPENDS:=+libpthread +librt +libcares
+     TITLE:= mosquitto - client library
++    PROVIDES:=libmosquitto
+ endef
+ 
+-define Package/libmosquitto
++define Package/libmosquitto-ssl
+     $(call Package/libmosquitto/default)
+     TITLE+= (With SSL Support)
+     DEPENDS+= +libopenssl
+@@ -128,7 +133,7 @@ Should be useable for communicating with any MQTT v3.1/3.1.1 compatible
+ server, such as IBM's RSMB, in addition to Mosquitto
+ endef
+ 
+-define Package/libmosquitto/description
++define Package/libmosquitto-ssl/description
+     $(call Package/libmosquitto/default/description)
+     This package is built with SSL support
+ endef
+@@ -140,7 +145,7 @@ endef
+ define Package/libmosquittopp
+     SECTION:=libs
+     CATEGORY:=Libraries
+-    DEPENDS:=+libmosquitto +libstdcpp
++    DEPENDS:=libmosquitto +libstdcpp
+     TITLE:= mosquitto - client c++ library
+ endef
+ 
+@@ -148,12 +153,12 @@ define Package/libmosquittopp/description
+  C++ Library wrapper for libmosquitto.
+ endef
+ 
+-define Package/$(PKG_NAME)/conffiles
++define Package/mosquitto-ssl/conffiles
+ /etc/mosquitto/mosquitto.conf
+ /etc/config/mosquitto
+ endef
+ 
+-Package/$(PKG_NAME)-nossl/conffiles = $(Package/$(PKG_NAME)/conffiles)
++Package/mosquitto-nossl/conffiles = $(Package/mosquitto-ssl/conffiles)
+ 
+ define Package/mosquitto/install/default
+ 	$(INSTALL_DIR) $(1)/usr/sbin
+@@ -167,7 +172,7 @@ define Package/mosquitto-nossl/install
+ 	$(call Package/mosquitto/install/default,$(1))
+ endef
+ 
+-define Package/mosquitto/install
++define Package/mosquitto-ssl/install
+ 	$(call Package/mosquitto/install/default,$(1))
+ ifeq ($(CONFIG_MOSQUITTO_PASSWD),y)
+ 	$(INSTALL_DIR) $(1)/usr/bin
+@@ -175,12 +180,12 @@ ifeq ($(CONFIG_MOSQUITTO_PASSWD),y)
+ endif
+ endef
+ 
+-define Package/mosquitto-client/install
++define Package/mosquitto-client-ssl/install
+ 	$(INSTALL_DIR) $(1)/usr/bin
+ 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/client/mosquitto_pub $(1)/usr/bin/mosquitto_pub
+ 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/client/mosquitto_sub $(1)/usr/bin/mosquitto_sub
+ endef
+-Package/mosquitto-client-nossl/install = $(Package/mosquitto-client/install)
++Package/mosquitto-client-nossl/install = $(Package/mosquitto-client-ssl/install)
+ 
+ # This installs files into ./staging_dir/. so that you can cross compile from the host
+ define Build/InstallDev
+@@ -195,12 +200,12 @@ define Build/InstallDev
+ endef
+ 
+ # This installs files on the target.  Compare with Build/InstallDev
+-define Package/libmosquitto/install
++define Package/libmosquitto-ssl/install
+ 	$(INSTALL_DIR) $(1)/usr/lib
+ 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/lib/libmosquitto.so.1 $(1)/usr/lib/
+ 	$(LN) libmosquitto.so.1 $(1)/usr/lib/libmosquitto.so
+ endef
+-Package/libmosquitto-nossl/install = $(Package/libmosquitto/install)
++Package/libmosquitto-nossl/install = $(Package/libmosquitto-ssl/install)
+ 
+ define Package/libmosquittopp/install
+ 	$(INSTALL_DIR) $(1)/usr/lib
+@@ -209,17 +214,18 @@ define Package/libmosquittopp/install
+ endef
+ 
+ # Applies to all...
+-MAKE_FLAGS += WITH_DOCS=no
++MAKE_FLAGS += WITH_DOCS=no UNAME=Linux
+ ifeq ($(BUILD_VARIANT),nossl)
+ 	MAKE_FLAGS += WITH_TLS=no WITH_WEBSOCKETS=no
+ else
+ 	MAKE_FLAGS += WITH_WEBSOCKETS=$(if $(CONFIG_MOSQUITTO_LWS),"yes","no")
++	MAKE_FLAGS += WITH_TLS_PSK=$(if $(CONFIG_OPENSSL_WITH_PSK),"yes","no")
+ endif
+ 
+-$(eval $(call BuildPackage,$(PKG_NAME)))
+-$(eval $(call BuildPackage,$(PKG_NAME)-nossl))
+-$(eval $(call BuildPackage,libmosquitto))
++$(eval $(call BuildPackage,mosquitto-ssl))
++$(eval $(call BuildPackage,mosquitto-nossl))
++$(eval $(call BuildPackage,libmosquitto-ssl))
+ $(eval $(call BuildPackage,libmosquitto-nossl))
+ $(eval $(call BuildPackage,libmosquittopp))
+-$(eval $(call BuildPackage,mosquitto-client))
++$(eval $(call BuildPackage,mosquitto-client-ssl))
+ $(eval $(call BuildPackage,mosquitto-client-nossl))
+diff --git a/net/mosquitto/files/etc/init.d/mosquitto b/net/mosquitto/files/etc/init.d/mosquitto
+index 5641908..a84bcee 100755
+--- a/net/mosquitto/files/etc/init.d/mosquitto
++++ b/net/mosquitto/files/etc/init.d/mosquitto
+@@ -56,7 +56,7 @@ convert_mosq_general() {
+ 
+ 	config_get_bool no_remote "$1" no_remote_access 0
+ 	if [ "$no_remote" -eq 1 ]; then
+-		echo "bind_address 127.0.0.1" >> $TCONF
++		echo "bind_address localhost" >> $TCONF
+ 	fi
+ 
+ 	config_get port "$1" port 1883
+@@ -64,6 +64,7 @@ convert_mosq_general() {
+ 	append_if "$1" protocol
+ 	append_if "$1" max_inflight_messages
+ 	append_if "$1" max_queued_messages
++	append_if "$1" sys_interval
+ }
+ 
+ convert_persistence() {
+@@ -76,7 +77,10 @@ convert_persistence() {
+ 	append_if "$cfg" file persistence_file
+ 	config_get loc "$cfg" location
+ 	if [ -n "$loc" ]; then
+-		[ -d "$loc" ] || mkdir -p "$loc";
++		[ -d "$loc" ] || {
++			mkdir -p "$loc";
++			chown mosquitto "$loc";
++		}
+ 		echo "persistence_location $loc" >> $TCONF
+ 	fi
+ }
+@@ -96,6 +100,18 @@ add_listener() {
+     fi
+ 
+     append_if "$1" protocol
++    append_if "$1" http_dir
++    append_optional_bool "$1" use_username_as_clientid use_username_as_clientid
++    append_if "$1" cafile
++    append_if "$1" capath
++    append_if "$1" certfile
++    append_if "$1" keyfile
++    append_if "$1" tls_version
++    append_optional_bool "$1" require_certificate require_certificate
++    append_optional_bool "$1" use_identity_as_username use_identity_as_username
++    append_if "$1" crlfile
++    append_if "$1" ciphers
++    append_if "$1" psk_hint
+ }
+ 
+ add_topic() {
+@@ -117,11 +133,36 @@ add_bridge() {
+     config_list_foreach "$1" topic add_topic
+     append_optional_bool "$1" cleansession cleansession
+     append_optional_bool "$1" try_private try_private
+-
+-    append_if "$1" clientid
++    append_optional_bool "$1" notifications notifications
++    append_optional_bool "$1" round_robin round_robin
++
++    # Note, deprecated upstream, preserve old uci configs
++    append_if "$1" clientid remote_clientid
++    append_if "$1" remote_clientid
++    append_if "$1" local_clientid
++    append_if "$1" notification_topic
++    append_if "$1" keepalive_interval
++    append_if "$1" start_type
++    append_if "$1" restart_timeout
++    append_if "$1" idle_timeout
++    append_if "$1" threshold
++    append_if "$1" protocol_version bridge_protocol_version
++    append_optional_bool "$1" attempt_unsubscribe bridge_attempt_unsubscribe
+     append_if "$1" identity bridge_identity
+     append_if "$1" psk bridge_psk
+     append_if "$1" tls_version bridge_tls_version
++
++    append_if "$1" restart_timeout
++    append_if "$1" capath bridge_capath
++    append_if "$1" cafile bridge_cafile
++    append_if "$1" certfile bridge_certfile
++    append_if "$1" keyfile bridge_keyfile
++    # Note, deprecated upstream, preserve old uci configs
++    append_if "$1" username remote_username
++    # Note, deprecated upstream, preserve old uci configs
++    append_if "$1" password remote_password
++    append_if "$1" remote_username
++    append_if "$1" remote_password
+ }
+ 
+ 
+diff --git a/net/mosquitto/patches/100-remove-build-timestamps.patch b/net/mosquitto/patches/100-remove-build-timestamps.patch
+new file mode 100644
+index 0000000..7dadcf7
+--- /dev/null
++++ b/net/mosquitto/patches/100-remove-build-timestamps.patch
+@@ -0,0 +1,56 @@
++diff --git a/config.mk b/config.mk
++index bfaa208..2a3e2bf 100644
++--- a/config.mk
+++++ b/config.mk
++@@ -87,7 +87,6 @@ WITH_SOCKS:=yes
++ # Also bump lib/mosquitto.h, CMakeLists.txt,
++ # installer/mosquitto.nsi, installer/mosquitto-cygwin.nsi
++ VERSION=1.4.15
++-TIMESTAMP:=$(shell date "+%F %T%z")
++ 
++ # Client library SO version. Bump if incompatible API/ABI changes are made.
++ SOVERSION=1
++@@ -115,7 +114,7 @@ LIB_CFLAGS:=${CFLAGS} ${CPPFLAGS} -I. -I.. -I../lib
++ LIB_CXXFLAGS:=$(LIB_CFLAGS) ${CPPFLAGS}
++ LIB_LDFLAGS:=${LDFLAGS}
++ 
++-BROKER_CFLAGS:=${LIB_CFLAGS} ${CPPFLAGS} -DVERSION="\"${VERSION}\"" -DTIMESTAMP="\"${TIMESTAMP}\"" -DWITH_BROKER
+++BROKER_CFLAGS:=${LIB_CFLAGS} ${CPPFLAGS} -DVERSION="\"${VERSION}\"" -DWITH_BROKER
++ CLIENT_CFLAGS:=${CFLAGS} ${CPPFLAGS} -I../lib -DVERSION="\"${VERSION}\""
++ 
++ ifneq ($(or $(findstring $(UNAME),FreeBSD), $(findstring $(UNAME),OpenBSD)),)
++diff --git a/src/conf.c b/src/conf.c
++index 25d80a6..9ab0599 100644
++--- a/src/conf.c
+++++ b/src/conf.c
++@@ -338,7 +338,7 @@ void mqtt3_config_cleanup(struct mqtt3_config *config)
++ 
++ static void print_usage(void)
++ {
++-	printf("mosquitto version %s (build date %s)\n\n", VERSION, TIMESTAMP);
+++	printf("mosquitto version %s\n\n", VERSION);
++ 	printf("mosquitto is an MQTT v3.1.1/v3.1 broker.\n\n");
++ 	printf("Usage: mosquitto [-c config_file] [-d] [-h] [-p port]\n\n");
++ 	printf(" -c : specify the broker config file.\n");
++diff --git a/src/mosquitto.c b/src/mosquitto.c
++index 22b6372..b581f45 100644
++--- a/src/mosquitto.c
+++++ b/src/mosquitto.c
++@@ -291,7 +291,7 @@ int main(int argc, char *argv[])
++ 		rc = 1;
++ 		return rc;
++ 	}
++-	_mosquitto_log_printf(NULL, MOSQ_LOG_INFO, "mosquitto version %s (build date %s) starting", VERSION, TIMESTAMP);
+++	_mosquitto_log_printf(NULL, MOSQ_LOG_INFO, "mosquitto version %s starting", VERSION);
++ 	if(int_db.config_file){
++ 		_mosquitto_log_printf(NULL, MOSQ_LOG_INFO, "Config loaded from %s.", int_db.config_file);
++ 	}else{
++@@ -308,8 +308,6 @@ int main(int argc, char *argv[])
++ 		/* Set static $SYS messages */
++ 		snprintf(buf, 1024, "mosquitto version %s", VERSION);
++ 		mqtt3_db_messages_easy_queue(&int_db, NULL, "$SYS/broker/version", 2, strlen(buf), buf, 1);
++-		snprintf(buf, 1024, "%s", TIMESTAMP);
++-		mqtt3_db_messages_easy_queue(&int_db, NULL, "$SYS/broker/timestamp", 2, strlen(buf), buf, 1);
++ 	}
++ #endif
++ 
+-- 
+2.7.4
+
