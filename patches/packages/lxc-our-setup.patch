@@ -48,7 +48,7 @@ index 0df1460f..f93484e4 100644
  PKG_NAME:=lxc
  PKG_VERSION:=1.1.5
 -PKG_RELEASE:=3
-+PKG_RELEASE:=11
++PKG_RELEASE:=12
  
  PKG_LICENSE:=LGPL-2.1+ BSD-2-Clause GPL-2.0
  PKG_MAINTAINER:=Luka Perkov <luka@openwrt.org>
@@ -231,12 +231,19 @@ new file mode 100644
 index 00000000..24b52f2c
 --- /dev/null
 +++ b/utils/lxc/patches/060-foris-integration.patch
-@@ -0,0 +1,24 @@
+@@ -0,0 +1,31 @@
 +Index: lxc-1.1.5/templates/lxc-download.in
 +===================================================================
 +--- lxc-1.1.5.orig/templates/lxc-download.in
 ++++ lxc-1.1.5/templates/lxc-download.in
-+@@ -583,6 +583,19 @@ if [ -e "$(relevant_file create-message)
++@@ -583,6 +583,26 @@ if [ -n "$LXC_MAPPED_GID" ] && [ "$LXC_M
++     chgrp $LXC_MAPPED_GID $LXC_PATH/config $LXC_PATH/fstab >/dev/null 2>&1 || true
++ fi
++ 
+++# Make journal non-persistent by default
+++rm -rf  ${LXC_ROOTFS}/var/log/journal
+++
++ if [ -e "$(relevant_file create-message)" ]; then
 +     echo ""
 +     echo "---"
 +     cat "$(relevant_file create-message)"
