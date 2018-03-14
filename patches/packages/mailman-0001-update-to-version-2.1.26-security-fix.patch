@@ -1,0 +1,52 @@
+From 159d01f4523c90909e4578023bc2df2169ef7f79 Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Wed, 14 Mar 2018 14:47:27 +0100
+Subject: [PATCH] mailman: update to version 2.1.26 (security fix)
+
+CVE-2018-5950 - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-5950
+
+Issue https://gitlab.labs.nic.cz/turris/openwrt/issues/160
+---
+ mail/mailman/Makefile                  | 8 ++++----
+ mail/mailman/patches/100-postfix.patch | 2 +-
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/mail/mailman/Makefile b/mail/mailman/Makefile
+index eee50f8..9589081 100644
+--- a/mail/mailman/Makefile
++++ b/mail/mailman/Makefile
+@@ -1,4 +1,4 @@
+-# 
++#
+ # Copyright (C) 2014 OpenWrt.org
+ #
+ # This is free software, licensed under the GNU General Public License v2.
+@@ -9,9 +9,9 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=mailman
+ PKG_RELEASE:=1
+-PKG_SOURCE_URL:=ftp://ftp.gnu.org/gnu/mailman/ http://ftp.gnu.org/gnu/mailman/
+-PKG_VERSION:=2.1.20
+-PKG_MD5SUM:=96819640406f90a12bc28edd3dc09d4a
++PKG_SOURCE_URL:=@GNU/$(PKG_NAME)
++PKG_VERSION:=2.1.26
++PKG_MD5SUM:=240177e1ef561ede88d7b48283c3835f39bbd0b1ae19100d3520cbe43058339f
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tgz
+ PKG_MAINTAINER:=Denis Shulyaka <Shulyaka@gmail.com>
+ PKG_LICENSE:=GPL-2.0+
+diff --git a/mail/mailman/patches/100-postfix.patch b/mail/mailman/patches/100-postfix.patch
+index 22fec1e..5bbf5b2 100644
+--- a/mail/mailman/patches/100-postfix.patch
++++ b/mail/mailman/patches/100-postfix.patch
+@@ -1,7 +1,7 @@
+ diff -rupN mailman-2.1.14-1/Mailman/Defaults.py.in mailman-2.1.14-1_patched/Mailman/Defaults.py.in
+ --- mailman-2.1.14-1/Mailman/Defaults.py.in	2011-03-01 23:35:57.000000000 +0300
+ +++ mailman-2.1.14-1_patched/Mailman/Defaults.py.in	2011-03-09 12:26:10.000000000 +0300
+-@@ -461,7 +461,7 @@ DELIVERY_MODULE = 'SMTPDirect'
++@@ -489,7 +489,7 @@ DELIVERY_MODULE = 'SMTPDirect'
+  # standard out (or send an email to the site list owner) for manual twiddling
+  # of an /etc/aliases style file.  Use 'Postfix' if you are using the Postfix
+  # MTA -- but then also see POSTFIX_STYLE_VIRTUAL_DOMAINS.
+-- 
+2.7.4
+
