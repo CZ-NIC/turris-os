@@ -1,0 +1,49 @@
+From 17455648e6d72476e3e9508e8c8601fff3a0da54 Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Wed, 14 Mar 2018 13:39:40 +0100
+Subject: [PATCH] mc: update to version 4.8.20 and enable VFS option by default
+ Issue #https://gitlab.labs.nic.cz/turris/openwrt/issues/161
+
+---
+ utils/mc/Config.in | 2 +-
+ utils/mc/Makefile  | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/utils/mc/Config.in b/utils/mc/Config.in
+index b2c5794..a0a8b65 100644
+--- a/utils/mc/Config.in
++++ b/utils/mc/Config.in
+@@ -49,7 +49,7 @@ config MC_CHARSET
+ 
+ config MC_VFS
+ 	bool "Enable virtual filesystem support"
+-	default n
++	default y
+ 	help
+            This option enables the Virtual File System switch code to get
+            transparent access to the following file systems:
+diff --git a/utils/mc/Makefile b/utils/mc/Makefile
+index 1f717c6..bc1d315 100644
+--- a/utils/mc/Makefile
++++ b/utils/mc/Makefile
+@@ -8,14 +8,14 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=mc
+-PKG_VERSION:=4.8.17
+-PKG_RELEASE:=3
++PKG_VERSION:=4.8.20
++PKG_RELEASE:=1
+ PKG_MAINTAINER:=Dirk Brenken <dev@brenken.org>
+ PKG_LICENSE:=GPL-3.0+
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+ PKG_SOURCE_URL:=http://ftp.midnight-commander.org/
+-PKG_SHA256SUM:=0447bdddc0baa81866e66f50f9a545d29d6eebb68b0ab46c98d8fddd2bf4e44d
++PKG_SHA256SUM:=017ee7f4f8ae420a04f4d6fcebaabe5b494661075c75442c76e9c8b1923d501c
+ PKG_BUILD_PARALLEL:=1
+ PKG_FIXUP:=autoreconf gettext-version
+ 
+-- 
+2.7.4
+
