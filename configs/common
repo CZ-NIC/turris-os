@@ -331,3 +331,6 @@ CONFIG_PACKAGE_tor=y
 CONFIG_PACKAGE_sqlite3=y
 
 CONFIG_PACKAGE_ntpd=y
+
+
+CONFIG_PACKAGE_mailman=y
