@@ -1,0 +1,179 @@
+From cb394fa56565f79fd574d104474c077472ff2fce Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Wed, 14 Mar 2018 16:17:39 +0100
+Subject: [PATCH] vnstat: update to version 1.17
+
+Issue https://gitlab.labs.nic.cz/turris/openwrt/issues/163
+---
+ net/vnstat/Makefile                                |  4 +--
+ net/vnstat/patches/001-conf.patch                  | 19 ------------
+ net/vnstat/patches/002-no_install_strip.patch      | 35 ----------------------
+ net/vnstat/patches/003-no_install_uname.patch      | 15 ----------
+ net/vnstat/patches/100-musl-compat.patch           | 10 -------
+ .../990-adjust-configuration-defaults.patch        | 28 +++++++++++++++++
+ 6 files changed, 30 insertions(+), 81 deletions(-)
+ delete mode 100644 net/vnstat/patches/001-conf.patch
+ delete mode 100644 net/vnstat/patches/002-no_install_strip.patch
+ delete mode 100644 net/vnstat/patches/003-no_install_uname.patch
+ delete mode 100644 net/vnstat/patches/100-musl-compat.patch
+ create mode 100644 net/vnstat/patches/990-adjust-configuration-defaults.patch
+
+diff --git a/net/vnstat/Makefile b/net/vnstat/Makefile
+index 921597d..38e4bec 100644
+--- a/net/vnstat/Makefile
++++ b/net/vnstat/Makefile
+@@ -8,12 +8,12 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=vnstat
+-PKG_VERSION:=1.12
++PKG_VERSION:=1.17
+ PKG_RELEASE:=1
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://humdi.net/vnstat
+-PKG_MD5SUM:=a154b2196771e06a8accd1c24374009c
++PKG_MD5SUM:=18e4c53576ca9e1ef2f0e063a6d83b0c44e3b1cf008560d658745df5c9aa7971
+ PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
+ 
+ PKG_INSTALL:=1
+diff --git a/net/vnstat/patches/001-conf.patch b/net/vnstat/patches/001-conf.patch
+deleted file mode 100644
+index 5fb24c3..0000000
+--- a/net/vnstat/patches/001-conf.patch
++++ /dev/null
+@@ -1,19 +0,0 @@
+---- a/cfg/vnstat.conf
+-+++ b/cfg/vnstat.conf
+-@@ -78,13 +78,13 @@ DaemonUser ""
+- DaemonGroup ""
+- 
+- # how often (in seconds) interface data is updated
+--UpdateInterval 30
+-+UpdateInterval 60
+- 
+- # how often (in seconds) interface status changes are checked
+--PollInterval 5
+-+PollInterval 30
+- 
+- # how often (in minutes) data is saved to file
+--SaveInterval 5
+-+SaveInterval 30
+- 
+- # how often (in minutes) data is saved when all interface are offline
+- OfflineSaveInterval 30
+diff --git a/net/vnstat/patches/002-no_install_strip.patch b/net/vnstat/patches/002-no_install_strip.patch
+deleted file mode 100644
+index 8f11de6..0000000
+--- a/net/vnstat/patches/002-no_install_strip.patch
++++ /dev/null
+@@ -1,35 +0,0 @@
+---- a/Makefile
+-+++ b/Makefile
+-@@ -66,11 +66,11 @@ install:
+- 
+- # install everything else
+- 	install -d -m 755 $(BIN) $(SBIN) $(MAN)/man1 $(MAN)/man5
+--	install -s -m 755 src/vnstat $(BIN)
+--	install -s -m 755 src/vnstatd $(SBIN)
+-+	install -m 755 src/vnstat $(BIN)
+-+	install -m 755 src/vnstatd $(SBIN)
+- 	@if [ -f "src/vnstati" ]; \
+--	then echo install -s -m 755 src/vnstati $(BIN); \
+--	install -s -m 755 src/vnstati $(BIN); \
+-+	then echo install -m 755 src/vnstati $(BIN); \
+-+	install -m 755 src/vnstati $(BIN); \
+- 	fi
+- 
+- # update man pages, gzip it if previous version was done so	
+-@@ -139,12 +139,12 @@ bsdinstall:
+- 
+- # install binaries
+- 	install -d -m 755 $(DESTDIR)/var/db/vnstat
+--	install -s -m 755 src/vnstat $(BIN_BSD)
+--	install -s -m 755 src/vnstatd $(SBIN_BSD)
+-+	install -m 755 src/vnstat $(BIN_BSD)
+-+	install -m 755 src/vnstatd $(SBIN_BSD)
+- 
+- 	@if [ -f "src/vnstati" ]; \
+--	then echo install -s -m 755 src/vnstati $(BIN_BSD); \
+--	install -s -m 755 src/vnstati $(BIN_BSD); \
+-+	then echo install -m 755 src/vnstati $(BIN_BSD); \
+-+	install -m 755 src/vnstati $(BIN_BSD); \
+- 	fi
+- 
+- # install default config if such doesn't exist
+diff --git a/net/vnstat/patches/003-no_install_uname.patch b/net/vnstat/patches/003-no_install_uname.patch
+deleted file mode 100644
+index 14c17d5..0000000
+--- a/net/vnstat/patches/003-no_install_uname.patch
++++ /dev/null
+@@ -1,15 +0,0 @@
+---- a/Makefile
+-+++ b/Makefile
+-@@ -33,12 +33,6 @@ debug:
+- install:
+- 	@echo "Installing vnStat..."
+- 
+--# check that system is really Linux
+--	@if [ `uname` != "Linux" ]; \
+--	then echo "This isn't a Linux system. Maybe 'make bsdinstall' is what you need?"; \
+--	false; \
+--	fi
+--
+- # check that there's something to install
+- 	@if [ ! -f "src/vnstat" ] || [ ! -f "src/vnstatd" ]; \
+- 	then echo "Nothing to install, run make first."; \
+diff --git a/net/vnstat/patches/100-musl-compat.patch b/net/vnstat/patches/100-musl-compat.patch
+deleted file mode 100644
+index 0512389..0000000
+--- a/net/vnstat/patches/100-musl-compat.patch
++++ /dev/null
+@@ -1,10 +0,0 @@
+---- a/src/common.h
+-+++ b/src/common.h
+-@@ -22,6 +22,7 @@
+- #include <pwd.h>
+- #include <grp.h>
+- #include <libgen.h>
+-+#include <fcntl.h>
+- 
+- #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__APPLE__) || defined(__FreeBSD_kernel__)
+- #include <sys/param.h>
+diff --git a/net/vnstat/patches/990-adjust-configuration-defaults.patch b/net/vnstat/patches/990-adjust-configuration-defaults.patch
+new file mode 100644
+index 0000000..1627b4d
+--- /dev/null
++++ b/net/vnstat/patches/990-adjust-configuration-defaults.patch
+@@ -0,0 +1,28 @@
++From: Jo-Philipp Wich <jo@mein.io>
++Date: Thu, 26 Jan 2017 15:30:00 +0100
++Subject: [PATCH] config: adjust default values
++
++Adjust the default interval settings to be better suited for slower embedded
++devices.
++
++Signed-off-by: Jo-Philipp Wich <jo@mein.io>
++
++--- a/cfg/vnstat.conf
+++++ b/cfg/vnstat.conf
++@@ -87,13 +87,13 @@ DaemonUser ""
++ DaemonGroup ""
++ 
++ # how often (in seconds) interface data is updated
++-UpdateInterval 30
+++UpdateInterval 60
++ 
++ # how often (in seconds) interface status changes are checked
++-PollInterval 5
+++PollInterval 30
++ 
++ # how often (in minutes) data is saved to file
++-SaveInterval 5
+++SaveInterval 30
++ 
++ # how often (in minutes) data is saved when all interface are offline
++ OfflineSaveInterval 30
+-- 
+2.7.4
+
