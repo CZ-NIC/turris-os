@@ -1,0 +1,54 @@
+From eeffe299e29a00afac504ae02d6a621c5cadb3fb Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Fri, 16 Mar 2018 13:07:57 +0100
+Subject: [PATCH] libvpx: update to version 1.7.0 (security fix)
+
+CVE-2016-3881 - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-3881
+CVE-2016-6711 - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-6711
+CVE-2016-6712 - https://security-tracker.debian.org/tracker/CVE-2016-6712
+CVE-2017-0393 - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0393
+
+Issue https://gitlab.labs.nic.cz/turris/turris-os-packages/issues/175
+---
+ libs/libvpx/Makefile | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/libs/libvpx/Makefile b/libs/libvpx/Makefile
+index 315fa8b..f76ceed 100644
+--- a/libs/libvpx/Makefile
++++ b/libs/libvpx/Makefile
+@@ -8,11 +8,12 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=libvpx
+-PKG_VERSION:=1.5.0
++PKG_VERSION:=1.7.0
+ PKG_RELEASE:=1
+ 
+ PKG_REV:=v$(PKG_VERSION)
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_REV).tar.gz
++PKG_MIRROR_HASH:=be50ff18464d614a08726597ecbd72d1f11ec69ec04df2d9acdf646ecd9adcca
+ PKG_SOURCE_URL:=https://chromium.googlesource.com/webm/libvpx
+ PKG_SOURCE_PROTO:=git
+ PKG_SOURCE_VERSION:=$(PKG_REV)
+@@ -23,6 +24,8 @@ PKG_MAINTAINER:=Luiz Angelo Daros de Luca <luizluca@gmail.com>
+ PKG_LICENSE:=BSD-3-Clause
+ PKG_LICENSE_FILES:=LICENSE
+ 
++PKG_ABI_VERSION:=$(subst $(space),.,$(wordlist 1, 2, $(subst .,$(space),$(PKG_VERSION))))
++
+ PKG_INSTALL:=1
+ 
+ include $(INCLUDE_DIR)/package.mk
+@@ -33,7 +36,7 @@ define Package/libvpx
+   TITLE:=libvpx
+   URL:=http://www.webmproject.org/
+   DEPENDS:=+libpthread
+-  ABI_VERSION:=$(PKG_VERSION)
++  ABI_VERSION:=$(PKG_ABI_VERSION)
+ endef
+ 
+ define Package/libvpx/description
+-- 
+2.7.4
+
