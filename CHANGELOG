@@ -1,3 +1,6 @@
+* tor: update to version 0.2.9.15  (security fix)
+* ntpd: update to version 4.2.8p11 (security fix)
+* sqlite: update to version 3.22.0. (security fix)
 * knot-resolver: update to version 2.1.0
 * squid: update to version 3.5.27 and patch CVE (security fix)
 * mxml: update to version 2.11 (security fix)
