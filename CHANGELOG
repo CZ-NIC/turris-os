@@ -1,3 +1,9 @@
+* curl: update to version 7.59.0 (security fix)
+* mbedtls: update to version 2.7.0 (security fix)
+* libvpx: update to version 1.7.0 (security fix)
+* mosquitto: update to version 1.4.15 (security fix)
+* mailman: update to version 2.1.26 (security fix)
+* mc: update to version 4.8.20
 * tor: update to version 0.2.9.15  (security fix)
 * ntpd: update to version 4.2.8p11 (security fix)
 * sqlite: update to version 3.22.0. (security fix)
