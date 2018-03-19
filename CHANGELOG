@@ -1,3 +1,4 @@
+* unbound: update to version 1.7.0
 * curl: update to version 7.59.0 (security fix)
 * mbedtls: update to version 2.7.0 (security fix)
 * libvpx: update to version 1.7.0 (security fix)
