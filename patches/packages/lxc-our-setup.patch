@@ -236,7 +236,7 @@ index 00000000..24b52f2c
 +===================================================================
 +--- lxc-1.1.5.orig/templates/lxc-download.in
 ++++ lxc-1.1.5/templates/lxc-download.in
-+@@ -583,6 +583,26 @@ if [ -n "$LXC_MAPPED_GID" ] && [ "$LXC_M
++@@ -583,10 +583,26 @@ if [ -n "$LXC_MAPPED_GID" ] && [ "$LXC_M
 +     chgrp $LXC_MAPPED_GID $LXC_PATH/config $LXC_PATH/fstab >/dev/null 2>&1 || true
 + fi
 + 
