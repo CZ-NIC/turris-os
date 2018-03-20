@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=uboot-envtools
 PKG_DISTNAME:=u-boot
 PKG_VERSION:=2014.10
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/u-boot-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_DISTNAME)-$(PKG_VERSION).tar.bz2
@@ -108,6 +108,10 @@ endif
 ifneq ($(CONFIG_TARGET_mpc85xx_p2020_nand_TURRISNAND),)
 	$(INSTALL_DIR) $(1)/etc
 	$(INSTALL_CONF) ./files/turris.cfg $(1)/etc/fw_env.config
+endif
+ifneq ($(CONFIG_TARGET_mvebu_Turris-Omnia),)
+	$(INSTALL_DIR) $(1)/etc
+	$(INSTALL_CONF) ./files/turris-omnia.cfg $(1)/etc/fw_env.config
 endif
 endef
 
