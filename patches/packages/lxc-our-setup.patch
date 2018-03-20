@@ -48,7 +48,7 @@ index 0df1460f..f93484e4 100644
  PKG_NAME:=lxc
  PKG_VERSION:=1.1.5
 -PKG_RELEASE:=3
-+PKG_RELEASE:=12
++PKG_RELEASE:=13
  
  PKG_LICENSE:=LGPL-2.1+ BSD-2-Clause GPL-2.0
  PKG_MAINTAINER:=Luka Perkov <luka@openwrt.org>
@@ -241,7 +241,7 @@ index 00000000..24b52f2c
 + fi
 + 
 ++# Make journal non-persistent by default
-++rm -rf  ${LXC_ROOTFS}/var/log/journal
+++sed -i 's|[[:blank:]#]*Storage.*|Storage=volatile|' ${LXC_ROOTFS}/etc/systemd/journald.conf || :
 ++
 + if [ -e "$(relevant_file create-message)" ]; then
 +     echo ""
