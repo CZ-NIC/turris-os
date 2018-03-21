@@ -2,6 +2,9 @@ include(utils.m4)dnl Include utility macros
 include(repository.m4)dnl Include Repository command
 -- Updater itself
 Install('updater-ng', 'userlists', { critical = true })
+if for_l10n then
+	for_l10n('userlists-l10n-')
+end
 --[[
 Updater before v59.0 has no support for replan as string and it would complain
 about it. This is helper function is here to overcome that.
