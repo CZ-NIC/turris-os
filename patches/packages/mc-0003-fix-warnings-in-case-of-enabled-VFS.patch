@@ -1,0 +1,37 @@
+From 42da6d14891d1a16e0681975079f48b0cb5cd60c Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Wed, 21 Mar 2018 13:24:34 +0100
+Subject: [PATCH] mc: fix warnings in case of enabled VFS
+
+Issue https://gitlab.labs.nic.cz/turris/openwrt/issues/165
+---
+ utils/mc/Makefile | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/utils/mc/Makefile b/utils/mc/Makefile
+index bc1d315..d3ba77b 100644
+--- a/utils/mc/Makefile
++++ b/utils/mc/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=mc
+ PKG_VERSION:=4.8.20
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ PKG_MAINTAINER:=Dirk Brenken <dev@brenken.org>
+ PKG_LICENSE:=GPL-3.0+
+ 
+@@ -112,6 +112,10 @@ endif
+ ifeq ($(CONFIG_MC_EDITOR),y)
+ 	ln -sf mc $(1)/usr/bin/mcedit
+ endif
++ifeq ($(CONFIG_MC_VFS),y)
++	$(INSTALL_DATA) $(PKG_BUILD_DIR)/src/vfs/extfs/helpers/sfs.ini $(1)/etc/mc
++	$(INSTALL_DIR) $(1)/usr/lib/mc/extfs.d
++endif
+ 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/misc/mc.menu $(1)/etc/mc
+ 	$(INSTALL_DIR) $(1)/etc/mc/skins
+ 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/misc/skins/default.ini $(1)/etc/mc/skins
+-- 
+2.7.4
+
