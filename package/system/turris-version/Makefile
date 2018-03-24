@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.9.2
+PKG_VERSION:=3.10
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,19 +28,19 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • openssl: bezpečnostní aktualizace
- • musl & busybox: použití silnějších hashů na hesla ve výchozím stavu
- • kernel: update na poslední verzi
- • netmetr: oprava přepisování konfigurace
- • libtiff, socat, rsync, coreutils, php: bezpečnostní aktualizace
- • tvheadend: update na poslední verzi
- • suricata: oprava chyby spouštění na některých routerech, zlepšení výkonu" " • openssl: security update
- • musl & busybox: use stronger password hash by default
- • kernel: update to the latest version
- • netmetr: fix configuration reset
- • libtiff, socat, rsync, coreutils, php: security updates
- • tvheadend: update to the latest version
- • suricata: fix startup issue on some routers, performance tweaks"
+create_notification -s news " • různé aktualizace
+ • foris: přidána možnost nastavovat čas
+ • pakon: webové rozhraní ve Forisu a lepší filtrování výsledků
+ • foris: storage modul pro přesun často přepisovaných dat na externí úložiště
+ • foris: modul pro zálohy do cloudu
+ 
+ TBD eMMC warning" " • various updates
+ • foris: posibility to change time settings outside of wizard
+ • pokon: web ui in Foris and better results filtering
+ • foris: plugin to move IO intensive data to external drive
+ • foris: plugin for cloud backups
+ 
+ TBD eMMC warning"
 }
 endef
 
