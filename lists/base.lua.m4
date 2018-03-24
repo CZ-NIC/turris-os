@@ -176,6 +176,6 @@ breaks Foris so there is no easy way for user to approve update. Because of that
 we have to ensure that those needed files (even if they are just fake files) are
 present when old version of Foris is still present.
 ]]
-if not version_match or (installed["foris"] and version_match(installed["foris"].version, "<76.7")) then
+if not version_match or (installed["foris"] and version_match(installed["foris"].version, "<97.7")) then
 	Package("updater-ng", { deps = { "updater-ng-migration-helper" } })
 end
