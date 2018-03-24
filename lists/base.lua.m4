@@ -1,10 +1,8 @@
 include(utils.m4)dnl Include utility macros
 include(repository.m4)dnl Include Repository command
 -- Updater itself
-Install('updater-ng', 'userlists', { critical = true })
-if for_l10n then
-	for_l10n('userlists-l10n-')
-end
+Install('updater-ng', 'updater-ng-supervisor' { critical = true })
+
 --[[
 Updater before v59.0 has no support for replan as string and it would complain
 about it. This is helper function is here to overcome that.
@@ -83,9 +81,11 @@ else
 end
 
 Install("foris", "foris-diagnostics-plugin", { priority = 40 })
+Install('userlists', { priority = 40 })
 if for_l10n then
 	for_l10n("foris-l10n-")
 	for_l10n("foris-diagnostics-plugin-l10n-")
+	for_l10n('userlists-l10n-')
 end
 Install("nuci", "nuci-nethist", { priority = 40 })
 Install("turris-version", "lighttpd-https-cert", "start-indicator", { priority = 40 })
@@ -163,4 +163,19 @@ if not features or not features.provides then
 		Package("ip", { virtual = true, deps = {"ip-full"} })
 		flags[""] = true
 	end
+end
+
+--[[
+In Turris OS 3.10 nuci backend for Foris was obsoleted. updater.sh was replaced
+with updater-supervisor. And because all of that cleanup of some old files
+happened. But those files are required by nuci implementation. When updating to
+new version at first updater-ng is updated, then replan happens and foris is
+updated later on. But when user has approvals configured then we break nuci
+backend with some missing files that are no longer part of updater-ng and that
+breaks Foris so there is no easy way for user to approve update. Because of that
+we have to ensure that those needed files (even if they are just fake files) are
+present when old version of Foris is still present.
+]]
+if not version_match or (installed["foris"] and version_match(installed["foris"].version, "<76.7")) then
+	Package("updater-ng", { deps = { "updater-ng-migration-helper" } })
 end
