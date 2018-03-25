@@ -29,7 +29,7 @@ define Package/turris-version/postinst
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • různé aktualizace balíčků
- • foris: přidána možnost nastavovat čashu
+ • foris: přidána možnost nastavovat času
  • pakon: webové rozhraní ve Forisu a lepší filtrování výsledků
  • updater: odstraněn zastaralý updater.sh, používejte pkgupdate přímo
  • foris: storage modul pro přesun často přepisovaných dat na externí úložiště
@@ -37,7 +37,7 @@ create_notification -s news " • různé aktualizace balíčků
  
  Pokud dojde ke zničení interní eMMC flash z důvodu nadměrného zapisování, především kvůli provozu LXC kontejnerů bez externího úložiště, nemusí se na její opravu vztahovat záruka." " • various upstream packages updates
  • foris: posibility to change time settings outside of wizard
- • pokon: web ui in Foris and better results filtering
+ • pakon: web ui in Foris and better results filtering
  • updater: droped obsolete updater.sh and friends, use pkgupdate directly
  • foris: plugin to move IO intensive data to external drive
  • foris: plugin for cloud backups
