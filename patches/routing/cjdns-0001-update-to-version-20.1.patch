@@ -1,0 +1,82 @@
+From 862d88f0bab2af4022aebb84999fa32a3c2d1301 Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Mon, 26 Mar 2018 13:59:13 +0200
+Subject: [PATCH] cjdns: update to version 20.1
+
+Issue https://gitlab.labs.nic.cz/turris/openwrt/issues/168
+---
+ cjdns/Makefile          | 15 ++++++++-------
+ cjdns/lua/cjdns/uci.lua |  1 +
+ 2 files changed, 9 insertions(+), 7 deletions(-)
+
+diff --git a/cjdns/Makefile b/cjdns/Makefile
+index 8efd282..af8803a 100644
+--- a/cjdns/Makefile
++++ b/cjdns/Makefile
+@@ -17,12 +17,12 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=cjdns
+-PKG_VERSION:=0.17
+-PKG_RELEASE:=3
++PKG_VERSION:=20.1
++PKG_RELEASE:=1
+ 
+-PKG_SOURCE_URL:=https://github.com/hyperboria/cjdns.git
++PKG_SOURCE_URL:=https://github.com/cjdelisle/cjdns.git
+ PKG_SOURCE_PROTO:=git
+-PKG_SOURCE_VERSION:=40e87d9419c19063e772e39c7c59a8a8771c5ee8
++PKG_SOURCE_VERSION:=bd6b60d817d3126fb45f671c1c7637042a0be937
+ PKG_LICENSE:=GPL-3.0
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.bz2
+ PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)
+@@ -36,7 +36,7 @@ define Package/cjdns
+ 	CATEGORY:=Network
+ 	SUBMENU:=Routing and Redirection
+ 	TITLE:=Encrypted near-zero-conf mesh routing protocol
+-	URL:=https://github.com/hyperboria/cjdns
++	URL:=https://github.com/cjdelisle/cjdns
+ 	MAINTAINER:=Lars Gierth <larsg@systemli.org>
+ 	DEPENDS:=@IPV6 +kmod-tun +libnl-tiny +libpthread +librt \
+ 		+libuci-lua +lua-bencode +dkjson +luasocket +lua-sha2
+@@ -54,7 +54,7 @@ define Package/cjdns-tests
+ 	CATEGORY:=Network
+ 	SUBMENU:=Routing and Redirection
+ 	TITLE:=cjdns test cases
+-	URL:=https://github.com/hyperboria/cjdns
++	URL:=https://github.com/cjdelisle/cjdns
+ 	MAINTAINER:=Lars Gierth <larsg@systemli.org>
+ 	DEPENDS:=+libpthread +librt
+ endef
+@@ -78,6 +78,7 @@ endif
+ 
+ define Build/Compile
+ 	$(INSTALL_DIR) $(PKG_BUILD_DIR)/tmp
++	(cd $(PKG_BUILD_DIR) && \
+ 	CROSS="true" \
+ 	CC="$(TARGET_CC)" \
+ 	AR="$(TARGET_AR)" \
+@@ -90,7 +91,7 @@ define Build/Compile
+ 	GYP_ADDITIONAL_ARGS="-f make-linux" \
+ 	CJDNS_BUILD_TMPDIR="$(PKG_BUILD_DIR)/tmp" \
+ 	$(PKG_DO_VARS) \
+-	$(PKG_BUILD_DIR)/do
++	exec ./do)
+ endef
+ 
+ define Package/cjdns/install
+diff --git a/cjdns/lua/cjdns/uci.lua b/cjdns/lua/cjdns/uci.lua
+index 0127f44..f4716b7 100644
+--- a/cjdns/lua/cjdns/uci.lua
++++ b/cjdns/lua/cjdns/uci.lua
+@@ -19,6 +19,7 @@ function UCI.defaults()
+       { setupComplete = 1 }
+     },
+     router = {
++        supernodes = {},
+         ipTunnel = { outgoingConnections = {}, allowedConnections = {} },
+         interface = { type = "TUNInterface" }
+     },
+-- 
+2.7.4
+
