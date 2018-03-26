@@ -1,0 +1,3185 @@
+From cc32e54c7a932e9e3f49b7e6965b8e4a18787111 Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Mon, 26 Mar 2018 15:12:30 +0200
+Subject: [PATCH] adblock: update to upstream version 3.5.1
+
+---
+ net/adblock/Makefile                     |   33 +-
+ net/adblock/files/README.md              |  300 +++++----
+ net/adblock/files/adblock-helper.sh      |  759 ----------------------
+ net/adblock/files/adblock-update.sh      |  305 ---------
+ net/adblock/files/adblock.conf           |  192 ++++--
+ net/adblock/files/adblock.hotplug        |   20 -
+ net/adblock/files/adblock.init           |  170 +++--
+ net/adblock/files/adblock.notify         |   63 ++
+ net/adblock/files/adblock.sh             | 1034 ++++++++++++++++++++++++++++++
+ net/adblock/files/www/adblock/index.html |    5 -
+ 10 files changed, 1465 insertions(+), 1416 deletions(-)
+ delete mode 100644 net/adblock/files/adblock-helper.sh
+ delete mode 100755 net/adblock/files/adblock-update.sh
+ delete mode 100644 net/adblock/files/adblock.hotplug
+ create mode 100644 net/adblock/files/adblock.notify
+ create mode 100755 net/adblock/files/adblock.sh
+ delete mode 100644 net/adblock/files/www/adblock/index.html
+
+diff --git a/net/adblock/Makefile b/net/adblock/Makefile
+index 106fc6d..677f7fd 100644
+--- a/net/adblock/Makefile
++++ b/net/adblock/Makefile
+@@ -1,34 +1,34 @@
+ #
+-# Copyright (C) 2015-2016 OpenWrt.org
+-#
++# Copyright (c) 2015-2018 Dirk Brenken (dev@brenken.org)
+ # This is free software, licensed under the GNU General Public License v3.
+ #
+ 
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=adblock
+-PKG_VERSION:=1.3.3
++PKG_VERSION:=3.5.1
+ PKG_RELEASE:=1
+ PKG_LICENSE:=GPL-3.0+
+ PKG_MAINTAINER:=Dirk Brenken <dev@brenken.org>
+ 
+ include $(INCLUDE_DIR)/package.mk
+ 
+-define Package/$(PKG_NAME)
++define Package/adblock
+ 	SECTION:=net
+ 	CATEGORY:=Network
+-	TITLE:=Powerful adblock script to block ad/abuse domains
++	TITLE:=Powerful adblock script to block ad/abuse domains by using DNS
++	DEPENDS:=+jshn +jsonfilter
+ 	PKGARCH:=all
+ endef
+ 
+-define Package/$(PKG_NAME)/description
+-Powerful adblock script to block ad/abuse domains.
+-Currently the script supports 19 domain blacklist sites plus manual black- and whitelist overrides.
++define Package/adblock/description
++Powerful adblock script to block ad/abuse domains via dnsmasq, unbound, named, kresd or dnscrypt-proxy.
++The script supports many domain blacklist sites plus manual black- and whitelist overrides.
+ Please see https://github.com/openwrt/packages/blob/master/net/adblock/files/README.md for further information.
+ 
+ endef
+ 
+-define Package/$(PKG_NAME)/conffiles
++define Package/adblock/conffiles
+ /etc/config/adblock
+ /etc/adblock/adblock.whitelist
+ /etc/adblock/adblock.blacklist
+@@ -43,13 +43,9 @@ endef
+ define Build/Compile
+ endef
+ 
+-define Package/$(PKG_NAME)/install
++define Package/adblock/install
+ 	$(INSTALL_DIR) $(1)/usr/bin
+-	$(INSTALL_BIN) ./files/adblock-update.sh $(1)/usr/bin/
+-	$(INSTALL_DATA) ./files/adblock-helper.sh $(1)/usr/bin/
+-
+-	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
+-	$(INSTALL_BIN) ./files/adblock.hotplug $(1)/etc/hotplug.d/iface/99-adblock
++	$(INSTALL_BIN) ./files/adblock.sh $(1)/usr/bin/
+ 
+ 	$(INSTALL_DIR) $(1)/etc/init.d
+ 	$(INSTALL_BIN) ./files/adblock.init $(1)/etc/init.d/adblock
+@@ -58,12 +54,9 @@ define Package/$(PKG_NAME)/install
+ 	$(INSTALL_CONF) ./files/adblock.conf $(1)/etc/config/adblock
+ 
+ 	$(INSTALL_DIR) $(1)/etc/adblock
+-	$(INSTALL_CONF) ./files/adblock.conf $(1)/etc/adblock/adblock.conf.default
++	$(INSTALL_CONF) ./files/adblock.notify $(1)/etc/adblock/
+ 	$(INSTALL_CONF) ./files/adblock.blacklist $(1)/etc/adblock/
+ 	$(INSTALL_CONF) ./files/adblock.whitelist $(1)/etc/adblock/
+-
+-	$(INSTALL_DIR) $(1)/www/adblock
+-	$(INSTALL_DATA) ./files/www/adblock/* $(1)/www/adblock/
+ endef
+ 
+-$(eval $(call BuildPackage,$(PKG_NAME)))
++$(eval $(call BuildPackage,adblock))
+diff --git a/net/adblock/files/README.md b/net/adblock/files/README.md
+index 8ef36be..91e96ad 100644
+--- a/net/adblock/files/README.md
++++ b/net/adblock/files/README.md
+@@ -1,12 +1,16 @@
+ # dns based ad/abuse domain blocking
+ 
+ ## Description
+-A lot of people already use adblocker plugins within their desktop browsers, but what if you are using your (smart) phone, tablet, watch or any other wlan gadget...getting rid of annoying ads, trackers and other abuse sites (like facebook ;-) is simple: block them with your router. When the dns server on your router receives dns requests, you will sort out queries that ask for the resource records of ad servers and return the local ip address of your router and the internal web server delivers a transparent pixel instead.  
++A lot of people already use adblocker plugins within their desktop browsers, but what if you are using your (smart) phone, tablet, watch or any other wlan gadget...getting rid of annoying ads, trackers and other abuse sites (like facebook ;-) is simple: block them with your router. When the dns server on your router receives dns requests, you will sort out queries that ask for the resource records of ad servers and return a simple 'NXDOMAIN'. This is nothing but **N**on-e**X**istent Internet or Intranet domain name, if domain name is unable to resolved using the dns server, a condition called the 'NXDOMAIN' occurred.  
+ 
+ ## Main Features
+ * support of the following domain blocklist sources (free for private usage, for commercial use please check their individual licenses):
+     * [adaway](https://adaway.org)
+     * => infrequent updates, approx. 400 entries (enabled by default)
++    * [adguard](https://adguard.com)
++    * => numerous updates on the same day, approx. 12.000 entries
++    * [bitcoin](https://github.com/hoshsadiq/adblock-nocoin-list)
++    * => infrequent updates, approx. 15 entries
+     * [blacklist]()
+     * => static local blacklist, located by default in '/etc/adblock/adblock.blacklist'
+     * [disconnect](https://disconnect.me)
+@@ -15,20 +19,32 @@ A lot of people already use adblocker plugins within their desktop browsers, but
+     * => daily updates, approx. 4.500 entries
+     * [feodotracker](https://feodotracker.abuse.ch)
+     * => daily updates, approx. 0-10 entries
++    * [hphosts](https://hosts-file.net)
++    * => monthly updates, approx. 50.000 entries
+     * [malwaredomains](http://malwaredomains.com)
+     * => daily updates, approx. 16.000 entries
+     * [malwaredomainlist](http://www.malwaredomainlist.com)
+     * => daily updates, approx. 1.500 entries
+     * [openphish](https://openphish.com)
+     * => numerous updates on the same day, approx. 1.800 entries
+-    * [palevo tracker](https://palevotracker.abuse.ch)
+-    * => daily updates, approx. 15 entries
+     * [ransomware tracker](https://ransomwaretracker.abuse.ch)
+     * => daily updates, approx. 150 entries
+-    * [rolist/easylist](https://easylist-downloads.adblockplus.org/rolist+easylist.txt)
+-    * => weekly updates, approx. 600 entries
+-    * [ruadlist/easylist](https://code.google.com/p/ruadlist)
+-    * => weekly updates, approx. 2.000 entries
++    * [reg_cn](https://easylist-downloads.adblockplus.org/easylistchina+easylist.txt)
++    * => regional blocklist for China, daily updates, approx. 1.600 entries
++    * [reg_cz](https://raw.githubusercontent.com/qxstyles/turris-hole-czech-block-list/master/turris-hole-czech-block-list)
++    * => regional blocklist for Czechia, maintained by Turris Omnia Users, infrequent updates, approx. 100 entries
++    * [reg_de](https://easylist-downloads.adblockplus.org/easylistgermany+easylist.txt)
++    * => regional blocklist for Germany, daily updates, approx. 9.200 entries
++    * [reg_id](https://easylist-downloads.adblockplus.org/abpindo+easylist.txt)
++    * => regional blocklist for Indonesia, daily updates, approx. 800 entries
++    * [reg_nl](https://easylist-downloads.adblockplus.org/easylistdutch+easylist.txt)
++    * => regional blocklist for the Netherlands, weekly updates, approx. 1300 entries
++    * [reg_pl](http://adblocklist.org)
++    * => regional blocklist for Poland, daily updates, approx. 50 entries
++    * [reg_ro](https://easylist-downloads.adblockplus.org/rolist+easylist.txt)
++    * => regional blocklist for Romania, weekly updates, approx. 600 entries
++    * [reg_ru](https://code.google.com/p/ruadlist)
++    * => regional blocklist for Russia, weekly updates, approx. 2.000 entries
+     * [shallalist](http://www.shallalist.de) (categories "adv" "costtraps" "spyware" "tracker" "warez" enabled by default)
+     * => daily updates, approx. 32.000 entries (a short description of all shallalist categories can be found [online](http://www.shallalist.de/categories.html))
+     * [spam404](http://www.spam404.com)
+@@ -45,97 +61,126 @@ A lot of people already use adblocker plugins within their desktop browsers, but
+     * => weekly updates, approx. 2.500 entries (enabled by default)
+     * [zeus tracker](https://zeustracker.abuse.ch)
+     * => daily updates, approx. 440 entries
+-* zero-conf like automatic installation & setup, usually no manual changes needed (i.e. ip address, network devices etc.)
+-* supports a wide range of router modes (incl. AP mode), as long as the firewall and the DNS server are enabled & in use
++* zero-conf like automatic installation & setup, usually no manual changes needed
++* simple but yet powerful adblock engine: adblock does not use error prone external iptables rulesets, http pixel server instances and things like that
++* supports five different dns backends / blocklist formats: dnsmasq, unbound, named (bind), kresd and dnscrypt-proxy
++* supports six different download utilities: uclient-fetch, wget, curl, aria2c, wget-nossl, busybox-wget
++* Really fast downloads & list processing as they are handled in parallel as background jobs in a configurable 'Download Queue'
++* provides 'http only' mode without installed ssl library for all non-SSL blocklist sources
++* supports a wide range of router modes, even AP modes are supported
+ * full IPv4 and IPv6 support
+-* each blocklist source will be updated and processed separately
+-* timestamp check to download and process only updated adblock list sources
+-* overall duplicate removal in separate adblock lists (will be automatically disabled on low memory systems)
+-* adblock source list parsing by fast & flexible regex rulesets
++* provides top level domain compression ('tld compression'), this feature removes thousands of needless host entries from the blocklist and lowers the memory footprint for the dns backend
++* blocklist source parsing by fast & flexible regex rulesets
++* overall duplicate removal in central blocklist 'adb_list.overall'
+ * additional whitelist for manual overrides, located by default in /etc/adblock/adblock.whitelist
+-* quality checks during & after update of adblock lists to ensure a reliable dnsmasq service
+-* adblock statistics, last runtime and list states/counts/update times will be stored in uci config for LuCI frontend
+-* status & error logging to stdout and syslog
+-* use two dynamic uhttpd instances as adblock pixel server, separated for ads delivered on port 80 and on port 443
+-* use dynamic iptables chains/rulesets for adblock related redirects/rejects
+-* init system support (start/stop/restart/reload/toggle/stats/cfgup)
+-* hotplug support, the adblock start will be triggered by wan 'ifup' event
+-* adblock toggle to quickly switch adblocking 'on' or 'off'
+-* optional: automatic adblock list backup/restore, backups will be (de-)compressed on the fly (disabled by default)
+-* optional: add new adblock sources via uci config (see example below)
++* quality checks during blocklist update to ensure a reliable dns backend service
++* minimal status & error logging to syslog, enable debug logging to receive more output
++* procd based init system support (start/stop/restart/reload/suspend/resume/query/status)
++* procd network interface trigger support or classic time based startup
++* keep the dns cache intact after adblock processing (currently supported by unbound, named and kresd)
++* conditional dns backend restarts by old/new blocklist comparison with sha256sum (default) or md5sum
++* suspend & resume adblock actions temporarily without blocklist reloading
++* output comprehensive runtime information via LuCI or via 'status' init command
++* query function to quickly identify blocked (sub-)domains, e.g. for whitelisting
++* strong LuCI support
++* optional: force dns requests to local resolver
++* optional: force overall sort / duplicate removal for low memory devices (handle with care!)
++* optional: automatic blocklist backup & restore, they will be used in case of download errors or during startup in backup mode
++* optional: 'backup mode' to re-use blocklist backups during startup, get fresh lists only via reload or restart action
++* optional: 'Jail' blocklist generation which builds an additional list (/tmp/adb_list.jail) to block access to all domains except those listed in the whitelist file. You can use this restrictive blocklist manually e.g. for guest wifi or kidsafe configurations
++* optional: send notification emails in case of a processing error or if the overall domain count is &le; 0
++* optional: add new adblock sources on your own, see example below
+ 
+ ## Prerequisites
+-* [openwrt](https://openwrt.org), tested with latest stable release (Chaos Calmer) and with current trunk (Designated Driver)
+-* [LEDE project](https://www.lede-project.org), tested with trunk > r98
+-* usual setup with enabled 'iptables', 'dnsmasq' and 'uhttpd' - dump AP modes without these basics are _not_ supported!
+-* additional required software packages:
+-    * a download utility: 'uclient-fetch' and 'wget' (full versions with ssl support) are supported. Normally you should use 'wget', it's quite stable and supports the online timestamp checks. If you need a smaller memory footprint try 'uclient-fetch' without openssl dependency. The default ustream ssl backend 'libustream-polarssl' has issues with certain https sites and is currently not supported. To change the ssl backend see example below.
+-    * optional: 'kmod-ipt-nat6' for IPv6 support
+-* the above dependencies and requirements will be checked during package installation & script runtime
+-
+-## OpenWrt / LEDE trunk Installation & Usage
++* [OpenWrt](https://openwrt.org), tested with the stable release series (17.01.x) and with the latest OpenWrt snapshot
++* a usual setup with an enabled dns backend at minimum - dump AP modes without a working dns backend are _not_ supported
++* a download utility:
++    * to support all blocklist sources a full version (with ssl support) of 'wget', 'uclient-fetch' with one of the 'libustream-*' ssl libraries, 'aria2c' or 'curl' is required
++    * for limited devices with real memory constraints, adblock provides also a 'http only' option and supports wget-nossl and uclient-fetch (without libustream-ssl) as well
++    * for more configuration options see examples below
++
++## Installation & Usage
+ * install 'adblock' (_opkg install adblock_)
+-* adblock starts automatically during boot, triggered by wan-ifup event, check _logread -e "adblock"_ for adblock related information
+-* optional: start/restart/stop the adblock service manually with _/etc/init.d/adblock_
+-* optional: enable/disable your required adblock list sources in _/etc/config/adblock_ - 'adaway', 'disconnect' and 'yoyo' are enabled by default
+-* optional: maintain the adblock service in LuCI under 'System => Startup'
++* at minimum configure the appropriate dns backend ('dnsmasq' by default), the donwload utility and enable the adblock service in _/etc/config/adblock_
++* control the adblock service manually with _/etc/init.d/adblock_ start/stop/restart/reload/suspend/resume/status or use the LuCI frontend
+ 
+ ## LuCI adblock companion package
+-* for easy management of the various blocklist sources and adblock options there is also a nice & efficient LuCI frontend available
++* for easy management of the various blocklist sources and all other adblock options you should use the provided LuCI frontend
+ * install 'luci-app-adblock' (_opkg install luci-app-adblock_)
+ * the application is located in LuCI under 'Services' menu
+-* _Thanks to Hannu Nyman for this great adblock LuCI frontend!_
+-
+-## Chaos Calmer installation notes
+-* 'adblock' and 'luci-app-adblock' are _not_ available as .ipk packages in the Chaos Calmer download repository
+-* download both packages from a development snapshot package directory:
+-    * for 'adblock' look [here](https://downloads.lede-project.org/snapshots/packages/x86_64/packages/)
+-    * for 'luci-app-adblock' look [here](https://downloads.lede-project.org/snapshots/packages/x86_64/luci/)
+-* manually transfer the packages to your routers temp directory (with tools like _sshfs_ or _winscp_)
+-* install the packages with _opkg install <...>_ as described above
+ 
+ ## Tweaks
+-* **storage:** to process & store all blocklist sources at once it might helpful to enlarge your temp directory with a swap partition => see [openwrt wiki](https://wiki.openwrt.org/doc/uci/fstab) for further details
+-* **white-/blacklist:** add domain white- or blacklist entries to always-allow or -deny certain (sub) domains, by default both lists are located in _/etc/adblock_. Please add one domain per line - ip addresses, wildcards & regex are _not_ allowed (see example below)
+-* **backup/restore:** enable the backup/restore feature, to restore automatically the latest compressed backup of your adblock lists in case of any processing error (i.e. a single blocklist source is down). Please use an (external) solid partition and _not_ your volatile router temp directory for this
+-* **list updates:** for a scheduled call of the adblock service add an appropriate crontab entry (see example below)
+-* **new list sources:** you could add new blocklist sources on your own via uci config, all you need is a source url and an awk one-liner (see example below)
+-* **AP mode:** in 'AP mode' adblock uses automatically the local router ip as nullip address. To make sure that your LuCI interface will be still accessible, you have to change the local uhttpd instance to ports <> 80/443 (see example below)
+-* **restricted mode:** to disable flash writes with adblock status information to the adblock config file (used by LuCI frontend), please set 'adb\_restricted' to '1'
+-* **adblock toggle:** to quickly switch adblocking 'on' or 'off', simply use _/etc/init.d/adblock toggle_
+-* **adblock statistics:** to update only the adblock statistics (without updating the block lists as well), please run _/etc/init.d/adblock stats_
+-* **configuration update:** to update an outdated adblock config file with the current default version, please run _/etc/init.d/adblock cfgup_, make your individual changes and start the adblock service again
+-* **debugging:** for script debugging please set the 'adb\_debug' variable in the header of _/etc/init.d/adblock_ to '1'
+-* **disable active dns probing in windows:** to prevent a possible yellow exclamation mark on your internet connection icon (which wrongly means connected, but no internet), please change the following registry key/value from "1" to "0" _HKLM\SYSTEM\CurrentControlSet\Services\NlaSvc\Parameters\Internet\EnableActiveProbing_
++* **runtime information:** the adblock status is available via _/etc/init.d/adblock status_ (see example below)
++* **debug logging:** for script debugging please set the config option 'adb\_debug' to '1' and check the runtime output with _logread -e "adblock"_
++* **storage expansion:** to process and store all blocklist sources at once it might helpful to enlarge your temp directory with a swap partition => see [OpenWrt Wiki](https://wiki.openwrt.org/doc/uci/fstab) for further details
++* **add white- / blacklist entries:** add domain white- or blacklist entries to always-allow or -deny certain (sub) domains, by default both lists are empty and located in _/etc/adblock_. Please add one domain per line - ip addresses, wildcards & regex are _not_ allowed (see example below)
++* **backup & restore blocklists:** enable this feature, to restore automatically the latest compressed backup of your blocklists in case of any processing error (e.g. a single blocklist source is not available during update). Please use an (external) solid partition and _not_ your volatile router temp directory for this
++* **download queue size:** for further download & list processing performance improvements you can raise the 'adb\_maxqueue' value, e.g. '8' or '16' should be safe
++* **scheduled list updates:** for a scheduled call of the adblock service add an appropriate crontab entry (see example below)
++* **change startup behaviour:** by default the startup will be triggered by the 'wan' procd interface trigger. Choose 'none' to disable automatic startups, 'timed' to use a classic timeout (default 30 sec.) or select another trigger interface
++* **suspend & resume adblocking:** to quickly switch the adblock service 'on' or 'off', simply use _/etc/init.d/adblock [suspend|resume]_
++* **domain query:** to query the active blocklist for a certain domain, please use the LuCI frontend or run _/etc/init.d/adblock query `<DOMAIN>`_ (see example below)
++* **add new list sources:** you could add new blocklist sources on your own via uci config, all you need is a source url and an awk one-liner (see example below)
++* **disable active dns probing in windows 10:** to prevent a yellow exclamation mark on your internet connection icon (which wrongly means connected, but no internet), please change the following registry key/value from "1" to "0" _HKLM\SYSTEM\CurrentControlSet\Services\NlaSvc\Parameters\Internet\EnableActiveProbing_
+ 
+ ## Further adblock config options
+-* usually the adblock autodetection works quite well and no manual config overrides are needed, all options apply to the 'global' config section:
+-    * adb\_enabled => main switch to enable/disable adblock service (default: '1', enabled)
+-    * adb\_cfgver => config version string (do not change!) - adblock will check this entry during startup
+-    * adb\_lanif => name of the logical lan interface (default: 'lan')
+-    * adb\_nullport => port of the adblock uhttpd instance used for ads delivered on port 80 (default: '65534')
+-    * adb\_nullportssl => port of the adblock uhttpd instance used for ads delivered on port 443 (default: '65535')
+-    * adb\_nullipv4 => IPv4 blackhole ip address (default: '198.18.0.1', in AP mode: local router ip)
+-    * adb\_nullipv6 => IPv6 blackhole ip address (default: '::ffff:c612:0001', in AP mode: local router ip)
+-    * adb\_forcedns => redirect all local DNS queries to the local dnsmasq resolver (default: '1', enabled / always disabled in 'AP mode')
+-    * adb\_fetchttl => set the timeout for list downloads (default: '5' seconds)
+-    * adb\_restricted => disable updates of the adblock config file (no flash writes) during runtime (default: '0', disabled)
++* usually the pre-configured adblock setup works quite well and no manual overrides are needed
++* the following options apply to the 'global' config section:
++    * adb\_enabled => main switch to enable/disable adblock service (default: '0', disabled)
++    * adb\_debug => enable/disable adblock debug output (default: '0', disabled)
++    * adb\_fetchutil => name of the used download utility: 'uclient-fetch', 'wget', 'curl', 'aria2c', 'wget-nossl'. 'busybox' (default: 'uclient-fetch')
++    * adb\_fetchparm => special config options for the download utility (default: not set)
++    * adb\_dns => select the dns backend for your environment: 'dnsmasq', 'unbound', 'named', 'kresd' or 'dnscrypt-proxy' (default: 'dnsmasq')
++    * adb\_dnsdir => target directory for the generated blocklist 'adb_list.overall' (default: not set, use dns backend default)
++    * adb\_trigger => set the startup trigger to a certain interface, to 'timed' or to 'none' (default: 'wan')
++
++* the following options apply to the 'extra' config section:
++    * adb\_triggerdelay => additional trigger delay in seconds before adblock processing begins (int/default: '2')
++    * adb\_forcedns => force dns requests to local resolver (bool/default: '0', disabled)
++    * adb\_forcesrt => force overall sort on low memory devices with less than 64 MB RAM (bool/default: '0', disabled)
++    * adb\_backup_mode => do not automatically update blocklists during startup, use backups instead (bool/default: '0', disabled)
++    * adb\maxqueue => size of the download queue to handle downloads & list processing in parallel (int/default: '4')
++    * adb\_jail => builds an additional 'Jail' list (/tmp/adb_list.jail) to block access to all domains except those listed in the whitelist file (bool/default: '0', disabled)
++    * adb\_dnsflush => flush DNS cache after adblock processing, i.e. enable the old restart behavior (bool/default: '0', disabled)
++    * adb\_notify => send notification emails in case of a processing error or if the overall domain count is &le; 0 (bool/default: '0', disabled)
++    * adb\_notifycnt => Raise minimum domain count email notification trigger (int/default: '0')
+ 
+ ## Examples
++**change default dns backend to 'unbound':**
+ 
+-**example to change the ssl backend for 'uclient-fetch':**
++Adblock deposits the final blocklist 'adb_list.overall' in '/var/lib/unbound' where unbound can find them in its jail.  
++To preserve the DNS cache after adblock processing you need to install 'unbound-control'.  
++  
++**change default dns backend to 'named' (bind):**
++
++Adblock deposits the final blocklist 'adb_list.overall' in '/var/lib/bind'.  
++To preserve the DNS cache after adblock processing you need to install & configure 'bind-rdnc'.  
++To use the blocklist please modify '/etc/bind/named.conf':
+ <pre><code>
+-opkg update
+-opkg remove --force-depends libustream-polarssl
+-opkg install libustream-mbedtls
++in the 'options' namespace add:
++  response-policy { zone "rpz"; };
++
++and at the end of the file add:
++  zone "rpz" {
++    type master;
++    file "/var/lib/bind/adb_list.overall";
++    allow-query { none; };
++    allow-transfer { none; };
++  };
+ </code></pre>
+   
+-**example cronjob for a regular block list update:**
++**change default dns backend to 'kresd':**
++
++The knot-resolver (kresd) is only available on Turris Omnia devices.  
++Adblock deposits the final blocklist 'adb_list.overall' in '/etc/kresd', no further configuration needed.
++  
++**change default dns backend to 'dnscrypt-proxy':**
++
++The required 'blacklist' option of dnscrypt-proxy is not enabled by default, because the package will be compiled without plugins support.  
++Take a custom OpenWrt build with plugins support to use this feature. Adblock deposits the final blocklist 'adb_list.overall' in '/tmp'.  
++To use the blocklist please modify '/etc/config/dnscrypt-proxy' per instance:
+ <pre><code>
+-# configuration found in /etc/crontabs/root
+-# start adblock script once a day at 6 a.m.
+-#
+-0 06 * * *    /etc/init.d/adblock start
++  list blacklist 'domains:/tmp/adb_list.overall'
+ </code></pre>
+   
+ **example blacklist entry (/etc/adblock/adblock.blacklist):**
+@@ -152,11 +197,12 @@ This entry does not block:
+   http://example.com/
+ </code></pre>
+   
+-**example whitelist entry (/etc/adblock/adblock.whitelist):**
++**whitelist entry (/etc/adblock/adblock.whitelist):**
++
+ <pre><code>
+ here.com
+ 
+-This entry removes the following (sub)domains from the blocklists:
++This entry removes the following (sub)domains from the blocklist:
+   maps.here.com
+   here.com
+ 
+@@ -165,78 +211,48 @@ This entry does not remove:
+   www.adwhere.com
+ </code></pre>
+   
+-**example uhttpd configuration in AP mode:**
+-<pre><code>
+-# configuration found in /etc/config/uhttpd
+-# change default http/https ports <> 80/443
+-#
+-config uhttpd 'main'
+-    list listen_http '0.0.0.0:88'
+-    list listen_https '0.0.0.0:445'
+-</code></pre>
+-  
+-**example grep for blocked (sub-)domains in adblock source files:**
+-<pre><code>
+-grep "google-analytics.com" "/tmp/dnsmasq.d/adb_list"*
++**query the active blocklist for a certain (sub-)domain, e.g. for whitelisting:**
+ 
+-This will output all matches with corresponding source files:
+-  /tmp/dnsmasq.d/adb_list.winhelp:address=/ssl.google-analytics.com/198.18.0.1
+-  /tmp/dnsmasq.d/adb_list.winhelp:address=/www.google-analytics.com/198.18.0.1
+-  /tmp/dnsmasq.d/adb_list.yoyo:address=/google-analytics.com/198.18.0.1
+-</code></pre>
+-  
+-**example to find blocked domains on certain sites for whitelisting:**
++The query function checks against the submitted (sub-)domain and recurses automatically to the upper top level domain. For every (sub-)domain it returns the first ten relevant results.
+ <pre><code>
+-1. the easy way ...
+-enable the network analysis builtins in chrome or firefox to identify domains
+-which are redirected to the adblock null-ip (default 198.18.0.1), add these domains to your whitelist
+-
+-2. a bit harder ...
+-enable 'Log queries' in the dnsmasq configuration (via LuCI Network => DHCP/DNS),
+-ssh to your router and start tracing with 'logread -f -e "dnsmasq" -e "198.18.0.1"'
+-switch to your client, access the relevant site and check all domains
+-that are blocked/listed in logread, add these domains to your whitelist
+-
+-=> finally restart the adblock service (/etc/init.d/adblock restart) in both variants
++/etc/init.d/adblock query www.example.google.com
++::: results for domain 'www.example.google.com'
++  - no match
++::: results for domain 'example.google.com'
++  - no match
++::: results for domain 'google.com'
++  + ads.google.com
++  + adservices.google.com
++  + adwords.google.com
++  + ampcid.google.com
++  + analytics.google.com
++  + gg.google.com
++  + google.com.analytics.kdgsrltkcun.com
++  + googleadapis.l.google.com
++  + id.google.com
++  + pagead-googlehosted.l.google.com
++  + [...]
+ </code></pre>
+   
+-**example to add a new blocklist source:**
+-<pre><code>
+-1. the easy way ...
+-example: https://easylist-downloads.adblockplus.org/rolist+easylist.txt
+-adblock already supports an easylist source, called 'ruadlist'. To add the additional local easylist
+-as a new source, copy the existing config source 'ruadlist' section and change only
+-the source name, the url and the description - that's all!
++**add a new blocklist source:**
+ 
+-config source 'rolist'
++1. the easy way ...  
++example: https://easylist-downloads.adblockplus.org/rolist+easylist.txt  
++Adblock already supports an easylist source, called 'reg_ru'. To add the additional local easylist as a new source, copy the existing config source section and change only
++the source name, the url and the description - that's all!
++<pre><code>
++config source 'reg_ro'
+   option enabled '0'
+   option adb_src 'https://easylist-downloads.adblockplus.org/rolist+easylist.txt'
+-  option adb_src_rset '{FS=\"[|^]\"} \$0 ~/^\|\|([A-Za-z0-9_-]+\.){1,}[A-Za-z]+\^$/{print tolower(\$3)}'
+-  option adb_src_desc 'focus on romanian ad related domains plus generic easylist additions, weekly updates, approx. 600 entries'
+-
+-2. a bit harder ...
+-to add a really new source with different domain/host format you have to write a suitable
+-awk one-liner on your own, so basic awk skills are needed. As a starting point check the already
+-existing awk strings (adb_src_rset) in adblock config, maybe you need only small changes for your individual list.
+-Download the desired list and test your new awk string locally with:
+-  cat new.list | awk 'fs__individual search__search core__result'
+-  'fs' => field separator (optional)
+-  'individual search' => individual search part to filter out needless list information
+-  'search core' => always '([A-Za-z0-9_-]+\.){1,}[A-Za-z]+', this is part of all list sources and should be unchanged
+-  'result' => always '{print tolower(\$n)}', only the output column 'n' may vary
+-the output result should be a sequential list with one domain/host per line - nothing more.
+-
+-If your awk one-liner works quite well, add a new source section in adblock config and test your new source
++  option adb_src_rset 'BEGIN{FS=\"[|^]\"}/^\|\|([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+\^("\\\$third-party")?$/{print tolower(\$3)}'
++  option adb_src_desc 'focus on romanian ads plus generic easylist additions, weekly updates, approx. 9.400 entries'
+ </code></pre>
+-  
+-## Background
+-This adblock package is a dns/dnsmasq based adblock solution.  
+-Queries to ad/abuse domains are never forwarded and always replied with a local IP address which may be IPv4 or IPv6. For that purpose adblock uses an ip address from the private 'Benchmark Test' subnet (198.18.0.1 / ::ffff:c612:0001) by default (in AP mode the local router ip address will be used). Furthermore all ad/abuse queries will be filtered by ip(6)tables and redirected to two uhttpd instances, separated for ads delivered on port 80 and on port 443 (in PREROUTING chain) or rejected (in FORWARD or OUTPUT chain). In 'AP mode' only the uhttpd related rules in PREROUTING chain are enabled.  
+-  
+-All iptables and uhttpd related adblock additions are non-destructive, no hard-coded changes in 'firewall.user', 'uhttpd' config or any other system related config files. There is _no_ adblock background daemon running, the (scheduled) start of the adblock service keeps only the adblock lists up-to-date.  
++
++2. a bit harder ...  
++To add a really new source with different domain/host format you have to write a suitable awk one-liner on your own, so basic awk skills are needed. As a starting point check the already existing awk rulesets 'adb_src_rset' in the config file, probably you need only small changes for your individual list. Download the desired list and test your new awk string locally. The output result should be a sequential list with one domain/host per line - nothing more. If your awk one-liner works quite well, add a new source section to the adblock config file and test the new source.  
+ 
+ ## Support
+-Please join the adblock discussion in this [openwrt forum thread](https://forum.openwrt.org/viewtopic.php?id=59803) or contact me by mail <dev@brenken.org>  
++Please join the adblock discussion in this [forum thread](https://forum.lede-project.org/t/adblock-2-x-support-thread/507) or contact me by mail <dev@brenken.org>  
+ 
+ ## Removal
+ * stop all adblock related services with _/etc/init.d/adblock stop_
+diff --git a/net/adblock/files/adblock-helper.sh b/net/adblock/files/adblock-helper.sh
+deleted file mode 100644
+index 4aa6b2b..0000000
+--- a/net/adblock/files/adblock-helper.sh
++++ /dev/null
+@@ -1,759 +0,0 @@
+-#!/bin/sh
+-# function library used by adblock-update.sh
+-# written by Dirk Brenken (dev@brenken.org)
+-
+-# set initial defaults
+-#
+-LC_ALL=C
+-PATH="/usr/sbin:/usr/bin:/sbin:/bin"
+-adb_lanif="lan"
+-adb_nullport="65534"
+-adb_nullportssl="65535"
+-adb_nullipv4="198.18.0.1"
+-adb_nullipv6="::ffff:c612:0001"
+-adb_whitelist="/etc/adblock/adblock.whitelist"
+-adb_whitelist_rset="\$1 ~/^([A-Za-z0-9_-]+\.){1,}[A-Za-z]+/{print tolower(\"^\"\$1\"\\\|[.]\"\$1)}"
+-adb_dnsdir="/tmp/dnsmasq.d"
+-adb_dnshidedir="${adb_dnsdir}/.adb_hidden"
+-adb_dnsprefix="adb_list"
+-adb_count=0
+-adb_minspace=12000
+-adb_forcedns=1
+-adb_fetchttl=5
+-adb_restricted=0
+-adb_uci="$(which uci)"
+-unset adb_revsrclist
+-
+-# f_envload: load adblock environment
+-#
+-f_envload()
+-{
+-    # source in system function library
+-    #
+-    if [ -r "/lib/functions.sh" ]
+-    then
+-        . "/lib/functions.sh"
+-    else
+-        rc=-10
+-        f_log "system function library not found, please check your installation"
+-        f_exit
+-    fi
+-
+-    # source in system network library
+-    #
+-    if [ -r "/lib/functions/network.sh" ]
+-    then
+-        . "/lib/functions/network.sh"
+-    else
+-        rc=-10
+-        f_log "system network library not found, please check your installation"
+-        f_exit
+-    fi
+-
+-    # check opkg availability
+-    #
+-    if [ -f "/var/lock/opkg.lock" ]
+-    then
+-        rc=-10
+-        f_log "adblock installation finished successfully, 'opkg' currently locked by package installer"
+-        f_exit
+-    fi
+-
+-    # uci function to parse global section by callback
+-    #
+-    config_cb()
+-    {
+-        local type="${1}"
+-        if [ "${type}" = "adblock" ]
+-        then
+-            option_cb()
+-            {
+-                local option="${1}"
+-                local value="${2}"
+-                eval "${option}=\"${value}\""
+-            }
+-        else
+-            reset_cb
+-        fi
+-    }
+-
+-    # uci function to parse 'service' and 'source' sections
+-    #
+-    parse_config()
+-    {
+-        local value opt section="${1}" options="enabled adb_dir adb_src adb_src_rset adb_src_cat"
+-        if [ "${section}" != "backup" ]
+-        then
+-            eval "adb_sources=\"${adb_sources} ${section}\""
+-        fi
+-        for opt in ${options}
+-        do
+-            config_get value "${section}" "${opt}"
+-            if [ -n "${value}" ]
+-            then
+-                eval "${opt}_${section}=\"${value}\""
+-            fi
+-        done
+-    }
+-
+-    # load adblock config and start parsing functions
+-    #
+-    config_load adblock
+-    config_foreach parse_config service
+-    config_foreach parse_config source
+-
+-    # get network basics
+-    #
+-    network_get_ipaddr adb_ipv4 "${adb_lanif}"
+-    network_get_ipaddr6 adb_ipv6 "${adb_lanif}"
+-    network_get_device adb_landev "${adb_lanif}"
+-    network_find_wan adb_wanif4
+-    network_find_wan6 adb_wanif6
+-
+-    # set restricted mode
+-    #
+-    if [ "${adb_restricted}" = "1" ]
+-    then
+-        adb_uci="$(which true)"
+-        restricted_ok="true"
+-    fi
+-}
+-
+-# f_envcheck: check/set environment prerequisites
+-#
+-f_envcheck()
+-{
+-    local check
+-
+-    # check 'enabled' & 'version' config options
+-    #
+-    if [ -z "${adb_enabled}" ] || [ -z "${adb_cfgver}" ] || [ "${adb_cfgver%%.*}" != "${adb_mincfgver%%.*}" ]
+-    then
+-        rc=-1
+-        f_log "outdated adblock config (${adb_mincfgver} vs. ${adb_cfgver}), please run '/etc/init.d/adblock cfgup' to update your configuration"
+-        f_exit
+-    elif [ "${adb_cfgver#*.}" != "${adb_mincfgver#*.}" ]
+-    then
+-        outdated_ok="true"
+-    fi
+-    if [ "${adb_enabled}" != "1" ]
+-    then
+-        rc=-1
+-        f_log "adblock is currently disabled, please set adblock.global.adb_enabled=1' to use this service"
+-        f_exit
+-    fi
+-
+-    # get list with all installed packages
+-    #
+-    pkg_list="$(opkg list-installed)"
+-    if [ -z "${pkg_list}" ]
+-    then
+-        rc=-1
+-        f_log "empty 'opkg' package list, please check your installation"
+-        f_exit
+-    fi
+-    adb_sysver="$(printf "${pkg_list}" | grep "^base-files -")"
+-    adb_sysver="${adb_sysver##*-}"
+-
+-    # get lan ip addresses
+-    #
+-    if [ -z "${adb_ipv4}" ] && [ -z "${adb_ipv6}" ]
+-    then
+-        rc=-1
+-        f_log "no valid IPv4/IPv6 configuration found (${adb_lanif}), please set 'adb_lanif' manually"
+-        f_exit
+-    fi
+-
+-    # check logical update interfaces (with default route)
+-    #
+-    if [ -z "${adb_wanif4}" ] && [ -z "${adb_wanif6}" ]
+-    then
+-        adb_wanif4="${adb_lanif}"
+-    fi
+-
+-    # check AP mode
+-    #
+-    if [ "${adb_wanif4}" = "${adb_lanif}" ] || [ "${adb_wanif6}" = "${adb_lanif}" ]
+-    then
+-        adb_nullipv4="${adb_ipv4}"
+-        adb_nullipv6="${adb_ipv6}"
+-        if [ "$(${adb_uci} -q get uhttpd.main.listen_http | grep -Fo "80")" = "80" ] ||
+-           [ "$(${adb_uci} -q get uhttpd.main.listen_https | grep -Fo "443")" = "443" ]
+-        then
+-            rc=-1
+-            f_log "AP mode detected, please set local LuCI instance to ports <> 80/443"
+-            f_exit
+-        elif [ -z "$(pgrep -f "dnsmasq")" ]
+-        then
+-            rc=-1
+-            f_log "please enable the local dnsmasq instance to use adblock"
+-            f_exit
+-        elif [ ! -f "/var/run/fw3.state" ]
+-        then
+-            rc=-1
+-            f_log "please enable the local firewall to use adblock"
+-            f_exit
+-        else
+-            apmode_ok="true"
+-        fi
+-    else
+-        apmode_ok="false"
+-        check="$(${adb_uci} -q get bcp38.@bcp38[0].enabled)"
+-        if [ "${check}" = "1" ]
+-        then
+-            check="$(${adb_uci} -q get bcp38.@bcp38[0].match | grep -Fo "${adb_nullipv4%.*}")"
+-            if [ -n "${check}" ]
+-            then
+-                rc=-1
+-                f_log "please whitelist '${adb_nullipv4}' in your bcp38 configuration to use adblock"
+-                f_exit
+-            fi
+-        fi
+-    fi
+-
+-    # check general package dependencies
+-    #
+-    f_depend "busybox"
+-    f_depend "uci"
+-    f_depend "uhttpd"
+-    f_depend "iptables"
+-    f_depend "kmod-ipt-nat"
+-
+-    # check ipv6 related package dependencies
+-    #
+-    if [ -n "${adb_wanif6}" ]
+-    then
+-        f_depend "ip6tables" "true"
+-        if [ "${package_ok}" = "false" ]
+-        then
+-            f_log "package 'ip6tables' not found, IPv6 support will be disabled"
+-            unset adb_wanif6
+-        else
+-            f_depend "kmod-ipt-nat6" "true"
+-            if [ "${package_ok}" = "false" ]
+-            then
+-                f_log "package 'kmod-ipt-nat6' not found, IPv6 support will be disabled"
+-                unset adb_wanif6
+-            fi
+-        fi
+-    fi
+-
+-    # check uclient-fetch/wget dependencies
+-    #
+-    f_depend "uclient-fetch" "true"
+-    if [ "${package_ok}" = "true" ]
+-    then
+-        f_depend "libustream-polarssl" "true"
+-        if [ "${package_ok}" = "false" ]
+-        then
+-            f_depend "libustream-\(mbedtls\|openssl\|cyassl\)" "true"
+-            if [ "${package_ok}" = "true" ]
+-            then
+-                adb_fetch="$(which uclient-fetch)"
+-                fetch_parm="-q --timeout=${adb_fetchttl}"
+-                response_parm="--spider"
+-            fi
+-        fi
+-    fi
+-    if [ -z "${adb_fetch}" ]
+-    then
+-        f_depend "wget" "true"
+-        if [ "${package_ok}" = "true" ]
+-        then
+-            adb_fetch="$(which wget)"
+-            fetch_parm="--no-config --quiet --tries=1 --no-cache --no-cookies --max-redirect=0 --dns-timeout=${adb_fetchttl} --connect-timeout=${adb_fetchttl} --read-timeout=${adb_fetchttl}"
+-            response_parm="--spider --server-response"
+-        else
+-            rc=-1
+-            f_log "please install 'uclient-fetch' or 'wget' with ssl support to use adblock"
+-            f_exit
+-        fi
+-    fi
+-
+-    # check ca-certificate package and set fetch parm accordingly
+-    #
+-    f_depend "ca-certificates" "true"
+-    if [ "${package_ok}" = "false" ]
+-    then
+-        fetch_parm="${fetch_parm} --no-check-certificate"
+-    fi
+-
+-    # start normal processing/logging
+-    #
+-    f_log "domain adblock processing started (${adb_scriptver}, ${adb_sysver}, $(/bin/date "+%d.%m.%Y %H:%M:%S"))"
+-
+-    # log partially outdated config
+-    #
+-    if [ "${outdated_ok}" = "true" ]
+-    then
+-        f_log "partially outdated adblock config (${adb_mincfgver} vs. ${adb_cfgver}), please run '/etc/init.d/adblock cfgup' to update your configuration"
+-    fi
+-
+-    # log ap mode
+-    #
+-    if [ "${apmode_ok}" = "true" ]
+-    then
+-        f_log "AP mode enabled"
+-    fi
+-
+-    # log restricted mode
+-    #
+-    if [ "${restricted_ok}" = "true" ]
+-    then
+-        f_log "Restricted mode enabled"
+-    fi
+-
+-    # check dns hideout directory
+-    #
+-    if [ -d "${adb_dnshidedir}" ]
+-    then
+-        mv_done="$(find "${adb_dnshidedir}" -maxdepth 1 -type f -name "${adb_dnsprefix}*" -print -exec mv -f "{}" "${adb_dnsdir}" \;)"
+-    else
+-        mkdir -p -m 660 "${adb_dnshidedir}"
+-    fi
+-
+-    # check adblock temp directory
+-    #
+-    adb_tmpfile="$(mktemp -tu)"
+-    adb_tmpdir="$(mktemp -p /tmp -d)"
+-    if [ -n "${adb_tmpdir}" ] && [ -d "${adb_tmpdir}" ]
+-    then
+-        f_space "${adb_tmpdir}"
+-        if [ "${space_ok}" = "false" ]
+-        then
+-            if [ $((av_space)) -le 2000 ]
+-            then
+-                rc=105
+-                f_log "not enough free space in '${adb_tmpdir}' (avail. ${av_space} kb)"
+-                f_exit
+-            else
+-                f_log "not enough free space to handle all block list sources at once in '${adb_tmpdir}' (avail. ${av_space} kb)"
+-            fi
+-        fi
+-    else
+-        rc=110
+-        f_log "temp directory not found"
+-        f_exit
+-    fi
+-
+-    # check memory
+-    #
+-    mem_total="$(awk '$1 ~ /^MemTotal/ {printf $2}' "/proc/meminfo")"
+-    mem_free="$(awk '$1 ~ /^MemFree/ {printf $2}' "/proc/meminfo")"
+-    mem_swap="$(awk '$1 ~ /^SwapTotal/ {printf $2}' "/proc/meminfo")"
+-    if [ $((mem_total)) -le 64000 ] && [ $((mem_swap)) -eq 0 ]
+-    then
+-        mem_ok="false"
+-        f_log "not enough free memory, overall sort processing will be disabled (total: ${mem_total}, free: ${mem_free}, swap: ${mem_swap})"
+-    else
+-        mem_ok="true"
+-    fi
+-
+-    # check backup configuration
+-    #
+-    if [ "${enabled_backup}" = "1" ] && [ -d "${adb_dir_backup}" ]
+-    then
+-        f_space "${adb_dir_backup}"
+-        if [ "${space_ok}" = "false" ]
+-        then
+-            f_log "not enough free space in '${adb_dir_backup}'(avail. ${av_space} kb), backup/restore will be disabled"
+-            backup_ok="false"
+-        else
+-            f_log "backup/restore will be enabled"
+-            backup_ok="true"
+-        fi
+-    else
+-        backup_ok="false"
+-        f_log "backup/restore will be disabled"
+-    fi
+-
+-    # set dnsmasq defaults
+-    #
+-    if [ -n "${adb_wanif4}" ] && [ -n "${adb_wanif6}" ]
+-    then
+-        adb_dnsformat="awk -v ipv4="${adb_nullipv4}" -v ipv6="${adb_nullipv6}" '{print \"address=/\"\$0\"/\"ipv4\"\n\"\"address=/\"\$0\"/\"ipv6}'"
+-    elif [ -n "${adb_wanif4}" ]
+-    then
+-        adb_dnsformat="awk -v ipv4="${adb_nullipv4}" '{print \"address=/\"\$0\"/\"ipv4}'"
+-    else
+-        adb_dnsformat="awk -v ipv6="${adb_nullipv6}" '{print \"address=/\"\$0\"/\"ipv6}'"
+-    fi
+-
+-    # check volatile iptables configuration
+-    #
+-    if [ -n "${adb_wanif4}" ]
+-    then
+-        if [ "${apmode_ok}" = "false" ]
+-        then
+-            if [ "${adb_forcedns}" = "1" ] && [ -n "${adb_landev}" ]
+-            then
+-                f_firewall "IPv4" "nat" "prerouting_rule" "adb-dns" "1" "dns" "-p udp --dport 53 -j DNAT --to-destination ${adb_ipv4}:53"
+-                f_firewall "IPv4" "nat" "prerouting_rule" "adb-dns" "2" "dns" "-p tcp --dport 53 -j DNAT --to-destination ${adb_ipv4}:53"
+-            fi
+-            f_firewall "IPv4" "filter" "forwarding_rule" "adb-fwd" "1" "fwd" "-p tcp -j REJECT --reject-with tcp-reset"
+-            f_firewall "IPv4" "filter" "forwarding_rule" "adb-fwd" "2" "fwd" "-j REJECT --reject-with icmp-host-unreachable"
+-            f_firewall "IPv4" "filter" "output_rule" "adb-out" "1" "out" "-p tcp -j REJECT --reject-with tcp-reset"
+-            f_firewall "IPv4" "filter" "output_rule" "adb-out" "2" "out" "-j REJECT --reject-with icmp-host-unreachable"
+-        fi
+-        f_firewall "IPv4" "nat" "prerouting_rule" "adb-nat" "1" "nat" "-p tcp --dport 80 -j DNAT --to-destination ${adb_ipv4}:${adb_nullport}"
+-        f_firewall "IPv4" "nat" "prerouting_rule" "adb-nat" "2" "nat" "-p tcp --dport 443 -j DNAT --to-destination ${adb_ipv4}:${adb_nullportssl}"
+-    fi
+-    if [ -n "${adb_wanif6}" ]
+-    then
+-        if [ "${apmode_ok}" = "false" ]
+-        then
+-            if [ "${adb_forcedns}" = "1" ] && [ -n "${adb_landev}" ]
+-            then
+-                f_firewall "IPv6" "nat" "PREROUTING" "adb-dns" "1" "dns" "-p udp --dport 53 -j DNAT --to-destination [${adb_ipv6}]:53"
+-                f_firewall "IPv6" "nat" "PREROUTING" "adb-dns" "2" "dns" "-p tcp --dport 53 -j DNAT --to-destination [${adb_ipv6}]:53"
+-            fi
+-            f_firewall "IPv6" "filter" "forwarding_rule" "adb-fwd" "1" "fwd" "-p tcp -j REJECT --reject-with tcp-reset"
+-            f_firewall "IPv6" "filter" "forwarding_rule" "adb-fwd" "2" "fwd" "-j REJECT --reject-with icmp6-addr-unreachable"
+-            f_firewall "IPv6" "filter" "output_rule" "adb-out" "1" "out" "-p tcp -j REJECT --reject-with tcp-reset"
+-            f_firewall "IPv6" "filter" "output_rule" "adb-out" "2" "out" "-j REJECT --reject-with icmp6-addr-unreachable"
+-        fi
+-        f_firewall "IPv6" "nat" "PREROUTING" "adb-nat" "1" "nat" "-p tcp --dport 80 -j DNAT --to-destination [${adb_ipv6}]:${adb_nullport}"
+-        f_firewall "IPv6" "nat" "PREROUTING" "adb-nat" "2" "nat" "-p tcp --dport 443 -j DNAT --to-destination [${adb_ipv6}]:${adb_nullportssl}"
+-    fi
+-    if [ "${firewall_ok}" = "true" ]
+-    then
+-        f_log "created volatile firewall rulesets"
+-    fi
+-
+-    # check volatile uhttpd instance configuration
+-    #
+-    if [ -n "${adb_wanif4}" ] && [ -n "${adb_wanif6}" ]
+-    then
+-        f_uhttpd "adbIPv4+6_80" "1" "-p ${adb_ipv4}:${adb_nullport} -p [${adb_ipv6}]:${adb_nullport}"
+-        f_uhttpd "adbIPv4+6_443" "0" "-p ${adb_ipv4}:${adb_nullportssl} -p [${adb_ipv6}]:${adb_nullportssl}"
+-    elif [ -n "${adb_wanif4}" ]
+-    then
+-        f_uhttpd "adbIPv4_80" "1" "-p ${adb_ipv4}:${adb_nullport}"
+-        f_uhttpd "adbIPv4_443" "0" "-p ${adb_ipv4}:${adb_nullportssl}"
+-    else
+-        f_uhttpd "adbIPv6_80" "1" "-p [${adb_ipv6}]:${adb_nullport}"
+-        f_uhttpd "adbIPv6_443" "0" "-p [${adb_ipv6}]:${adb_nullportssl}"
+-    fi
+-    if [ "${uhttpd_ok}" = "true" ]
+-    then
+-        f_log "created volatile uhttpd instances"
+-    fi
+-
+-    # check whitelist entries
+-    #
+-    if [ -s "${adb_whitelist}" ]
+-    then
+-        awk "${adb_whitelist_rset}" "${adb_whitelist}" > "${adb_tmpdir}/tmp.whitelist"
+-    fi
+-
+-    # remove temporary package list
+-    #
+-    unset pkg_list
+-}
+-
+-# f_depend: check package dependencies
+-#
+-f_depend()
+-{
+-    local check
+-    local package="${1}"
+-    local check_only="${2}"
+-    package_ok="true"
+-
+-    check="$(printf "${pkg_list}" | grep "^${package} -")"
+-    if [ "${check_only}" = "true" ] && [ -z "${check}" ]
+-    then
+-        package_ok="false"
+-    elif [ -z "${check}" ]
+-    then
+-        rc=-1
+-        f_log "package '${package}' not found"
+-        f_exit
+-    fi
+-}
+-
+-# f_firewall: set iptables rules for ipv4/ipv6
+-#
+-f_firewall()
+-{
+-    local ipt="iptables"
+-    local nullip="${adb_nullipv4}"
+-    local proto="${1}"
+-    local table="${2}"
+-    local chsrc="${3}"
+-    local chain="${4}"
+-    local chpos="${5}"
+-    local notes="adb-${6}"
+-    local rules="${7}"
+-
+-    # select appropriate iptables executable for IPv6
+-    #
+-    if [ "${proto}" = "IPv6" ]
+-    then
+-        ipt="ip6tables"
+-        nullip="${adb_nullipv6}"
+-    fi
+-
+-    # check whether iptables chain already exist
+-    #
+-    rc="$("${ipt}" -w -t "${table}" -nL "${chain}" >/dev/null 2>&1; printf ${?})"
+-    if [ $((rc)) -ne 0 ]
+-    then
+-        "${ipt}" -w -t "${table}" -N "${chain}"
+-        "${ipt}" -w -t "${table}" -A "${chain}" -m comment --comment "${notes}" -j RETURN
+-        if [ "${chain}" = "adb-dns" ]
+-        then
+-            "${ipt}" -w -t "${table}" -A "${chsrc}" -i "${adb_landev}+" -m comment --comment "${notes}" -j "${chain}"
+-        else
+-            "${ipt}" -w -t "${table}" -A "${chsrc}" -d "${nullip}" -m comment --comment "${notes}" -j "${chain}"
+-        fi
+-        rc=${?}
+-        if [ $((rc)) -ne 0 ]
+-        then
+-            f_log "failed to initialize volatile ${proto} firewall chain '${chain}'"
+-            f_exit
+-        fi
+-    fi
+-
+-    # check whether iptables rule already exist
+-    #
+-    rc="$("${ipt}" -w -t "${table}" -C "${chain}" -m comment --comment "${notes}" ${rules} >/dev/null 2>&1; printf ${?})"
+-    if [ $((rc)) -ne 0 ]
+-    then
+-        "${ipt}" -w -t "${table}" -I "${chain}" "${chpos}" -m comment --comment "${notes}" ${rules}
+-        rc=${?}
+-        if [ $((rc)) -eq 0 ]
+-        then
+-            firewall_ok="true"
+-        else
+-            f_log "failed to initialize volatile ${proto} firewall rule '${notes}'"
+-            f_exit
+-        fi
+-    fi
+-}
+-
+-# f_uhttpd: start uhttpd instances
+-#
+-f_uhttpd()
+-{
+-    local check
+-    local realm="${1}"
+-    local timeout="${2}"
+-    local ports="${3}"
+-
+-    check="$(pgrep -f "uhttpd -h /www/adblock -N 25 -T ${timeout} -r ${realm}")"
+-    if [ -z "${check}" ]
+-    then
+-        uhttpd -h "/www/adblock" -N 25 -T "${timeout}" -r "${realm}" -k 0 -t 0 -R -D -S -E "/index.html" ${ports}
+-        rc=${?}
+-        if [ $((rc)) -eq 0 ]
+-        then
+-            uhttpd_ok="true"
+-        else
+-            f_log "failed to initialize volatile uhttpd instance (${realm})"
+-            f_exit
+-        fi
+-    fi
+-}
+-
+-# f_space: check mount points/space requirements
+-#
+-f_space()
+-{
+-    local mp="${1}"
+-    space_ok="true"
+-
+-    if [ -d "${mp}" ]
+-    then
+-        av_space="$(df "${mp}" | tail -n1 | awk '{printf $4}')"
+-        if [ $((av_space)) -lt $((adb_minspace)) ]
+-        then
+-            space_ok="false"
+-        fi
+-    fi
+-}
+-
+-# f_cntconfig: calculate counters in config
+-#
+-f_cntconfig()
+-{
+-    local src_name
+-    local count=0
+-
+-    for src_name in $(ls -ASr "${adb_dnsdir}/${adb_dnsprefix}"*)
+-    do
+-        count="$(wc -l < "${src_name}")"
+-        src_name="${src_name##*.}"
+-        if [ -n "${adb_wanif4}" ] && [ -n "${adb_wanif6}" ]
+-        then
+-            count=$((count / 2))
+-        fi
+-        "${adb_uci}" -q set "adblock.${src_name}.adb_src_count=${count}"
+-        adb_count=$((adb_count + count))
+-    done
+-    "${adb_uci}" -q set "adblock.global.adb_overall_count=${adb_count}"
+-}
+-
+-# f_rmconfig: remove volatile config entries
+-#
+-f_rmconfig()
+-{
+-    local opt
+-    local options="adb_src_timestamp adb_src_count"
+-    local section="${1}"
+-
+-    rm_cfg="${adb_lastrun}"
+-    if [ -n "${rm_cfg}" ]
+-    then
+-        "${adb_uci}" -q delete "adblock.global.adb_overall_count"
+-        "${adb_uci}" -q delete "adblock.global.adb_dnstoggle"
+-        "${adb_uci}" -q delete "adblock.global.adb_percentage"
+-        "${adb_uci}" -q delete "adblock.global.adb_lastrun"
+-        for opt in ${options}
+-        do
+-            "${adb_uci}" -q delete "adblock.${section}.${opt}"
+-        done
+-    fi
+-}
+-
+-# f_rmdns: remove dns block lists and backups
+-#
+-f_rmdns()
+-{
+-    rm_dns="$(find "${adb_dnsdir}" -maxdepth 1 -type f -name "${adb_dnsprefix}*" -print -exec rm -f "{}" \;)"
+-    if [ -n "${rm_dns}" ]
+-    then
+-        rm -rf "${adb_dnshidedir}"
+-        if [ "${enabled_backup}" = "1" ] && [ -d "${adb_dir_backup}" ]
+-        then
+-            rm -f "${adb_dir_backup}/${adb_dnsprefix}"*.gz
+-        fi
+-        /etc/init.d/dnsmasq restart
+-    fi
+-}
+-
+-# f_rmuhttpd: remove uhttpd instances
+-#
+-f_rmuhttpd()
+-{
+-    rm_uhttpd="$(pgrep -f "uhttpd -h /www/adblock")"
+-    if [ -n "${rm_uhttpd}" ]
+-    then
+-        for pid in ${rm_uhttpd}
+-        do
+-            kill -9 "${pid}"
+-        done
+-    fi
+-}
+-
+-# f_rmfirewall: remove firewall rulsets
+-#
+-f_rmfirewall()
+-{
+-    rm_fw="$(iptables -w -t nat -vnL | grep -Fo "adb-")"
+-    if [ -n "${rm_fw}" ]
+-    then
+-        iptables-save -t nat | grep -Fv -- "adb-" | iptables-restore
+-        iptables-save -t filter | grep -Fv -- "adb-" | iptables-restore
+-        if [ -n "$(lsmod | grep -Fo "ip6table_nat")" ]
+-        then
+-            ip6tables-save -t nat | grep -Fv -- "adb-" | ip6tables-restore
+-            ip6tables-save -t filter | grep -Fv -- "adb-" | ip6tables-restore
+-        fi
+-    fi
+-}
+-
+-# f_log: log messages to stdout and syslog
+-#
+-f_log()
+-{
+-    local log_parm
+-    local log_msg="${1}"
+-    local class="info "
+-    local lastrun="$(date "+%d.%m.%Y %H:%M:%S")"
+-
+-    # check for terminal session
+-    #
+-    if [ -t 1 ]
+-    then
+-        log_parm="-s"
+-    fi
+-
+-    # log to different output devices and set log class accordingly
+-    #
+-    if [ -n "${log_msg}" ]
+-    then
+-        if [ $((rc)) -gt 0 ]
+-        then
+-            class="error"
+-        fi
+-        logger ${log_parm} -t "adblock[${adb_pid}] ${class}" "${log_msg}" 2>&1
+-
+-        # clean exit on error
+-        #
+-        if [ $((rc)) -eq -1 ] || [ $((rc)) -gt 0 ]
+-        then
+-            f_rmdns
+-            f_rmuhttpd
+-            f_rmfirewall
+-            config_foreach f_rmconfig source
+-            "${adb_uci}" -q set "adblock.global.adb_lastrun=${lastrun} => runtime error, please check the log!"
+-            "${adb_uci}" -q commit "adblock"
+-        fi
+-    fi
+-}
+-
+-# f_statistics: adblock runtime statistics
+-f_statistics()
+-{
+-    local ipv4_blk=0 ipv4_all=0 ipv4_pct=0
+-    local ipv6_blk=0 ipv6_all=0 ipv6_pct=0
+-
+-    if [ -n "${adb_wanif4}" ]
+-    then
+-        ipv4_blk="$(iptables -t nat -vnL adb-nat | awk '$3 ~ /^DNAT$/ {sum += $1} END {printf sum}')"
+-        ipv4_all="$(iptables -t nat -vnL PREROUTING | awk '$3 ~ /^prerouting_rule$/ {sum += $1} END {printf sum}')"
+-        if [ $((ipv4_all)) -gt 0 ] && [ $((ipv4_blk)) -gt 0 ] && [ $((ipv4_all)) -gt $((ipv4_blk)) ]
+-        then
+-            ipv4_pct="$(printf "${ipv4_blk}" | awk -v all="${ipv4_all}" '{printf( "%5.2f\n",$1/all*100)}')"
+-        fi
+-    fi
+-    if [ -n "${adb_wanif6}" ]
+-    then
+-        ipv6_blk="$(ip6tables -t nat -vnL adb-nat | awk '$3 ~ /^DNAT$/ {sum += $1} END {printf sum}')"
+-        ipv6_all="$(ip6tables -t nat -vnL PREROUTING | awk '$3 ~ /^(adb-nat|DNAT)$/ {sum += $1} END {printf sum}')"
+-        if [ $((ipv6_all)) -gt 0 ] && [ $((ipv6_blk)) -gt 0 ] && [ $((ipv6_all)) -gt $((ipv6_blk)) ]
+-        then
+-            ipv6_pct="$(printf "${ipv6_blk}" | awk -v all="${ipv6_all}" '{printf( "%5.2f\n",$1/all*100)}')"
+-        fi
+-    fi
+-    "${adb_uci}" -q set "adblock.global.adb_percentage=${ipv4_pct}%/${ipv6_pct}%"
+-    f_log "firewall statistics (IPv4/IPv6): ${ipv4_pct}%/${ipv6_pct}% of all packets in prerouting chain are ad related & blocked"
+-}
+-
+-# f_exit: delete temporary files, generate statistics and exit
+-#
+-f_exit()
+-{
+-    local lastrun="$(date "+%d.%m.%Y %H:%M:%S")"
+-
+-    rm -f "${adb_tmpfile}"
+-    rm -rf "${adb_tmpdir}"
+-
+-    # final log message and iptables statistics
+-    #
+-    if [ $((rc)) -eq 0 ]
+-    then
+-        f_statistics
+-        "${adb_uci}" -q set "adblock.global.adb_lastrun=${lastrun}"
+-        "${adb_uci}" -q commit "adblock"
+-        f_log "domain adblock processing finished successfully (${adb_scriptver}, ${adb_sysver}, ${lastrun})"
+-    elif [ $((rc)) -gt 0 ]
+-    then
+-        f_log "domain adblock processing failed (${adb_scriptver}, ${adb_sysver}, ${lastrun})"
+-    else
+-        rc=0
+-    fi
+-    rm -f "${adb_pidfile}"
+-    exit ${rc}
+-}
+diff --git a/net/adblock/files/adblock-update.sh b/net/adblock/files/adblock-update.sh
+deleted file mode 100755
+index 94a9e83..0000000
+--- a/net/adblock/files/adblock-update.sh
++++ /dev/null
+@@ -1,305 +0,0 @@
+-#!/bin/sh
+-# dns based ad/abuse domain blocking script
+-# written by Dirk Brenken (dev@brenken.org)
+-
+-# This is free software, licensed under the GNU General Public License v3.
+-# You should have received a copy of the GNU General Public License
+-# along with this program. If not, see <http://www.gnu.org/licenses/>.
+-
+-# prepare environment
+-#
+-adb_pid="${$}"
+-adb_pidfile="/var/run/adblock.pid"
+-adb_scriptver="1.3.3"
+-adb_mincfgver="2.2"
+-adb_scriptdir="${0%/*}"
+-if [ -r "${adb_pidfile}" ]
+-then
+-    rc=255
+-    logger -s -t "adblock[${adb_pid}] error" "adblock service already running ($(cat ${adb_pidfile}))"
+-    exit ${rc}
+-else
+-    printf "${adb_pid}" > "${adb_pidfile}"
+-    if [ -r "${adb_scriptdir}/adblock-helper.sh" ]
+-    then
+-        . "${adb_scriptdir}/adblock-helper.sh"
+-        f_envload
+-    else
+-        rc=254
+-        logger -s -t "adblock[${adb_pid}] error" "adblock function library not found"
+-        rm -f "${adb_pidfile}"
+-        exit ${rc}
+-    fi
+-fi
+-
+-# call trap function on error signals (HUP, INT, QUIT, BUS, SEGV, TERM)
+-#
+-trap "rc=250; f_log 'error signal received/trapped'; f_exit" 1 2 3 10 11 15
+-
+-# check environment
+-#
+-f_envcheck
+-
+-# main loop for all block list sources
+-#
+-for src_name in ${adb_sources}
+-do
+-    # check disabled sources
+-    #
+-    eval "enabled=\"\${enabled_${src_name}}\""
+-    if [ "${enabled}" = "0" ]
+-    then
+-        if [ -r "${adb_dnsdir}/${adb_dnsprefix}.${src_name}" ]
+-        then
+-            rm -f "${adb_dnsdir}/${adb_dnsprefix}.${src_name}"
+-            if [ "${backup_ok}" = "true" ] && [ -r "${adb_dir_backup}/${adb_dnsprefix}.${src_name}.gz" ]
+-            then
+-                rm -f "${adb_dir_backup}/${adb_dnsprefix}.${src_name}.gz"
+-            fi
+-            rm_done="true"
+-            f_log "=> disabled source '${src_name}' removed"
+-        fi
+-        "${adb_uci}" -q delete "adblock.${src_name}.adb_src_count"
+-        "${adb_uci}" -q delete "adblock.${src_name}.adb_src_timestamp"
+-        continue
+-    fi
+-
+-    f_log "=> processing source '${src_name}'"
+-    eval "url=\"\${adb_src_${src_name}}\""
+-    eval "src_rset=\"\${adb_src_rset_${src_name}}\""
+-    eval "list_time=\"\${CONFIG_${src_name}_adb_src_timestamp}\""
+-    adb_dnsfile="${adb_dnsdir}/${adb_dnsprefix}.${src_name}"
+-
+-    # check 'url' and 'src_rset' values
+-    #
+-    if [ -z "${url}" ] || [ -z "${src_rset}" ]
+-    then
+-        "${adb_uci}" -q set "adblock.${src_name}.adb_src_timestamp=broken config"
+-        f_log "   broken source configuration, skipped"
+-        continue
+-    fi
+-
+-    # download only block list with newer/updated timestamp
+-    #
+-    if [ "${src_name}" = "blacklist" ]
+-    then
+-        url_time="$(date -r "${url}")"
+-    else
+-        url_time="$(${adb_fetch} ${fetch_parm} ${response_parm} "${url}" 2>&1 | awk '$0 ~ /Last-Modified/ {printf substr($0,18)}')"
+-    fi
+-    if [ -z "${url_time}" ]
+-    then
+-        url_time="$(date)"
+-        f_log "   no online timestamp"
+-    fi
+-    if [ -z "${list_time}" ] || [ "${list_time}" != "${url_time}" ] || [ ! -r "${adb_dnsfile}" ] ||\
+-      ([ "${backup_ok}" = "true" ] && [ ! -r "${adb_dir_backup}/${adb_dnsprefix}.${src_name}.gz" ])
+-    then
+-        if [ "${src_name}" = "blacklist" ]
+-        then
+-            tmp_domains="$(cat "${url}")"
+-        elif [ "${src_name}" = "shalla" ]
+-        then
+-            shalla_archive="${adb_tmpdir}/shallalist.tar.gz"
+-            shalla_file="${adb_tmpdir}/shallalist.txt"
+-            "${adb_fetch}" ${fetch_parm} -O "${shalla_archive}" "${url}"
+-            rc=${?}
+-            if [ $((rc)) -eq 0 ]
+-            then
+-                > "${shalla_file}"
+-                for category in ${adb_src_cat_shalla}
+-                do
+-                    tar -xOzf "${shalla_archive}" BL/${category}/domains >> "${shalla_file}"
+-                    rc=${?}
+-                    if [ $((rc)) -ne 0 ]
+-                    then
+-                        f_log "   archive extraction failed (${category})"
+-                        break
+-                    fi
+-                done
+-                tmp_domains="$(cat "${shalla_file}")"
+-                rm -rf "${adb_tmpdir}/BL"
+-                rm -f "${shalla_archive}"
+-                rm -f "${shalla_file}"
+-            fi
+-        else
+-            tmp_domains="$(${adb_fetch} ${fetch_parm} -O- "${url}")"
+-        fi
+-        rc=${?}
+-    else
+-        f_log "   source doesn't change, skipped"
+-        continue
+-    fi
+-
+-    # check download result and prepare domain output, backup/restore if needed
+-    #
+-    if [ $((rc)) -eq 0 ] && [ -n "${tmp_domains}" ]
+-    then
+-        count="$(printf "%s\n" "${tmp_domains}" | awk "${src_rset}" | tee "${adb_tmpfile}" | wc -l)"
+-        "${adb_uci}" -q set "adblock.${src_name}.adb_src_timestamp=${url_time}"
+-        if [ "${backup_ok}" = "true" ]
+-        then
+-            gzip -cf "${adb_tmpfile}" > "${adb_dir_backup}/${adb_dnsprefix}.${src_name}.gz"
+-        fi
+-        f_log "   source download finished (${count} entries)"
+-        unset tmp_domains
+-    elif [ $((rc)) -eq 0 ] && [ -z "${tmp_domains}" ]
+-    then
+-        if [ "${backup_ok}" = "true" ] && [ -r "${adb_dir_backup}/${adb_dnsprefix}.${src_name}.gz" ]
+-        then
+-            gunzip -cf "${adb_dir_backup}/${adb_dnsprefix}.${src_name}.gz" > "${adb_tmpfile}"
+-            count="$(wc -l < "${adb_tmpfile}")"
+-            "${adb_uci}" -q set "adblock.${src_name}.adb_src_timestamp=list restored"
+-            f_log "   empty source download, restored (${count} entries)"
+-        else
+-            if [ -r "${adb_dnsdir}/${adb_dnsprefix}.${src_name}" ]
+-            then
+-                rm -f "${adb_dnsdir}/${adb_dnsprefix}.${src_name}"
+-                rm_done="true"
+-            fi
+-            "${adb_uci}" -q delete "adblock.${src_name}.adb_src_count"
+-            "${adb_uci}" -q set "adblock.${src_name}.adb_src_timestamp=empty download"
+-            f_log "   empty source download, skipped"
+-            continue
+-        fi
+-    else
+-        rc=0
+-        if [ "${backup_ok}" = "true" ] && [ -r "${adb_dir_backup}/${adb_dnsprefix}.${src_name}.gz" ]
+-        then
+-            gunzip -cf "${adb_dir_backup}/${adb_dnsprefix}.${src_name}.gz" > "${adb_tmpfile}"
+-            count="$(wc -l < "${adb_tmpfile}")"
+-            "${adb_uci}" -q set "adblock.${src_name}.adb_src_timestamp=list restored"
+-            f_log "   source download failed, restored (${count} entries)"
+-        else
+-            if [ -r "${adb_dnsdir}/${adb_dnsprefix}.${src_name}" ]
+-            then
+-                rm -f "${adb_dnsdir}/${adb_dnsprefix}.${src_name}"
+-                rm_done="true"
+-            fi
+-            "${adb_uci}" -q delete "adblock.${src_name}.adb_src_count"
+-            "${adb_uci}" -q set "adblock.${src_name}.adb_src_timestamp=download failed"
+-            f_log "   source download failed, skipped"
+-            continue
+-        fi
+-    fi
+-
+-    # remove whitelist domains, sort domains and make them unique,
+-    # rewrite ad/abuse domain information to separate dnsmasq files
+-    #
+-    if [ $((count)) -gt 0 ] && [ -n "${adb_tmpfile}" ]
+-    then
+-        if [ -s "${adb_tmpdir}/tmp.whitelist" ]
+-        then
+-            grep -vf "${adb_tmpdir}/tmp.whitelist" "${adb_tmpfile}" | sort -u | eval "${adb_dnsformat}" > "${adb_dnsfile}"
+-        else
+-            sort -u "${adb_tmpfile}" | eval "${adb_dnsformat}" > "${adb_dnsfile}"
+-        fi
+-        rc=${?}
+-
+-        # finish domain processing, prepare find statement with revised block list source
+-        #
+-        if [ $((rc)) -eq 0 ]
+-        then
+-            if [ -z "${adb_revsrclist}" ]
+-            then
+-                adb_revsrclist="-name ${adb_dnsprefix}.${src_name}"
+-            else
+-                adb_revsrclist="${adb_revsrclist} -o -name ${adb_dnsprefix}.${src_name}"
+-            fi
+-            f_log "   domain merging finished"
+-        else
+-            rc=0
+-            rm -f "${adb_dnsfile}"
+-            if [ "${backup_ok}" = "true" ] && [ -r "${adb_dir_backup}/${adb_dnsprefix}.${src_name}.gz" ]
+-            then
+-                rm -f "${adb_dir_backup}/${adb_dnsprefix}.${src_name}.gz"
+-            fi
+-            "${adb_uci}" -q delete "adblock.${src_name}.adb_src_count"
+-            "${adb_uci}" -q set "adblock.${src_name}.adb_src_timestamp=domain merging failed"
+-            f_log "   domain merging failed, skipped"
+-            continue
+-        fi
+-    else
+-        rm -f "${adb_dnsfile}"
+-        if [ "${backup_ok}" = "true" ] && [ -r "${adb_dir_backup}/${adb_dnsprefix}.${src_name}.gz" ]
+-        then
+-            rm -f "${adb_dir_backup}/${adb_dnsprefix}.${src_name}.gz"
+-        fi
+-        "${adb_uci}" -q delete "adblock.${src_name}.adb_src_count"
+-        "${adb_uci}" -q set "adblock.${src_name}.adb_src_timestamp=empty domain input"
+-        f_log "   empty domain input, skipped"
+-        continue
+-    fi
+-done
+-
+-# make separate block lists entries unique
+-#
+-if [ "${mem_ok}" = "true" ] && [ -n "${adb_revsrclist}" ]
+-then
+-    f_log "remove duplicates in separate block lists"
+-
+-    # generate a unique overall block list
+-    #
+-    sort -u "${adb_dnsdir}/${adb_dnsprefix}"* > "${adb_tmpdir}/blocklist.overall"
+-
+-    # loop through all separate lists, ordered by size (ascending)
+-    #
+-    for list in $(ls -ASr "${adb_dnsdir}/${adb_dnsprefix}"*)
+-    do
+-        # check overall block list vs. separate block list,
+-        # write all duplicate entries to separate list
+-        #
+-        list="${list/*./}"
+-        sort "${adb_tmpdir}/blocklist.overall" "${adb_dnsdir}/${adb_dnsprefix}.${list}" | uniq -d > "${adb_tmpdir}/tmp.${list}"
+-        mv -f "${adb_tmpdir}/tmp.${list}" "${adb_dnsdir}/${adb_dnsprefix}.${list}"
+-
+-        # write all unique entries back to overall block list
+-        #
+-        sort "${adb_tmpdir}/blocklist.overall" "${adb_dnsdir}/${adb_dnsprefix}.${list}" | uniq -u > "${adb_tmpdir}/tmp.overall"
+-        mv -f "${adb_tmpdir}/tmp.overall" "${adb_tmpdir}/blocklist.overall"
+-    done
+-    rm -f "${adb_tmpdir}/blocklist.overall"
+-fi
+-
+-# restart & check dnsmasq with newly generated set of block lists
+-#
+-if [ -n "${adb_revsrclist}" ] || [ -n "${mv_done}" ] || [ "${rm_done}" = "true" ]
+-then
+-    "${adb_uci}" -q delete "adblock.global.adb_dnstoggle"
+-    /etc/init.d/dnsmasq restart
+-    sleep 1
+-    check="$(pgrep -f "dnsmasq")"
+-    if [ -n "${check}" ]
+-    then
+-        dns_ok="true"
+-    else
+-        f_log "dnsmasq restart failed, retry without newly generated block lists"
+-        rm_done="$(find "${adb_dnsdir}" -maxdepth 1 -type f \( ${adb_revsrclist} \) -print -exec rm -f "{}" \;)"
+-        if [ -n "${rm_done}" ]
+-        then
+-            /etc/init.d/dnsmasq restart
+-            sleep 1
+-            check="$(pgrep -f "dnsmasq")"
+-            if [ -n "${check}" ]
+-            then
+-                dns_ok="true"
+-            fi
+-        fi
+-    fi
+-    if [ "${dns_ok}" = "true" ]
+-    then
+-        f_cntconfig
+-        f_log "block lists with overall ${adb_count} domains loaded"
+-    else
+-        rc=100
+-        f_log "dnsmasq restart finally failed, please check 'logread' output"
+-        f_exit
+-    fi
+-else
+-    f_cntconfig
+-    f_log "block lists with overall ${adb_count} domains are still valid, no update required"
+-fi
+-
+-# remove temporary files and exit
+-#
+-f_exit
+diff --git a/net/adblock/files/adblock.conf b/net/adblock/files/adblock.conf
+index bff60e1..2feae31 100644
+--- a/net/adblock/files/adblock.conf
++++ b/net/adblock/files/adblock.conf
+@@ -2,137 +2,187 @@
+ # see 'https://github.com/openwrt/packages/blob/master/net/adblock/files/README.md'
+ 
+ config adblock 'global'
+-	option adb_enabled '1'
+-	option adb_cfgver '2.2'
+-	option adb_whitelist '/etc/adblock/adblock.whitelist'
+-	option adb_whitelist_rset '\$1 ~/^([A-Za-z0-9_-]+\.){1,}[A-Za-z]+/{print tolower(\"^\"\$1\"\\\|[.]\"\$1)}'
+-	option adb_forcedns '1'
+-
+-config service 'backup'
+-	option enabled '0'
+-	option adb_dir '/mnt'
++	option adb_enabled '0'
++	option adb_dns 'dnsmasq'
++	option adb_fetchutil 'uclient-fetch'
++	option adb_trigger 'wan'
++
++config adblock 'extra'
++	option adb_debug '0'
++	option adb_forcesrt '0'
++	option adb_forcedns '0'
++	option adb_backup '0'
++	option adb_maxqueue '4'
+ 
+ config source 'adaway'
+-	option enabled '1'
+ 	option adb_src 'https://adaway.org/hosts.txt'
+-	option adb_src_rset '\$0 ~/^127\.0\.0\.1[ \t]+([A-Za-z0-9_-]+\.){1,}[A-Za-z]+/{print tolower(\$2)}'
++	option adb_src_rset '/^127\.0\.0\.1[[:space:]]+([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+([[:space:]]|$)/{print tolower(\$2)}'
+ 	option adb_src_desc 'focus on mobile ads, infrequent updates, approx. 400 entries'
++	option enabled '1'
+ 
+-config source 'blacklist'
++config source 'adguard'
++	option adb_src 'https://filters.adtidy.org/windows/filters/15.txt'
++	option adb_src_rset 'BEGIN{FS=\"[/|^|\r]\"}/^\|\|([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+([\/\^\r]|$)/{print tolower(\$3)}'
++	option adb_src_desc 'combined adguard dns filter list, frequent updates, approx. 17.000 entries'
++	option enabled '0'
++
++config source 'bitcoin'
++	option adb_src 'https://raw.githubusercontent.com/hoshsadiq/adblock-nocoin-list/master/hosts.txt'
++	option adb_src_rset '/^0\.0\.0\.0[[:space:]]+([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+([[:space:]]|$)/{print tolower(\$2)}'
++	option adb_src_desc 'focus on malicious bitcoin mining sites, infrequent updates, approx. 80 entries'
+ 	option enabled '0'
++
++config source 'blacklist'
+ 	option adb_src '/etc/adblock/adblock.blacklist'
+-	option adb_src_rset '\$1 ~/^([A-Za-z0-9_-]+\.){1,}[A-Za-z]+/{print tolower(\$1)}'
+-	option adb_src_desc 'static local domain blacklist (always deny these domains)'
++	option adb_src_rset '/^([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+([[:space:]]|$)/{print tolower(\$1)}'
++	option adb_src_desc 'static local domain blacklist, always deny these domains'
++	option enabled '1'
+ 
+ config source 'disconnect'
+-	option enabled '1'
+ 	option adb_src 'https://s3.amazonaws.com/lists.disconnect.me/simple_malvertising.txt'
+-	option adb_src_rset '\$1 ~/^([A-Za-z0-9_-]+\.){1,}[A-Za-z]+/{print tolower(\$1)}'
+-	option adb_src_desc 'mozilla driven content blocklist, numerous updates on the same day, approx. 6.500 entries'
++	option adb_src_rset '/^([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+([[:space:]]|$)/{print tolower(\$1)}'
++	option adb_src_desc 'mozilla driven blocklist, numerous updates on the same day, approx. 4.700 entries'
++	option enabled '1'
+ 
+ config source 'dshield'
++	option adb_src 'https://www.dshield.org/feeds/suspiciousdomains_Low.txt'
++	option adb_src_rset '/^([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+([[:space:]]|$)/{print tolower(\$1)}'
++	option adb_src_desc 'generic blocklist, daily updates, approx. 3.500 entries'
+ 	option enabled '0'
+-	option adb_src 'http://www.dshield.org/feeds/suspiciousdomains_Low.txt'
+-	option adb_src_rset '\$1 ~/^([A-Za-z0-9_-]+\.){1,}[A-Za-z]+/{print tolower(\$1)}'
+-	option adb_src_desc 'broad blocklist for suspicious domains, daily updates, approx. 4.500 entries'
+ 
+ config source 'feodo'
+-	option enabled '0'
+ 	option adb_src 'https://feodotracker.abuse.ch/blocklist/?download=domainblocklist'
+-	option adb_src_rset '\$1 ~/^([A-Za-z0-9_-]+\.){1,}[A-Za-z]+/{print tolower(\$1)}'
+-	option adb_src_desc 'focus on feodo botnet domains, daily updates, approx. 0-10 entries'
++	option adb_src_rset '/^([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+([[:space:]]|$)/{print tolower(\$1)}'
++	option adb_src_desc 'focus on feodo botnet, daily updates, approx. 0-10 entries'
++	option enabled '0'
++
++config source 'hphosts'
++	option adb_src 'https://hosts-file.net/ad_servers.txt'
++	option adb_src_rset '/^127\.0\.0\.1[[:space:]]+([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+([[:space:]]|\$)+/{print tolower(\$2)}'
++	option adb_src_desc 'broad blocklist, monthly updates, approx. 19.200 entries'
++	option enabled '0'
+ 
+ config source 'malware'
++	option adb_src 'https://mirror.espoch.edu.ec/malwaredomains/justdomains'
++	option adb_src_rset '/^([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+([[:space:]]|$)/{print tolower(\$1)}'
++	option adb_src_desc 'broad blocklist, daily updates, approx. 18.300 entries'
+ 	option enabled '0'
+-	option adb_src 'https://mirror.cedia.org.ec/malwaredomains/justdomains'
+-	option adb_src_rset '\$1 ~/^([A-Za-z0-9_-]+\.){1,}[A-Za-z]+/{print tolower(\$1)}'
+-	option adb_src_desc 'broad blocklist for malware domains, daily updates, approx. 16.000 entries'
+ 
+ config source 'malwarelist'
+-	option enabled '0'
+ 	option adb_src 'http://www.malwaredomainlist.com/hostslist/hosts.txt'
+-	option adb_src_rset '\$0 ~/^127\.0\.0\.1[ \t]+([A-Za-z0-9_-]+\.){1,}[A-Za-z]+/{print tolower(\$2)}'
+-	option adb_src_desc 'generic blocklist for malware domains, daily updates, approx. 1.500 entries'
++	option adb_src_rset '/^127\.0\.0\.1[[:space:]]+([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+([[:space:]]|$)/{print tolower(\$2)}'
++	option adb_src_desc 'focus on malware, daily updates, approx. 1.200 entries'
++	option enabled '0'
+ 
+ config source 'openphish'
+-	option enabled '0'
+ 	option adb_src 'https://openphish.com/feed.txt'
+-	option adb_src_rset '{FS=\"/\"} \$3 ~/^([A-Za-z0-9_-]+\.){1,}[A-Za-z]+/{print tolower(\$3)}'
+-	option adb_src_desc 'focus on phishing domains, numerous updates on the same day, approx. 1.800 entries'
+-
+-config source 'palevo'
++	option adb_src_rset 'BEGIN{FS=\"/\"}/^http[s]?:\/\/([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+(\/|$)/{print tolower(\$3)}'
++	option adb_src_desc 'focus on phishing, numerous updates on the same day, approx. 2.400 entries'
+ 	option enabled '0'
+-	option adb_src 'https://palevotracker.abuse.ch/blocklists.php?download=domainblocklist'
+-	option adb_src_rset '\$1 ~/^([A-Za-z0-9_-]+\.){1,}[A-Za-z]+/{print tolower(\$1)}'
+-	option adb_src_desc 'focus on palevo worm domains, daily updates, approx. 15 entries'
+ 
+ config source 'ransomware'
+-	option enabled '0'
+ 	option adb_src 'https://ransomwaretracker.abuse.ch/downloads/RW_DOMBL.txt'
+-	option adb_src_rset '\$1 ~/^([A-Za-z0-9_-]+\.){1,}[A-Za-z]+/{print tolower(\$1)}'
+-	option adb_src_desc 'focus on ransomware domains, numerous updates on the same day, approx. 130 entries'
++	option adb_src_rset '/^([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+([[:space:]]|$)/{print tolower(\$1)}'
++	option adb_src_desc 'focus on ransomware, numerous updates on the same day, approx. 1900 entries'
++	option enabled '0'
+ 
+-config source 'rolist'
++config source 'reg_cn'
++	option adb_src 'https://easylist-downloads.adblockplus.org/easylistchina+easylist.txt'
++	option adb_src_rset 'BEGIN{FS=\"[|^]\"}/^\|\|([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+\^("\\\$third-party")?$/{print tolower(\$3)}'
++	option adb_src_desc 'focus on chinese ads plus generic easylist additions, daily updates, approx. 11.700 entries'
++	option enabled '0'
++
++config source 'reg_cz'
++	option adb_src 'https://raw.githubusercontent.com/qxstyles/turris-hole-czech-block-list/master/turris-hole-czech-block-list'
++	option adb_src_rset '/^([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+([[:space:]]|$)/{print tolower(\$1)}'
++	option adb_src_desc 'focus on czech ads maintained by Turris Omnia Users, infrequent updates, approx. 100 entries'
++	option enabled '0'
++
++config source 'reg_de'
++	option adb_src 'https://easylist-downloads.adblockplus.org/easylistgermany+easylist.txt'
++	option adb_src_rset 'BEGIN{FS=\"[|^]\"}/^\|\|([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+\^("\\\$third-party")?$/{print tolower(\$3)}'
++	option adb_src_desc 'focus on german ads plus generic easylist additions, daily updates, approx. 9.200 entries'
++	option enabled '0'
++
++config source 'reg_id'
++	option adb_src 'https://easylist-downloads.adblockplus.org/abpindo+easylist.txt'
++	option adb_src_rset 'BEGIN{FS=\"[|^]\"}/^\|\|([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+\^("\\\$third-party")?$/{print tolower(\$3)}'
++	option adb_src_desc 'focus on indonesian ads plus generic easylist additions, weekly updates, approx. 9.600 entries'
+ 	option enabled '0'
+-	option adb_src 'https://easylist-downloads.adblockplus.org/rolist+easylist.txt'
+-	option adb_src_rset '{FS=\"[|^]\"} \$0 ~/^\|\|([A-Za-z0-9_-]+\.){1,}[A-Za-z]+\^$/{print tolower(\$3)}'
+-	option adb_src_desc 'focus on romanian ad related domains plus generic easylist additions, weekly updates, approx. 600 entries'
+ 
+-config source 'ruadlist'
++config source 'reg_nl'
++	option adb_src 'https://easylist-downloads.adblockplus.org/easylistdutch+easylist.txt'
++	option adb_src_rset 'BEGIN{FS=\"[|^]\"}/^\|\|([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+\^("\\\$third-party")?$/{print tolower(\$3)}'
++	option adb_src_desc 'focus on dutch ads plus generic easylist additions, weekly updates, approx. 9.400 entries'
+ 	option enabled '0'
++
++config source 'reg_pl'
++	option adb_src 'http://adblocklist.org/adblock-pxf-polish.txt'
++	option adb_src_rset 'BEGIN{FS=\"[|^]\"}/^\|\|([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+\^("\\\$third-party")?$/{print tolower(\$3)}'
++	option adb_src_desc 'focus on polish ads, daily updates, approx. 90 entries'
++	option enabled '0'
++
++config source 'reg_ro'
++	option adb_src 'https://easylist-downloads.adblockplus.org/rolist+easylist.txt'
++	option adb_src_rset 'BEGIN{FS=\"[|^]\"}/^\|\|([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+\^("\\\$third-party")?$/{print tolower(\$3)}'
++	option adb_src_desc 'focus on romanian ads plus generic easylist additions, weekly updates, approx. 9.400 entries'
++	option enabled '0'
++
++config source 'reg_ru'
+ 	option adb_src 'https://easylist-downloads.adblockplus.org/ruadlist+easylist.txt'
+-	option adb_src_rset '{FS=\"[|^]\"} \$0 ~/^\|\|([A-Za-z0-9_-]+\.){1,}[A-Za-z]+\^$/{print tolower(\$3)}'
+-	option adb_src_desc 'focus on russian ad related domains plus generic easylist additions, weekly updates, approx. 2.000 entries'
++	option adb_src_rset 'BEGIN{FS=\"[|^]\"}/^\|\|([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+\^("\\\$third-party")?$/{print tolower(\$3)}'
++	option adb_src_desc 'focus on russian ads plus generic easylist additions, weekly updates, approx. 14.500 entries'
++	option enabled '0'
+ 
+ config source 'shalla'
+-	option enabled '0'
+ 	option adb_src 'http://www.shallalist.de/Downloads/shallalist.tar.gz'
+-	option adb_src_rset '{FS=\"/\"} \$1 ~/^([A-Za-z0-9_-]+\.){1,}[A-Za-z]+/{print tolower(\$1)}'
+-	option adb_src_desc 'broad blocklist subdivided in different categories (adv, costtraps, spyware, tracker and warez enabled by default), daily updates, approx. 32.000 entries'
++	option adb_src_rset '/^([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+([[:space:]]|$)/{print tolower(\$1)}'
++	option adb_src_desc 'broad blocklist subdivided in different categories, daily updates, approx. 31.700 entries'
+ 	list adb_src_cat 'adv'
+ 	list adb_src_cat 'costtraps'
+ 	list adb_src_cat 'spyware'
+ 	list adb_src_cat 'tracker'
+ 	list adb_src_cat 'warez'
++	option enabled '0'
+ 
+ config source 'spam404'
+-	option enabled '0'
+ 	option adb_src 'https://raw.githubusercontent.com/Dawsey21/Lists/master/main-blacklist.txt'
+-	option adb_src_rset '\$1 ~/^([A-Za-z0-9_-]+\.){1,}[A-Za-z]+/{print tolower(\$1)}'
+-	option adb_src_desc 'generic blocklist for suspicious domains, infrequent updates, approx. 5.000 entries'
++	option adb_src_rset '/^([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+([[:space:]]|$)+/{print tolower(\$1)}'
++	option adb_src_desc 'generic blocklist, infrequent updates, approx. 6.000 entries'
++	option enabled '0'
+ 
+ config source 'sysctl' 
+-	option enabled '0'
+ 	option adb_src 'http://sysctl.org/cameleon/hosts'
+-	option adb_src_rset '\$0 ~/^127\.0\.0\.1[ \t]+([A-Za-z0-9_-]+\.){1,}[A-Za-z]+/{print tolower(\$2)}'
+-	option adb_src_desc 'generic blocklist for ad related domains, weekly updates, approx. 21.000 entries'
++	option adb_src_rset '/^127\.0\.0\.1[[:space:]]+([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+([[:space:]]|$)/{print tolower(\$2)}'
++	option adb_src_desc 'broad blocklist, weekly updates, approx. 16.500 entries'
++	option enabled '0'
+ 
+ config source 'whocares'
+-	option enabled '0'
+ 	option adb_src 'http://someonewhocares.org/hosts/hosts'
+-	option adb_src_rset '\$0 ~/^127\.0\.0\.1[ \t]+([A-Za-z0-9_-]+\.){1,}[A-Za-z]+/{print tolower(\$2)}'
+-	option adb_src_desc 'broad blocklist for suspicious domains, weekly updates, approx. 12.000 entries'
++	option adb_src_rset '/^127\.0\.0\.1[[:space:]]+([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+([[:space:]]|$)/{print tolower(\$2)}'
++	option adb_src_desc 'broad blocklist, weekly updates, approx. 10.000 entries'
++	option enabled '0'
+ 
+ config source 'winspy'
+-	option enabled '0'
+ 	option adb_src 'https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/win10/spy.txt'
+-	option adb_src_rset '\$0 ~/^0\.0\.0\.0[ \t]+([A-Za-z0-9_-]+\.){1,}[A-Za-z]+/{print tolower(\$2)}'
+-	option adb_src_desc 'focus on windows spy & telemetry domains, infrequent updates, approx. 120 entries'
++	option adb_src_rset '/^0\.0\.0\.0[[:space:]]+([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+([[:space:]]|$)/{print tolower(\$2)}'
++	option adb_src_desc 'focus on windows spy & telemetry domains, infrequent updates, approx. 300 entries'
++	option enabled '0'
+ 
+ config source 'winhelp'
+-	option enabled '0'
+ 	option adb_src 'http://winhelp2002.mvps.org/hosts.txt'
+-	option adb_src_rset '\$0 ~/^0\.0\.0\.0[ \t]+([A-Za-z0-9_-]+\.){1,}[A-Za-z]+/{print tolower(\$2)}'
+-	option adb_src_desc 'broad blocklist for suspicious domains, infrequent updates, approx. 15.000 entries'
++	option adb_src_rset '/^0\.0\.0\.0[[:space:]]+([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+([[:space:]]|$)/{print tolower(\$2)}'
++	option adb_src_desc 'broad blocklist, infrequent updates, approx. 13.000 entries'
++	option enabled '0'
+ 
+ config source 'yoyo'
+-	option enabled '1'
+ 	option adb_src 'https://pgl.yoyo.org/adservers/serverlist.php?hostformat=nohtml&showintro=0&mimetype=plaintext'
+-	option adb_src_rset '\$1 ~/^([A-Za-z0-9_-]+\.){1,}[A-Za-z]+/{print tolower(\$1)}'
+-	option adb_src_desc 'focus on ad related domains, weekly updates, approx. 2.500 entries'
++	option adb_src_rset '/^([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+([[:space:]]|$)/{print tolower(\$1)}'
++	option adb_src_desc 'focus on ad related domains, weekly updates, approx. 2.400 entries'
++	option enabled '1'
+ 
+ config source 'zeus'
+-	option enabled '0'
+ 	option adb_src 'https://zeustracker.abuse.ch/blocklist.php?download=domainblocklist'
+-	option adb_src_rset '\$1 ~/^([A-Za-z0-9_-]+\.){1,}[A-Za-z]+/{print tolower(\$1)}'
+-	option adb_src_desc 'focus on zeus botnet domains, daily updates, approx. 440 entries'
++	option adb_src_rset '/^([^([:space:]|#|\*|\/).]+\.)+[[:alpha:]]+([[:space:]]|$)/{print tolower(\$1)}'
++	option adb_src_desc 'focus on zeus botnet, daily updates, approx. 400 entries'
++	option enabled '0'
+diff --git a/net/adblock/files/adblock.hotplug b/net/adblock/files/adblock.hotplug
+deleted file mode 100644
+index 8ea8a18..0000000
+--- a/net/adblock/files/adblock.hotplug
++++ /dev/null
+@@ -1,20 +0,0 @@
+-#!/bin/sh
+-#
+-
+-adb_pid="${$}"
+-adb_helper="/usr/bin/adblock-helper.sh"
+-adb_pidfile="/var/run/adblock.pid"
+-
+-if [ -f "${adb_pidfile}" ] || [ "${ACTION}" != "ifup" ]
+-then
+-    exit 0
+-fi
+-
+-. "${adb_helper}"
+-f_envload
+-
+-if [ "${INTERFACE}" = "${adb_wanif4}" ] || [ "${INTERFACE}" = "${adb_wanif6}" ]
+-then
+-    /etc/init.d/adblock start
+-    f_log "adblock service started due to '${ACTION}' of '${INTERFACE}' interface"
+-fi
+diff --git a/net/adblock/files/adblock.init b/net/adblock/files/adblock.init
+index 6a2f6bf..33aebbf 100755
+--- a/net/adblock/files/adblock.init
++++ b/net/adblock/files/adblock.init
+@@ -1,128 +1,110 @@
+ #!/bin/sh /etc/rc.common
+ #
+ 
+-START=99
+-EXTRA_COMMANDS="toggle stats cfgup"
+-EXTRA_HELP="	toggle	Toggle adblock 'on' or 'off'
+-	stats	Update adblock statistics
+-	cfgup	Update adblock configuration file"
++START=30
++USE_PROCD=1
+ 
+-adb_debug=0
+-adb_pid="${$}"
+-adb_script="/usr/bin/adblock-update.sh"
+-adb_helper="/usr/bin/adblock-helper.sh"
+-adb_pidfile="/var/run/adblock.pid"
+-bg_parm="&"
+-if [ -t 1 ]
+-then
+-    unset bg_parm
+-fi
++EXTRA_COMMANDS="suspend resume query status"
++EXTRA_HELP="	suspend	Suspend adblock processing
++	resume	Resume adblock processing
++	query	<DOMAIN> Query active blocklists for specific domains
++	status	Print runtime information"
+ 
+-if [ $((adb_debug)) -eq 0 ]
+-then
+-    exec 2>/dev/null
+-fi
++adb_init="/etc/init.d/adblock"
++adb_script="/usr/bin/adblock.sh"
++adb_pidfile="/var/run/adblock.pid"
+ 
+-if [ -r "${adb_pidfile}" ]
+-then
+-    logger -s -t "adblock[${adb_pid}] error" "adblock service already running ($(cat ${adb_pidfile}))" 2>&1
+-    exit 255
+-fi
++boot()
++{
++    adb_boot=1
++    rc_procd start_service
++}
+ 
+-. "${adb_helper}"
+-f_envload
++start_service()
++{
++    if [ $("${adb_init}" enabled; printf "%u" ${?}) -eq 0 ]
++    then
++        if [ -n "${adb_boot}" ]
++        then
++            local trigger="$(uci_get adblock global adb_trigger)"
++            if [ "${trigger}" != "timed" ]
++            then
++                return 0
++            fi
++        fi
++        procd_open_instance "adblock"
++        procd_set_param command "${adb_script}" "${@}"
++        procd_set_param pidfile "${adb_pidfile}"
++        procd_set_param stdout 1
++        procd_set_param stderr 1
++        procd_close_instance
++    fi
++}
+ 
+-boot()
++reload_service()
+ {
+-    return 0
++    rc_procd start_service reload
+ }
+ 
+-start()
++stop_service()
+ {
+-    eval "${adb_script}" ${bg_parm}
+-    return 0
++    rc_procd "${adb_script}" stop
++    rc_procd start_service
+ }
+ 
+ restart()
+ {
+-    stop
+-    start
++    rc_procd start_service restart
+ }
+ 
+-reload()
++suspend()
+ {
+-    reload="true"
+-    stop
+-    start
++    [ -s "${adb_pidfile}" ] && return 1
++    rc_procd "${adb_script}" suspend
+ }
+ 
+-stop()
++resume()
+ {
+-    f_rmdns
+-    f_rmuhttpd
+-    adb_uci="$(which uci)"
+-    config_foreach f_rmconfig source
+-    if [ -n "$(${adb_uci} -q changes adblock)" ]
+-    then
+-        "${adb_uci}" -q commit adblock
+-    fi
+-    if [ -z "${reload}" ]
+-    then
+-        f_rmfirewall
+-    fi
+-    if [ -n "${rm_dns}" ] || [ -n "${rm_uhttpd}" ] || [ -n "${rm_fw}" ] || [ -n "${rm_cfg}" ]
+-    then
+-        f_log "all adblock related services stopped"
+-    fi
+-    return 0
++    [ -s "${adb_pidfile}" ] && return 1
++    rc_procd "${adb_script}" resume
+ }
+ 
+-toggle()
++query()
+ {
+-    if [ -d "${adb_dnshidedir}" ]
+-    then
+-        list_dns="$(find "${adb_dnsdir}" -maxdepth 1 -type f -name "${adb_dnsprefix}*" -print)"
+-        list_dnshide="$(find "${adb_dnshidedir}" -maxdepth 1 -type f -name "${adb_dnsprefix}*" -print)"
+-        if [ -n "${list_dns}" ]
+-        then
+-            source="${adb_dnsdir}/${adb_dnsprefix}"
+-            target="${adb_dnshidedir}"
+-            pos="off"
+-        elif [ -n "${list_dnshide}" ]
+-        then
+-            source="${adb_dnshidedir}/${adb_dnsprefix}"
+-            target="${adb_dnsdir}"
+-            pos="on"
+-        fi
+-        if [ -n "${list_dns}" ] || [ -n "${list_dnshide}" ]
+-        then
+-            mv -f "${source}"* "${target}"
+-            "${adb_uci}" -q set "adblock.global.adb_dnstoggle=${pos}"
+-            "${adb_uci}" -q commit "adblock"
+-            /etc/init.d/dnsmasq restart
+-            f_log "adblock toggle switched '${pos}'"
+-        fi
+-    fi
+-    return 0
++    [ -s "${adb_pidfile}" ] && return 1
++    rc_procd "${adb_script}" query "${1}"
+ }
+ 
+-stats()
++status()
+ {
+-    f_statistics
+-    "${adb_uci}" -q commit "adblock"
+-    return 0
++    local key keylist value rtfile="$(uci_get adblock extra adb_rtfile)"
++
++    rtfile="${rtfile:-"/tmp/adb_runtime.json"}"
++    if [ -s "${rtfile}" ]
++    then
++        printf "%s\n" "::: adblock runtime information"
++        json_load "$(cat "${rtfile}" 2>/dev/null)"
++        json_select data
++        json_get_keys keylist
++        for key in ${keylist}
++        do
++            json_get_var value "${key}"
++            printf "  + %-15s : %s\n" "${key}" "${value}"
++        done
++    else
++        printf "%s\n" "::: no adblock runtime information available"
++    fi
+ }
+ 
+-cfgup()
++service_triggers()
+ {
+-    stop
+-    cp -pf "/etc/adblock/adblock.conf.default" "/etc/config/adblock"
+-    rc=$?
+-    if [ $((rc)) -eq 0 ]
++    local trigger="$(uci_get adblock global adb_trigger)"
++    local delay="$(uci_get adblock extra adb_triggerdelay)"
++
++    if [ "${trigger}" != "none" ] && [ "${trigger}" != "timed" ]
+     then
+-        f_log "default adblock configuration applied, please check the settings in '/etc/config/adblock'"
+-    else
+-        f_log "default adblock configuration not found, please re-install the package via 'opkg install adblock --force-maintainer'"
++        PROCD_RELOAD_DELAY=$((${delay:-2} * 1000))
++        procd_add_interface_trigger "interface.*.up" "${trigger}" "${adb_init}" start
+     fi
+-    return 0
++    procd_add_reload_trigger "adblock"
+ }
+diff --git a/net/adblock/files/adblock.notify b/net/adblock/files/adblock.notify
+new file mode 100644
+index 0000000..10dc4d1
+--- /dev/null
++++ b/net/adblock/files/adblock.notify
+@@ -0,0 +1,63 @@
++#!/bin/sh
++#
++# adblock send mail script for mstmp
++# written by Dirk Brenken (dev@brenken.org)
++# Please note: you have to install and configure the package 'mstmp' before using this script.
++
++# This is free software, licensed under the GNU General Public License v3.
++# You should have received a copy of the GNU General Public License
++# along with this program. If not, see <http://www.gnu.org/licenses/>.
++
++LC_ALL=C
++PATH="/usr/sbin:/usr/bin:/sbin:/bin"
++mail_ver="1.0.2"
++mail_daemon="$(command -v msmtp)"
++mail_profile="adb_notify"
++#mail_debug="--debug"
++mail_rc=1
++
++# mail daemon check
++#
++if [ ! -x "${mail_daemon}" ]
++then
++    mail_daemon="$(command -v sendmail)"
++fi
++
++# info preparation
++#
++sys_info="$(strings /etc/banner 2>/dev/null; ubus call system board | sed -e 's/\"release\": {//' | sed -e 's/^[ \t]*//' | sed -e 's/[{}\",]//g' | sed -e 's/[ ]/  \t/' | sed '/^$/d' 2>/dev/null)"
++adb_info="$(/etc/init.d/adblock status 2>/dev/null)"
++if [ -f "/var/log/messages" ]
++then
++    log_info="$(awk '/adblock-/{NR=1;max=79;if(length($0)>max+1)while($0){if(NR==1){print substr($0,1,max),"&#8629;"} else {print " ",substr($0,1,max)}{$0=substr($0,max+1);NR=NR+1}}else print}' /var/log/messages)"
++else
++    log_info="$(logread -e "adblock-" | awk '{NR=1;max=79;if(length($0)>max+1)while($0){if(NR==1){print substr($0,1,max),"&#8629;"} else {print " ",substr($0,1,max)}{$0=substr($0,max+1);NR=NR+1}}else print}')"
++fi
++
++# mail header
++#
++mail_sender="no-reply@adblock"
++mail_receiver="!!!ChangeMe!!!"
++mail_topic="adblock notification"
++mail_head="From: ${mail_sender}\nTo: ${mail_receiver}\nSubject: ${mail_topic}\nReply-to: ${mail_sender}\nMime-Version: 1.0\nContent-Type: text/html\nContent-Disposition: inline\n\n"
++
++# mail body
++#
++mail_text="<html><body><pre style='display:block;font-family:monospace;font-size:1rem;padding:20;background-color:#f3eee5;white-space:pre'>"
++mail_text="${mail_text}\n<strong>++\n++ System Information ++\n++</strong>\n${sys_info}"
++mail_text="${mail_text}\n\n<strong>++\n++ Adblock Information ++\n++</strong>\n${adb_info}"
++mail_text="${mail_text}\n\n<strong>++\n++ Logfile Information ++\n++</strong>\n${log_info}"
++mail_text="${mail_text}</pre></body></html>"
++
++# send mail
++#
++if [ -x "${mail_daemon}" ]
++then
++    printf "%b" "${mail_head}${mail_text}" 2>/dev/null | "${mail_daemon}" ${mail_debug} -a "${mail_profile}" "${mail_receiver}" >/dev/null 2>&1
++    mail_rc=${?}
++    logger -p "info" -t "adblock-notify-[${mail_ver}]" "mail sent to '${mail_receiver}' with rc '${mail_rc}'"
++else
++    logger -p "err" -t "adblock-notify-[${mail_ver}]" "msmtp mail daemon not found"
++fi
++
++exit ${mail_rc}
+diff --git a/net/adblock/files/adblock.sh b/net/adblock/files/adblock.sh
+new file mode 100755
+index 0000000..96b2c38
+--- /dev/null
++++ b/net/adblock/files/adblock.sh
+@@ -0,0 +1,1034 @@
++#!/bin/sh
++# dns based ad/abuse domain blocking
++# written by Dirk Brenken (dev@brenken.org)
++
++# This is free software, licensed under the GNU General Public License v3.
++# You should have received a copy of the GNU General Public License
++# along with this program. If not, see <http://www.gnu.org/licenses/>.
++
++# set initial defaults
++#
++LC_ALL=C
++PATH="/usr/sbin:/usr/bin:/sbin:/bin"
++adb_ver="3.5.1"
++adb_sysver="unknown"
++adb_enabled=0
++adb_debug=0
++adb_backup_mode=0
++adb_forcesrt=0
++adb_forcedns=0
++adb_jail=0
++adb_maxqueue=4
++adb_notify=0
++adb_notifycnt=0
++adb_triggerdelay=0
++adb_backup=0
++adb_backupdir="/mnt"
++adb_fetchutil="uclient-fetch"
++adb_dns="dnsmasq"
++adb_dnsprefix="adb_list"
++adb_dnsfile="${adb_dnsprefix}.overall"
++adb_dnsjail="${adb_dnsprefix}.jail"
++adb_dnsflush=0
++adb_whitelist="/etc/adblock/adblock.whitelist"
++adb_rtfile="/tmp/adb_runtime.json"
++adb_hashutil="$(command -v sha256sum)"
++adb_hashold=""
++adb_hashnew=""
++adb_cnt=0
++adb_rc=0
++adb_action="${1:-"start"}"
++adb_pidfile="/var/run/adblock.pid"
++
++# load adblock environment
++#
++f_envload()
++{
++    local dns_up sys_call sys_desc sys_model sys_ver cnt=0
++
++    # get system information
++    #
++    sys_call="$(ubus -S call system board 2>/dev/null)"
++    if [ -n "${sys_call}" ]
++    then
++        sys_desc="$(printf '%s' "${sys_call}" | jsonfilter -e '@.release.description')"
++        sys_model="$(printf '%s' "${sys_call}" | jsonfilter -e '@.model')"
++        sys_ver="$(cat /etc/turris-version 2>/dev/null)"
++        if [ -n "${sys_ver}" ]
++        then
++            sys_desc="${sys_desc}/${sys_ver}"
++        fi
++        adb_sysver="${sys_model}, ${sys_desc}"
++    fi
++
++    # check hash utility
++    #
++    if [ ! -x "${adb_hashutil}" ]
++    then
++        adb_hashutil="$(command -v md5sum)"
++    fi
++
++    # source in system libraries
++    #
++    if [ -r "/lib/functions.sh" ] && [ -r "/usr/share/libubox/jshn.sh" ]
++    then
++        . "/lib/functions.sh"
++        . "/usr/share/libubox/jshn.sh"
++    else
++        f_log "err" "system libraries not found"
++    fi
++
++    # parse 'global' and 'extra' section by callback
++    #
++    config_cb()
++    {
++        local type="${1}"
++        if [ "${type}" = "adblock" ]
++        then
++            option_cb()
++            {
++                local option="${1}"
++                local value="${2}"
++                eval "${option}=\"${value}\""
++            }
++        else
++            reset_cb
++        fi
++    }
++
++    # parse 'source' typed sections
++    #
++    parse_config()
++    {
++        local value opt section="${1}" options="enabled adb_src adb_src_rset adb_src_cat"
++        eval "adb_sources=\"${adb_sources} ${section}\""
++        for opt in ${options}
++        do
++            config_get value "${section}" "${opt}"
++            if [ -n "${value}" ]
++            then
++                eval "${opt}_${section}=\"${value}\""
++            fi
++        done
++    }
++
++    # load adblock config
++    #
++    config_load adblock
++    config_foreach parse_config source
++
++    # check dns backend
++    #
++    case "${adb_dns}" in
++        dnsmasq)
++            adb_dnsinstance="${adb_dnsinstance:-"0"}"
++            adb_dnsuser="${adb_dnsuser:-"dnsmasq"}"
++            adb_dnsdir="${adb_dnsdir:-"/tmp"}"
++            adb_dnsheader=""
++            adb_dnsdeny="awk '{print \"server=/\"\$0\"/\"}'"
++            if [ ${adb_jail} -eq 1 ]
++            then
++                adb_dnsallow="awk '{print \"server=/\"\$0\"/#\"}'"
++                adb_dnshalt="server=/#/"
++            fi
++        ;;
++        unbound)
++            adb_dnsinstance="${adb_dnsinstance:-"0"}"
++            adb_dnsuser="${adb_dnsuser:-"unbound"}"
++            adb_dnsdir="${adb_dnsdir:-"/var/lib/unbound"}"
++            adb_dnsheader=""
++            adb_dnsdeny="awk '{print \"local-zone: \042\"\$0\"\042 static\"}'"
++            if [ ${adb_jail} -eq 1 ]
++            then
++                adb_dnsallow="awk '{print \"local-zone: \042\"\$0\"\042 transparent\"}'"
++                adb_dnshalt="local-zone: \".\" static"
++            fi
++        ;;
++        named)
++            adb_dnsinstance="${adb_dnsinstance:-"0"}"
++            adb_dnsuser="${adb_dnsuser:-"bind"}"
++            adb_dnsdir="${adb_dnsdir:-"/var/lib/bind"}"
++            adb_dnsheader="\$TTL 2h"$'\n'"@ IN SOA localhost. root.localhost. (1 6h 1h 1w 2h)"$'\n'"  IN NS localhost."
++            adb_dnsdeny="awk '{print \"\"\$0\" CNAME .\n*.\"\$0\" CNAME .\"}'"
++            if [ ${adb_jail} -eq 1 ]
++            then
++                adb_dnsallow="awk '{print \"\"\$0\" CNAME rpz-passthru.\n*.\"\$0\" CNAME rpz-passthru.\"}'"
++                adb_dnshalt="* CNAME ."
++            fi
++        ;;
++        kresd)
++            adb_dnsinstance="${adb_dnsinstance:-"0"}"
++            adb_dnsuser="${adb_dnsuser:-"root"}"
++            adb_dnsdir="${adb_dnsdir:-"/etc/kresd"}"
++            adb_dnsheader="\$TTL 2h"$'\n'"@ IN SOA localhost. root.localhost. (1 6h 1h 1w 2h)"$'\n'"  IN NS  localhost."
++            adb_dnsdeny="awk '{print \"\"\$0\" CNAME .\n*.\"\$0\" CNAME .\"}'"
++            if [ ${adb_jail} -eq 1 ]
++            then
++                adb_dnsallow="awk '{print \"\"\$0\" CNAME rpz-passthru.\n*.\"\$0\" CNAME rpz-passthru.\"}'"
++                adb_dnshalt="* CNAME ."
++            fi
++        ;;
++        dnscrypt-proxy)
++            adb_dnsinstance="${adb_dnsinstance:-"0"}"
++            adb_dnsuser="${adb_dnsuser:-"nobody"}"
++            adb_dnsdir="${adb_dnsdir:-"/tmp"}"
++            adb_dnsheader=""
++            adb_dnsdeny="awk '{print \$0}'"
++        ;;
++    esac
++
++    # check adblock status
++    #
++    if [ ${adb_enabled} -eq 0 ]
++    then
++        f_extconf
++        f_temp
++        f_rmdns
++        f_jsnup
++        f_log "info" "adblock is currently disabled, please set adb_enabled to '1' to use this service"
++        exit 0
++    fi
++
++    if [ -d "${adb_dnsdir}" ] && [ ! -f "${adb_dnsdir}/${adb_dnsfile}" ]
++    then
++        printf '%s\n' "${adb_dnsheader}" > "${adb_dnsdir}/${adb_dnsfile}"
++    fi
++
++    if [ "${adb_action}" = "start" ] && [ "${adb_trigger}" = "timed" ]
++    then
++        sleep ${adb_triggerdelay}
++    fi
++
++    while [ ${cnt} -le 30 ]
++    do
++        dns_up="$(ubus -S call service list "{\"name\":\"${adb_dns}\"}" 2>/dev/null | jsonfilter -l1 -e "@[\"${adb_dns}\"].instances.*.running" 2>/dev/null)"
++        if [ "${dns_up}" = "true" ]
++        then
++            break
++        fi
++        sleep 1
++        cnt=$((cnt+1))
++    done
++
++    if [ -z "${adb_dns}" ] || [ -z "${adb_dnsdeny}" ] || [ ! -x "$(command -v ${adb_dns})" ] || [ ! -d "${adb_dnsdir}" ]
++    then
++        f_log "err" "'${adb_dns}' not running, DNS backend not found"
++    fi
++}
++
++# check environment
++#
++f_envcheck()
++{
++    local ssl_lib
++
++    # check external uci config files
++    #
++    f_extconf
++
++    # check fetch utility
++    #
++    case "${adb_fetchutil}" in
++        uclient-fetch)
++            if [ -f "/lib/libustream-ssl.so" ]
++            then
++                adb_fetchparm="${adb_fetchparm:-"--timeout=10 --no-check-certificate -O"}"
++                ssl_lib="libustream-ssl"
++            else
++                adb_fetchparm="${adb_fetchparm:-"--timeout=10 -O"}"
++            fi
++        ;;
++        wget)
++            adb_fetchparm="${adb_fetchparm:-"--no-cache --no-cookies --max-redirect=0 --timeout=10 --no-check-certificate -O"}"
++            ssl_lib="built-in"
++        ;;
++        wget-nossl)
++            adb_fetchparm="${adb_fetchparm:-"--no-cache --no-cookies --max-redirect=0 --timeout=10 -O"}"
++        ;;
++        busybox)
++            adb_fetchparm="${adb_fetchparm:-"-O"}"
++        ;;
++        curl)
++            adb_fetchparm="${adb_fetchparm:-"--connect-timeout 10 --insecure -o"}"
++            ssl_lib="built-in"
++        ;;
++        aria2c)
++            adb_fetchparm="${adb_fetchparm:-"--timeout=10 --allow-overwrite=true --auto-file-renaming=false --check-certificate=false -o"}"
++            ssl_lib="built-in"
++        ;;
++    esac
++    adb_fetchutil="$(command -v "${adb_fetchutil}")"
++
++    if [ ! -x "${adb_fetchutil}" ] || [ -z "${adb_fetchutil}" ] || [ -z "${adb_fetchparm}" ]
++    then
++        f_log "err" "download utility not found, please install 'uclient-fetch' with 'libustream-mbedtls' or the full 'wget' package"
++    fi
++    adb_fetchinfo="${adb_fetchutil} (${ssl_lib:-"-"})"
++
++    f_temp
++    f_jsnup "running"
++    f_log "info" "start adblock processing (${adb_action})"
++}
++
++# create temporay files and directories
++#
++f_temp()
++{
++    if [ -z "${adb_tmpdir}" ]
++    then
++        adb_tmpdir="$(mktemp -p /tmp -d)"
++        adb_tmpload="$(mktemp -p ${adb_tmpdir} -tu)"
++        adb_tmpfile="$(mktemp -p ${adb_tmpdir} -tu)"
++    fi
++    if [ ! -s "${adb_pidfile}" ]
++    then
++        printf '%s' "${$}" > "${adb_pidfile}"
++    fi
++}
++
++# remove temporay files and directories
++#
++f_rmtemp()
++{
++    if [ -d "${adb_tmpdir}" ]
++    then
++        rm -rf "${adb_tmpdir}"
++    fi
++    > "${adb_pidfile}"
++}
++
++# remove dns related files and directories
++#
++f_rmdns()
++{
++    if [ -n "${adb_dns}" ]
++    then
++        f_hash
++        printf '%s\n' "${adb_dnsheader}" > "${adb_dnsdir}/${adb_dnsfile}"
++        > "${adb_dnsdir}/.${adb_dnsfile}"
++        > "${adb_rtfile}"
++        rm -f "${adb_backupdir}/${adb_dnsprefix}"*.gz
++        f_hash
++        if [ ${?} -eq 1 ]
++        then
++            f_dnsup
++        fi
++        f_rmtemp
++    fi
++    f_log "debug" "f_rmdns::: dns: ${adb_dns}, dns_dir: ${adb_dnsdir}, dns_prefix: ${adb_dnsprefix}, dns_file: ${adb_dnsfile}, rt_file: ${adb_rtfile}, backup_dir: ${adb_backupdir}"
++}
++
++# commit uci changes
++#
++f_uci()
++{
++    local change config="${1}"
++
++    if [ -n "${config}" ]
++    then
++        change="$(uci -q changes "${config}" | awk '{ORS=" "; print $0}')"
++        if [ -n "${change}" ]
++        then
++            uci -q commit "${config}"
++            case "${config}" in
++                firewall)
++                    /etc/init.d/firewall reload >/dev/null 2>&1
++                ;;
++                *)
++                    /etc/init.d/"${adb_dns}" reload >/dev/null 2>&1
++                ;;
++            esac
++        fi
++    fi
++    f_log "debug" "f_uci  ::: config: ${config}, change: ${change}"
++}
++
++# list/overall count
++#
++f_count()
++{
++    local mode="${1}"
++
++    adb_cnt=0
++    if [ -s "${adb_dnsdir}/${adb_dnsfile}" ] && ([ -z "${mode}" ] || [ "${mode}" = "final" ])
++    then
++        if [ "${adb_dns}" = "named" ] || [ "${adb_dns}" = "kresd" ]
++        then
++            adb_cnt="$(( ($(wc -l 2>/dev/null < "${adb_dnsdir}/${adb_dnsfile}") - $(printf "%s" "${adb_dnsheader}" | grep -c "^")) / 2 ))"
++        else
++            adb_cnt="$(wc -l 2>/dev/null < "${adb_dnsdir}/${adb_dnsfile}")"
++        fi
++    elif [ "${mode}" = "whitelist" ] && [ -s "${adb_tmpdir}/tmp.whitelist" ]
++    then
++        adb_cnt="$(wc -l 2>/dev/null < "${adb_tmpdir}/tmp.whitelist")"
++    elif [ -s "${adb_tmpfile}" ]
++    then
++        adb_cnt="$(wc -l 2>/dev/null < "${adb_tmpfile}")"
++    fi
++}
++
++# set external config options
++#
++f_extconf()
++{
++    local uci_config
++
++    case "${adb_dns}" in
++        dnsmasq)
++            uci_config="dhcp"
++            if [ ${adb_enabled} -eq 1 ] && [ -z "$(uci -q get dhcp.@dnsmasq[${adb_dnsinstance}].serversfile | grep -Fo "${adb_dnsdir}/${adb_dnsfile}")" ]
++            then
++                uci -q set dhcp.@dnsmasq[${adb_dnsinstance}].serversfile="${adb_dnsdir}/${adb_dnsfile}"
++            elif [ ${adb_enabled} -eq 0 ] && [ -n "$(uci -q get dhcp.@dnsmasq[${adb_dnsinstance}].serversfile | grep -Fo "${adb_dnsdir}/${adb_dnsfile}")" ]
++            then
++                uci -q delete dhcp.@dnsmasq[${adb_dnsinstance}].serversfile
++            fi
++        ;;
++        kresd)
++            uci_config="resolver"
++            if [ ${adb_enabled} -eq 1 ] && [ -z "$(uci -q get resolver.kresd.rpz_file | grep -Fo "${adb_dnsdir}/${adb_dnsfile}")" ]
++            then
++                uci -q add_list resolver.kresd.rpz_file="${adb_dnsdir}/${adb_dnsfile}"
++            elif [ ${adb_enabled} -eq 0 ] && [ -n "$(uci -q get resolver.kresd.rpz_file | grep -Fo "${adb_dnsdir}/${adb_dnsfile}")" ]
++            then
++                uci -q del_list resolver.kresd.rpz_file="${adb_dnsdir}/${adb_dnsfile}"
++            fi
++            if [ ${adb_enabled} -eq 1 ] && [ ${adb_dnsflush} -eq 0 ] && [ "$(uci -q get resolver.kresd.keep_cache)" != "1" ]
++            then
++                uci -q set resolver.kresd.keep_cache="1"
++            elif [ ${adb_enabled} -eq 0 ] || ([ ${adb_dnsflush} -eq 1 ] && [ "$(uci -q get resolver.kresd.keep_cache)" = "1" ])
++            then
++                uci -q set resolver.kresd.keep_cache="0"
++            fi
++        ;;
++    esac
++    f_uci "${uci_config}"
++
++    uci_config="firewall"
++    if [ ${adb_enabled} -eq 1 ] && [ ${adb_forcedns} -eq 1 ] && \
++       [ -z "$(uci -q get firewall.adblock_dns)" ] && [ $(/etc/init.d/firewall enabled; printf "%u" ${?}) -eq 0 ]
++    then
++        uci -q set firewall.adblock_dns="redirect"
++        uci -q set firewall.adblock_dns.name="Adblock DNS"
++        uci -q set firewall.adblock_dns.src="lan"
++        uci -q set firewall.adblock_dns.proto="tcp udp"
++        uci -q set firewall.adblock_dns.src_dport="53"
++        uci -q set firewall.adblock_dns.dest_port="53"
++        uci -q set firewall.adblock_dns.target="DNAT"
++    elif [ -n "$(uci -q get firewall.adblock_dns)" ] && ([ ${adb_enabled} -eq 0 ] || [ ${adb_forcedns} -eq 0 ])
++    then
++        uci -q delete firewall.adblock_dns
++    fi
++    f_uci "${uci_config}"
++}
++
++# restart of the dns backend
++#
++f_dnsup()
++{
++    local dns_up cache_util cache_rc cnt=0
++
++    if [ ${adb_dnsflush} -eq 0 ] && [ ${adb_enabled} -eq 1 ] && [ "${adb_rc}" -eq 0 ]
++    then
++        case "${adb_dns}" in
++            dnsmasq)
++                killall -q -HUP "${adb_dns}"
++                cache_rc=${?}
++            ;;
++            unbound)
++                cache_util="$(command -v unbound-control)"
++                if [ -x "${cache_util}" ] && [ -d "${adb_tmpdir}" ] && [ -f "${adb_dnsdir}"/unbound.conf ]
++                then
++                    "${cache_util}" -c "${adb_dnsdir}"/unbound.conf dump_cache > "${adb_tmpdir}"/adb_cache.dump 2>/dev/null
++                fi
++                "/etc/init.d/${adb_dns}" restart >/dev/null 2>&1
++            ;;
++            kresd)
++                cache_util="keep_cache"
++                "/etc/init.d/${adb_dns}" restart >/dev/null 2>&1
++                cache_rc=${?}
++            ;;
++            named)
++                cache_util="$(command -v rndc)"
++                if [ -x "${cache_util}" ] && [ -f /etc/bind/rndc.conf ]
++                then
++                    "${cache_util}" -c /etc/bind/rndc.conf reload >/dev/null 2>&1
++                    cache_rc=${?}
++                else
++                    "/etc/init.d/${adb_dns}" restart >/dev/null 2>&1
++                fi
++            ;;
++            *)
++                "/etc/init.d/${adb_dns}" restart >/dev/null 2>&1
++            ;;
++        esac
++    else
++        "/etc/init.d/${adb_dns}" restart >/dev/null 2>&1
++    fi
++
++    adb_rc=1
++    while [ ${cnt} -le 10 ]
++    do
++        dns_up="$(ubus -S call service list "{\"name\":\"${adb_dns}\"}" | jsonfilter -l1 -e "@[\"${adb_dns}\"].instances.*.running")"
++        if [ "${dns_up}" = "true" ]
++        then
++            case "${adb_dns}" in
++                unbound)
++                    cache_util="$(command -v unbound-control)"
++                    if [ -x "${cache_util}" ] && [ -d "${adb_tmpdir}" ] && [ -s "${adb_tmpdir}"/adb_cache.dump ]
++                    then
++                        while [ ${cnt} -le 10 ]
++                        do
++                            "${cache_util}" -c "${adb_dnsdir}"/unbound.conf load_cache < "${adb_tmpdir}"/adb_cache.dump >/dev/null 2>&1
++                            cache_rc=${?}
++                            if [ ${cache_rc} -eq 0 ]
++                            then
++                                break
++                            fi
++                            cnt=$((cnt+1))
++                            sleep 1
++                        done
++                    fi
++                ;;
++            esac
++            adb_rc=0
++            break
++        fi
++        cnt=$((cnt+1))
++        sleep 1
++    done
++    f_log "debug" "f_dnsup::: cache_util: ${cache_util:-"-"}, cache_rc: ${cache_rc:-"-"}, cache_flush: ${adb_dnsflush}, cache_cnt: ${cnt}, rc: ${adb_rc}"
++    return ${adb_rc}
++}
++
++# backup/restore/remove blocklists
++#
++f_list()
++{
++    local file mode="${1}" in_rc="${adb_rc}"
++
++    case "${mode}" in
++        backup)
++            if [ -d "${adb_backupdir}" ]
++            then
++                gzip -cf "${adb_tmpfile}" 2>/dev/null > "${adb_backupdir}/${adb_dnsprefix}.${src_name}.gz"
++                adb_rc=${?}
++            fi
++        ;;
++        restore)
++            if [ -d "${adb_backupdir}" ] && [ -f "${adb_backupdir}/${adb_dnsprefix}.${src_name}.gz" ]
++            then
++                gunzip -cf "${adb_backupdir}/${adb_dnsprefix}.${src_name}.gz" 2>/dev/null > "${adb_tmpfile}"
++                adb_rc=${?}
++            fi
++        ;;
++        remove)
++            if [ -d "${adb_backupdir}" ]
++            then
++                rm -f "${adb_backupdir}/${adb_dnsprefix}.${src_name}.gz"
++            fi
++            adb_rc=${?}
++        ;;
++        merge)
++            for file in "${adb_tmpfile}".*
++            do
++                cat "${file}" 2>/dev/null >> "${adb_tmpdir}/${adb_dnsfile}"
++                if [ ${?} -ne 0 ]
++                then
++                    adb_rc=${?}
++                    break
++                fi
++                rm -f "${file}"
++            done
++            adb_tmpfile="${adb_tmpdir}/${adb_dnsfile}"
++        ;;
++        final)
++            if [ -s "${adb_tmpdir}/tmp.whitelist" ]
++            then
++                grep -vf "${adb_tmpdir}/tmp.whitelist" "${adb_tmpdir}/${adb_dnsfile}" | eval "${adb_dnsdeny}" > "${adb_dnsdir}/${adb_dnsfile}"
++            else
++                eval "${adb_dnsdeny}" "${adb_tmpdir}/${adb_dnsfile}" > "${adb_dnsdir}/${adb_dnsfile}"
++            fi
++            if [ ${?} -eq 0 ] && [ -n "${adb_dnsheader}" ]
++            then
++                printf '%s\n' "${adb_dnsheader}" | cat - "${adb_dnsdir}/${adb_dnsfile}" > "${adb_tmpdir}/${adb_dnsfile}"
++                cat "${adb_tmpdir}/${adb_dnsfile}" > "${adb_dnsdir}/${adb_dnsfile}"
++            fi
++            adb_rc=${?}
++        ;;
++    esac
++    f_count "${mode}"
++    f_log "debug" "f_list ::: name: ${src_name:-"-"}, mode: ${mode}, cnt: ${adb_cnt}, in_rc: ${in_rc}, out_rc: ${adb_rc}"
++}
++
++# top level domain compression
++#
++f_tld()
++{
++    local cnt cnt_srt cnt_tld source="${1}" temp="${1}.tld"
++
++    cnt="$(wc -l 2>/dev/null < "${source}")"
++    sort -u "${source}" > "${temp}"
++    if [ ${?} -eq 0 ]
++    then
++        cnt_srt="$(wc -l 2>/dev/null < "${temp}")"
++        awk -F "." '{for(f=NF;f>1;f--)printf "%s.",$f;print $1}' "${temp}" > "${source}"
++        if [ ${?} -eq 0 ]
++        then
++            sort "${source}" > "${temp}"
++            if [ ${?} -eq 0 ]
++            then
++                awk '{if(NR==1){tld=$NF};while(getline){if($NF!~tld"\\."){print tld;tld=$NF}}print tld}' "${temp}" > "${source}"
++                if [ ${?} -eq 0 ]
++                then
++                    awk -F "." '{for(f=NF;f>1;f--)printf "%s.",$f;print $1}' "${source}" > "${temp}"
++                    if [ ${?} -eq 0 ]
++                    then
++                        sort "${temp}" > "${source}"
++                        if [ ${?} -eq 0 ]
++                        then
++                            cnt_tld="$(wc -l 2>/dev/null < "${source}")"
++                        else
++                            cat "${temp}" > "${source}"
++                        fi
++                    fi
++                else
++                    cat "${temp}" > "${source}"
++                fi
++            fi
++        else
++            cat "${temp}" > "${source}"
++        fi
++    fi
++    rm -f "${temp}"
++    f_log "debug" "f_tld  ::: source: ${source}, cnt: ${cnt:-"-"}, cnt_srt: ${cnt_srt:-"-"}, cnt_tld: ${cnt_tld:-"-"}"
++}
++
++# blocklist hash compare
++#
++f_hash()
++{
++    local hash hash_rc=1
++
++    if [ -x "${adb_hashutil}" ] && [ -f "${adb_dnsdir}/${adb_dnsfile}" ]
++    then
++        hash="$(${adb_hashutil} "${adb_dnsdir}/${adb_dnsfile}" 2>/dev/null | awk '{print $1}')"
++        if [ -z "${adb_hashold}" ] && [ -n "${hash}" ]
++        then
++            adb_hashold="${hash}"
++        elif [ -z "${adb_hashnew}" ] && [ -n "${hash}" ]
++        then
++            adb_hashnew="${hash}"
++        fi
++        if [ -n "${adb_hashold}" ] && [ -n "${adb_hashnew}" ]
++        then
++            if [ "${adb_hashold}" = "${adb_hashnew}" ]
++            then
++                hash_rc=0
++            fi
++            adb_hashold=""
++            adb_hashnew=""
++        fi
++    fi
++    f_log "debug" "f_hash ::: hash_util: ${adb_hashutil}, hash: ${hash}, out_rc: ${hash_rc}"
++    return ${hash_rc}
++}
++
++# suspend/resume adblock processing
++#
++f_switch()
++{
++    local mode="${1}"
++
++    if [ ! -s "${adb_dnsdir}/.${adb_dnsfile}" ] && [ "${mode}" = "suspend" ]
++    then
++        f_hash
++        cat "${adb_dnsdir}/${adb_dnsfile}" > "${adb_dnsdir}/.${adb_dnsfile}"
++        printf '%s\n' "${adb_dnsheader}" > "${adb_dnsdir}/${adb_dnsfile}"
++        f_hash
++    elif [ -s "${adb_dnsdir}/.${adb_dnsfile}" ] && [ "${mode}" = "resume" ]
++    then
++        f_hash
++        cat "${adb_dnsdir}/.${adb_dnsfile}" > "${adb_dnsdir}/${adb_dnsfile}"
++        > "${adb_dnsdir}/.${adb_dnsfile}"
++        f_hash
++    fi
++    if [ ${?} -eq 1 ]
++    then
++        f_temp
++        f_dnsup
++        f_jsnup "${mode}"
++        f_log "info" "${mode} adblock processing"
++        f_rmtemp
++        exit 0
++    fi
++}
++
++# query blocklist for certain (sub-)domains
++#
++f_query()
++{
++    local search result field=1 domain="${1}" tld="${1#*.}"
++
++    if [ -z "${domain}" ] || [ "${domain}" = "${tld}" ]
++    then
++        printf "%s\n" "::: invalid domain input, please submit a single domain, e.g. 'doubleclick.net'"
++    else
++        case "${adb_dns}" in
++            dnsmasq)
++                field=2
++            ;;
++            unbound)
++                field=3
++            ;;
++        esac
++        while [ "${domain}" != "${tld}" ]
++        do
++            search="${domain//./\.}"
++            result="$(awk -F '/|\"| ' "/^($search|[^\*].*[\/\"\. ]+${search})/{i++;{printf(\"  + %s\n\",\$${field})};if(i>9){printf(\"  + %s\n\",\"[...]\");exit}}" "${adb_dnsdir}/${adb_dnsfile}")"
++            printf "%s\n" "::: results for domain '${domain}'"
++            printf "%s\n" "${result:-"  - no match"}"
++            domain="${tld}"
++            tld="${domain#*.}"
++        done
++    fi
++}
++
++# update runtime information
++#
++f_jsnup()
++{
++    local bg_pid rundate="$(/bin/date "+%d.%m.%Y %H:%M:%S")" status="${1:-"enabled"}" mode="normal mode" no_mail=0
++
++    if [ ${adb_rc} -gt 0 ]
++    then
++        status="error"
++    fi
++    if [ ${adb_enabled} -eq 0 ]
++    then
++        status="disabled"
++    fi
++    if [ "${status}" = "suspend" ]
++    then
++        status="paused"
++    fi
++    if [ "${status}" = "resume" ]
++    then
++        no_mail=1
++        status="enabled"
++    fi
++    if [ "${status}" = "enabled" ]
++    then
++        f_count
++    fi
++
++    if [ ${adb_backup_mode} -eq 1 ]
++    then
++        mode="backup mode"
++    fi
++
++    if [ -z "${adb_fetchinfo}" ] && [ -s "${adb_rtfile}" ]
++    then
++        json_load "$(cat "${adb_rtfile}" 2>/dev/null)"
++        json_select data
++        json_get_var adb_fetchinfo "fetch_utility"
++    fi
++
++    json_init
++    json_add_object "data"
++    json_add_string "adblock_status" "${status}"
++    json_add_string "adblock_version" "${adb_ver}"
++    json_add_string "overall_domains" "${adb_cnt} (${mode})"
++    json_add_string "fetch_utility" "${adb_fetchinfo:-"-"}"
++    json_add_string "dns_backend" "${adb_dns} (${adb_dnsdir})"
++    json_add_string "last_rundate" "${rundate:-"-"}"
++    json_add_string "system_release" "${adb_sysver}"
++    json_close_object
++    json_dump > "${adb_rtfile}"
++
++    if [ ${adb_notify} -eq 1 ] && [ ${no_mail} -eq 0 ] && [ -x /etc/adblock/adblock.notify ] && \
++      ([ "${status}" = "error" ] || ([ "${status}" = "enabled" ] && [ ${adb_cnt} -le ${adb_notifycnt} ]))
++    then
++        (/etc/adblock/adblock.notify >/dev/null 2>&1) &
++        bg_pid=${!}
++    fi
++    f_log "debug" "f_jsnup::: status: ${status}, mode: ${mode}, cnt: ${adb_cnt}, notify: ${adb_notify}, notify_cnt: ${adb_notifycnt}, notify_pid: ${bg_pid:-"-"}"
++}
++
++# write to syslog
++#
++f_log()
++{
++    local class="${1}" log_msg="${2}"
++
++    if [ -n "${log_msg}" ] && ([ "${class}" != "debug" ] || [ ${adb_debug} -eq 1 ])
++    then
++        logger -p "${class}" -t "adblock-[${adb_ver}]" "${log_msg}"
++        if [ "${class}" = "err" ]
++        then
++            f_rmdns
++            f_jsnup
++            logger -p "${class}" -t "adblock-[${adb_ver}]" "Please also check 'https://github.com/openwrt/packages/blob/master/net/adblock/files/README.md' (${adb_sysver})"
++            exit 1
++        fi
++    fi
++}
++
++# main function for blocklist processing
++#
++f_main()
++{
++    local tmp_load tmp_file src_name src_rset src_arc src_log mem_total mem_free enabled url cnt=1
++
++    mem_total="$(awk '/^MemTotal/ {print int($2/1000)}' "/proc/meminfo" 2>/dev/null)"
++    mem_free="$(awk '/^MemFree/ {print int($2/1000)}' "/proc/meminfo" 2>/dev/null)"
++    tmp_load="${adb_tmpload}"
++    tmp_file="${adb_tmpfile}"
++    > "${adb_dnsdir}/.${adb_dnsfile}"
++    > "${adb_tmpdir}/tmp.whitelist"
++    f_log "debug" "f_main ::: dns: ${adb_dns}, fetch_util: ${adb_fetchinfo}, backup: ${adb_backup}, backup_mode: ${adb_backup_mode}, dns_jail: ${adb_jail}, force_srt: ${adb_forcesrt}, force_dns: ${adb_forcedns}, mem_total: ${mem_total:-0}, mem_free: ${mem_free:-0}, max_queue: ${adb_maxqueue}"
++
++    # prepare whitelist entries
++    #
++    if [ -s "${adb_whitelist}" ]
++    then
++        adb_whitelist_rset="/^([^([:space:]|\#|\*|\/).]+\.)+[[:alpha:]]+([[:space:]]|$)/{gsub(\"\\\.\",\"\\\.\",\$1);print tolower(\"^\"\$1\"\\\|\\\.\"\$1)}"
++        awk "${adb_whitelist_rset}" "${adb_whitelist}" > "${adb_tmpdir}/tmp.whitelist"
++        f_list whitelist
++        if [ ${adb_jail} -eq 1 ] && [ "${adb_dns}" != "dnscrypt-proxy" ]
++        then
++            adb_whitelist_rset="/^([^([:space:]|\#|\*|\/).]+\.)+[[:alpha:]]+([[:space:]]|$)/{print tolower(\$1)}"
++            awk "${adb_whitelist_rset}" "${adb_whitelist}" > "${adb_tmpdir}/tmp.dnsjail"
++        fi
++    fi
++
++    # build 'dnsjail' list
++    #
++    if [ ${adb_jail} -eq 1 ] && [ "${adb_dns}" != "dnscrypt-proxy" ]
++    then
++        f_tld "${adb_tmpdir}/tmp.dnsjail"
++        eval "${adb_dnsallow}" "${adb_tmpdir}/tmp.dnsjail" > "/tmp/${adb_dnsjail}"
++        printf '%s\n' "${adb_dnshalt}" >> "/tmp/${adb_dnsjail}"
++        if [ -n "${adb_dnsheader}" ]
++        then
++            printf '%s\n' "${adb_dnsheader}" | cat - "/tmp/${adb_dnsjail}" > "${adb_tmpdir}/tmp.dnsjail"
++            cat "${adb_tmpdir}/tmp.dnsjail" > "/tmp/${adb_dnsjail}"
++        fi
++    fi
++
++    # main loop
++    #
++    for src_name in ${adb_sources}
++    do
++        eval "enabled=\"\${enabled_${src_name}}\""
++        eval "url=\"\${adb_src_${src_name}}\""
++        eval "src_rset=\"\${adb_src_rset_${src_name}}\""
++        adb_tmpload="${tmp_load}.${src_name}"
++        adb_tmpfile="${tmp_file}.${src_name}"
++
++        # basic pre-checks
++        #
++        f_log "debug" "f_main ::: name: ${src_name}, enabled: ${enabled}"
++        if [ "${enabled}" != "1" ] || [ -z "${url}" ] || [ -z "${src_rset}" ]
++        then
++            f_list remove
++            continue
++        fi
++
++        # backup mode
++        #
++        if [ ${adb_backup_mode} -eq 1 ] && [ "${adb_action}" = "start" ] && [ "${src_name}" != "blacklist" ]
++        then
++            f_list restore
++            if [ ${adb_rc} -eq 0 ] && [ -s "${adb_tmpfile}" ]
++            then
++                if ([ ${mem_total} -lt 64 ] || [ ${mem_free} -lt 40 ]) && [ ${adb_forcesrt} -eq 0 ]
++                then
++                    f_tld "${adb_tmpfile}"
++                fi
++                continue
++            fi
++        fi
++
++        # download queue processing
++        #
++        if [ "${src_name}" = "blacklist" ]
++        then
++            if [ -s "${url}" ]
++            then
++                (
++                  src_log="$(cat "${url}" > "${adb_tmpload}" 2>&1)"
++                  adb_rc=${?}
++                  if [ ${adb_rc} -eq 0 ] && [ -s "${adb_tmpload}" ]
++                  then
++                      awk "${src_rset}" "${adb_tmpload}" 2>/dev/null > "${adb_tmpfile}"
++                      adb_rc=${?}
++                      if [ ${adb_rc} -eq 0 ] && [ -s "${adb_tmpfile}" ]
++                      then
++                          rm -f "${adb_tmpload}"
++                          f_list download
++                          if ([ ${mem_total} -lt 64 ] || [ ${mem_free} -lt 40 ]) && [ ${adb_forcesrt} -eq 0 ]
++                          then
++                              f_tld "${adb_tmpfile}"
++                          fi
++                      fi
++                  else
++                      src_log="$(printf '%s' "${src_log}" | awk '{ORS=" ";print $0}')"
++                      f_log "debug" "f_main ::: name: ${src_name}, url: ${url}, rc: ${adb_rc}, log: ${src_log:-"-"}"
++                  fi
++                ) &
++            else
++                continue
++            fi
++        elif [ "${src_name}" = "shalla" ]
++        then
++            (
++              src_arc="${adb_tmpdir}"/shallalist.tar.gz
++              src_log="$("${adb_fetchutil}" ${adb_fetchparm} "${src_arc}" "${url}" 2>&1)"
++              adb_rc=${?}
++              if [ ${adb_rc} -eq 0 ] && [ -s "${src_arc}" ]
++              then
++                  for category in ${adb_src_cat_shalla}
++                  do
++                      tar -xOzf "${src_arc}" "BL/${category}/domains" >> "${adb_tmpload}"
++                      adb_rc=${?}
++                      if [ ${adb_rc} -ne 0 ]
++                      then
++                          break
++                      fi
++                  done
++              else
++                  src_log="$(printf '%s' "${src_log}" | awk '{ORS=" ";print $0}')"
++                  f_log "debug" "f_main ::: name: ${src_name}, url: ${url}, rc: ${adb_rc}, log: ${src_log:-"-"}"
++              fi
++              if [ ${adb_rc} -eq 0 ] && [ -s "${adb_tmpload}" ]
++              then
++                  rm -f "${src_arc}"
++                  awk "${src_rset}" "${adb_tmpload}" 2>/dev/null > "${adb_tmpfile}"
++                  adb_rc=${?}
++                  if [ ${adb_rc} -eq 0 ] && [ -s "${adb_tmpfile}" ]
++                  then
++                      rm -f "${adb_tmpload}"
++                      f_list download
++                      if [ ${adb_backup} -eq 1 ]
++                      then
++                          f_list backup
++                      fi
++                      if ([ ${mem_total} -lt 64 ] || [ ${mem_free} -lt 40 ]) && [ ${adb_forcesrt} -eq 0 ]
++                      then
++                          f_tld "${adb_tmpfile}"
++                      fi
++                  elif [ ${adb_backup} -eq 1 ]
++                  then
++                      f_list restore
++                  fi
++              elif [ ${adb_backup} -eq 1 ]
++              then
++                  f_list restore
++              fi
++            ) &
++        else
++            (
++              src_log="$("${adb_fetchutil}" ${adb_fetchparm} "${adb_tmpload}" "${url}" 2>&1)"
++              adb_rc=${?}
++              if [ ${adb_rc} -eq 0 ] && [ -s "${adb_tmpload}" ]
++              then
++                  awk "${src_rset}" "${adb_tmpload}" 2>/dev/null > "${adb_tmpfile}"
++                  adb_rc=${?}
++                  if [ ${adb_rc} -eq 0 ] && [ -s "${adb_tmpfile}" ]
++                  then
++                      rm -f "${adb_tmpload}"
++                      f_list download
++                      if [ ${adb_backup} -eq 1 ]
++                      then
++                          f_list backup
++                      fi
++                      if ([ ${mem_total} -lt 64 ] || [ ${mem_free} -lt 40 ]) && [ ${adb_forcesrt} -eq 0 ]
++                      then
++                          f_tld "${adb_tmpfile}"
++                      fi
++                  elif [ ${adb_backup} -eq 1 ]
++                  then
++                      f_list restore
++                  fi
++              else
++                  src_log="$(printf '%s' "${src_log}" | awk '{ORS=" ";print $0}')"
++                  f_log "debug" "f_main ::: name: ${src_name}, url: ${url}, rc: ${adb_rc}, log: ${src_log:-"-"}"
++                  if [ ${adb_backup} -eq 1 ]
++                  then
++                      f_list restore
++                  fi
++              fi
++            ) &
++        fi
++        hold=$(( cnt % adb_maxqueue ))
++        if [ ${hold} -eq 0 ]
++        then
++            wait
++        fi
++        cnt=$(( cnt + 1 ))
++    done
++
++    # list merge
++    #
++    wait
++    src_name="overall"
++    adb_tmpfile="${tmp_file}"
++    f_list merge
++
++    # overall sort and conditional dns restart
++    #
++    f_hash
++    if [ -s "${adb_tmpdir}/${adb_dnsfile}" ]
++    then
++        if ([ ${mem_total} -ge 64 ] && [ ${mem_free} -ge 40 ]) || [ ${adb_forcesrt} -eq 1 ]
++        then
++            f_tld "${adb_tmpdir}/${adb_dnsfile}"
++        fi
++        f_list final
++    else
++        > "${adb_dnsdir}/${adb_dnsfile}"
++    fi
++    chown "${adb_dnsuser}" "${adb_dnsdir}/${adb_dnsfile}" 2>/dev/null
++    f_hash
++    if [ ${?} -eq 1 ]
++    then
++        f_dnsup
++    fi
++    f_jsnup
++    if [ ${?} -eq 0 ]
++    then
++        f_log "info" "blocklist with overall ${adb_cnt} domains loaded successfully (${adb_sysver})"
++    else
++        f_log "err" "dns backend restart with active blocklist failed"
++    fi
++    f_rmtemp
++    exit ${adb_rc}
++}
++
++# handle different adblock actions
++#
++f_envload
++case "${adb_action}" in
++    stop)
++        f_rmdns
++    ;;
++    restart)
++        f_rmdns
++        f_envcheck
++        f_main
++    ;;
++    suspend)
++        f_switch suspend
++    ;;
++    resume)
++        f_switch resume
++    ;;
++    query)
++        f_query "${2}"
++    ;;
++    start|reload)
++        f_envcheck
++        f_main
++    ;;
++esac
+diff --git a/net/adblock/files/www/adblock/index.html b/net/adblock/files/www/adblock/index.html
+deleted file mode 100644
+index 2f8ba6e..0000000
+--- a/net/adblock/files/www/adblock/index.html
++++ /dev/null
+@@ -1,5 +0,0 @@
+-<html>
+-     <body>
+-        <img src="data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=" alt=""></img>
+-    </body>
+-</html>
+-- 
+2.7.4
+
