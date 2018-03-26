@@ -1,3 +1,4 @@
+* adblock: update to upstream version 3.5.1.
 * openssl: update to version 1.0.2o (security fix)
 * dovecot: update to version 2.2.35 (security fix)
 * libvorbis: update to version 1.3.6 (security fix)
