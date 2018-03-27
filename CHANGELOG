@@ -1,3 +1,4 @@
+* netdata: build old version for Turris 1.x
 * nut: update to upstream state
 * curl: update to version 7.60.0 (security fix)
 * ddns-scripts: update to upstream version 2.7.7
