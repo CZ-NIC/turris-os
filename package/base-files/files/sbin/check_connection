@@ -8,7 +8,7 @@ else
 	TESTS=" $@ "
 fi
 
-TESTS="$(echo "$TESTS" | sed -e 's/\s/X/g')"
+TESTS="$(echo "$TESTS" | sed -e 's/ /X/g')"
 
 # IP addresses and DNS names we are testing against
 IP4='217.31.205.50 198.41.0.4 199.7.83.42 8.8.8.8'
