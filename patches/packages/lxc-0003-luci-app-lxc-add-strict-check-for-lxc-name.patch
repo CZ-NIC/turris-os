@@ -1,0 +1,50 @@
+From ca0b04caa5c2982d79f7977d474a10909c6239a1 Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Tue, 27 Mar 2018 15:10:35 +0200
+Subject: [PATCH] luci-app-lxc: add strict check for lxc name
+
+---
+ utils/luci-app-lxc/Makefile           |  2 +-
+ utils/luci-app-lxc/files/view/lxc.htm | 13 +++++++++++++
+ 2 files changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/utils/luci-app-lxc/Makefile b/utils/luci-app-lxc/Makefile
+index b53fe07..56a9ac7 100644
+--- a/utils/luci-app-lxc/Makefile
++++ b/utils/luci-app-lxc/Makefile
+@@ -8,7 +8,7 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=luci-app-lxc
+-PKG_RELEASE:=20160616-1
++PKG_RELEASE:=20160616-2
+ 
+ PKG_LICENSE:=Apache-2.0
+ 
+diff --git a/utils/luci-app-lxc/files/view/lxc.htm b/utils/luci-app-lxc/files/view/lxc.htm
+index edfff8e..fdaafa2 100644
+--- a/utils/luci-app-lxc/files/view/lxc.htm
++++ b/utils/luci-app-lxc/files/view/lxc.htm
+@@ -95,6 +95,19 @@ Author: Petar Koretic <petar.koretic@sartura.hr>
+ 			return info_message(output_add, "Name cannot be empty!", 4000)
+ 		}
+ 
++		if (lxc_name.indexOf(' ') >= 0)
++		{
++			bt_create.disabled = false
++			return info_message(output_add, "Name cannot contain space!", 4000)
++		}
++
++		var format = /[!@#$%^&*()+=\[\]{};':"\\|,<>\/?]+/;
++		if (format.test(lxc_name))
++		{
++			bt_create.disabled = false
++			return info_message(output_add, "Name cannot contain special characters!", 4000)
++		}
++
+ 		loading(loader_add)
+ 
+ 		new XHR().get('<%=luci.dispatcher.build_url("admin", "services")%>/lxc_create/' + '%h/%h'.format(lxc_name, lxc_template) , null,
+-- 
+2.7.4
+
