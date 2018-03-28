@@ -1,6 +1,6 @@
-From ca0b04caa5c2982d79f7977d474a10909c6239a1 Mon Sep 17 00:00:00 2001
+From 39d4718b0e8873e5f60c269898ba7c52c117ce68 Mon Sep 17 00:00:00 2001
 From: Jan Pavlinec <jan.pavlinec@nic.cz>
-Date: Tue, 27 Mar 2018 15:10:35 +0200
+Date: Wed, 28 Mar 2018 12:46:12 +0200
 Subject: [PATCH] luci-app-lxc: add strict check for lxc name
 
 ---
@@ -9,14 +9,14 @@ Subject: [PATCH] luci-app-lxc: add strict check for lxc name
  2 files changed, 14 insertions(+), 1 deletion(-)
 
 diff --git a/utils/luci-app-lxc/Makefile b/utils/luci-app-lxc/Makefile
-index b53fe07..56a9ac7 100644
+index cb34225..56a9ac7 100644
 --- a/utils/luci-app-lxc/Makefile
 +++ b/utils/luci-app-lxc/Makefile
 @@ -8,7 +8,7 @@
  include $(TOPDIR)/rules.mk
  
  PKG_NAME:=luci-app-lxc
--PKG_RELEASE:=20160616-1
+-PKG_RELEASE:=20160616
 +PKG_RELEASE:=20160616-2
  
  PKG_LICENSE:=Apache-2.0
