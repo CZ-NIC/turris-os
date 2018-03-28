@@ -40,7 +40,7 @@ make_defconfig() {
 pushd patches
 for feed in *; do
 	pushd $feed
-	for patch in *; do
+	for patch in $(ls |sort -n); do
 		pushd ../../feeds/$feed
 		patch -p1 < ../../patches/$feed/$patch
 		popd
