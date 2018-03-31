@@ -36,7 +36,7 @@ Install("ebtables", "odhcpd", "odhcp6c", "rpcd", "opkg", { priority = 40 })
 
 -- Turris minimum
 if features and features.provides then
-	Install("dhcp-server", "dhcpv6-server", "syslog", "cron", { priority = 40 })
+	Install("dhcp-server", "dhcpv6-client", "syslog", "cron", { priority = 40 })
 end
 Install("vixie-cron", "syslog-ng3", { priority = 40 })
 Install("logrotate", { priority = 40 })
