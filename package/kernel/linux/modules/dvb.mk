@@ -340,6 +340,7 @@ $(eval $(call KernelPackage,dvb-usb-az6007))
 define KernelPackage/dvb-usb-dvbsky
   TITLE:=DVBSky USB support
   KCONFIG:=CONFIG_DVB_USB_DVBSKY
+  DEPENDS+=kmod-m88ds3103
   FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb-v2/dvb-usb-dvbsky.ko
   AUTOLOAD:=$(call AutoProbe,dvb-usb-dvbsky)
   $(call AddDepends/dvb-usb-v2,+kmod-dvb-si2168)
