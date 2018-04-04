@@ -339,6 +339,7 @@ $(eval $(call KernelPackage,dvb-usb-az6007))
 define KernelPackage/dvb-usb-dvbsky
   TITLE:=DVBSky USB support
   KCONFIG:=CONFIG_DVB_USB_DVBSKY
+  DEPENDS+=kmod-m88ds3103
   FILES:=$(LINUX_DIR)/drivers/media/usb/dvb-usb-v2/dvb-usb-dvbsky.ko
   AUTOLOAD:=$(call AutoProbe,dvb-usb-dvbsky)
   $(call AddDepends/dvb-usb-v2,+kmod-dvb-si2168)
@@ -445,17 +446,17 @@ endef
 
 $(eval $(call KernelPackage,dvb-mn88473))
 
-#define KernelPackage/dvb-m88ds3103
-#  TITLE:=Montage Technology M88DS3103
-#  $(call DvbFrontend,m88ds3103,CONFIG_DVB_M88DS3103)
-#  DEPENDS+=+kmod-i2c-mux
-#endef
+define KernelPackage/dvb-m88ds3103
+  TITLE:=Montage Technology M88DS3103
+  $(call DvbFrontend,m88ds3103,CONFIG_DVB_M88DS3103)
+  DEPENDS+=+kmod-i2c-mux
+endef
 
-#define KernelPackage/dvb-m88ds3103/description
-#  Montage Technology M88DS3103
-#endef
+define KernelPackage/dvb-m88ds3103/description
+  Montage Technology M88DS3103
+endef
 
-#$(eval $(call KernelPackage,dvb-m88ds3103))
+$(eval $(call KernelPackage,dvb-m88ds3103))
 
 define KernelPackage/dvb-zl10353
   TITLE:=Zarlink ZL10353 based tuner
