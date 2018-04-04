@@ -361,6 +361,20 @@ define DvbFrontend
   AUTOLOAD:=$(call AutoProbe,$1)
 endef
 
+define DvbStaging
+  SUBMENU:=$(DVB_MENU)
+  KCONFIG:= \
+	CONFIG_STAGING=y \
+	CONFIG_STAGING_MEDIA=y \
+	CONFIG_DVB_CXD2099=m \
+	CONFIG_DVB_MN88472=m \
+	CONFIG_DVB_MN88473=m \
+	$2
+  DEPENDS:=+kmod-i2c-core +kmod-dvb-core +kmod-i2c-mux +kmod-regmap
+  FILES:=$(LINUX_DIR)/drivers/staging/media/mn88473/$1.ko
+  AUTOLOAD:=$(call AutoProbe,$1)
+endef
+
 define KernelPackage/dvb-drxk
   TITLE:=Micronas DRXK based
   $(call DvbFrontend,drxk,CONFIG_DVB_DRXK)
@@ -421,7 +435,7 @@ $(eval $(call KernelPackage,dvb-si2168))
 
 define KernelPackage/dvb-mn88473
   TITLE:=Panasonic MN88473
-  $(call DvbFrontend,mn88473,CONFIG_DVB_MN88473)
+  $(call DvbStaging,mn88473,CONFIG_DVB_MN88473)
   DEPENDS+=+kmod-i2c-mux
 endef
 
