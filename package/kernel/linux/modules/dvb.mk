@@ -432,6 +432,30 @@ endef
 
 $(eval $(call KernelPackage,dvb-mn88473))
 
+define KernelPackage/dvb-m88ds3103
+  TITLE:=Montage Technology M88DS3103
+  $(call DvbFrontend,m88ds3103,CONFIG_DVB_M88DS3103)
+  DEPENDS+=+kmod-i2c-mux
+endef
+
+define KernelPackage/dvb-m88ds3103/description
+  Montage Technology M88DS3103
+endef
+
+$(eval $(call KernelPackage,dvb-m88ds3103))
+
+define KernelPackage/dvb-ts2020
+  TITLE:=Montage Technology TS2020
+  $(call DvbFrontend,ts2020,CONFIG_DVB_TS2020)
+  DEPENDS+=+kmod-i2c-mux
+endef
+
+define KernelPackage/dvb-ts2020/description
+  Montage Tehnology TS2020 based tuners
+endef
+
+$(eval $(call KernelPackage,dvb-ts2020))
+
 define KernelPackage/dvb-zl10353
   TITLE:=Zarlink ZL10353 based tuner
   $(call DvbFrontend,zl10353,CONFIG_DVB_ZL10353)
