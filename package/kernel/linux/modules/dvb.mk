@@ -6,6 +6,7 @@
 #
 
 DVB_MENU:=DVB Support
+VIDEO_MENU:=Video Support
 
 # ------------------------------ core drivers ---------------------------------
 
@@ -986,3 +987,44 @@ define KernelPackage/media-tuner-xc5000/description
 endef
 
 $(eval $(call KernelPackage,media-tuner-xc5000))
+
+define KernelPackage/tveeprom
+  TITLE:=VIDEO_TVEEPROM
+  KCONFIG:=CONFIG_VIDEO_TVEEPROM
+  FILES:=$(LINUX_DIR)/drivers/media/common/tveeprom.ko
+  AUTOLOAD:=$(call AutoProbe,tveeprom)
+endef
+
+$(eval $(call KernelPackage,tveeprom))
+
+define KernelPackage/v4l2
+  TITLE:=v4l2
+  KCONFIG:=CONFIG_VIDEO_V4L2
+  FILES:=\
+	$(LINUX_DIR)/drivers/media/v4l2-core/videodev.ko \
+	$(LINUX_DIR)/drivers/media/v4l2-core/v4l2-common.ko
+  AUTOLOAD:=$(call AutoProbe,videodev v4l2-common)
+endef
+
+$(eval $(call KernelPackage,v4l2))
+
+define KernelPackage/video-em28xx
+  TITLE:=Empia EM28xx USB devices support
+  KCONFIG:= \
+	CONFIG_VIDEO_EM28XX=m \
+	CONFIG_VIDEO_EM28XX_V4L2=m \
+	CONFIG_VIDEO_EM28XX_ALSA=m \
+	CONFIG_VIDEO_EM28XX_DVB=m \
+	CONFIG_VIDEO_EM28XX_RC=m
+  FILES:=$(LINUX_DIR)/drivers/media/usb/em28xx/em28xx.ko
+  AUTOLOAD:=$(call AutoProbe,video-em28xx)
+  DEPENDS+=+kmod-tveeprom +kmod-v4l2
+  $(call AddDepends/dvb-usb)
+  SUBMENU:=$(VIDEO_MENU)
+endef
+
+define KernelPackage/video-em28xx/description
+  Empia EM28xx USB devices support
+endef
+
+$(eval $(call KernelPackage,video-em28xx))
