@@ -34,6 +34,7 @@ create_notification -s news " • různé aktualizace balíčků
  • updater: odstraněn zastaralý updater.sh, používejte pkgupdate přímo
  • foris: storage modul pro přesun často přepisovaných dat na externí úložiště
  • foris: modul pro zálohy do cloudu
+ • foris: oprava noncrypto random csrf (díky Stephen Röttger)
  
  Pokud dojde ke zničení interní eMMC flash z důvodu nadměrného zapisování, především kvůli provozu LXC kontejnerů bez externího úložiště, nemusí se na její opravu vztahovat záruka." " • various upstream packages updates
  • foris: posibility to change time settings outside of wizard
@@ -41,6 +42,7 @@ create_notification -s news " • různé aktualizace balíčků
  • updater: droped obsolete updater.sh and friends, use pkgupdate directly
  • foris: plugin to move IO intensive data to external drive
  • foris: plugin for cloud backups
+ • foris: fix noncrypto random csrf (thanks to Stephen Röttger)
  
  Excessive writing to the internal flash disk (eMMC) wear it out and this can result in irreparable damage to your device, which doesn't have to be covered by warranty."
 }
