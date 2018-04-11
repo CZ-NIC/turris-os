@@ -1,5 +1,16 @@
 FROM ubuntu:trusty
-RUN apt-get update && apt-get -y install build-essential bzr cvs gawk flex gettext libncurses5-dev libxml-parser-perl subversion unzip zip findutils zlib1g-dev libssl-dev git-core wget libc6-dev libc6-dev-i386 vim mercurial && apt-get clean
+RUN apt-get update && \
+	apt-get -y install --no-install-recommends \
+		build-essential \
+		gawk flex gettext \
+		wget findutils unzip zip \
+		git-core bzr cvs mercurial subversion \
+		libncurses5-dev libxml-parser-perl \
+		zlib1g-dev libssl-dev \
+		libc6-dev libc6-dev-i386 \
+		man ssh vim \
+		&&  \
+	apt-get clean
 RUN useradd -m build
 RUN echo 'build ALL=(ALL)	NOPASSWD: ALL' >>/etc/sudoers
 USER build
