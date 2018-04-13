@@ -8,6 +8,7 @@ RUN apt-get update && \
 		libncurses5-dev libxml-parser-perl \
 		zlib1g-dev libssl-dev \
 		libc6-dev libc6-dev-i386 \
+		linux-headers-generic \
 		man ssh vim \
 		&&  \
 	apt-get clean
