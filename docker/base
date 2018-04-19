@@ -8,7 +8,7 @@ RUN apt-get update && \
 		libncurses5-dev libxml-parser-perl \
 		zlib1g-dev libssl-dev \
 		libc6-dev libc6-dev-i386 \
-		linux-headers-generic \
+		gcc-multilib \
 		man ssh vim \
 		&&  \
 	apt-get clean
@@ -18,5 +18,7 @@ USER build
 WORKDIR /home/build
 RUN git clone https://gitlab.labs.nic.cz/turris/openwrt
 RUN mkdir share
-ENTRYPOINT bash
 WORKDIR /home/build/openwrt
+ARG VERSION=test
+RUN git checkout $VERSION
+ENTRYPOINT bash
