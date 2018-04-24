@@ -124,7 +124,7 @@ define ModuleAutoLoad
 		echo "#!/bin/sh" > $(2)/CONTROL/postinst-pkg; \
 		echo "[ -z \"\$$$$$$$$IPKG_INSTROOT\" ] || exit 0" >> $(2)/CONTROL/postinst-pkg; \
 		echo ". /lib/functions.sh" >> $(2)/CONTROL/postinst-pkg; \
-		echo "insert_modules $$$$$$$$modules" >> $(2)/CONTROL/postinst-pkg; \
+		echo "insert_modules $$$$$$$$modules || :" >> $(2)/CONTROL/postinst-pkg; \
 		chmod 0755 $(2)/CONTROL/postinst-pkg; \
 	fi
 endef
