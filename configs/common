@@ -264,6 +264,8 @@ CONFIG_PACKAGE_nikola=m
 CONFIG_PACKAGE_socat=m
 CONFIG_SOCAT_SSL=y
 
+CONFIG_PACKAGE_haas-proxy=m
+
 # Pakoň
 CONFIG_PACKAGE_pakon-dev-detect=m
 CONFIG_PACKAGE_pakon=m
