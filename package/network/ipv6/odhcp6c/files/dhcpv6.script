@@ -5,6 +5,8 @@
 
 setup_interface () {
 	local device="$1"
+	local prefsig=""
+	local addrsig=""
 	proto_init_update "*" 1
 
 	# Merge RA-DNS
@@ -34,6 +36,7 @@ setup_interface () {
 
 	for prefix in $PREFIXES; do
 		proto_add_ipv6_prefix "$prefix"
+		prefsig="$prefsig ${prefix%%,*}"
 		local entry="${prefix#*/}"
 		entry="${entry#*,}"
 		entry="${entry#*,}"
@@ -45,7 +48,9 @@ setup_interface () {
 		fi
 	done
 
-	[ -n "$USERPREFIX" ] && proto_add_ipv6_prefix "$USERPREFIX"
+	for prefix in $USERPREFIX; do
+		proto_add_ipv6_prefix "$prefix"
+	done
 
 	# Merge addresses
 	for entry in $RA_ADDRESSES; do
@@ -68,15 +73,38 @@ setup_interface () {
 		local valid="${entry%%,*}"
 
 		proto_add_ipv6_address "$addr" "$mask" "$preferred" "$valid" 1
+		addrsig="$addrsig $addr/$mask"
 
 		if [ -z "$RA_ADDRESSES" -a -z "$RA_ROUTES" -a \
 				-z "$RA_DNS" -a "$FAKE_ROUTES" = 1 ]; then
 			RA_ROUTES="::/0,$SERVER,$valid,4096"
 		fi
+
+		# RFC 7278
+		if [ "$mask" -eq 64 -a -z "$PREFIXES" -a -n "$EXTENDPREFIX" ]; then
+			proto_add_ipv6_prefix "$addr/$mask,$preferred,$valid"
+
+			local raroutes=""
+			for route in $RA_ROUTES; do
+				local prefix="${route%%/*}"
+				local entry="${route#*/}"
+				local pmask="${entry%%,*}"
+				entry="${entry#*,}"
+				local gw="${entry%%,*}"
+
+				[ -z "$gw" -a "$mask" = "$pmask" ] && {
+					case "$addr" in
+						"${prefix%*::}"*) continue;;
+					esac
+				}
+				raroutes="$raroutes $route"
+			done
+			RA_ROUTES="$raroutes"
+		fi
 	done
 
 	for entry in $RA_ROUTES; do
-		local duplicate=0
+		local duplicate=$NOSOURCEFILTER
 		local addr="${entry%%/*}"
 		entry="${entry#*/}"
 		local mask="${entry%%,*}"
@@ -136,6 +164,8 @@ setup_interface () {
 		json_add_string ifname "@$INTERFACE"
 		json_add_string proto map
 		json_add_string type "$MAPTYPE"
+		json_add_string _prefsig "$prefsig"
+		[ "$MAPTYPE" = lw4o6 ] && json_add_string _addrsig "$addrsig"
 		json_add_string rule "$MAPRULE"
 		json_add_string tunlink "$INTERFACE"
 		[ -n "$ZONE_MAP" ] || ZONE_MAP=$ZONE
@@ -163,6 +193,7 @@ setup_interface () {
 		json_add_string ifname "@$INTERFACE"
 		json_add_string proto "464xlat"
 		json_add_string tunlink "$INTERFACE"
+		json_add_string _addrsig "$addrsig"
 		[ -n "$ZONE_464XLAT" ] || ZONE_464XLAT=$ZONE
 		[ -n "$ZONE_464XLAT" ] && json_add_string zone "$ZONE_464XLAT"
 		[ -n "$IFACE_464XLAT_DELEGATE" ] && json_add_boolean delegate "$IFACE_464XLAT_DELEGATE"
@@ -173,7 +204,7 @@ setup_interface () {
 	# Apply IPv6 / ND configuration
 	HOPLIMIT=$(cat /proc/sys/net/ipv6/conf/$device/hop_limit)
 	[ -n "$RA_HOPLIMIT" -a -n "$HOPLIMIT" ] && [ "$RA_HOPLIMIT" -gt "$HOPLIMIT" ] && echo "$RA_HOPLIMIT" > /proc/sys/net/ipv6/conf/$device/hop_limit
-	[ -n "$RA_MTU" ] && [ "$RA_MTU" -gt 0 ] && echo "$RA_MTU" > /proc/sys/net/ipv6/conf/$device/mtu
+	[ -n "$RA_MTU" ] && [ "$RA_MTU" -ge 1280 ] && echo "$RA_MTU" > /proc/sys/net/ipv6/conf/$device/mtu 2>/dev/null
 	[ -n "$RA_REACHABLE" ] && [ "$RA_REACHABLE" -gt 0 ] && echo "$RA_REACHABLE" > /proc/sys/net/ipv6/neigh/$device/base_reachable_time_ms
 	[ -n "$RA_RETRANSMIT" ] && [ "$RA_RETRANSMIT" -gt 0 ] && echo "$RA_RETRANSMIT" > /proc/sys/net/ipv6/neigh/$device/retrans_time_ms
 
@@ -202,6 +233,6 @@ case "$2" in
 esac
 
 # user rules
-[ -f /etc/odhcp6c.user ] && . /etc/odhcp6c.user
+[ -f /etc/odhcp6c.user ] && . /etc/odhcp6c.user "$@"
 
 exit 0
