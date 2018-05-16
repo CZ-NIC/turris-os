@@ -77,6 +77,7 @@ echo "Turris Omnia" > /tmp/sysinfo/model
 echo "rtunknown" > /tmp/sysinfo/board_name  
 
 ABSOUT="$(readlink -f $ROOT)"
+export PATH="$PATH:$ABSOUT/usr/bin:$ABSOUT/usr/sbin:$ABSOUT/bin:$ABSOUT/sbin"
 # First install base files before anything else
 BASE_FILES="$(ls $OPENWRT_BIN/packages/base/base-files*.ipk | head -1)" # ls magic to get full name of package file
 opkg-trans -R "$ABSOUT" -a "$BASE_FILES"
