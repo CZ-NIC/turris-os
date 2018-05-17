@@ -248,6 +248,9 @@ CONFIG_PACKAGE_fswebcam=m
 CONFIG_PACKAGE_motion=m
 CONFIG_PACKAGE_ffmpeg=m
 
+# Tracking
+CONFIG_PACKAGE_ucollect-prog=n
+CONFIG_PACKAGE_ucollect-meta=n
 CONFIG_PACKAGE_haas-proxy=m
 
 # Pakoň
