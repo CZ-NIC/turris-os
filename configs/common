@@ -249,9 +249,20 @@ CONFIG_PACKAGE_motion=m
 CONFIG_PACKAGE_ffmpeg=m
 
 # Tracking
-CONFIG_PACKAGE_ucollect-prog=n
 CONFIG_PACKAGE_ucollect-meta=n
-CONFIG_PACKAGE_haas-proxy=m
+CONFIG_PACKAGE_ucollect-badconf=n
+CONFIG_PACKAGE_ucollect-bandwidth=n
+CONFIG_PACKAGE_ucollect-config=n
+CONFIG_PACKAGE_ucollect-count=n
+CONFIG_PACKAGE_ucollect-diffstore=n
+CONFIG_PACKAGE_ucollect-flow=n
+CONFIG_PACKAGE_ucollect-fwup=n
+CONFIG_PACKAGE_ucollect-lib=n
+CONFIG_PACKAGE_ucollect-prog=n
+CONFIG_PACKAGE_ucollect-refused=n
+CONFIG_PACKAGE_ucollect-sniff=n
+CONFIG_PACKAGE_ucollect-spoof=n
+
 
 # Pakoň
 CONFIG_PACKAGE_pakon-dev-detect=m
