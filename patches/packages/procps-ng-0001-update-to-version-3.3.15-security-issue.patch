@@ -1,0 +1,58 @@
+From 9095c6561265db574890de92de1c92e743f1e34c Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Mon, 21 May 2018 22:45:05 +0200
+Subject: [PATCH] procps-ng: update to version 3.3.15 (security issue)
+
+Issue https://gitlab.labs.nic.cz/turris/openwrt/issues/187
+---
+ utils/procps-ng/Makefile                 |  9 ++++++---
+ utils/procps-ng/patches/fix-define.patch | 11 +++++++++++
+ 2 files changed, 17 insertions(+), 3 deletions(-)
+ create mode 100644 utils/procps-ng/patches/fix-define.patch
+
+diff --git a/utils/procps-ng/Makefile b/utils/procps-ng/Makefile
+index a50ea81..a8214fe 100644
+--- a/utils/procps-ng/Makefile
++++ b/utils/procps-ng/Makefile
+@@ -8,15 +8,18 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=procps-ng
+-PKG_VERSION:=3.3.11
+-PKG_RELEASE:=2
++#PKG_VERSION:=3.3.11
++PKG_VERSION:=3.3.15
++PKG_RELEASE:=1
+ PKG_LICENSE:=GPL-2.0
+ PKG_LICENSE_FILES:=COPYING COPYING.LIB
+ 
+ PKG_SOURCE_PROTO:=git
+ PKG_SOURCE_URL:=https://gitlab.com/procps-ng/procps.git
+ PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
+-PKG_SOURCE_VERSION:=8a198e3eafbde0b627e9992b41d26e6762e4f8c7
++#PKG_SOURCE_VERSION:=8a198e3eafbde0b627e9992b41d26e6762e4f8c7
++PKG_SOURCE_VERSION:=7bb949bcba13c107fa0f45d2d0298b1ad6b6d6cc
++
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
+ 
+ PKG_BUILD_PARALLEL:=1
+diff --git a/utils/procps-ng/patches/fix-define.patch b/utils/procps-ng/patches/fix-define.patch
+new file mode 100644
+index 0000000..6c97354
+--- /dev/null
++++ b/utils/procps-ng/patches/fix-define.patch
+@@ -0,0 +1,11 @@
++--- a/procio.c
+++++ b/procio.c
++@@ -20,7 +20,7 @@
++  */
++
++ #ifndef _GNU_SOURCE
++-# define _GNU_SOURCE
+++#define _GNU_SOURCE
++ #endif
++ #include <errno.h>
++ #include <fcntl.h>
+-- 
+2.7.4
+
