@@ -1,3 +1,4 @@
+* nut: update to upstream state
 * curl: update to version 7.60.0 (security fix)
 * ddns-scripts: update to upstream version 2.7.7
 * wget: update to version 1.19.1
