@@ -78,3 +78,7 @@ CONFIG_PACKAGE_libgnutls=y
 
 # Other packages
 CONFIG_PACKAGE_sfpswitch=y
+
+CONFIG_PACKAGE_yara=y
+CONFIG_PACKAGE_ssdeep=y
+CONFIG_PACKAGE_hashdeep=y
