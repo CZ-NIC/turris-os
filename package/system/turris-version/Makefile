@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.10
+PKG_VERSION:=3.10.1
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,23 +28,17 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • různé aktualizace balíčků
- • foris: přidána možnost nastavovat času
- • pakon: webové rozhraní ve Forisu a lepší filtrování výsledků
- • updater: odstraněn zastaralý updater.sh, používejte pkgupdate přímo
- • foris: storage modul pro přesun často přepisovaných dat na externí úložiště
- • foris: modul pro zálohy do cloudu
- • foris: oprava noncrypto random csrf (díky Stephen Röttger)
- 
- Pokud dojde ke zničení interní eMMC flash z důvodu nadměrného zapisování, především kvůli provozu LXC kontejnerů bez externího úložiště, nemusí se na její opravu vztahovat záruka." " • various upstream packages updates
- • foris: posibility to change time settings outside of wizard
- • pakon: web ui in Foris and better results filtering
- • updater: droped obsolete updater.sh and friends, use pkgupdate directly
- • foris: plugin to move IO intensive data to external drive
- • foris: plugin for cloud backups
- • foris: fix noncrypto random csrf (thanks to Stephen Röttger)
- 
- Excessive writing to the internal flash disk (eMMC) wear it out and this can result in irreparable damage to your device, which doesn't have to be covered by warranty."
+create_notification -s news " • foris: podpora 6in4 a 6to4
+ • foris: mo6nost zvolit si protokol u VPN
+ • kernel: aktualizace a přidán UAS ovladač
+ • foris-pakon: různé opravy a vylepšní kompatibility
+ • odhcp6c: oprava chování po aktualizaci
+ • netmetr: oprava synchronizačního kédu" " • foris: support 6in4 and 6 to4
+ • foris: ability to set protocol in VPN
+ • kernel: update and UAS driver
+ • foris-pakon: bug and compatibility fixes
+ • odhcp6c: fix after update
+ • netmetr: fix synchronization code"
 }
 endef
 
