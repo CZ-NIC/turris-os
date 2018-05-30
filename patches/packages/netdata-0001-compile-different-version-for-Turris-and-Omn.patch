@@ -1,25 +1,23 @@
-From 763b2017c65ce0a100be65f5aeb310abd87e5f63 Mon Sep 17 00:00:00 2001
+From f7e04da21a3659ba68fed63d736e1564cc36a75e Mon Sep 17 00:00:00 2001
 From: Jan Pavlinec <jan.pavlinec@nic.cz>
-Date: Tue, 27 Mar 2018 10:45:12 +0200
+Date: Wed, 30 May 2018 09:05:16 +0200
 Subject: [PATCH] netdata: compile different version for Turris and Omnia
 
 ---
- admin/netdata/Makefile                             |  73 ++++++-
- admin/netdata/files/netdata.conf                   | 232 ++++++++++++++++++++-
- admin/netdata/files/netdata.conf_turris            |  16 ++
- admin/netdata/files/netdata.init                   |  22 +-
- admin/netdata/files/netdata.init_turris            |  11 +
- .../001-disable_external_plugins_by_default.patch  |  22 ++
- 6 files changed, 359 insertions(+), 17 deletions(-)
+ admin/netdata/Makefile                  |  80 +++++++-
+ admin/netdata/files/netdata.conf        | 232 +++++++++++++++++++++++-
+ admin/netdata/files/netdata.conf_turris |  16 ++
+ admin/netdata/files/netdata.init        |  22 ++-
+ admin/netdata/files/netdata.init_turris |  11 ++
+ 5 files changed, 344 insertions(+), 17 deletions(-)
  create mode 100644 admin/netdata/files/netdata.conf_turris
  create mode 100644 admin/netdata/files/netdata.init_turris
- create mode 100644 admin/netdata/patches/001-disable_external_plugins_by_default.patch
 
 diff --git a/admin/netdata/Makefile b/admin/netdata/Makefile
-index e88221e..557c988 100644
+index e88221e0..b070608e 100644
 --- a/admin/netdata/Makefile
 +++ b/admin/netdata/Makefile
-@@ -5,8 +5,74 @@
+@@ -5,8 +5,73 @@
  # See /LICENSE for more information.
  #
  
@@ -89,12 +87,11 @@ index e88221e..557c988 100644
 +	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/netdata $(1)/usr/sbin
 +endef
 +
-+$(eval $(call BuildPackage,netdata))
 +else
  PKG_NAME:=netdata
  PKG_VERSION:=20160508-devel
  PKG_RELEASE:=1
-@@ -28,7 +94,7 @@ include $(INCLUDE_DIR)/package.mk
+@@ -28,7 +93,7 @@ include $(INCLUDE_DIR)/package.mk
  define Package/netdata
    SECTION:=admin
    CATEGORY:=Administration
@@ -103,7 +100,7 @@ index e88221e..557c988 100644
    TITLE:=Real-time performance monitoring tool
    URL:=http://netdata.firehol.org/
  endef
-@@ -46,9 +112,9 @@ define Package/netdata/install
+@@ -46,9 +111,9 @@ define Package/netdata/install
  	$(INSTALL_DIR) $(1)/etc/netdata
  	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/netdata/apps_groups.conf $(1)/etc/netdata
  	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/netdata/charts.d.conf $(1)/etc/netdata
@@ -115,13 +112,22 @@ index e88221e..557c988 100644
  	$(INSTALL_DIR) $(1)/usr/sbin
  	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/netdata $(1)/usr/sbin/
  	$(INSTALL_DIR) $(1)/usr/share/netdata
-@@ -59,3 +125,4 @@ define Package/netdata/install
+@@ -58,4 +123,13 @@ define Package/netdata/install
+ 	chmod 4755 $(1)/usr/lib/netdata/plugins.d/apps.plugin
  endef
  
- $(eval $(call BuildPackage,netdata))
 +endif
++
++define disable_plugins
++	sed -i 's|# enable_all_charts="yes"|enable_all_charts="no"|' $(PKG_BUILD_DIR)/conf.d/charts.d.conf || :
++	sed -i 's|enabled: yes|enabled: no|' $(PKG_BUILD_DIR)/conf.d/python.d.conf || :
++endef
++
++Hooks/Prepare/Post += disable_plugins
++
+ $(eval $(call BuildPackage,netdata))
 diff --git a/admin/netdata/files/netdata.conf b/admin/netdata/files/netdata.conf
-index e1f0964..13418b5 100644
+index e1f09644..13418b55 100644
 --- a/admin/netdata/files/netdata.conf
 +++ b/admin/netdata/files/netdata.conf
 @@ -1,16 +1,232 @@
@@ -367,7 +373,7 @@ index e1f0964..13418b5 100644
 +	# NFS v4 procedures = yes
 diff --git a/admin/netdata/files/netdata.conf_turris b/admin/netdata/files/netdata.conf_turris
 new file mode 100644
-index 0000000..e1f0964
+index 00000000..e1f09644
 --- /dev/null
 +++ b/admin/netdata/files/netdata.conf_turris
 @@ -0,0 +1,16 @@
@@ -388,7 +394,7 @@ index 0000000..e1f0964
 +	node.d = no
 +	tc = no
 diff --git a/admin/netdata/files/netdata.init b/admin/netdata/files/netdata.init
-index 448e56d..d4be0a7 100644
+index 448e56d9..d4be0a7c 100644
 --- a/admin/netdata/files/netdata.init
 +++ b/admin/netdata/files/netdata.init
 @@ -1,11 +1,21 @@
@@ -421,7 +427,7 @@ index 448e56d..d4be0a7 100644
 +	}
 diff --git a/admin/netdata/files/netdata.init_turris b/admin/netdata/files/netdata.init_turris
 new file mode 100644
-index 0000000..448e56d
+index 00000000..448e56d9
 --- /dev/null
 +++ b/admin/netdata/files/netdata.init_turris
 @@ -0,0 +1,11 @@
@@ -436,34 +442,6 @@ index 0000000..448e56d
 +stop() {
 +	service_stop /usr/sbin/netdata
 +}
-diff --git a/admin/netdata/patches/001-disable_external_plugins_by_default.patch b/admin/netdata/patches/001-disable_external_plugins_by_default.patch
-new file mode 100644
-index 0000000..6297892
---- /dev/null
-+++ b/admin/netdata/patches/001-disable_external_plugins_by_default.patch
-@@ -0,0 +1,22 @@
-+--- a/conf.d/charts.d.conf
-++++ b/conf.d/charts.d.conf
-+@@ -30,7 +30,7 @@
-+ 
-+ # the default enable/disable for all charts.d collectors
-+ # the default is "yes"
-+-# enable_all_charts="yes"
-++enable_all_charts="no"
-+ 
-+ # BY DEFAULT ENABLED MODULES
-+ # ap=yes
-+--- a/conf.d/python.d.conf
-++++ b/conf.d/python.d.conf
-+@@ -7,7 +7,7 @@
-+ #
-+ 
-+ # Enable / disable the whole python.d.plugin (all its modules)
-+-enabled: yes
-++enabled: no
-+ 
-+ # Prevent log flood
-+ # Define how many log messages can be written to log file in one log_interval
 -- 
-2.7.4
+2.17.0
 
