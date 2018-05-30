@@ -29,11 +29,11 @@ define Package/turris-version/postinst
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • foris: podpora 6in4 a 6to4
- • foris: mo6nost zvolit si protokol u VPN
+ • foris: možnost zvolit si protokol u VPN
  • kernel: aktualizace a přidán UAS ovladač
  • foris-pakon: různé opravy a vylepšní kompatibility
  • odhcp6c: oprava chování po aktualizaci
- • netmetr: oprava synchronizačního kédu" " • foris: support 6in4 and 6 to4
+ • netmetr: oprava synchronizačního kódu" " • foris: support 6in4 and 6 to4
  • foris: ability to set protocol in VPN
  • kernel: update and UAS driver
  • foris-pakon: bug and compatibility fixes
