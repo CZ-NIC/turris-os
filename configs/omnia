@@ -84,3 +84,5 @@ CONFIG_PACKAGE_ssdeep=y
 CONFIG_PACKAGE_hashdeep=y
 
 CONFIG_PACKAGE_home-assistant=y
+CONFIG_PACKAGE_clamav=y
+
