@@ -1,0 +1,183 @@
+From 705f04147a54f547748a5da061e19ff11a5afb6f Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Mon, 4 Jun 2018 14:57:47 +0200
+Subject: [PATCH] clamav: update to version 0.100.0
+
+---
+ net/clamav/Makefile                  | 20 +++++++++++++-------
+ net/clamav/files/clamav.config       |  1 +
+ net/clamav/files/clamav.init         |  9 ++++++---
+ net/clamav/files/freshclam.config    |  1 +
+ net/clamav/files/freshclam.init      |  9 ++++++---
+ net/clamav/patches/001-compile.patch |  2 +-
+ 6 files changed, 28 insertions(+), 14 deletions(-)
+
+diff --git a/net/clamav/Makefile b/net/clamav/Makefile
+index 3f3edab..711425b 100644
+--- a/net/clamav/Makefile
++++ b/net/clamav/Makefile
+@@ -8,15 +8,16 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=clamav
+-PKG_VERSION:=0.98.7
++PKG_VERSION:=0.100.0
+ PKG_RELEASE:=1
+ 
+ PKG_LICENSE:=GPL-2.0
+-PKG_MAINTAINER:=Marko Ratkaj <marko.ratkaj@sartura.hr>
++PKG_MAINTAINER:=Marko Ratkaj <marko.ratkaj@sartura.hr> \
++		Lucian Cristian <lucian.cristian@gmail.com>
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+-PKG_SOURCE_URL:=http://sourceforge.net/projects/clamav/files/clamav/$(PKG_VERSION)/
+-PKG_MD5SUM:=157c601161da1c2d5a0e48ea1b49e067
++PKG_SOURCE_URL:=https://www.clamav.net/downloads/production/
++PKG_HASH:=c5c5edaf75a3c53ac0f271148fd6447310bce53f448ec7e6205124a25918f65c
+ 
+ PKG_BUILD_PARALLEL:=1
+ PKG_INSTALL:=1
+@@ -26,7 +27,7 @@ include $(INCLUDE_DIR)/package.mk
+ 
+ define Package/clamav/Default
+   SECTION:=net
+-  DEPENDS:=+libpthread +uclibcxx +zlib +libcurl +libopenssl
++  DEPENDS:=+libpthread +uclibcxx +zlib +libcurl +libjson-c +libopenssl +libltdl +libpcre2 +USE_MUSL:musl-fts +libxml2 +libpcre
+   CATEGORY:=Network
+   SUBMENU:=Web Servers/Proxies
+   TITLE:=ClamAV
+@@ -58,7 +59,7 @@ endef
+ CONFIGURE_VARS += \
+ 	INCLUDES="" \
+ 	CXXFLAGS="$$$$CXXFLAGS -fno-rtti" \
+-	LIBS="-lpthread" \
++	$(if $(CONFIG_USE_MUSL),LIBS="-lpthread -lfts",LIBS="-lpthread") \
+ 
+ define Build/Configure
+ 	$(call Build/Configure/Default, \
+@@ -67,9 +68,14 @@ define Build/Configure
+ 		--exec-prefix=/usr/ \
+ 		--disable-xml \
+ 		--disable-bzip2 \
+-		--enable-ltdl-install \
++		--disable-gcc-vcheck \
+ 		--with-user nobody \
+ 		--with-group nogroup \
++		--with-pcre="$(STAGING_DIR)/usr/" \
++		--with-openssl="$(STAGING_DIR)/usr/" \
++		--with-zlib="$(STAGING_DIR)/usr/" \
++		--disable-zlib-vcheck \
++		--disable-clamdtop \
+ 	)
+ endef
+ 
+diff --git a/net/clamav/files/clamav.config b/net/clamav/files/clamav.config
+index 1543caa..26d941e 100644
+--- a/net/clamav/files/clamav.config
++++ b/net/clamav/files/clamav.config
+@@ -32,3 +32,4 @@ config clamav 'clamav'
+ 	option LocalSocket '/var/run/clamav/clamd.sock'
+ 	option User 'nobody'
+ 	option ExitOnOOM 'yes'
++	option DatabaseDirectory '/usr/share/clamav'
+diff --git a/net/clamav/files/clamav.init b/net/clamav/files/clamav.init
+index b2a8950..a02468e 100644
+--- a/net/clamav/files/clamav.init
++++ b/net/clamav/files/clamav.init
+@@ -42,7 +42,8 @@ validate_clamav_section() {
+ 		'MaxFileSize:string' \
+ 		'LocalSocket:string' \
+ 		'User:string' \
+-		'ExitOnOOM:string'
++		'ExitOnOOM:string' \
++		'DatabaseDirectory:string'
+ }
+ 
+ start_service() {
+@@ -50,14 +51,15 @@ start_service() {
+ 		StreamMaxPort MaxThreads ReadTimeout CommandReadTimeout MaxDirectoryRecursion \
+ 		FollowFileSymlinks FollowDirectorySymlinks SelfCheck DetectPUA ScanPE DisableCertCheck \
+ 		ScanELF DetectBrokenExecutables ScanOLE2 ScanPDF ScanSWF ScanMail ScanPartialMessages \
+-		ScanArchive TemporaryDirectory ArchiveBlockEncrypted MaxFileSize LocalSocket User
++		ScanArchive TemporaryDirectory ArchiveBlockEncrypted MaxFileSize LocalSocket User \
++		DatabaseDirectory
+ 
+ 	validate_clamav_section clamav || {
+ 		echo "validation failed"
+ 		return 1
+ 	}
+ 
+-	mkdir -p /usr/share/clamav
++	mkdir -p $DatabaseDirectory
+ 	mkdir -p /etc/clamav/
+ 	mkdir -p /var/run/clamav/
+ 	chmod a+rw /var/run/clamav
+@@ -97,6 +99,7 @@ start_service() {
+ 	echo "LocalSocket " $LocalSocket >> $CLAMD_CONFIGFILE
+ 	echo "User " $User >> $CLAMD_CONFIGFILE
+ 	echo "ExitOnOOM " $ExitOnOOM >> $CLAMD_CONFIGFILE
++	echo "DatabaseDirectory " $DatabaseDirectory >> $CLAMD_CONFIGFILE
+ 
+ 	procd_open_instance
+ 	procd_set_param command $PROG -c $CLAMD_CONFIGFILE
+diff --git a/net/clamav/files/freshclam.config b/net/clamav/files/freshclam.config
+index 827e8dd..ccce09a 100644
+--- a/net/clamav/files/freshclam.config
++++ b/net/clamav/files/freshclam.config
+@@ -5,3 +5,4 @@ config freshclam 'freshclam'
+ 	option NotifyClamd '/etc/clamav/clamd.conf'
+ 	option DatabaseOwner 'root'
+ 	option CompressLocalDatabase 'yes'
++	option DatabaseDirectory '/usr/share/clamav'
+diff --git a/net/clamav/files/freshclam.init b/net/clamav/files/freshclam.init
+index 37b2767..9504b7f 100644
+--- a/net/clamav/files/freshclam.init
++++ b/net/clamav/files/freshclam.init
+@@ -15,11 +15,13 @@ validate_freshclam_section() {
+ 		'DatabaseMirror:string' \
+ 		'NotifyClamd:string' \
+ 		'DatabaseOwner:string' \
+-		'CompressLocalDatabase:string:'
++		'CompressLocalDatabase:string' \
++		'DatabaseDirectory:string:'
+ }
+ 
+ start_service() {
+-	local freshclam_config_file UpdateLogFile DatabaseOwner NotifyClamd DatabaseMirror
++	local freshclam_config_file UpdateLogFile DatabaseOwner NotifyClamd DatabaseMirror \
++	DatabaseDirectory
+ 
+ 	validate_freshclam_section freshclam || {
+ 		echo "validation failed"
+@@ -28,7 +30,7 @@ start_service() {
+ 
+ 	[ -f /tmp/freshclam.pid ] && echo "already running" && return 0
+ 
+-	mkdir -p /usr/share/clamav
++	mkdir -p $DatabaseDirectory
+ 	mkdir -p /etc/clamav
+ 	touch /tmp/freshclam.log
+ 	touch /tmp/freshclam.pid
+@@ -41,6 +43,7 @@ start_service() {
+ 	echo "NotifyClamd " $NotifyClamd >> $FRESHCLAM_CONFIGFILE
+ 	echo "DatabaseOwner " $DatabaseOwner >> $FRESHCLAM_CONFIGFILE
+ 	echo "CompressLocalDatabase " $CompressLocalDatabase >> $FRESHCLAM_CONFIGFILE
++	echo "DatabaseDirectory " $DatabaseDirectory >> $FRESHCLAM_CONFIGFILE
+ 
+ 	procd_open_instance
+ 	procd_set_param command $PROG -d --config-file=$FRESHCLAM_CONFIGFILE -p /tmp/freshclam.pid --no-warnings
+diff --git a/net/clamav/patches/001-compile.patch b/net/clamav/patches/001-compile.patch
+index 3992257..096d9cb 100644
+--- a/net/clamav/patches/001-compile.patch
++++ b/net/clamav/patches/001-compile.patch
+@@ -1,6 +1,6 @@
+ --- a/clamdscan/proto.c
+ +++ b/clamdscan/proto.c
+-@@ -55,6 +55,7 @@
++@@ -59,6 +59,7 @@
+  #include "shared/misc.h"
+  #include "shared/clamdcom.h"
+  
+-- 
+2.7.4
+
