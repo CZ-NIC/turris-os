@@ -8,7 +8,9 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=odhcp6c
-PKG_VERSION:=2017-09-05
+#PKG_VERSION:=2017-09-05
+PKG_SOURCE_DATE:=2018-04-29
+PKG_SOURCE_VERSION:=5316d7f8bdcd8dd29286e98404a4f4fd2456500f
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_RELEASE:=11
@@ -18,10 +20,13 @@ PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL=https://git.openwrt.org/project/odhcp6c.git
-PKG_SOURCE_VERSION:=1f93bd4c6d267813d1bbe803358499050c47bdeb
-PKG_MIRROR_HASH:=1642d23019671b1b3efd74cefb515a8d8e9e7ebc65a3e5c8c8289320428a5aae
+#PKG_SOURCE_VERSION:=1f93bd4c6d267813d1bbe803358499050c47bdeb
+#PKG_MIRROR_HASH:=1642d23019671b1b3efd74cefb515a8d8e9e7ebc65a3e5c8c8289320428a5aae
+PKG_MIRROR_HASH:=93acfd799c798da25b69e05e5926b1ada9a8213cdb70e1ccbd6027c2d27741ce
 PKG_MAINTAINER:=Hans Dedecker <dedeckeh@gmail.com>
 PKG_LICENSE:=GPL-2.0
+
+PKG_BUILD_DIR=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
@@ -38,7 +43,15 @@ define Package/odhcp6c
   CATEGORY:=Network
   TITLE:=Embedded DHCPv6-client for OpenWrt
   DEPENDS:=@IPV6 +libubox
-  PROVIDES:=dhcpv6-client
+  PROVIDES:=dhcpv6-server
+endef
+
+define Package/odhcp6c/postinst
+#!/bin/sh
+set -ex
+[ -n "$$IPKG_INSTROOT" ] || {
+killall -9 odhcp6c || true
+}
 endef
 
 define Package/odhcp6c/config
