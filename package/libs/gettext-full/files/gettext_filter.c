@@ -6,12 +6,24 @@
 int main(void) {
 	int c;
 	int translating = 0;
+	const char *txtdir = "/usr/share/locale/";
+	const char *txtdom = getenv("TEXTDOMAIN");
+	const char *tmp = NULL;
 	unsigned char last_c = 0;
 	char* buffer = NULL;
 	int buf_len = 0, i = 0;
 	setlocale(LC_ALL, "");
-	bindtextdomain(getenv("GETTEXT_DOMAIN"), "/usr/share/locale/");
-	textdomain(getenv("GETTEXT_DOMAIN"));
+	tmp = getenv("TEXTDOMAINDIR");
+	if(tmp != NULL) {
+		txtdir = tmp;
+	}
+	tmp = getenv("GETTEXT_DOMAIN");
+	if(tmp != NULL) {
+		txtdom = tmp;
+	}
+	
+	bindtextdomain(txtdom, txtdir);
+	textdomain(txtdom);
 	while((c=getchar()) != EOF) {
 		if(translating) {
 			if((c == ')') && (last_c != '\\') ) {
@@ -27,7 +39,7 @@ int main(void) {
 					buf_len = buf_len + 4094;
 					buffer = realloc(buffer, buf_len + 3);
 				}
-				if(c != '\\') {
+				if((c != '\\') || (last_c == '\\')) {
 					buffer[i] = c;
 					i++;
 				}
