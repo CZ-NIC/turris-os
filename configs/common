@@ -326,3 +326,25 @@ CONFIG_OPENSSL_WITH_SSL3=y
 
 # enable prosody
 CONFIG_PACKAGE_prosody=y
+
+#enable nut
+CONFIG_PACKAGE_nut=y
+CONFIG_PACKAGE_nut-common=y
+CONFIG_PACKAGE_nut-driver-bcmxcp_usb=y
+CONFIG_PACKAGE_nut-driver-blazer_usb=y
+CONFIG_PACKAGE_nut-driver-nutdrv_atcl_usb=y
+CONFIG_PACKAGE_nut-driver-nutdrv_qx=y
+CONFIG_PACKAGE_nut-driver-richcomm_usb=y
+CONFIG_PACKAGE_nut-driver-riello_usb=y
+CONFIG_PACKAGE_nut-driver-tripplite_usb=y
+CONFIG_PACKAGE_nut-driver-usbhid-ups=y
+CONFIG_PACKAGE_nut-server=y
+CONFIG_PACKAGE_nut-upsc=y
+CONFIG_PACKAGE_nut-upscmd=y
+CONFIG_PACKAGE_nut-upslog=y
+CONFIG_PACKAGE_nut-upsmon=y
+CONFIG_PACKAGE_nut-upsmon-sendmail-notify=m
+CONFIG_PACKAGE_nut-upsrw=y
+CONFIG_PACKAGE_nut-upssched=y
+CONFIG_PACKAGE_nut-web-cgi=y
+
