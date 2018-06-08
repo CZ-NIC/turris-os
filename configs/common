@@ -348,3 +348,6 @@ CONFIG_PACKAGE_nut-upsrw=y
 CONFIG_PACKAGE_nut-upssched=y
 CONFIG_PACKAGE_nut-web-cgi=y
 
+#enable memcached
+CONFIG_PACKAGE_memcached=y
+
