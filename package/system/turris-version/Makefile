@@ -28,17 +28,17 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • foris: podpora 6in4 a 6to4
- • foris: možnost zvolit si protokol u VPN
- • kernel: aktualizace a přidán UAS ovladač
- • foris-pakon: různé opravy a vylepšní kompatibility
- • odhcp6c: oprava chování po aktualizaci
- • netmetr: oprava synchronizačního kódu" " • foris: support 6in4 and 6 to4
- • foris: ability to set protocol in VPN
- • kernel: update and UAS driver
- • foris-pakon: bug and compatibility fixes
- • odhcp6c: fix after update
- • netmetr: fix synchronization code"
+create_notification -s news " • haas: oprava integrace do firewallu
+ • ucollect: robustnější start
+ • updater: oprava kolizí při upgrade ze starých verzí
+ • dvbsky: oprava kompilace ovladače
+ • nut: oprava aktualizace
+ • kernel, nextcloud: aktualizace" " • haas: fix firewall integration
+ • ucollect: more robust start
+ • updater: fix collisions when updating from old versions
+ • dvbsky: fix driver compilation
+ • nut: fix update
+ • kernel, nextcloud: update"
 }
 endef
 
