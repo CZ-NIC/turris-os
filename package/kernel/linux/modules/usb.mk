@@ -1058,7 +1058,7 @@ define KernelPackage/usb-storage-uas
   DEPENDS:=+kmod-usb-storage
   KCONFIG:=CONFIG_USB_UAS
   FILES:=$(LINUX_DIR)/drivers/usb/storage/uas.ko
-  AUTOLOAD:=$(call AutoProbe,uas)
+  AUTOLOAD:=$(call AutoLoad,30,uas,1)
 endef
 
 define KernelPackage/usb-storage-uas/description
