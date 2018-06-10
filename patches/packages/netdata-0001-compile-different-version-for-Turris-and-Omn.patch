@@ -32,7 +32,7 @@ index e88221e0..b070608e 100644
 +PKG_MAINTAINER:=
 +PKG_LICENSE:=GPL-3.0
 +PKG_LICENSE_FILES:=COPYING
-+PKG_BUILD_DEPENDS:=util-linux util-linux/host
++PKG_BUILD_DEPENDS:=libuuid util-linux miniupnpd
 +
 +PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 +PKG_SOURCE_URL:=https://github.com/firehol/netdata/releases/download/v$(PKG_VERSION)
