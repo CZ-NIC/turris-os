@@ -1,0 +1,57 @@
+diff --git a/main.c b/main.c
+index 1410fef..f2eaa5d 100644
+--- a/main.c
++++ b/main.c
+@@ -38,6 +38,7 @@ static enum fw3_family print_family = FW3_FAMILY_ANY;
+ static struct fw3_state *run_state = NULL;
+ static struct fw3_state *cfg_state = NULL;
+ 
++static char *uci_config_dir = "/etc/config/";
+ 
+ static bool
+ build_state(bool runtime)
+@@ -51,6 +52,7 @@ build_state(bool runtime)
+ 		error("Out of memory");
+ 
+ 	state->uci = uci_alloc_context();
++	uci_set_confdir(state->uci, uci_config_dir);
+ 
+ 	if (!state->uci)
+ 		error("Out of memory");
+@@ -508,11 +510,11 @@ lookup_zone(const char *zone, const char *device)
+ static int
+ usage(void)
+ {
+-	fprintf(stderr, "fw3 [-4] [-6] [-q] print\n");
+-	fprintf(stderr, "fw3 [-q] {start|stop|flush|reload|restart}\n");
+-	fprintf(stderr, "fw3 [-q] network {net}\n");
+-	fprintf(stderr, "fw3 [-q] device {dev}\n");
+-	fprintf(stderr, "fw3 [-q] zone {zone} [dev]\n");
++	fprintf(stderr, "fw3 [-u <uci_conf_dir>] [-4] [-6] [-q] print\n");
++	fprintf(stderr, "fw3 [-u <uci_conf_dir>] [-q] {start|stop|flush|reload|restart}\n");
++	fprintf(stderr, "fw3 [-u <uci_conf_dir>] [-q] network {net}\n");
++	fprintf(stderr, "fw3 [-u <uci_conf_dir>] [-q] device {dev}\n");
++	fprintf(stderr, "fw3 [-u <uci_conf_dir>] [-q] zone {zone} [dev]\n");
+ 
+ 	return 1;
+ }
+@@ -524,7 +526,7 @@ int main(int argc, char **argv)
+ 	enum fw3_family family = FW3_FAMILY_ANY;
+ 	struct fw3_defaults *defs = NULL;
+ 
+-	while ((ch = getopt(argc, argv, "46dqh")) != -1)
++	while ((ch = getopt(argc, argv, "46dqu:h")) != -1)
+ 	{
+ 		switch (ch)
+ 		{
+@@ -544,6 +546,10 @@ int main(int argc, char **argv)
+ 			if (freopen("/dev/null", "w", stderr)) {}
+ 			break;
+ 
++		case 'u':
++			uci_config_dir = optarg;
++			break;
++
+ 		case 'h':
+ 			rv = usage();
+ 			goto out;
