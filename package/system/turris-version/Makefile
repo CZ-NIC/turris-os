@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.10.1
+PKG_VERSION:=3.10.2
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
