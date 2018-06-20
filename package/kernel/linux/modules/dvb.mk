@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015 CZ.NIC, z. s. p. o. <https://www.nic.cz/>
+# Copyright (C) 2018 CZ.NIC, z. s. p. o. <https://www.nic.cz/>
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -372,7 +372,7 @@ define DvbStaging
 	CONFIG_DVB_MN88473=m \
 	$2
   DEPENDS:=+kmod-i2c-core +kmod-dvb-core +kmod-i2c-mux +kmod-regmap
-  FILES:=$(LINUX_DIR)/drivers/staging/media/mn88473/$1.ko
+  FILES:=$(LINUX_DIR)/drivers/staging/media/$1/$1.ko
   AUTOLOAD:=$(call AutoProbe,$1)
 endef
 
@@ -434,6 +434,18 @@ endef
 
 $(eval $(call KernelPackage,dvb-si2168))
 
+define KernelPackage/dvb-mn88472
+  TITLE:=Panasonic MN88472
+  $(call DvbStaging,mn88472,CONFIG_DVB_MN88472)
+  DEPENDS+=+kmod-i2c-mux
+endef
+
+define KernelPackage/dvb-mn88472/description
+  Panasonic MN88472
+endef
+
+$(eval $(call KernelPackage,dvb-mn88472))
+
 define KernelPackage/dvb-mn88473
   TITLE:=Panasonic MN88473
   $(call DvbStaging,mn88473,CONFIG_DVB_MN88473)
@@ -445,6 +457,7 @@ define KernelPackage/dvb-mn88473/description
 endef
 
 $(eval $(call KernelPackage,dvb-mn88473))
+
 
 define KernelPackage/dvb-m88ds3103
   TITLE:=Montage Technology M88DS3103
