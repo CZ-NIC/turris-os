@@ -125,7 +125,7 @@ package/network/services/hostapd 1 2
 package/network/services/openvpn 5 6
 package/network/services/samba36 4 5
 package/network/utils/xtables-addons 1 2
-package/system/opkg 13 14
+package/system/opkg 13 15
 package/utils/util-linux 4 5
 package/feeds/turrispackages/libnet-1.2.x 4 5
 package/feeds/turrispackages/suricata 1 2
