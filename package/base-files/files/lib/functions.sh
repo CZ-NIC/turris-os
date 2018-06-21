@@ -172,6 +172,9 @@ default_prerm() {
 		$i disable || :
 		$i stop || :
 	done
+	for i in `cat /usr/lib/opkg/info/${name}.list | grep "\.py$"`; do
+		rm -f "${i}"c
+	done
 }
 
 default_postinst() {
