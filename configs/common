@@ -18,6 +18,7 @@ CONFIG_BUSYBOX_CONFIG_NC_SERVER=y
 CONFIG_BUSYBOX_CONFIG_TIMEOUT=y
 CONFIG_VERSION_REPO="https://repo.turris.cz/@BOARD@@BRANCH@/packages/"
 CONFIG_VERSION_NICK="@BOARD@"
+CONFIG_SOCAT_SSL=y
 
 # Disable package signing for now (we don't preserve signing key)
 CONFIG_SIGNED_PACKAGES=n
