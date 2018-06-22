@@ -29,9 +29,9 @@ define Package/turris-version/postinst
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • nextcloud: aktualizace
- • pakon: drobné opravy
+ • pakon, storage: drobné opravy
  • kernel, unbound: aktualizace a drobné opravy" " • nextcloud: update
- • pakon: minor fixes
+ • pakon, storage: minor fixes
  • kernel, unbound: update and minor fixes"
 }
 endef
