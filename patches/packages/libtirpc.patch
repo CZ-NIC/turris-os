@@ -1,0 +1,346 @@
+From 8b963847bc6ba2076588f8144e67408058c4e619 Mon Sep 17 00:00:00 2001
+From: Michal Hrusecky <michal.hrusecky@nic.cz>
+Date: Fri, 22 Jun 2018 11:14:14 +0200
+Subject: [PATCH] libtirpc: Add libtirpc from latest upstream version
+
+---
+ libs/libtirpc/Makefile                        |  59 ++++++++
+ ...parts-of-TIRPC-requiring-NIS-support.patch |  48 ++++++
+ ...t-and-musl-does-not-install-rpcent.h.patch |  35 +++++
+ ...Disable-DES-authentification-support.patch | 142 ++++++++++++++++++
+ .../patches/04-musl-rpc-fix-types.h.patch     |  11 ++
+ 5 files changed, 295 insertions(+)
+ create mode 100644 libs/libtirpc/Makefile
+ create mode 100644 libs/libtirpc/patches/01-Disable-parts-of-TIRPC-requiring-NIS-support.patch
+ create mode 100644 libs/libtirpc/patches/02-uClibc-without-RPC-support-and-musl-does-not-install-rpcent.h.patch
+ create mode 100644 libs/libtirpc/patches/03-Disable-DES-authentification-support.patch
+ create mode 100644 libs/libtirpc/patches/04-musl-rpc-fix-types.h.patch
+
+diff --git a/libs/libtirpc/Makefile b/libs/libtirpc/Makefile
+new file mode 100644
+index 00000000..1e42b14f
+--- /dev/null
++++ b/libs/libtirpc/Makefile
+@@ -0,0 +1,59 @@
++# 
++# Copyright (C) 2006-2018 OpenWrt.org
++#
++# This is free software, licensed under the GNU General Public License v2.
++# See /LICENSE for more information.
++#
++
++include $(TOPDIR)/rules.mk
++
++PKG_NAME:=libtirpc
++PKG_VERSION:=1.0.3
++PKG_RELEASE:=1
++
++PKG_SOURCE_URL:=@SF/libtirpc
++PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
++PKG_MD5SUM:=86c3a78fc1bddefa96111dd233124c703b22a78884203c55c3e06b3be6a0fd5e
++
++PKG_MAINTAINER:=Andy Walsh <andy.walsh44+github@gmail.com>
++PKG_LICENSE:=BSD-3-Clause
++
++PKG_FIXUP:=autoreconf
++PKG_INSTALL:=1
++
++include $(INCLUDE_DIR)/package.mk
++
++define Package/libtirpc
++  SECTION:=libs
++  CATEGORY:=Libraries
++  TITLE:=Library TI RPC for RPC bindings
++  URL:=http://libtirpc.sourceforge.net/
++  DEPENDS:=+libpthread
++endef
++
++CONFIGURE_ARGS += --disable-gssapi
++# Info from Buildroot Makefile
++# getrpcby{number,name} are only provided if 'GQ' is defined
++TARGET_CFLAGS += -DGQ
++#CONFIGURE_VARS += \
++#	GSSGLUE_LIBS="-lkrb5 -lk5crypto -l:libcom_err.so.3 -lkeyutils -lresolv -gssapi_krb5" \
++#	GSSGLUE_CFLAGS=-I$(STAGING_DIR)/usr/include/krb5/
++
++#EXTRA_LDFLAGS := -lgssapi_krb5
++
++define Package/libtirpc/install
++	$(INSTALL_DIR) $(1)/usr/lib
++	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libtirpc.so* $(1)/usr/lib
++endef
++
++define Build/InstallDev
++	$(INSTALL_DIR) $(1)/usr/include
++	$(INSTALL_DIR) $(1)/usr/lib
++	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
++	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libtirpc.{a,so*} $(1)/usr/lib
++	$(CP) $(PKG_INSTALL_DIR)/usr/include/* $(1)/usr/include
++	$(SED) 's,/usr,${STAGING_DIR}/usr,g' $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libtirpc.pc
++	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libtirpc.pc $(1)/usr/lib/pkgconfig/libtirpc.pc
++endef
++
++$(eval $(call BuildPackage,libtirpc))
+diff --git a/libs/libtirpc/patches/01-Disable-parts-of-TIRPC-requiring-NIS-support.patch b/libs/libtirpc/patches/01-Disable-parts-of-TIRPC-requiring-NIS-support.patch
+new file mode 100644
+index 00000000..eb1bef3d
+--- /dev/null
++++ b/libs/libtirpc/patches/01-Disable-parts-of-TIRPC-requiring-NIS-support.patch
+@@ -0,0 +1,48 @@
++From 15adb318818f5d0ac609ef2b87643dd760487cb6 Mon Sep 17 00:00:00 2001
++From: =?UTF-8?q?J=C3=B6rg=20Krause?= <joerg.krause@embedded.rocks>
++Date: Mon, 20 Jul 2015 20:30:11 +0200
++Subject: [PATCH 1/1] Disable parts of TIRPC requiring NIS support
++MIME-Version: 1.0
++Content-Type: text/plain; charset=UTF-8
++Content-Transfer-Encoding: 8bit
++
++Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
++[yann.morin.1998@free.fr: update for 0.3.1]
++Signed-off-by: "Yann E. MORIN" <yann.morin.1998@free.fr>
++[joerg.krause@embedded.rocks: update for 0.3.2]
++Signed-off-by: Jörg Krause <joerg.krause@embedded.rocks>
++[peda@axentia.se: update for 1.0.1]
++Signed-off-by: Peter Rosin <peda@axentia.se>
++[bernd.kuhls@t-online.de: update for 1.0.2]
++Signed-off-by: Bernd Kuhls <bernd.kuhls@t-online.de>
++---
++ src/Makefile.am | 6 +++---
++ 1 file changed, 3 insertions(+), 3 deletions(-)
++
++diff --git a/src/Makefile.am b/src/Makefile.am
++index 6cc567a..9834f9a 100644
++--- a/src/Makefile.am
+++++ b/src/Makefile.am
++@@ -24,7 +24,7 @@ libtirpc_la_SOURCES = auth_none.c auth_unix.c authunix_prot.c bindresvport.c cln
++         rpcb_st_xdr.c svc.c svc_auth.c svc_dg.c svc_auth_unix.c svc_auth_none.c \
++ 	svc_auth_des.c \
++         svc_generic.c svc_raw.c svc_run.c svc_simple.c svc_vc.c getpeereid.c \
++-        auth_time.c auth_des.c authdes_prot.c debug.c des_crypt.c des_impl.c
+++        auth_des.c authdes_prot.c debug.c des_crypt.c des_impl.c
++ 
++ ## XDR
++ libtirpc_la_SOURCES += xdr.c xdr_rec.c xdr_array.c xdr_float.c xdr_mem.c xdr_reference.c xdr_stdio.c xdr_sizeof.c
++@@ -41,8 +41,8 @@ if GSS
++     libtirpc_la_CFLAGS = -DHAVE_RPCSEC_GSS $(GSSAPI_CFLAGS)
++ endif
++ 
++-libtirpc_la_SOURCES += key_call.c key_prot_xdr.c getpublickey.c
++-libtirpc_la_SOURCES += netname.c netnamer.c rpcdname.c rtime.c
+++#libtirpc_la_SOURCES += key_call.c key_prot_xdr.c getpublickey.c
+++#libtirpc_la_SOURCES += netname.c netnamer.c rpcdname.c rtime.c
++ 
++ CLEANFILES	       = cscope.* *~
++ DISTCLEANFILES	       = Makefile.in
++-- 
++2.4.6
++
+diff --git a/libs/libtirpc/patches/02-uClibc-without-RPC-support-and-musl-does-not-install-rpcent.h.patch b/libs/libtirpc/patches/02-uClibc-without-RPC-support-and-musl-does-not-install-rpcent.h.patch
+new file mode 100644
+index 00000000..51229a02
+--- /dev/null
++++ b/libs/libtirpc/patches/02-uClibc-without-RPC-support-and-musl-does-not-install-rpcent.h.patch
+@@ -0,0 +1,35 @@
++From 7aa1fe6a0f9280571117c30c03c2cc521cd86ec3 Mon Sep 17 00:00:00 2001
++From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
++Date: Sat, 23 Jun 2012 21:58:07 +0200
++Subject: [PATCH] uClibc without RPC support and musl does not install rpcent.h
++
++Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
++[yann.morin.1998@free.fr: update for 0.3.1]
++Signed-off-by: "Yann E. MORIN" <yann.morin.1998@free.fr>
++[joerg.krause@embedded.rocks: musl fix]
++Signed-off-by: Jörg Krause <joerg.krause@embedded.rocks>
++[bernd.kuhls@t-online.de: update for 1.0.2]
++Signed-off-by: Bernd Kuhls <bernd.kuhls@t-online.de>
++---
++ tirpc/rpc/rpcent.h | 5 +++--
++ 1 file changed, 3 insertions(+), 2 deletions(-)
++
++diff --git a/tirpc/rpc/rpcent.h b/tirpc/rpc/rpcent.h
++index 147f909..4a58180 100644
++--- a/tirpc/rpc/rpcent.h
+++++ b/tirpc/rpc/rpcent.h
++@@ -48,8 +48,9 @@
++ extern "C" {
++ #endif
++ 
++-/* These are defined in /usr/include/rpc/netdb.h */
++-#if !defined(__GLIBC__) || defined(__UCLIBC__)
+++/* These are defined in /usr/include/rpc/netdb.h, unless we are using
+++   the C library without RPC support. */
+++#if defined(__UCLIBC__) && !defined(__UCLIBC_HAS_RPC__) || !defined(__GLIBC__)
++ struct rpcent {
++ 	char	*r_name;	/* name of server for this rpc program */
++ 	char	**r_aliases;	/* alias list */
++-- 
++1.9.1
++
+diff --git a/libs/libtirpc/patches/03-Disable-DES-authentification-support.patch b/libs/libtirpc/patches/03-Disable-DES-authentification-support.patch
+new file mode 100644
+index 00000000..0c654724
+--- /dev/null
++++ b/libs/libtirpc/patches/03-Disable-DES-authentification-support.patch
+@@ -0,0 +1,142 @@
++From 79975eb4104667be85abd06874c258438826b674 Mon Sep 17 00:00:00 2001
++From: =?UTF-8?q?J=C3=B6rg=20Krause?= <joerg.krause@embedded.rocks>
++Date: Fri, 24 Jul 2015 14:45:52 +0200
++Subject: [PATCH] Disable DES authentification support
++MIME-Version: 1.0
++Content-Type: text/plain; charset=UTF-8
++Content-Transfer-Encoding: 8bit
++
++uClibc and musl does not provide DES authentication.
++
++Signed-off-by: Jörg Krause <joerg.krause@embedded.rocks>
++[peda@axentia.se: update for 1.0.1]
++Signed-off-by: Peter Rosin <peda@axentia.se>
++[bernd.kuhls@t-online.de: update for 1.0.2]
++Signed-off-by: Bernd Kuhls <bernd.kuhls@t-online.de>
++---
++ src/Makefile.am |  2 +-
++ src/rpc_soc.c   | 32 --------------------------------
++ 2 files changed, 1 insertion(+), 33 deletions(-)
++
++diff --git a/src/Makefile.am b/src/Makefile.am
++index 960a522..3a88e31 100644
++--- a/src/Makefile.am
+++++ b/src/Makefile.am
++@@ -22,9 +22,8 @@ libtirpc_la_SOURCES = auth_none.c auth_unix.c authunix_prot.c bindresvport.c cln
++         pmap_prot.c pmap_prot2.c pmap_rmt.c rpc_prot.c rpc_commondata.c \
++         rpc_callmsg.c rpc_generic.c rpc_soc.c rpcb_clnt.c rpcb_prot.c \
++         rpcb_st_xdr.c svc.c svc_auth.c svc_dg.c svc_auth_unix.c svc_auth_none.c \
++-	svc_auth_des.c \
++         svc_generic.c svc_raw.c svc_run.c svc_simple.c svc_vc.c getpeereid.c \
++-        auth_des.c authdes_prot.c debug.c des_crypt.c des_impl.c
+++        debug.c
++ 
++ ## XDR
++ libtirpc_la_SOURCES += xdr.c xdr_rec.c xdr_array.c xdr_float.c xdr_mem.c xdr_reference.c xdr_stdio.c xdr_sizeof.c
++diff --git a/src/svc_auth.c b/src/svc_auth.c
++--- a/src/svc_auth.c
+++++ b/src/svc_auth.c
++@@ -114,9 +114,6 @@ _gss_authenticate(rqst, msg, no_dispatch)
++ 	case AUTH_SHORT:
++ 		dummy = _svcauth_short(rqst, msg);
++ 		return (dummy);
++-	case AUTH_DES:
++-		dummy = _svcauth_des(rqst, msg);
++-		return (dummy);
++ #ifdef HAVE_RPCSEC_GSS
++ 	case RPCSEC_GSS:
++ 		dummy = _svcauth_gss(rqst, msg, no_dispatch);
++diff --git a/src/rpc_soc.c b/src/rpc_soc.c
++index e146ed4..161a1ec 100644
++--- a/src/rpc_soc.c
+++++ b/src/rpc_soc.c
++@@ -522,86 +521,6 @@ clnt_broadcast(prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
++ }
++ 
++ /*
++- * Create the client des authentication object. Obsoleted by
++- * authdes_seccreate().
++- */
++-AUTH *
++-authdes_create(servername, window, syncaddr, ckey)
++-	char *servername;		/* network name of server */
++-	u_int window;			/* time to live */
++-	struct sockaddr *syncaddr;	/* optional hostaddr to sync with */
++-	des_block *ckey;		/* optional conversation key to use */
++-{
++-	AUTH *nauth;
++-	char hostname[NI_MAXHOST];
++-
++-	if (syncaddr) {
++-		/*
++-		 * Change addr to hostname, because that is the way
++-		 * new interface takes it.
++-		 */
++-	        switch (syncaddr->sa_family) {
++-		case AF_INET:
++-		  if (getnameinfo(syncaddr, sizeof(struct sockaddr_in), hostname,
++-				  sizeof hostname, NULL, 0, 0) != 0)
++-		    goto fallback;
++-		  break;
++-		case AF_INET6:
++-		  if (getnameinfo(syncaddr, sizeof(struct sockaddr_in6), hostname,
++-				  sizeof hostname, NULL, 0, 0) != 0)
++-		    goto fallback;
++-		  break;
++-		default:
++-		  goto fallback;
++-		}
++-		nauth = authdes_seccreate(servername, window, hostname, ckey);
++-		return (nauth);
++-	}
++-fallback:
++-	return authdes_seccreate(servername, window, NULL, ckey);
++-}
++-
++-/*
++- * Create the client des authentication object. Obsoleted by
++- * authdes_pk_seccreate().
++- */
++-extern AUTH *authdes_pk_seccreate(const char *, netobj *, u_int, const char *,
++-        const des_block *, nis_server *);
++-
++-AUTH *
++-authdes_pk_create(servername, pkey, window, syncaddr, ckey)
++-	char *servername;		/* network name of server */
++-	netobj *pkey;			/* public key */
++-	u_int window;			/* time to live */
++-	struct sockaddr *syncaddr;	/* optional hostaddr to sync with */
++-	des_block *ckey;		/* optional conversation key to use */
++-{
++-	AUTH *nauth;
++-	char hostname[NI_MAXHOST];
++-
++-	if (syncaddr) {
++-		/*
++-		 * Change addr to hostname, because that is the way
++-		 * new interface takes it.
++-		 */
++-	        switch (syncaddr->sa_family) {
++-		case AF_INET:
++-		  if (getnameinfo(syncaddr, sizeof(struct sockaddr_in), hostname,
++-				  sizeof hostname, NULL, 0, 0) != 0)
++-		    goto fallback;
++-		  break;
++-		default:
++-		  goto fallback;
++-		}
++-		nauth = authdes_pk_seccreate(servername, pkey, window, hostname, ckey, NULL);
++-		return (nauth);
++-	}
++-fallback:
++-	return authdes_pk_seccreate(servername, pkey, window, NULL, ckey, NULL);
++-}
++-
++-
++-/*
++  * Create a client handle for a unix connection. Obsoleted by clnt_vc_create()
++  */
++ CLIENT *
++-- 
++2.4.6
++
+diff --git a/libs/libtirpc/patches/04-musl-rpc-fix-types.h.patch b/libs/libtirpc/patches/04-musl-rpc-fix-types.h.patch
+new file mode 100644
+index 00000000..b0616ead
+--- /dev/null
++++ b/libs/libtirpc/patches/04-musl-rpc-fix-types.h.patch
+@@ -0,0 +1,11 @@
++--- a/tirpc/rpc/types.h	2018-03-27
+++++ b/tirpc/rpc/types.h	2018-03-27
++@@ -66,7 +66,7 @@ typedef   int32_t rpc_inline_t;
++ #define mem_free(ptr, bsize)	free(ptr)
++ 
++ 
++-#if defined __APPLE_CC__ || defined __FreeBSD__
+++#if defined __APPLE_CC__ || defined __FreeBSD__ || defined(_GNU_SOURCE) || defined(_BSD_SOURCE)
++ # define __u_char_defined
++ # define __daddr_t_defined
++ #endif
+-- 
+2.17.1
+
