@@ -34,7 +34,7 @@ new file mode 100644
 index 00000000..8fc93e5a
 --- /dev/null
 +++ b/utils/domoticz/Makefile
-@@ -0,0 +1,133 @@
+@@ -0,0 +1,132 @@
 +#
 +# Copyright (C) 2016 - 2017  Stijn Tintel <stijn@linux-ipv6.be>
 +#
@@ -148,7 +148,6 @@ index 00000000..8fc93e5a
 +	$(INSTALL_BIN) ./files/domoticz.init $(1)/etc/init.d/domoticz
 +	$(INSTALL_CONF) ./files/domoticz.config $(1)/etc/config/domoticz
 +	$(INSTALL_DIR) $(1)/usr/share/domoticz $(1)/usr/bin
-+	$(CP) $(PKG_INSTALL_DIR)/usr/dzVents $(1)/usr/share/domoticz/dzVents
 +	$(CP) $(PKG_INSTALL_DIR)/usr/Config $(1)/usr/share/domoticz/Config
 +	$(CP) $(PKG_INSTALL_DIR)/usr/scripts $(1)/etc/domoticz/scripts
 +	ln -sf /var/lib/domoticz/dzVents/generated_scripts $(1)/etc/domoticz/scripts/dzVents
