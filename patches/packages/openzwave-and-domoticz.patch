@@ -34,7 +34,7 @@ new file mode 100644
 index 00000000..8fc93e5a
 --- /dev/null
 +++ b/utils/domoticz/Makefile
-@@ -0,0 +1,132 @@
+@@ -0,0 +1,134 @@
 +#
 +# Copyright (C) 2016 - 2017  Stijn Tintel <stijn@linux-ipv6.be>
 +#
@@ -90,6 +90,8 @@ index 00000000..8fc93e5a
 +	+libopenzwave \
 +	+libsqlite3 \
 +	+libstdcpp \
++	+libusb-1.0 \
++	+udev \
 +	+zlib
 +endef
 +
