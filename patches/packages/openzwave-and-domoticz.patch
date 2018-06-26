@@ -90,7 +90,7 @@ index 00000000..8fc93e5a
 +	+libopenzwave \
 +	+libsqlite3 \
 +	+libstdcpp \
-+	+libusb-1.0 \
++	+libusb-compat \
 +	+udev \
 +	+zlib
 +endef
