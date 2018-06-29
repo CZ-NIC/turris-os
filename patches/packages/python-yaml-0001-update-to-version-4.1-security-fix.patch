@@ -1,0 +1,45 @@
+From 6b762c6443035c0e9a293b927eaaee82b7e05f0e Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Thu, 28 Jun 2018 16:20:07 +0200
+Subject: [PATCH] python-yaml: update to version 4.1 (security fix)
+
+CVE-2017-18342 - https://nvd.nist.gov/vuln/detail/CVE-2017-18342
+
+Issue https://gitlab.labs.nic.cz/turris/openwrt/issues/198
+---
+ lang/python-yaml/Makefile | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/lang/python-yaml/Makefile b/lang/python-yaml/Makefile
+index 3af2f0e..9dbe01e 100644
+--- a/lang/python-yaml/Makefile
++++ b/lang/python-yaml/Makefile
+@@ -8,12 +8,12 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=PyYAML
+-PKG_VERSION:=3.11
++PKG_VERSION:=4.1
+ PKG_RELEASE:=1
+ 
+-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+-PKG_SOURCE_URL:=http://pyyaml.org/download/pyyaml/
+-PKG_MD5SUM:=f50e08ef0fe55178479d3a618efe21db
++PKG_SOURCE:=$(PKG_VERSION).tar.gz
++PKG_SOURCE_URL:=https://github.com/yaml/pyyaml/archive/
++PKG_MD5SUM:=049d79ccea9a6a7fac5ef7011d069a01b8314de920bc4e8d8c425e62e21b26f0
+ 
+ PKG_LICENSE:=MIT
+ PKG_LICENSE_FILES:=COPYING
+@@ -21,6 +21,8 @@ PKG_MAINTAINER:=Nicolas Thill <nico@openwrt.org>
+ 
+ PKG_BUILD_DEPENDS:=python
+ 
++PKG_BUILD_DIR:=$(BUILD_DIR)/pyyaml-$(PKG_VERSION)
++
+ include $(INCLUDE_DIR)/package.mk
+ $(call include_mk, python-package.mk)
+ 
+-- 
+2.7.4
+
