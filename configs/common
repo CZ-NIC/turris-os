@@ -327,4 +327,4 @@ CONFIG_OPENSSL_WITH_SSL3=y
 # Packages for building in branch dev-pepe
 CONFIG_PACKAGE_owfs=y
 CONFIG_PACKAGE_mwan3=y
-CONFIG_PACKAGE_dump1090=y
+CONFIG_PACKAGE_ipmitool=y
