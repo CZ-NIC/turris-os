@@ -1,0 +1,1470 @@
+From 3dedf09af12014a81025b0fc14f88e3317c53b13 Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Tue, 10 Jul 2018 17:29:37 +0200
+Subject: [PATCH] nginx: update to upstream version
+
+---
+ net/nginx/Config.in                                |  49 ++
+ net/nginx/Config_ssl.in                            | 226 +++++++++
+ net/nginx/Makefile                                 | 518 +++++++++++++++------
+ net/nginx/files-luci-support/60_nginx-luci-support |  26 ++
+ .../files-luci-support/70_nginx-luci-support-ssl   |  46 ++
+ net/nginx/files-luci-support/luci_nginx.conf       |  55 +++
+ net/nginx/files-luci-support/luci_nginx_ssl.conf   |  70 +++
+ net/nginx/files-luci-support/luci_uwsgi.conf       |  14 +
+ .../patches-lua-nginx/100-no_by_lua_block.patch    |  36 +-
+ net/nginx/patches/101-feature_test_fix.patch       |  18 +-
+ net/nginx/patches/102-sizeof_test_fix.patch        |   4 +-
+ net/nginx/patches/201-ignore-invalid-options.patch |  12 +
+ 12 files changed, 902 insertions(+), 172 deletions(-)
+ create mode 100644 net/nginx/Config_ssl.in
+ create mode 100644 net/nginx/files-luci-support/60_nginx-luci-support
+ create mode 100644 net/nginx/files-luci-support/70_nginx-luci-support-ssl
+ create mode 100644 net/nginx/files-luci-support/luci_nginx.conf
+ create mode 100644 net/nginx/files-luci-support/luci_nginx_ssl.conf
+ create mode 100644 net/nginx/files-luci-support/luci_uwsgi.conf
+ create mode 100644 net/nginx/patches/201-ignore-invalid-options.patch
+
+diff --git a/net/nginx/Config.in b/net/nginx/Config.in
+index bf6b834..32e6d24 100644
+--- a/net/nginx/Config.in
++++ b/net/nginx/Config.in
+@@ -66,6 +66,11 @@ config NGINX_HTTP_AUTH_BASIC
+ 	prompt "Enable HTTP auth basic"
+ 	default y
+ 
++config NGINX_HTTP_AUTH_REQUEST
++	bool
++	prompt "Enable HTTP auth request module"
++	default n
++
+ config NGINX_HTTP_AUTOINDEX
+ 	bool
+ 	prompt "Enable HTTP autoindex module"
+@@ -167,6 +172,11 @@ config NGINX_HTTP_CACHE
+ 	prompt "Enable HTTP cache"
+ 	default y
+ 
++config NGINX_HTTP_V2
++	bool
++	prompt "Enable HTTP_V2 module"
++	default n
++
+ config NGINX_PCRE
+ 	bool
+ 	prompt "Enable PCRE library usage"
+@@ -182,4 +192,43 @@ config NGINX_LUA
+ 	prompt "Enable Lua module"
+ 	default n
+ 
++config NGINX_HTTP_REAL_IP
++	bool
++	prompt "Enable HTTP real ip module"
++	default n
++
++config NGINX_HTTP_SECURE_LINK
++	bool
++	prompt "Enable HTTP secure link module"
++	default n
++	
++config NGINX_HEADERS_MORE
++	bool
++	prompt "Enable Headers_more module"
++	help
++		Set and clear input and output headers...more than "add"!
++	default y
++	
++config NGINX_HTTP_BROTLI
++	bool
++	prompt "Enable Brotli compression module"
++	help
++		Add support for brotli compression module.
++	default n
++
++config NGINX_RTMP_MODULE
++	bool
++	prompt "Enable RTMP module"
++	depends on NGINX_SSL
++	help
++		Add support for NGINX-based Media Streaming Server module.
++	default n
++
++config NGINX_TS_MODULE
++	bool
++	prompt "Enable TS module"
++	help
++		Add support for MPEG-TS Live Module module.
++	default n
++
+ endmenu
+diff --git a/net/nginx/Config_ssl.in b/net/nginx/Config_ssl.in
+new file mode 100644
+index 0000000..3b18dbb
+--- /dev/null
++++ b/net/nginx/Config_ssl.in
+@@ -0,0 +1,226 @@
++#
++# Copyright (C) 2010-2016 OpenWrt.org
++#
++# This is free software, licensed under the GNU General Public License v2.
++# See /LICENSE for more information.
++#
++
++menu "Configuration"
++        depends on PACKAGE_nginx-ssl
++
++config NGINX_DAV
++	bool
++	prompt "Enable WebDAV module"
++	help
++		Enable the HTTP and WebDAV methods PUT, DELETE, MKCOL, COPY and MOVE.
++	default n
++
++config NGINX_FLV
++	bool
++	prompt "Enable FLV module"
++	help
++		Provides the ability to seek within FLV (Flash) files using time-based offsets.
++	default n
++
++config NGINX_STUB_STATUS
++	bool
++	prompt "Enable stub status module"
++	help
++		Enable the stub status module which gives some status from the server.
++	default n
++
++config NGINX_HTTP_CHARSET
++	bool
++	prompt "Enable HTTP charset module"
++	default y
++
++config NGINX_HTTP_GZIP
++	bool
++	prompt "Enable HTTP gzip module"
++	default y
++
++config NGINX_HTTP_SSI
++	bool
++	prompt "Enable HTTP ssi module"
++	default y
++
++config NGINX_HTTP_USERID
++	bool
++	prompt "Enable HTTP userid module"
++	default y
++
++config NGINX_HTTP_ACCESS
++	bool
++	prompt "Enable HTTP access module"
++	default y
++
++config NGINX_HTTP_AUTH_BASIC
++	bool
++	prompt "Enable HTTP auth basic"
++	default y
++
++config NGINX_HTTP_AUTH_REQUEST
++	bool
++	prompt "Enable HTTP auth request module"
++	default n
++
++config NGINX_HTTP_AUTOINDEX
++	bool
++	prompt "Enable HTTP autoindex module"
++	default y
++
++config NGINX_HTTP_GEO
++	bool
++	prompt "Enable HTTP geo module"
++	default y
++
++config NGINX_HTTP_MAP
++	bool
++	prompt "Enable HTTP map module"
++	default y
++
++config NGINX_HTTP_SPLIT_CLIENTS
++	bool
++	prompt "Enable HTTP split clients"
++	default y
++
++config NGINX_HTTP_REFERER
++	bool
++	prompt "Enable HTTP referer module"
++	default y
++
++config NGINX_HTTP_REWRITE
++	bool
++	prompt "Enable HTTP rewrite module"
++	select NGINX_PCRE
++	default y
++
++config NGINX_HTTP_PROXY
++	bool
++	prompt "Enable HTTP proxy module"
++	default y
++
++config NGINX_HTTP_FASTCGI
++	bool
++	prompt "Enable HTTP fastcgi module"
++	default y
++
++config NGINX_HTTP_UWSGI
++	bool
++	prompt "Enable HTTP uwsgi module"
++	default y
++
++config NGINX_HTTP_SCGI
++	bool
++	prompt "Enable HTTP scgi module"
++	default y
++
++config NGINX_HTTP_MEMCACHED
++	bool
++	prompt "Enable HTTP memcached module"
++	default y
++
++config NGINX_HTTP_LIMIT_CONN
++	bool
++	prompt "Enable HTTP limit conn"
++	default y
++
++config NGINX_HTTP_LIMIT_REQ
++	bool
++	prompt "Enable HTTP limit req"
++	default y
++
++config NGINX_HTTP_EMPTY_GIF
++	bool
++	prompt "Enable HTTP empty gif"
++	default y
++
++config NGINX_HTTP_BROWSER
++	bool
++	prompt "Enable HTTP browser module"
++	default y
++
++config NGINX_HTTP_UPSTREAM_HASH
++	bool
++	prompt "Enable HTTP hash module"
++	default y
++
++config NGINX_HTTP_UPSTREAM_IP_HASH
++	bool
++	prompt "Enable HTTP IP hash module"
++	default y
++
++config NGINX_HTTP_UPSTREAM_LEAST_CONN
++	bool
++	prompt "Enable HTTP least conn module"
++	default y
++
++config NGINX_HTTP_UPSTREAM_KEEPALIVE
++	bool
++	prompt "Enable HTTP keepalive module"
++	default y
++
++config NGINX_HTTP_CACHE
++	bool
++	prompt "Enable HTTP cache"
++	default y
++
++config NGINX_HTTP_V2
++	bool
++	prompt "Enable HTTP_V2 module"
++	default n
++
++config NGINX_PCRE
++	bool
++	prompt "Enable PCRE library usage"
++	default y
++
++config NGINX_NAXSI
++	bool
++	prompt "Enable NAXSI module"
++	default y
++
++config NGINX_LUA
++	bool
++	prompt "Enable Lua module"
++	default n
++
++config NGINX_HTTP_REAL_IP
++	bool
++	prompt "Enable HTTP real ip module"
++	default n
++
++config NGINX_HTTP_SECURE_LINK
++	bool
++	prompt "Enable HTTP secure link module"
++	default n
++	
++config NGINX_HEADERS_MORE
++	bool
++	prompt "Enable Headers_more module"
++	help
++		Set and clear input and output headers...more than "add"!
++	default y
++	
++config NGINX_HTTP_BROTLI
++	bool
++	prompt "Enable Brotli compression module"
++	help
++		Add support for brotli compression module.
++	default n
++
++config NGINX_RTMP_MODULE
++	bool
++	prompt "Enable RTMP module"
++	help
++		Add support for NGINX-based Media Streaming Server module.
++	default n
++
++config NGINX_TS_MODULE
++	bool
++	prompt "Enable TS module"
++	help
++		Add support for MPEG-TS Live Module module.
++	default n
++
++endmenu
+diff --git a/net/nginx/Makefile b/net/nginx/Makefile
+index fa1e873..723adfa 100644
+--- a/net/nginx/Makefile
++++ b/net/nginx/Makefile
+@@ -8,17 +8,21 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=nginx
+-PKG_VERSION:=1.10.1
+-PKG_RELEASE:=2
++PKG_VERSION:=1.15.1
++PKG_RELEASE:=1
+ 
+ PKG_SOURCE:=nginx-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://nginx.org/download/
+-PKG_MD5SUM:=088292d9caf6059ef328aa7dda332e44
+-PKG_MAINTAINER:=Thomas Heil <heil@terminal-consulting.de>
++PKG_HASH:=c7206858d7f832b8ef73a45c9b8f8e436bcb1ee88db2bc85b8e438ecec9d5460
++
++PKG_MAINTAINER:=Thomas Heil <heil@terminal-consulting.de> \
++				Ansuel Smith <ansuelsmth@gmail.com>
+ PKG_LICENSE:=2-clause BSD-like license
+ 
+ PKG_BUILD_DIR:=$(BUILD_DIR)/nginx-$(PKG_VERSION)
++PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
+ 
++PKG_FIXUP:=autoreconf
+ PKG_BUILD_PARALLEL:=1
+ PKG_INSTALL:=1
+ 
+@@ -33,6 +37,7 @@ PKG_CONFIG_DEPENDS := \
+ 	CONFIG_NGINX_HTTP_USERID \
+ 	CONFIG_NGINX_HTTP_ACCESS \
+ 	CONFIG_NGINX_HTTP_AUTH_BASIC \
++	CONFIG_NGINX_HTTP_AUTH_REQUEST \
+ 	CONFIG_NGINX_HTTP_AUTOINDEX \
+ 	CONFIG_NGINX_HTTP_GEO \
+ 	CONFIG_NGINX_HTTP_MAP \
+@@ -54,152 +59,272 @@ PKG_CONFIG_DEPENDS := \
+ 	CONFIG_NGINX_HTTP_UPSTREAM_KEEPALIVE \
+ 	CONFIG_NGINX_HTTP_UPSTREAM_ZONE \
+ 	CONFIG_NGINX_HTTP_CACHE \
++	CONFIG_NGINX_HTTP_V2 \
+ 	CONFIG_NGINX_PCRE \
+ 	CONFIG_NGINX_NAXSI \
+-	CONFIG_NGINX_LUA
++	CONFIG_NGINX_LUA \
++	CONFIG_NGINX_HTTP_REAL_IP \
++	CONFIG_NGINX_HTTP_SECURE_LINK \
++	CONFIG_NGINX_HTTP_BROTLI \
++	CONFIG_NGINX_HEADERS_MORE \
++	CONFIG_NGINX_RTMP_MODULE \
++	CONFIG_NGINX_TS_MODULE \
+ 
+ include $(INCLUDE_DIR)/package.mk
+ 
+-define Package/nginx
++define Package/nginx/default
+   SECTION:=net
+   CATEGORY:=Network
+   SUBMENU:=Web Servers/Proxies
+   TITLE:=Nginx web server
+   URL:=http://nginx.org/
+-  DEPENDS:=+NGINX_PCRE:libpcre +(NGINX_SSL||NGINX_HTTP_CACHE||NGINX_HTTP_AUTH_BASIC):libopenssl +NGINX_HTTP_GZIP:zlib +NGINX_LUA:liblua +libpthread
+-  MENU:=1
++  DEPENDS:=+NGINX_PCRE:libpcre +(NGINX_SSL||NGINX_HTTP_CACHE||NGINX_HTTP_AUTH_BASIC):libopenssl \
++     +NGINX_HTTP_GZIP:zlib +NGINX_LUA:liblua +libpthread
+ endef
+ 
+ define Package/nginx/description
+- nginx is an HTTP and reverse proxy server, as well as a mail proxy server,
+- written by Igor Sysoev.
++ nginx is an HTTP and reverse proxy server, as well as a mail proxy server, \
++ written by Igor Sysoev. (Some module require SSL module enable to show up in \
++ config menu)
++endef
++
++define Package/nginx
++  $(Package/nginx/default)
++  VARIANT:=no-ssl
++endef
++
++define Package/nginx-ssl
++  $(Package/nginx/default)
++  TITLE += with SSL support
++  DEPENDS +=+libopenssl
++  VARIANT:=ssl
+ endef
+ 
++Package/nginx-ssl/description = $(Package/nginx/description) \
++  This varian is compiled with SSL support enabled. To enable additional module \
++  select them in the nginx default configuration menu.
++
++define Package/nginx-all-module
++  $(Package/nginx/default)
++  TITLE += with ALL module selected
++  DEPENDS:=+libpcre +libopenssl +zlib +liblua +libpthread
++  VARIANT:=all-module
++endef
++
++Package/nginx-all-module/description = $(Package/nginx/description) \
++  This varian is compiled with ALL module selected.
++
+ define Package/nginx/config
+   source "$(SOURCE)/Config.in"
+ endef
+ 
++define Package/nginx-ssl/config
++  source "$(SOURCE)/Config_ssl.in"
++endef
++
+ config_files=nginx.conf mime.types
+ 
+ define Package/nginx/conffiles
+ /etc/nginx/
+ endef
+ 
++Package/nginx-ssl/conffiles = $(Package/nginx/conffiles)
++Package/nginx-all-module/conffiles = $(Package/nginx/conffiles)
++
++
+ ADDITIONAL_MODULES:=
+-ifeq ($(CONFIG_NGINX_NAXSI),y)
+-  ADDITIONAL_MODULES += --add-module=$(PKG_BUILD_DIR)/nginx-naxsi/naxsi_src
+-endif
+-ifeq ($(CONFIG_NGINX_LUA),y)
+-  ADDITIONAL_MODULES += --add-module=$(PKG_BUILD_DIR)/lua-nginx
+-endif
+-ifeq ($(CONFIG_IPV6),y)
+-  ADDITIONAL_MODULES += --with-ipv6
+-endif
+-ifeq ($(CONFIG_NGINX_STUB_STATUS),y)
+-  ADDITIONAL_MODULES += --with-http_stub_status_module
+-endif
+-ifeq ($(CONFIG_NGINX_FLV),y)
+-  ADDITIONAL_MODULES += --with-http_flv_module
+-endif
+-ifeq ($(CONFIG_NGINX_SSL),y)
+-  ADDITIONAL_MODULES += --with-http_ssl_module
+-endif
+-ifeq ($(CONFIG_NGINX_DAV),y)
+-  ADDITIONAL_MODULES += --with-http_dav_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_CACHE),y)
+-  ADDITIONAL_MODULES += --without-http-cache
+-endif
+-ifneq ($(CONFIG_NGINX_PCRE),y)
+-  ADDITIONAL_MODULES += --without-pcre
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_CHARSET),y)
+-  ADDITIONAL_MODULES += --without-http_charset_module
+-else
+-  config_files += koi-utf koi-win win-utf
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_GZIP),y)
+-  ADDITIONAL_MODULES += --without-http_gzip_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_SSI),y)
+-  ADDITIONAL_MODULES += --without-http_ssi_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_USERID),y)
+-  ADDITIONAL_MODULES += --without-http_userid_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_ACCESS),y)
+-  ADDITIONAL_MODULES += --without-http_access_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_AUTH_BASIC),y)
+-  ADDITIONAL_MODULES += --without-http_auth_basic_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_AUTOINDEX),y)
+-  ADDITIONAL_MODULES += --without-http_autoindex_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_GEO),y)
+-  ADDITIONAL_MODULES += --without-http_geo_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_MAP),y)
+-  ADDITIONAL_MODULES += --without-http_map_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_SPLIT_CLIENTS),y)
+-  ADDITIONAL_MODULES += --without-http_split_clients_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_REFERER),y)
+-  ADDITIONAL_MODULES += --without-http_referer_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_REWRITE),y)
+-  ADDITIONAL_MODULES += --without-http_rewrite_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_PROXY),y)
+-  ADDITIONAL_MODULES += --without-http_proxy_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_FASTCGI),y)
+-  ADDITIONAL_MODULES += --without-http_fastcgi_module
++
++ifneq ($(BUILD_VARIANT),all-module)
++  ifneq ($(CONFIG_NGINX_HTTP_CACHE),y)
++    ADDITIONAL_MODULES += --without-http-cache
++  endif
++  ifneq ($(CONFIG_NGINX_PCRE),y)
++    ADDITIONAL_MODULES += --without-pcre
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_CHARSET),y)
++    ADDITIONAL_MODULES += --without-http_charset_module
++  else
++    config_files += koi-utf koi-win win-utf
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_GZIP),y)
++    ADDITIONAL_MODULES += --without-http_gzip_module
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_SSI),y)
++    ADDITIONAL_MODULES += --without-http_ssi_module
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_USERID),y)
++    ADDITIONAL_MODULES += --without-http_userid_module
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_ACCESS),y)
++    ADDITIONAL_MODULES += --without-http_access_module
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_AUTH_BASIC),y)
++    ADDITIONAL_MODULES += --without-http_auth_basic_module
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_AUTOINDEX),y)
++    ADDITIONAL_MODULES += --without-http_autoindex_module
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_GEO),y)
++    ADDITIONAL_MODULES += --without-http_geo_module
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_MAP),y)
++    ADDITIONAL_MODULES += --without-http_map_module
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_SPLIT_CLIENTS),y)
++    ADDITIONAL_MODULES += --without-http_split_clients_module
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_REFERER),y)
++    ADDITIONAL_MODULES += --without-http_referer_module
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_REWRITE),y)
++    ADDITIONAL_MODULES += --without-http_rewrite_module
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_PROXY),y)
++    ADDITIONAL_MODULES += --without-http_proxy_module
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_FASTCGI),y)
++    ADDITIONAL_MODULES += --without-http_fastcgi_module
++  else
++    config_files += fastcgi_params
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_UWSGI),y)
++    ADDITIONAL_MODULES += --without-http_uwsgi_module
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_SCGI),y)
++    ADDITIONAL_MODULES += --without-http_scgi_module
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_MEMCACHED),y)
++    ADDITIONAL_MODULES += --without-http_memcached_module
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_LIMIT_CONN),y)
++    ADDITIONAL_MODULES += --without-http_limit_conn_module
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_LIMIT_REQ),y)
++    ADDITIONAL_MODULES += --without-http_limit_req_module
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_EMPTY_GIF),y)
++    ADDITIONAL_MODULES += --without-http_empty_gif_module
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_BROWSER),y)
++    ADDITIONAL_MODULES += --without-http_browser_module
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_UPSTREAM_HASH),y)
++    ADDITIONAL_MODULES += --without-http_upstream_hash_module
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_UPSTREAM_IP_HASH),y)
++    ADDITIONAL_MODULES += --without-http_upstream_ip_hash_module
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_UPSTREAM_LEAST_CONN),y)
++    ADDITIONAL_MODULES += --without-http_upstream_least_conn_module
++  endif
++  ifneq ($(CONFIG_NGINX_HTTP_UPSTREAM_KEEPALIVE),y)
++    ADDITIONAL_MODULES += --without-http_upstream_keepalive_module
++  endif
++  
++  ifeq ($(BUILD_VARIANT),ssl)
++    ifneq ($(CONFIG_NGINX_SSL),y)
++      ADDITIONAL_MODULES += --with-http_ssl_module
++    endif
++  endif
++  
++  ifeq ($(CONFIG_NGINX_SSL),y)
++    ADDITIONAL_MODULES += --with-http_ssl_module
++  endif
++  ifeq ($(CONFIG_NGINX_NAXSI),y)
++    ADDITIONAL_MODULES += --add-module=$(PKG_BUILD_DIR)/nginx-naxsi/naxsi_src
++  endif
++  ifeq ($(CONFIG_NGINX_LUA),y)
++    ADDITIONAL_MODULES += --add-module=$(PKG_BUILD_DIR)/lua-nginx
++  endif
++  ifeq ($(CONFIG_IPV6),y)
++    ADDITIONAL_MODULES += --with-ipv6
++  endif
++  ifeq ($(CONFIG_NGINX_STUB_STATUS),y)
++    ADDITIONAL_MODULES += --with-http_stub_status_module
++  endif
++  ifeq ($(CONFIG_NGINX_FLV),y)
++    ADDITIONAL_MODULES += --with-http_flv_module
++  endif
++  ifeq ($(CONFIG_NGINX_DAV),y)
++    ADDITIONAL_MODULES += --with-http_dav_module
++  endif
++  ifeq ($(CONFIG_NGINX_HTTP_AUTH_REQUEST),y)
++    ADDITIONAL_MODULES += --with-http_auth_request_module
++  endif
++  ifeq ($(CONFIG_NGINX_HTTP_V2),y)
++    ADDITIONAL_MODULES += --with-http_v2_module
++  endif
++  ifeq ($(CONFIG_NGINX_HTTP_REAL_IP),y)
++    ADDITIONAL_MODULES += --with-http_realip_module
++  endif
++  ifeq ($(CONFIG_NGINX_HTTP_SECURE_LINK),y)
++    ADDITIONAL_MODULES += --with-http_secure_link_module
++  endif
++  ifeq ($(CONFIG_NGINX_HEADERS_MORE),y)
++    ADDITIONAL_MODULES += --add-module=$(PKG_BUILD_DIR)/nginx-headers-more
++  endif
++  ifeq ($(CONFIG_NGINX_HTTP_BROTLI),y)
++    ADDITIONAL_MODULES += --add-module=$(PKG_BUILD_DIR)/nginx-brotli
++  endif
++  ifeq ($(CONFIG_NGINX_RTMP_MODULE),y)
++    ADDITIONAL_MODULES += --add-module=$(PKG_BUILD_DIR)/nginx-rtmp
++  endif
++  ifeq ($(CONFIG_NGINX_TS_MODULE),y)
++    ADDITIONAL_MODULES += --add-module=$(PKG_BUILD_DIR)/nginx-ts
++  endif
+ else
+-  config_files += fastcgi_params
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_UWSGI),y)
+-  ADDITIONAL_MODULES += --without-http_uwsgi_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_SCGI),y)
+-  ADDITIONAL_MODULES += --without-http_scgi_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_MEMCACHED),y)
+-  ADDITIONAL_MODULES += --without-http_memcached_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_LIMIT_CONN),y)
+-  ADDITIONAL_MODULES += --without-http_limit_conn_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_LIMIT_REQ),y)
+-  ADDITIONAL_MODULES += --without-http_limit_req_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_EMPTY_GIF),y)
+-  ADDITIONAL_MODULES += --without-http_empty_gif_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_BROWSER),y)
+-  ADDITIONAL_MODULES += --without-http_browser_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_UPSTREAM_HASH),y)
+-  ADDITIONAL_MODULES += --without-http_upstream_hash_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_UPSTREAM_IP_HASH),y)
+-  ADDITIONAL_MODULES += --without-http_upstream_ip_hash_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_UPSTREAM_LEAST_CONN),y)
+-  ADDITIONAL_MODULES += --without-http_upstream_least_conn_module
+-endif
+-ifneq ($(CONFIG_NGINX_HTTP_UPSTREAM_KEEPALIVE),y)
+-  ADDITIONAL_MODULES += --without-http_upstream_keepalive_module
++  CONFIG_NGINX_HEADERS_MORE:=y
++  CONFIG_NGINX_HTTP_BROTLI:=y
++  CONFIG_NGINX_RTMP_MODULE:=y
++  CONFIG_NGINX_TS_MODULE:=y
++  CONFIG_NGINX_NAXSI:=y
++  CONFIG_NGINX_LUA:=y
++  ADDITIONAL_MODULES += --with-http_ssl_module --add-module=$(PKG_BUILD_DIR)/nginx-naxsi/naxsi_src \
++    --add-module=$(PKG_BUILD_DIR)/lua-nginx --with-ipv6 --with-http_stub_status_module --with-http_flv_module \
++	--with-http_dav_module --with-http_auth_request_module --with-http_v2_module --with-http_realip_module \
++	--with-http_secure_link_module --add-module=$(PKG_BUILD_DIR)/nginx-headers-more \
++	--add-module=$(PKG_BUILD_DIR)/nginx-brotli --add-module=$(PKG_BUILD_DIR)/nginx-rtmp \
++	--add-module=$(PKG_BUILD_DIR)/nginx-ts
++  config_files += koi-utf koi-win win-utf fastcgi_params 
+ endif
+ 
++define Package/nginx-mod-luci/default
++  TITLE:=Nginx on LuCI
++  SECTION:=net
++  CATEGORY:=Network
++  SUBMENU:=Web Servers/Proxies
++  TITLE:=Support file for Nginx
++  URL:=http://nginx.org/
++  DEPENDS:=+uwsgi-cgi +uwsgi-cgi-luci-support
++endef
++
++define Package/nginx-mod-luci
++  $(Package/nginx-mod-luci/default)
++  DEPENDS += +nginx
++endef
++
++define Package/nginx-mod-luci/description
++ Support file for LuCI in nginx. Include custom nginx configuration, autostart script for uwsgi.
++endef
++
++define Package/nginx-mod-luci-ssl
++  $(Package/nginx-mod-luci/default)
++  TITLE += with HTTPS support
++  DEPENDS += +nginx-ssl
++endef
++
++Package/nginx-mod-luci-ssl/description = $(define Package/nginx-mod-luci/description) \
++  This also include redirect from http to https and cert autogeneration.
++
+ TARGET_CFLAGS += -fvisibility=hidden -ffunction-sections -fdata-sections -DNGX_LUA_NO_BY_LUA_BLOCK
+ TARGET_LDFLAGS += -Wl,--gc-sections
+ 
+-define Build/Configure
+-	( cd $(PKG_BUILD_DIR) ; \
+-		$(if $(CONFIG_NGINX_LUA),LUA_INC=$(STAGING_DIR)/usr/include LUA_LIB=$(STAGING_DIR)/usr/lib) \
+-		./configure \
++ifeq ($(CONFIG_NGINX_LUA),y)
++  CONFIGURE_VARS += LUA_INC=$(STAGING_DIR)/usr/include \
++					LUA_LIB=$(STAGING_DIR)/usr/lib
++endif
++
++CONFIGURE_ARGS += \
+ 			--crossbuild=Linux::$(ARCH) \
+ 			--prefix=/usr \
+ 			--conf-path=/etc/nginx/nginx.conf \
+@@ -214,8 +339,22 @@ define Build/Configure
+ 			--with-cc="$(TARGET_CC)" \
+ 			--with-cc-opt="$(TARGET_CPPFLAGS) $(TARGET_CFLAGS)" \
+ 			--with-ld-opt="$(TARGET_LDFLAGS)" \
+-			--without-http_upstream_zone_module \
+-	)
++			--without-http_upstream_zone_module
++
++define Package/nginx-mod-luci/install
++	$(INSTALL_DIR) $(1)/etc/nginx
++	$(INSTALL_BIN) ./files-luci-support/luci_uwsgi.conf $(1)/etc/nginx/luci_uwsgi.conf
++	$(INSTALL_BIN) ./files-luci-support/luci_nginx.conf $(1)/etc/nginx/luci_nginx.conf
++	$(INSTALL_DIR) $(1)/etc/uci-defaults
++	$(INSTALL_BIN) ./files-luci-support/60_nginx-luci-support $(1)/etc/uci-defaults/60_nginx-luci-support
++endef
++
++define Package/nginx-mod-luci-ssl/install
++	$(Package/nginx-mod-luci/install)
++	$(INSTALL_DIR) $(1)/etc/nginx
++	$(INSTALL_BIN) ./files-luci-support/luci_nginx_ssl.conf $(1)/etc/nginx/luci_nginx_ssl.conf
++	$(INSTALL_DIR) $(1)/etc/uci-defaults
++	$(INSTALL_BIN) ./files-luci-support/70_nginx-luci-support-ssl $(1)/etc/uci-defaults/70_nginx-luci-support-ssl
+ endef
+ 
+ define Package/nginx/install
+@@ -234,37 +373,130 @@ endif
+ 	$(if $(CONFIG_NGINX_NAXSI),$(chmod 0640 $(1)/etc/nginx/naxsi_core.rules))
+ endef
+ 
++Package/nginx-ssl/install = $(Package/nginx/install)
++Package/nginx-all-module/install = $(Package/nginx/install)
++
+ define Build/Prepare
+-	$(call Build/Prepare/Default)
+-	$(if $(CONFIG_NGINX_NAXSI),$(call Prepare/nginx-naxsi))
+-	$(if $(CONFIG_NGINX_LUA),$(call Prepare/lua-nginx))
++	$(Build/Prepare/Default)
++	$(Prepare/nginx-naxsi)
++	$(Prepare/lua-nginx)
++	$(Prepare/nginx-brotli)
++	$(Prepare/nginx-headers-more)
++	$(Prepare/nginx-rtmp)
++	$(Prepare/nginx-ts)
+ endef
+ 
+-define Download/nginx-naxsi
+-	VERSION:=7a6ff365f6be736c826b2d69b967a250ac07197d
+-	SUBDIR:=nginx-naxsi
+-	FILE:=nginx-naxsi-module-$(PKG_VERSION)-$$(VERSION).tar.gz
+-	URL:=https://github.com/nbs-system/naxsi.git
+-	PROTO:=git
+-endef
+ 
+-define  Prepare/nginx-naxsi
+-	$(eval $(call Download,nginx-naxsi))
++ifeq ($(CONFIG_NGINX_HEADERS_MORE),y)
++  define Download/nginx-headers-more
++    VERSION:=a9f7c7e86cc7441d04e2f11f01c2e3a9c4b0301d
++    SUBDIR:=nginx-headers-more
++    FILE:=headers-more-nginx-module-$(PKG_VERSION)-$$(VERSION).tar.gz
++    URL:=https://github.com/openresty/headers-more-nginx-module.git
++    MIRROR_HASH:=432609015719aaa7241e5166c7cda427acbe004f725887f78ef629d51bd9cb3f
++    PROTO:=git
++  endef
++  $(eval $(call Download,nginx-headers-more))
++
++  define Prepare/nginx-headers-more
++	$(eval $(Download/nginx-headers-more))
+ 	gzip -dc $(DL_DIR)/$(FILE) | tar -C $(PKG_BUILD_DIR) $(TAR_OPTIONS)
+-endef
++  endef
++endif
+ 
+-define Download/lua-nginx
+-	VERSION:=1967998b0eedab1ff51bff8fafa5fc3db47976aa
+-	SUBDIR:=lua-nginx
+-	FILE:=lua-nginx-module-$(PKG_VERSION)-$$(VERSION).tar.gz
+-	URL:=https://github.com/openresty/lua-nginx-module.git
+-	PROTO:=git
+-endef
+ 
+-define  Prepare/lua-nginx
+-	$(eval $(call Download,lua-nginx))
++ifeq ($(CONFIG_NGINX_HTTP_BROTLI),y)
++  define Download/nginx-brotli
++    VERSION:=e26248ee361c04e25f581b92b85d95681bdffb39
++    SUBDIR:=nginx-brotli
++    FILE:=ngx-brotli-module-$(PKG_VERSION)-$$(VERSION).tar.gz
++    URL:=https://github.com/eustas/ngx_brotli.git
++    MIRROR_HASH:=76b891ba49f82f0cfbc9cba875646e26ee986b522373e0aa2698a9923a4adcdb
++    PROTO:=git
++  endef
++  $(eval $(call Download,nginx-brotli))
++
++  define Prepare/nginx-brotli
++	$(eval $(Download/nginx-brotli))
++	gzip -dc $(DL_DIR)/$(FILE) | tar -C $(PKG_BUILD_DIR) $(TAR_OPTIONS)
++  endef
++endif
++
++
++ifeq ($(CONFIG_NGINX_RTMP_MODULE),y)
++  define Download/nginx-rtmp
++    VERSION:=791b6136f02bc9613daf178723ac09f4df5a3bbf
++    SUBDIR:=nginx-rtmp
++    FILE:=ngx-rtmp-module-$(PKG_VERSION)-$$(VERSION).tar.gz
++    URL:=https://github.com/arut/nginx-rtmp-module.git
++    MIRROR_HASH:=8db3f7b545ce98f47415e0436e12dfb55ae787afd3cd9515b5642c7b9dc0ef00
++    PROTO:=git
++  endef
++  $(eval $(call Download,nginx-rtmp))
++
++  define  Prepare/nginx-rtmp
++	$(eval $(call Download,nginx-rtmp))
++	gzip -dc $(DL_DIR)/$(FILE) | tar -C $(PKG_BUILD_DIR) $(TAR_OPTIONS)
++  endef
++endif
++
++
++ifeq ($(CONFIG_NGINX_TS_MODULE),y)
++  define Download/nginx-ts
++    VERSION:=ef2f874d95cc75747eb625a292524a702aefb0fd
++    SUBDIR:=nginx-ts
++    FILE:=ngx-ts-module-$(PKG_VERSION)-$$(VERSION).tar.gz
++    URL:=https://github.com/arut/nginx-ts-module.git
++    MIRROR_HASH:=31ecc9968b928886b54884138eafe2fa747648bca5094d4c3132e8ae9509d1d3
++    PROTO:=git
++  endef
++  $(eval $(call Download,nginx-ts))
++
++  define  Prepare/nginx-ts
++	$(eval $(call Download,nginx-ts))
++	gzip -dc $(DL_DIR)/$(FILE) | tar -C $(PKG_BUILD_DIR) $(TAR_OPTIONS)
++  endef
++endif
++
++
++ifeq ($(CONFIG_NGINX_NAXSI),y)
++  define Download/nginx-naxsi
++    VERSION:=951123ad456bdf5ac94e8d8819342fe3d49bc002
++    SUBDIR:=nginx-naxsi
++    FILE:=nginx-naxsi-module-$(PKG_VERSION)-$$(VERSION).tar.gz
++    URL:=https://github.com/nbs-system/naxsi.git
++    MIRROR_HASH:=7ab791f2ff38096f48013141bbfe20ba213d5e04dcac08ca82e0cac07d5c30f0
++    PROTO:=git
++  endef
++  $(eval $(call Download,nginx-naxsi))
++
++  define Prepare/nginx-naxsi
++	$(eval $(Download/nginx-naxsi))
++	gzip -dc $(DL_DIR)/$(FILE) | tar -C $(PKG_BUILD_DIR) $(TAR_OPTIONS)
++  endef
++endif
++
++
++ifeq ($(CONFIG_NGINX_LUA),y)
++  define Download/lua-nginx
++    VERSION:=576a10d246daf81c0ce1b959c50ee807769c01a8
++    SUBDIR:=lua-nginx
++    FILE:=lua-nginx-module-$(PKG_VERSION)-$$(VERSION).tar.gz
++    URL:=https://github.com/openresty/lua-nginx-module.git
++    MIRROR_HASH:=85ab2fc752d4e09f266209fdec507b30c57bb966c34bbff148cf3459ae5cac80
++    PROTO:=git
++  endef
++  $(eval $(call Download,lua-nginx))
++
++  define Prepare/lua-nginx
++	$(eval $(Download/lua-nginx))
+ 	gzip -dc $(DL_DIR)/$(FILE) | tar -C $(PKG_BUILD_DIR) $(TAR_OPTIONS)
+ 	$(call PatchDir,$(PKG_BUILD_DIR),./patches-lua-nginx)
+-endef
++  endef
++endif
+ 
+ $(eval $(call BuildPackage,nginx))
++$(eval $(call BuildPackage,nginx-ssl))
++$(eval $(call BuildPackage,nginx-all-module))
++$(eval $(call BuildPackage,nginx-mod-luci))
++$(eval $(call BuildPackage,nginx-mod-luci-ssl))
+diff --git a/net/nginx/files-luci-support/60_nginx-luci-support b/net/nginx/files-luci-support/60_nginx-luci-support
+new file mode 100644
+index 0000000..38a8aa8
+--- /dev/null
++++ b/net/nginx/files-luci-support/60_nginx-luci-support
+@@ -0,0 +1,26 @@
++#!/bin/sh
++
++if [ -f "/etc/nginx/luci_nginx.conf" ] && [ -f "/etc/nginx/nginx.conf" ]; then
++	if [ ! "$(cat '/etc/nginx/nginx.conf' | grep -q 'luci_uwsgi.conf')" ]; then
++		mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf_old
++		mv /etc/nginx/luci_nginx.conf /etc/nginx/nginx.conf
++		core_number=$(grep -c ^processor /proc/cpuinfo)
++		sed -i "3s/.*/worker_processes  "$core_number";/" /etc/nginx/nginx.conf
++		if [ -n "$(pgrep uhttpd)" ]; then
++			/etc/init.d/uhttpd stop
++			/etc/init.d/uhttpd disable
++		fi
++		if [ -n "$(pgrep nginx)" ]; then
++			/etc/init.d/nginx restart
++		else
++			/etc/init.d/nginx start
++		fi
++		if [ -n "$(pgrep uwsgi)" ]; then
++			/etc/init.d/uwsgi restart
++		else
++			/etc/init.d/uwsgi start
++		fi
++	fi
++fi
++
++exit 0
+diff --git a/net/nginx/files-luci-support/70_nginx-luci-support-ssl b/net/nginx/files-luci-support/70_nginx-luci-support-ssl
+new file mode 100644
+index 0000000..1cc1a85
+--- /dev/null
++++ b/net/nginx/files-luci-support/70_nginx-luci-support-ssl
+@@ -0,0 +1,46 @@
++#!/bin/sh
++
++
++if [ -f "/etc/nginx/luci_nginx_ssl.conf" ] && [ -f "/etc/nginx/nginx.conf" ]; then
++	if [ ! "$(cat '/etc/nginx/nginx.conf' | grep -q 'return 301 https://$host$request_uri;')" ]; then
++		if [ -f "/etc/nginx/nginx.conf_old" ]; then
++			rm /etc/nginx/nginx.conf
++		else
++			mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf_old
++		fi
++		mv /etc/nginx/luci_nginx_ssl.conf /etc/nginx/nginx.conf
++		core_number=$(grep -c ^processor /proc/cpuinfo)
++		sed -i "3s/.*/worker_processes  "$core_number";/" /etc/nginx/nginx.conf
++		if [ -n "$(pgrep nginx)" ]; then
++			/etc/init.d/nginx restart
++		else
++			/etc/init.d/nginx start
++		fi
++	fi
++fi
++
++
++if [ ! -f "/etc/nginx/nginx.key" ]; then
++	
++	NGINX_KEY=/etc/nginx/nginx.key
++	NGINX_CER=/etc/nginx/nginx.cer
++	OPENSSL_BIN=/usr/bin/openssl
++	PX5G_BIN=/usr/sbin/px5g
++	
++	# Prefer px5g for certificate generation (existence evaluated last)
++	GENKEY_CMD=""
++	UNIQUEID=$(dd if=/dev/urandom bs=1 count=4 | hexdump -e '1/1 "%02x"')
++	[ -x "$OPENSSL_BIN" ] && GENKEY_CMD="$OPENSSL_BIN req -x509 -nodes"
++	[ -x "$PX5G_BIN" ] && GENKEY_CMD="$PX5G_BIN selfsigned"
++	[ -n "$GENKEY_CMD" ] && {
++		$GENKEY_CMD \
++			-days 730 -newkey rsa:2048 -keyout "${NGINX_KEY}.new" -out "${NGINX_CER}.new" \
++			-subj /C="ZZ"/ST="Somewhere"/L="Unknown"/O="OpenWrt""$UNIQUEID"/CN="OpenWrt"
++		sync
++		mv "${NGINX_KEY}.new" "${NGINX_KEY}"
++		mv "${NGINX_CER}.new" "${NGINX_CER}"
++	}
++fi
++
++
++exit 0
+diff --git a/net/nginx/files-luci-support/luci_nginx.conf b/net/nginx/files-luci-support/luci_nginx.conf
+new file mode 100644
+index 0000000..78f916b
+--- /dev/null
++++ b/net/nginx/files-luci-support/luci_nginx.conf
+@@ -0,0 +1,55 @@
++
++user  root;
++worker_processes  1;
++
++#error_log  logs/error.log;
++#error_log  logs/error.log  notice;
++#error_log  logs/error.log  info;
++
++pid        /var/run/nginx.pid;
++
++
++events {
++    worker_connections  1024;
++}
++
++
++http {
++    include       mime.types;
++    default_type  application/octet-stream;
++
++	sendfile on;
++    keepalive_timeout 0;
++	
++	client_body_buffer_size 10K;
++	client_header_buffer_size 1k;
++	client_max_body_size 1G;
++	large_client_header_buffers 2 1k;
++
++    gzip on;
++    gzip_http_version 1.1;
++    gzip_vary on;
++    gzip_comp_level 1;
++    gzip_proxied any;
++	
++	root /www;
++
++    server {
++        listen 80 default_server;
++		listen [::]:80 default_server;
++        server_name  localhost;
++		
++		location ~* .(jpg|jpeg|png|gif|ico|css|js)$ {
++			expires 365d;
++		}
++
++        location / {
++            index  index.html;
++			include luci_uwsgi.conf;
++        }
++		
++		location /luci-static {
++			
++		}
++    }
++}
+\ No newline at end of file
+diff --git a/net/nginx/files-luci-support/luci_nginx_ssl.conf b/net/nginx/files-luci-support/luci_nginx_ssl.conf
+new file mode 100644
+index 0000000..4647fec
+--- /dev/null
++++ b/net/nginx/files-luci-support/luci_nginx_ssl.conf
+@@ -0,0 +1,70 @@
++
++user  root;
++worker_processes  1;
++
++#error_log  logs/error.log;
++#error_log  logs/error.log  notice;
++#error_log  logs/error.log  info;
++
++pid        /var/run/nginx.pid;
++
++
++events {
++    worker_connections  1024;
++}
++
++
++http {
++    include       mime.types;
++    default_type  application/octet-stream;
++
++	sendfile on;
++    keepalive_timeout 0;
++	
++	client_body_buffer_size 10K;
++	client_header_buffer_size 1k;
++	client_max_body_size 1G;
++	large_client_header_buffers 2 1k;
++
++    gzip on;
++    gzip_http_version 1.1;
++    gzip_vary on;
++    gzip_comp_level 1;
++    gzip_proxied any;
++	
++	root /www;
++	
++	server {
++		listen 80 default_server;
++		listen [::]:80 default_server;
++		server_name _;
++		return 301 https://$host$request_uri;
++	}
++
++    server {
++        listen 443 ssl default_server;
++		listen [::]:443 ssl default_server;
++        server_name  localhost;
++		
++		ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
++        ssl_prefer_server_ciphers on;
++		ssl_ciphers "EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA+SHA384:EECDH+ECDSA+SHA256:EECDH+aRSA+SHA384:EECDH+aRSA+SHA256:EECDH:DHE+AESGCM:DHE:!RSA!aNULL:!eNULL:!LOW:!RC4:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS:!CAMELLIA:!SEED";
++        ssl_session_tickets off;
++
++		ssl_certificate /etc/nginx/nginx.cer;
++        ssl_certificate_key /etc/nginx/nginx.key;
++		
++		location ~* .(jpg|jpeg|png|gif|ico|css|js)$ {
++			expires 365d;
++		}
++
++        location / {
++            index  index.html;
++			include luci_uwsgi.conf;
++        }
++		
++		location /luci-static {
++			
++		}
++    }
++}
+\ No newline at end of file
+diff --git a/net/nginx/files-luci-support/luci_uwsgi.conf b/net/nginx/files-luci-support/luci_uwsgi.conf
+new file mode 100644
+index 0000000..eec66f4
+--- /dev/null
++++ b/net/nginx/files-luci-support/luci_uwsgi.conf
+@@ -0,0 +1,14 @@
++uwsgi_param QUERY_STRING $query_string;
++uwsgi_param REQUEST_METHOD $request_method;
++uwsgi_param CONTENT_TYPE $content_type;
++uwsgi_param CONTENT_LENGTH $content_length if_not_empty;
++uwsgi_param REQUEST_URI $request_uri;
++uwsgi_param PATH_INFO $document_uri;
++uwsgi_param SERVER_PROTOCOL $server_protocol;
++uwsgi_param REMOTE_ADDR $remote_addr;
++uwsgi_param REMOTE_PORT $remote_port;
++uwsgi_param SERVER_ADDR $server_addr;
++uwsgi_param SERVER_PORT $server_port;
++uwsgi_param SERVER_NAME $server_name;
++uwsgi_modifier1 9;
++uwsgi_pass unix:////var/run/uwsgi.sock;
+\ No newline at end of file
+diff --git a/net/nginx/patches-lua-nginx/100-no_by_lua_block.patch b/net/nginx/patches-lua-nginx/100-no_by_lua_block.patch
+index fef983f..968e12d 100644
+--- a/net/nginx/patches-lua-nginx/100-no_by_lua_block.patch
++++ b/net/nginx/patches-lua-nginx/100-no_by_lua_block.patch
+@@ -1,6 +1,6 @@
+ --- a/lua-nginx/src/ngx_http_lua_module.c
+ +++ b/lua-nginx/src/ngx_http_lua_module.c
+-@@ -157,14 +157,14 @@ static ngx_command_t ngx_http_lua_cmds[]
++@@ -165,14 +165,14 @@ static ngx_command_t ngx_http_lua_cmds[]
+        NGX_HTTP_LOC_CONF_OFFSET,
+        offsetof(ngx_http_lua_loc_conf_t, log_socket_errors),
+        NULL },
+@@ -17,7 +17,7 @@
+      { ngx_string("init_by_lua"),
+        NGX_HTTP_MAIN_CONF|NGX_CONF_TAKE1,
+        ngx_http_lua_init_by_lua,
+-@@ -178,14 +178,14 @@ static ngx_command_t ngx_http_lua_cmds[]
++@@ -186,14 +186,14 @@ static ngx_command_t ngx_http_lua_cmds[]
+        NGX_HTTP_MAIN_CONF_OFFSET,
+        0,
+        (void *) ngx_http_lua_init_by_file },
+@@ -34,7 +34,7 @@
+      { ngx_string("init_worker_by_lua"),
+        NGX_HTTP_MAIN_CONF|NGX_CONF_TAKE1,
+        ngx_http_lua_init_worker_by_lua,
+-@@ -201,6 +201,7 @@ static ngx_command_t ngx_http_lua_cmds[]
++@@ -209,6 +209,7 @@ static ngx_command_t ngx_http_lua_cmds[]
+        (void *) ngx_http_lua_init_worker_by_file },
+  
+  #if defined(NDK) && NDK
+@@ -42,7 +42,7 @@
+      /* set_by_lua $res { inline Lua code } [$arg1 [$arg2 [...]]] */
+      { ngx_string("set_by_lua_block"),
+        NGX_HTTP_SRV_CONF|NGX_HTTP_SIF_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
+-@@ -209,7 +210,7 @@ static ngx_command_t ngx_http_lua_cmds[]
++@@ -217,7 +218,7 @@ static ngx_command_t ngx_http_lua_cmds[]
+        NGX_HTTP_LOC_CONF_OFFSET,
+        0,
+        (void *) ngx_http_lua_filter_set_by_lua_inline },
+@@ -51,7 +51,7 @@
+      /* set_by_lua $res <inline script> [$arg1 [$arg2 [...]]] */
+      { ngx_string("set_by_lua"),
+        NGX_HTTP_SRV_CONF|NGX_HTTP_SIF_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
+-@@ -237,7 +238,7 @@ static ngx_command_t ngx_http_lua_cmds[]
++@@ -245,7 +246,7 @@ static ngx_command_t ngx_http_lua_cmds[]
+        NGX_HTTP_LOC_CONF_OFFSET,
+        0,
+        (void *) ngx_http_lua_rewrite_handler_inline },
+@@ -60,7 +60,7 @@
+      /* rewrite_by_lua_block { <inline script> } */
+      { ngx_string("rewrite_by_lua_block"),
+        NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
+-@@ -246,7 +247,7 @@ static ngx_command_t ngx_http_lua_cmds[]
++@@ -254,7 +255,7 @@ static ngx_command_t ngx_http_lua_cmds[]
+        NGX_HTTP_LOC_CONF_OFFSET,
+        0,
+        (void *) ngx_http_lua_rewrite_handler_inline },
+@@ -69,7 +69,7 @@
+      /* access_by_lua "<inline script>" */
+      { ngx_string("access_by_lua"),
+        NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
+-@@ -255,7 +256,7 @@ static ngx_command_t ngx_http_lua_cmds[]
++@@ -263,7 +264,7 @@ static ngx_command_t ngx_http_lua_cmds[]
+        NGX_HTTP_LOC_CONF_OFFSET,
+        0,
+        (void *) ngx_http_lua_access_handler_inline },
+@@ -78,7 +78,7 @@
+      /* access_by_lua_block { <inline script> } */
+      { ngx_string("access_by_lua_block"),
+        NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
+-@@ -264,7 +265,7 @@ static ngx_command_t ngx_http_lua_cmds[]
++@@ -272,7 +273,7 @@ static ngx_command_t ngx_http_lua_cmds[]
+        NGX_HTTP_LOC_CONF_OFFSET,
+        0,
+        (void *) ngx_http_lua_access_handler_inline },
+@@ -87,7 +87,7 @@
+      /* content_by_lua "<inline script>" */
+      { ngx_string("content_by_lua"),
+        NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF|NGX_CONF_TAKE1,
+-@@ -272,7 +273,7 @@ static ngx_command_t ngx_http_lua_cmds[]
++@@ -280,7 +281,7 @@ static ngx_command_t ngx_http_lua_cmds[]
+        NGX_HTTP_LOC_CONF_OFFSET,
+        0,
+        (void *) ngx_http_lua_content_handler_inline },
+@@ -96,7 +96,7 @@
+      /* content_by_lua_block { <inline script> } */
+      { ngx_string("content_by_lua_block"),
+        NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF|NGX_CONF_BLOCK|NGX_CONF_NOARGS,
+-@@ -280,7 +281,7 @@ static ngx_command_t ngx_http_lua_cmds[]
++@@ -288,7 +289,7 @@ static ngx_command_t ngx_http_lua_cmds[]
+        NGX_HTTP_LOC_CONF_OFFSET,
+        0,
+        (void *) ngx_http_lua_content_handler_inline },
+@@ -105,7 +105,7 @@
+      /* log_by_lua <inline script> */
+      { ngx_string("log_by_lua"),
+        NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
+-@@ -289,7 +290,7 @@ static ngx_command_t ngx_http_lua_cmds[]
++@@ -297,7 +298,7 @@ static ngx_command_t ngx_http_lua_cmds[]
+        NGX_HTTP_LOC_CONF_OFFSET,
+        0,
+        (void *) ngx_http_lua_log_handler_inline },
+@@ -114,7 +114,7 @@
+      /* log_by_lua_block { <inline script> } */
+      { ngx_string("log_by_lua_block"),
+        NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
+-@@ -298,7 +299,7 @@ static ngx_command_t ngx_http_lua_cmds[]
++@@ -306,7 +307,7 @@ static ngx_command_t ngx_http_lua_cmds[]
+        NGX_HTTP_LOC_CONF_OFFSET,
+        0,
+        (void *) ngx_http_lua_log_handler_inline },
+@@ -123,7 +123,7 @@
+      { ngx_string("rewrite_by_lua_file"),
+        NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
+                          |NGX_CONF_TAKE1,
+-@@ -353,7 +354,7 @@ static ngx_command_t ngx_http_lua_cmds[]
++@@ -361,7 +362,7 @@ static ngx_command_t ngx_http_lua_cmds[]
+        NGX_HTTP_LOC_CONF_OFFSET,
+        0,
+        (void *) ngx_http_lua_header_filter_inline },
+@@ -132,7 +132,7 @@
+      /* header_filter_by_lua_block { <inline script> } */
+      { ngx_string("header_filter_by_lua_block"),
+        NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
+-@@ -362,7 +363,7 @@ static ngx_command_t ngx_http_lua_cmds[]
++@@ -370,7 +371,7 @@ static ngx_command_t ngx_http_lua_cmds[]
+        NGX_HTTP_LOC_CONF_OFFSET,
+        0,
+        (void *) ngx_http_lua_header_filter_inline },
+@@ -141,7 +141,7 @@
+      { ngx_string("header_filter_by_lua_file"),
+        NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
+                          |NGX_CONF_TAKE1,
+-@@ -378,7 +379,7 @@ static ngx_command_t ngx_http_lua_cmds[]
++@@ -386,7 +387,7 @@ static ngx_command_t ngx_http_lua_cmds[]
+        NGX_HTTP_LOC_CONF_OFFSET,
+        0,
+        (void *) ngx_http_lua_body_filter_inline },
+@@ -150,7 +150,7 @@
+      /* body_filter_by_lua_block { <inline script> } */
+      { ngx_string("body_filter_by_lua_block"),
+        NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
+-@@ -387,7 +388,7 @@ static ngx_command_t ngx_http_lua_cmds[]
++@@ -395,7 +396,7 @@ static ngx_command_t ngx_http_lua_cmds[]
+        NGX_HTTP_LOC_CONF_OFFSET,
+        0,
+        (void *) ngx_http_lua_body_filter_inline },
+@@ -159,7 +159,7 @@
+      { ngx_string("body_filter_by_lua_file"),
+        NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
+                          |NGX_CONF_TAKE1,
+-@@ -395,14 +396,14 @@ static ngx_command_t ngx_http_lua_cmds[]
++@@ -403,14 +404,14 @@ static ngx_command_t ngx_http_lua_cmds[]
+        NGX_HTTP_LOC_CONF_OFFSET,
+        0,
+        (void *) ngx_http_lua_body_filter_file },
+@@ -176,7 +176,7 @@
+      { ngx_string("balancer_by_lua_file"),
+        NGX_HTTP_UPS_CONF|NGX_CONF_TAKE1,
+        ngx_http_lua_balancer_by_lua,
+-@@ -509,14 +510,14 @@ static ngx_command_t ngx_http_lua_cmds[]
++@@ -517,14 +518,14 @@ static ngx_command_t ngx_http_lua_cmds[]
+        NGX_HTTP_LOC_CONF_OFFSET,
+        offsetof(ngx_http_lua_loc_conf_t, ssl_ciphers),
+        NULL },
+diff --git a/net/nginx/patches/101-feature_test_fix.patch b/net/nginx/patches/101-feature_test_fix.patch
+index 2c692bc..930e7da 100644
+--- a/net/nginx/patches/101-feature_test_fix.patch
++++ b/net/nginx/patches/101-feature_test_fix.patch
+@@ -11,7 +11,7 @@
+      ngx_feature_libs=
+ --- a/auto/cc/conf
+ +++ b/auto/cc/conf
+-@@ -200,7 +200,7 @@ if [ "$NGX_PLATFORM" != win32 ]; then
++@@ -204,7 +204,7 @@ if [ "$NGX_PLATFORM" != win32 ]; then
+      else
+          ngx_feature="C99 variadic macros"
+          ngx_feature_name="NGX_HAVE_C99_VARIADIC_MACROS"
+@@ -20,7 +20,7 @@
+          ngx_feature_incs="#include <stdio.h>
+  #define var(dummy, ...)  sprintf(__VA_ARGS__)"
+          ngx_feature_path=
+-@@ -214,7 +214,7 @@ if [ "$NGX_PLATFORM" != win32 ]; then
++@@ -218,7 +218,7 @@ if [ "$NGX_PLATFORM" != win32 ]; then
+  
+      ngx_feature="gcc variadic macros"
+      ngx_feature_name="NGX_HAVE_GCC_VARIADIC_MACROS"
+@@ -40,7 +40,7 @@
+  ngx_feature_incs="#include <sys/epoll.h>"
+  ngx_feature_path=
+  ngx_feature_libs=
+-@@ -93,7 +93,7 @@ ngx_feature_test="int fd; struct stat sb
++@@ -110,7 +110,7 @@ ngx_feature_test="int fd; struct stat sb
+  CC_AUX_FLAGS="$cc_aux_flags -D_GNU_SOURCE"
+  ngx_feature="sendfile()"
+  ngx_feature_name="NGX_HAVE_SENDFILE"
+@@ -49,7 +49,7 @@
+  ngx_feature_incs="#include <sys/sendfile.h>
+                    #include <errno.h>"
+  ngx_feature_path=
+-@@ -114,7 +114,7 @@ fi
++@@ -131,7 +131,7 @@ fi
+  CC_AUX_FLAGS="$cc_aux_flags -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64"
+  ngx_feature="sendfile64()"
+  ngx_feature_name="NGX_HAVE_SENDFILE64"
+@@ -58,7 +58,7 @@
+  ngx_feature_incs="#include <sys/sendfile.h>
+                    #include <errno.h>"
+  ngx_feature_path=
+-@@ -132,7 +132,7 @@ ngx_include="sys/prctl.h"; . auto/includ
++@@ -149,7 +149,7 @@ ngx_include="sys/prctl.h"; . auto/includ
+  
+  ngx_feature="prctl(PR_SET_DUMPABLE)"
+  ngx_feature_name="NGX_HAVE_PR_SET_DUMPABLE"
+@@ -69,7 +69,7 @@
+  ngx_feature_libs=
+ --- a/auto/unix
+ +++ b/auto/unix
+-@@ -735,7 +735,7 @@ ngx_feature_test="void *p; p = memalign(
++@@ -840,7 +840,7 @@ ngx_feature_test="void *p; p = memalign(
+  
+  ngx_feature="mmap(MAP_ANON|MAP_SHARED)"
+  ngx_feature_name="NGX_HAVE_MAP_ANON"
+@@ -78,7 +78,7 @@
+  ngx_feature_incs="#include <sys/mman.h>"
+  ngx_feature_path=
+  ngx_feature_libs=
+-@@ -748,7 +748,7 @@ ngx_feature_test="void *p;
++@@ -853,7 +853,7 @@ ngx_feature_test="void *p;
+  
+  ngx_feature='mmap("/dev/zero", MAP_SHARED)'
+  ngx_feature_name="NGX_HAVE_MAP_DEVZERO"
+@@ -87,7 +87,7 @@
+  ngx_feature_incs="#include <sys/mman.h>
+                    #include <sys/stat.h>
+                    #include <fcntl.h>"
+-@@ -763,7 +763,7 @@ ngx_feature_test='void *p; int  fd;
++@@ -868,7 +868,7 @@ ngx_feature_test='void *p; int  fd;
+  
+  ngx_feature="System V shared memory"
+  ngx_feature_name="NGX_HAVE_SYSVSHM"
+@@ -96,7 +96,7 @@
+  ngx_feature_incs="#include <sys/ipc.h>
+                    #include <sys/shm.h>"
+  ngx_feature_path=
+-@@ -777,7 +777,7 @@ ngx_feature_test="int  id;
++@@ -882,7 +882,7 @@ ngx_feature_test="int  id;
+  
+  ngx_feature="POSIX semaphores"
+  ngx_feature_name="NGX_HAVE_POSIX_SEM"
+diff --git a/net/nginx/patches/102-sizeof_test_fix.patch b/net/nginx/patches/102-sizeof_test_fix.patch
+index 36d7aaf..7d2430e 100644
+--- a/net/nginx/patches/102-sizeof_test_fix.patch
++++ b/net/nginx/patches/102-sizeof_test_fix.patch
+@@ -10,13 +10,13 @@
+ +	'Y', '3', 'p', 'M', '\n'
+ +};
+ +
+- int main() {
++ int main(void) {
+ -    printf("%d", (int) sizeof($ngx_type));
+ +    printf("dummy use of object_code_block to avoid gc-section: %c", object_code_block[0]);
+      return 0;
+  }
+  
+-@@ -40,7 +45,7 @@ eval "$ngx_test >> $NGX_AUTOCONF_ERR 2>&
++@@ -40,7 +46,7 @@ eval "$ngx_test >> $NGX_AUTOCONF_ERR 2>&
+  
+  
+  if [ -x $NGX_AUTOTEST ]; then
+diff --git a/net/nginx/patches/201-ignore-invalid-options.patch b/net/nginx/patches/201-ignore-invalid-options.patch
+new file mode 100644
+index 0000000..8218023
+--- /dev/null
++++ b/net/nginx/patches/201-ignore-invalid-options.patch
+@@ -0,0 +1,12 @@
++--- a/auto/options
+++++ b/auto/options
++@@ -391,8 +391,7 @@
++         --test-build-solaris-sendfilev)  NGX_TEST_BUILD_SOLARIS_SENDFILEV=YES ;;
++ 
++         *)
++-            echo "$0: error: invalid option \"$option\""
++-            exit 1
+++            echo "$0: error: ignoring invalid option \"$option\""
++         ;;
++     esac
++ done
+-- 
+2.7.4
+
