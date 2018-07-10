@@ -1,3 +1,4 @@
+* nginx: update to version 1.15.1
 * dump1090: update to version 2017-06-01
 * hashdeep: add package
 * ssdeep: add package
