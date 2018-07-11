@@ -355,9 +355,3 @@ CONFIG_PACKAGE_memcached=y
 CONFIG_PACKAGE_dump1090=y
 CONFIG_PACKAGE_ttyd=y
 
-CONFIG_PACKAGE_nginx=y
-CONFIG_PACKAGE_nginx-all-module=y
-CONFIG_PACKAGE_nginx-mod-luci=y
-CONFIG_PACKAGE_nginx-mod-luci-ssl=y
-CONFIG_PACKAGE_nginx-ssl=y
-
