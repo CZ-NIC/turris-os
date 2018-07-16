@@ -327,3 +327,13 @@ CONFIG_OPENSSL_WITH_SSL3=y
 # Packages for building in branch dev-pepe
 CONFIG_PACKAGE_mwan3=y
 CONFIG_PACKAGE_ipmitool=y
+
+# Transmission
+CONFIG_PACKAGE_transmission-daemon=y
+CONFIG_PACKAGE_transmission-daemon-openssl=y
+CONFIG_PACKAGE_transmission-daemon-mbedtls=y
+CONFIG_PACKAGE_transmission-cli-openssl=y
+CONFIG_PACKAGE_transmission-cli-mbedtls=y
+CONFIG_PACKAGE_transmission-remote-openssl=y
+CONFIG_PACKAGE_transmission-remote-mbedtls=y
+CONFIG_PACKAGE_transmission-web=y
