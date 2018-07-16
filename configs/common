@@ -325,10 +325,5 @@ CONFIG_BUSYBOX_CONFIG_USE_BB_CRYPT_SHA=y
 CONFIG_OPENSSL_WITH_SSL3=y
 
 # Packages for building in branch dev-pepe
-CONFIG_PACKAGE_owfs=y
-CONFIG_PACKAGE_owserver=y
-CONFIG_PACKAGE_owshell=y
-CONFIG_PACKAGE_owhttpd=y
-CONFIG_PACKAGE_owftpd=y
 CONFIG_PACKAGE_mwan3=y
 CONFIG_PACKAGE_ipmitool=y
