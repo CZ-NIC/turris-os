@@ -16,11 +16,14 @@ proto_dhcpv6_init_config() {
 	proto_config_add_string 'forceprefix:bool'
 	proto_config_add_string 'extendprefix:bool'
 	proto_config_add_string 'norelease:bool'
+	proto_config_add_string 'noserverunicast:bool'
 	proto_config_add_string 'ip6prefix:list(ip6addr)'
 	proto_config_add_string iface_dslite
 	proto_config_add_string zone_dslite
+	proto_config_add_string encaplimit_dslite
 	proto_config_add_string iface_map
 	proto_config_add_string zone_map
+	proto_config_add_string encaplimit_map
 	proto_config_add_string iface_464xlat
 	proto_config_add_string zone_464xlat
 	proto_config_add_string zone
@@ -74,6 +77,8 @@ proto_dhcpv6_setup() {
 
 	[ "$norelease" = "1" ] && append opts "-k"
 
+	[ "$noserverunicast" = "1" ] && append opts "-U"
+
 	[ -n "$ifaceid" ] && append opts "-i$ifaceid"
 
 	[ -n "$vendorclass" ] && append opts "-V$vendorclass"
@@ -109,6 +114,8 @@ proto_dhcpv6_setup() {
 	[ -n "$zone_map" ] && proto_export "ZONE_MAP=$zone_map"
 	[ -n "$zone_464xlat" ] && proto_export "ZONE_464XLAT=$zone_464xlat"
 	[ -n "$zone" ] && proto_export "ZONE=$zone"
+	[ -n "$encaplimit_dslite" ] && proto_export "ENCAPLIMIT_DSLITE=$encaplimit_dslite"
+	[ -n "$encaplimit_map" ] && proto_export "ENCAPLIMIT_MAP=$encaplimit_map"
 	[ "$fakeroutes" != "0" ] && proto_export "FAKE_ROUTES=1"
 	[ "$sourcefilter" = "0" ] && proto_export "NOSOURCEFILTER=1"
 	[ "$extendprefix" = "1" ] && proto_export "EXTENDPREFIX=1"
