@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2007-2016 OpenWrt.org
+# Copyright (C) 2007-2018 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=curl
-PKG_VERSION:=7.60.0
+PKG_VERSION:=7.61.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
@@ -16,7 +16,7 @@ PKG_SOURCE_URL:=https://dl.uxnr.de/mirror/curl/ \
 	http://curl.mirror.anstey.ca/ \
 	http://curl.askapache.com/download/ \
 	https://curl.haxx.se/download/
-PKG_MD5SUM:=897dfb2204bd99be328279f88f55b7c61592216b0542fcbe995c60aa92871e9b
+PKG_MD5SUM:=5f6f336921cf5b84de56afbd08dfb70adeef2303751ffb3e570c936c6d656c9c
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=COPYING
