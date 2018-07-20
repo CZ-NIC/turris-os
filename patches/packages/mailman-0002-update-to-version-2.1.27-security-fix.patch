@@ -1,0 +1,31 @@
+From cf72ae0c8c63205e31bbf4332e44e084fc4f2443 Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Fri, 20 Jul 2018 12:50:17 +0200
+Subject: [PATCH] mailman: update to version 2.1.27 (security fix)
+
+CVE-2018-0618 - Existing protections against malicious listowners injecting evil scripts into listinfo pages have had a few more checks added
+CVE-2018-0618 - A few more error messages have had their values HTML escaped
+
+Issue https://gitlab.labs.nic.cz/turris/openwrt/issues/202
+---
+ mail/mailman/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/mail/mailman/Makefile b/mail/mailman/Makefile
+index 9589081..383bc59 100644
+--- a/mail/mailman/Makefile
++++ b/mail/mailman/Makefile
+@@ -10,8 +10,8 @@ include $(TOPDIR)/rules.mk
+ PKG_NAME:=mailman
+ PKG_RELEASE:=1
+ PKG_SOURCE_URL:=@GNU/$(PKG_NAME)
+-PKG_VERSION:=2.1.26
+-PKG_MD5SUM:=240177e1ef561ede88d7b48283c3835f39bbd0b1ae19100d3520cbe43058339f
++PKG_VERSION:=2.1.27
++PKG_MD5SUM:=cb899eb3bd1d5248dd4788af3ad8b0341ff300fc1248ce4031d2e71679931222
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tgz
+ PKG_MAINTAINER:=Denis Shulyaka <Shulyaka@gmail.com>
+ PKG_LICENSE:=GPL-2.0+
+-- 
+2.7.4
+
