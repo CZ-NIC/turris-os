@@ -8,15 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=px5g
-PKG_RELEASE:=4
+PKG_RELEASE:=7
 PKG_LICENSE:=LGPL-2.1
 PKG_BUILD_DIR:=$(BUILD_DIR)/px5g-$(BUILD_VARIANT)
 
 PKG_USE_MIPS16:=0
 
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
-PKG_BUILD_PARALLEL:=0
-PKG_BUILD_DEPENDS:=libmbedtls
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -40,7 +38,6 @@ define Package/px5g-standalone
   SECTION:=utils
   CATEGORY:=Utilities
   SUBMENU:=Encryption
-  DEPENDS:=+libmbedtls
   TITLE:=X.509 certificate generator (standalone)
   VARIANT:=standalone
 endef
@@ -56,11 +53,9 @@ ifeq ($(BUILD_VARIANT),standalone)
   TARGET_LDFLAGS := -Wl,-Bstatic $(TARGET_LDFLAGS) -Wl,-Bdynamic
 endif
 
-TARGET_CFLAGS += -Wl,--gc-sections -I$(STAGING_DIR)/usr/include
+TARGET_CFLAGS += -Wl,--gc-sections
 
 define Build/Compile
-	# Ugly hack trying to make it build
-	sleep 300
 	$(TARGET_CC) $(TARGET_CPPFLAGS) $(TARGET_CFLAGS) -o $(PKG_BUILD_DIR)/px5g px5g.c $(TARGET_LDFLAGS)
 endef
 
