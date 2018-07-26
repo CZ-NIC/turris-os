@@ -308,9 +308,6 @@ CONFIG_PACKAGE_wl18xx-firmware=m
 # Disabling some packages we don't want to even try to compile
 CONFIG_PACKAGE_openwisp-config-cyassl=n
 CONFIG_PACKAGE_openwisp-config-nossl=n
-CONFIG_PACKAGE_openwisp-config-polarssl=n
-CONFIG_PACKAGE_transmission-daemon-polarssl=n
-CONFIG_PACKAGE_transmission-remote-polarssl=n
 
 # Some weird requests
 CONFIG_BUSYBOX_CONFIG_EJECT=y
@@ -337,3 +334,13 @@ CONFIG_PACKAGE_transmission-cli-mbedtls=y
 CONFIG_PACKAGE_transmission-remote-openssl=y
 CONFIG_PACKAGE_transmission-remote-mbedtls=y
 CONFIG_PACKAGE_transmission-web=y
+
+# Mbedtls
+
+CONFIG_PACKAGE_libustream-openssl=y
+CONFIG_PACKAGE_libustream-mbedtls=y
+
+# OpenVPN
+CONFIG_PACKAGE_openvpn-easy-rsa=y
+CONFIG_PACKAGE_openvpn-openssl=y
+CONFIG_PACKAGE_openvpn-mbedtls=y
