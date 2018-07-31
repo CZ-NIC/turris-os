@@ -1,0 +1,39 @@
+From e9b14f06525406862ffee36f710c822420def62e Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Tue, 31 Jul 2018 16:17:52 +0200
+Subject: [PATCH] procps-ng: update to version 3.3.15 (security fix)
+
+CVE-2018-1124 - Integer overflows leading to heap overflow in file2strvec
+CVE-2018-1126 - incorrect integer size in proc/alloc.* leading to truncation / integer overflow issues
+
+Issue https://gitlab.labs.nic.cz/turris/openwrt/issues/205
+---
+ utils/procps-ng/Makefile | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/utils/procps-ng/Makefile b/utils/procps-ng/Makefile
+index a50ea81..57fbeeb 100644
+--- a/utils/procps-ng/Makefile
++++ b/utils/procps-ng/Makefile
+@@ -8,7 +8,7 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=procps-ng
+-PKG_VERSION:=3.3.11
++PKG_VERSION:=3.3.15
+ PKG_RELEASE:=2
+ PKG_LICENSE:=GPL-2.0
+ PKG_LICENSE_FILES:=COPYING COPYING.LIB
+@@ -16,7 +16,8 @@ PKG_LICENSE_FILES:=COPYING COPYING.LIB
+ PKG_SOURCE_PROTO:=git
+ PKG_SOURCE_URL:=https://gitlab.com/procps-ng/procps.git
+ PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
+-PKG_SOURCE_VERSION:=8a198e3eafbde0b627e9992b41d26e6762e4f8c7
++PKG_SOURCE_VERSION:=7bb949bcba13c107fa0f45d2d0298b1ad6b6d6cc
++
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
+ 
+ PKG_BUILD_PARALLEL:=1
+-- 
+2.7.4
+
