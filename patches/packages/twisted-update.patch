@@ -1,0 +1,57 @@
+diff --git a/lang/twisted/Makefile b/lang/twisted/Makefile
+index 0b917ddf..60f6f784 100644
+--- a/lang/twisted/Makefile
++++ b/lang/twisted/Makefile
+@@ -8,13 +8,13 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=twisted
+-PKG_VERSION:=16.0.0
++PKG_VERSION:=16.6.0
+ PKG_RELEASE:=1
+ 
+ PKG_SOURCE:=Twisted-$(PKG_VERSION).tar.bz2
+ PKG_SOURCE_URL:=https://pypi.python.org/packages/source/T/Twisted \
+-		http://twistedmatrix.com/Releases/Twisted/16.0
+-PKG_MD5SUM:=c6aa35e9a1e40fce6797247f39647d2a
++		http://twistedmatrix.com/Releases/Twisted/16.6
++PKG_MD5SUM:=54a88ffe773d5a83c91fcfe86044b094
+ 
+ PKG_BUILD_DIR:=$(BUILD_DIR)/Twisted-$(PKG_VERSION)
+ PKG_BUILD_DEPENDS:=python python-setuptools USE_MUSL:librpc
+@@ -29,6 +29,7 @@ $(call include_mk, python-package.mk)
+ define Package/twisted
+   SUBMENU:=Python
+   SECTION:=lang
++  PROVIDES:=python-twisted
+   CATEGORY:=Languages
+   TITLE:=Python networking engine
+   URL:=http://twistedmatrix.com/
+diff --git a/lang/twisted/patches/001-fix-zsh-completion.patch b/lang/twisted/patches/001-fix-zsh-completion.patch
+index f7b04869..afb62620 100644
+--- a/lang/twisted/patches/001-fix-zsh-completion.patch
++++ b/lang/twisted/patches/001-fix-zsh-completion.patch
+@@ -1,6 +1,6 @@
+ diff -Nur a/twisted/python/twisted-completion.zsh b/twisted/python/twisted-completion.zsh
+---- a/twisted/python/twisted-completion.zsh	2015-11-29 11:30:47.000000000 +0800
+-+++ b/twisted/python/twisted-completion.zsh	2015-11-30 20:05:59.755695237 +0800
++--- a/src/twisted/python/twisted-completion.zsh	2015-11-29 11:30:47.000000000 +0800
+++++ b/src/twisted/python/twisted-completion.zsh	2015-11-30 20:05:59.755695237 +0800
+ @@ -1,4 +1,4 @@
+ -#compdef twistd trial conch cftp ckeygen pyhtmlizer tap2deb tkconch manhole tap2rpm
+ +#compdef twistd trial conch cftp ckeygen pyhtmlizer
+diff --git a/lang/twisted/patches/002-omit-tests.patch b/lang/twisted/patches/002-omit-tests.patch
+index 58c004fc..c7c39e28 100644
+--- a/lang/twisted/patches/002-omit-tests.patch
++++ b/lang/twisted/patches/002-omit-tests.patch
+@@ -16,8 +16,8 @@ diff -Nur a/setup.py b/setup.py
+  
+      setup(**setup_args)
+ diff -Nur a/twisted/python/dist.py b/twisted/python/dist.py
+---- a/twisted/python/dist.py	2015-11-29 11:30:47.000000000 +0800
+-+++ b/twisted/python/dist.py	2015-12-02 19:21:20.076370379 +0800
++--- a/src/twisted/python/dist.py	2015-11-29 11:30:47.000000000 +0800
+++++ b/src/twisted/python/dist.py	2015-12-02 19:21:20.076370379 +0800
+ @@ -268,11 +268,6 @@
+      """
+      extensions = [
