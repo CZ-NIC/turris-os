@@ -17,10 +17,6 @@ PKG_LICENSE_FILES:=
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@openwrt.org>
 
-ifdef CONFIG_PACKAGE_python-ubus
-PKG_BUILD_DEPENDS:=python
-endif
-
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
@@ -53,26 +49,10 @@ define Package/libubus-lua
   TITLE:=Lua binding for the OpenWrt RPC client
 endef
 
-define Package/python-ubus
-  SUBMENU:=Python
-  SECTION:=lang
-  CATEGORY:=Languages
-  TITLE:=python-ubus
-  DEPENDS:=+libubus +libblobmsg-json +python-light
-endef
-
-
 TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include
 
-ifdef CONFIG_PACKAGE_python-ubus
-CMAKE_OPTIONS = \
-	-DLUAPATH=/usr/lib/lua  \
-	-DBUILD_PYTHON=ON \
-	-DPYTHON_PACKAGE_VERSION=$(PKG_VERSION)
-else
 CMAKE_OPTIONS = \
 	-DLUAPATH=/usr/lib/lua
-endif
 
 define Package/ubus/install
 	$(INSTALL_DIR) $(1)/bin
@@ -94,13 +74,7 @@ define Package/libubus-lua/install
 	$(CP) $(PKG_BUILD_DIR)/lua/ubus.so $(1)/usr/lib/lua/
 endef
 
-define Package/python-ubus/install
-	$(INSTALL_DIR) $(1)/usr/lib/python2.7/site-packages
-	$(CP) $(PKG_BUILD_DIR)/python/build/*/ubus.so $(1)/usr/lib/python2.7/site-packages
-endef
-
 $(eval $(call BuildPackage,libubus))
 $(eval $(call BuildPackage,libubus-lua))
 $(eval $(call BuildPackage,ubus))
 $(eval $(call BuildPackage,ubusd))
-$(eval $(call BuildPackage,python-ubus))
