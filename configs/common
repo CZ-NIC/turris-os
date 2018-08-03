@@ -344,3 +344,7 @@ CONFIG_PACKAGE_libustream-mbedtls=y
 CONFIG_PACKAGE_openvpn-easy-rsa=y
 CONFIG_PACKAGE_openvpn-openssl=y
 CONFIG_PACKAGE_openvpn-mbedtls=y
+
+# lighttpd additionals for my branch
+CONFIG_PACKAGE_lighttpd-mod-redirect=y
+
