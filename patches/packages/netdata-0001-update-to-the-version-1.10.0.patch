@@ -1,0 +1,295 @@
+From 3f2d92ec551cb9a71dce2bb51bd1a1b3c6ff874b Mon Sep 17 00:00:00 2001
+From: Josef Schlehofer <josef.schlehofer@nic.cz>
+Date: Sun, 5 Aug 2018 12:26:05 +0200
+Subject: [PATCH] netdata: update to the version 1.10.0
+
+---
+ admin/netdata/Makefile                                      |  48 ++++---
+ admin/netdata/files/netdata.conf                            | 121 ++++++++++++++++--
+ admin/netdata/files/netdata.init                            |  22 +++-
+ ...-disable_external_plugins_by_default.patch |  22 ++++
+ 4 files changed, 180 insertions(+), 33 deletions(-)
+ create mode 100644 admin/netdata/patches/001-disable_external_plugins_by_default.patch
+
+diff --git a/admin/netdata/Makefile b/admin/netdata/Makefile
+index e88221e..7bff2a3 100644
+--- a/admin/netdata/Makefile
++++ b/admin/netdata/Makefile
+@@ -8,17 +8,15 @@
+ include $(TOPDIR)/rules.mk
+
+ PKG_NAME:=netdata
+-PKG_VERSION:=20160508-devel
++PKG_VERSION:=1.10.0
+ PKG_RELEASE:=1
+-PKG_MAINTAINER:=Sebastian Careba <nitroshift@yahoo.com>
++PKG_MAINTAINER:=
+ PKG_LICENSE:=GPL-3.0
+ PKG_LICENSE_FILES:=COPYING
+
+-PKG_SOURCE_PROTO:=git
+-PKG_SOURCE_URL=https://github.com/firehol/netdata
+-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
+-PKG_SOURCE_VERSION:=0ec2db444011f5b6ebf41dab45502c27cd544af2
+-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
++PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
++PKG_SOURCE_URL:=https://github.com/firehol/netdata/releases/download/v$(PKG_VERSION)
++PKG_HASH:=0514fc002c5c5fb730156b3fe928965b22327833c6c17e22b7097eda657e77a2
+
+ PKG_INSTALL:=1
+ PKG_FIXUP:=autoreconf
+@@ -28,9 +26,9 @@ include $(INCLUDE_DIR)/package.mk
+ define Package/netdata
+   SECTION:=admin
+   CATEGORY:=Administration
+-  DEPENDS:=+zlib
++  DEPENDS:=+zlib +USE_UCLIBC:libpthread +libuuid +libmnl
+   TITLE:=Real-time performance monitoring tool
+-  URL:=http://netdata.firehol.org/
++  URL:=https://my-netdata.io/
+ endef
+
+ define Package/netdata/description
+@@ -38,24 +36,36 @@ define Package/netdata/description
+   monitoring for Linux systems, applications and SNMP devices over the web.
+ endef
+
++TARGET_CFLAGS := $(filter-out -O%,$(TARGET_CFLAGS))
++TARGET_CFLAGS += -ffunction-sections -fdata-sections -O3
++TARGET_LDFLAGS += -Wl,--gc-sections
++
++CONFIGURE_ARGS += --with-zlib --with-math --disable-x86-sse --disable-lto
++
+ define Package/netdata/conffiles
+ /etc/netdata/
+ endef
+
+ define Package/netdata/install
+-	$(INSTALL_DIR) $(1)/etc/netdata
+-	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/netdata/apps_groups.conf $(1)/etc/netdata
+-	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/netdata/charts.d.conf $(1)/etc/netdata
+-	$(INSTALL_CONF) ./files/netdata.conf $(1)/etc/netdata
+-	$(INSTALL_DIR) $(1)/etc/init.d
+-	$(INSTALL_BIN) ./files/netdata.init $(1)/etc/init.d/netdata
+-	$(INSTALL_DIR) $(1)/usr/sbin
+-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/netdata $(1)/usr/sbin/
+-	$(INSTALL_DIR) $(1)/usr/share/netdata
+-	$(INSTALL_DIR) $(1)/usr/lib/netdata
++	mkdir -p $(1)/etc/netdata
++	$(CP) $(PKG_INSTALL_DIR)/etc/netdata $(1)/etc
++	$(CP) ./files/netdata.conf $(1)/etc/netdata
++	mkdir -p $(1)/usr/share/netdata
+ 	$(CP) $(PKG_INSTALL_DIR)/usr/share/netdata $(1)/usr/share
++	rm -rf $(1)/usr/share/netdata/web/images
++	rm -rf $(1)/usr/share/netdata/web/old
++	rm $(1)/usr/share/netdata/web/demo*html
++	rm $(1)/usr/share/netdata/web/fonts/*.svg
++	rm $(1)/usr/share/netdata/web/fonts/*.ttf
++	rm $(1)/usr/share/netdata/web/fonts/*.woff
++	mkdir -p $(1)/usr/lib/netdata
+ 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/netdata $(1)/usr/lib
++	rm $(1)/usr/lib/netdata/python.d/python-modules-installer.sh
+ 	chmod 4755 $(1)/usr/lib/netdata/plugins.d/apps.plugin
++	mkdir -p $(1)/etc/init.d
++	$(INSTALL_BIN) ./files/netdata.init $(1)/etc/init.d/netdata
++	mkdir -p $(1)/usr/sbin
++	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/netdata $(1)/usr/sbin
+ endef
+
+ $(eval $(call BuildPackage,netdata))
+diff --git a/admin/netdata/files/netdata.conf b/admin/netdata/files/netdata.conf
+index e1f0964..3026be1 100644
+--- a/admin/netdata/files/netdata.conf
++++ b/admin/netdata/files/netdata.conf
+@@ -1,16 +1,121 @@
++# netdata configuration
++#
++# You can download the latest version of this file, using:
++#
++#  wget -O /etc/netdata/netdata.conf http://localhost:19999/netdata.conf
++# or
++#  curl -o /etc/netdata/netdata.conf http://localhost:19999/netdata.conf
++#
++# You can uncomment and change any of the options below.
++# The value shown in the commented settings, is the default value.
++#
++
++# global netdata configuration
++
+ [global]
+-	run as user = nobody
+-	web files owner = root
+-	web files group = root
++	# glibc malloc arena max for plugins = 1
++	# hostname = LEDE
++	# history = 4036
+ 	update every = 2
+-	history = 1800
+-	access log = none
++	# config directory = /etc/netdata
++	# log directory = /var/log/netdata
++	# web files directory = /usr/share/netdata/web
++	# cache directory = /var/cache/netdata
++	# lib directory = /var/lib/netdata
++	# home directory = /var/cache/netdata
++	# plugins directory = "/usr/lib/netdata/plugins.d" "/etc/netdata/custom-plugins.d"
++	# memory mode = save
++	# host access prefix =
++	memory deduplication (ksm) = no
++	# TZ environment variable = :/etc/localtime
++	# timezone = UTC
++	# debug flags = 0x0000000000000000
+ 	debug log = syslog
+ 	error log = syslog
+-	memory mode = ram
++	access log = none
++	# errors flood protection period = 1200
++	# errors to trigger flood protection = 200
++	run as user = root
++	# OOM score = 1000
++	# process scheduling policy = idle
++	# process nice level = 19
++	# pthread stack size = 81920
++	# cleanup obsolete charts after seconds = 3600
++	# gap when lost iterations above = 1
++	# cleanup orphan hosts after seconds = 3600
++	# delete obsolete charts files = yes
++	# delete orphan hosts files = yes
++
++[web]
++	# mode = static-threaded
++	# listen backlog = 4096
++	# default port = 19999
++	# bind to = *
++	# web files owner = nobody
++	# web files group = nogroup
++	# disconnect idle clients after seconds = 60
++	# timeout for first request = 60
++	# respect do not track policy = no
++	# x-frame-options response header =
++	allow connections from = localhost 10.* 192.168.* 172.16.* 172.17.* 172.18.* 172.19.* 172.20.* 172.21.* 172.22.* 172.23.* 172.24.* 172.25.* 172.26.* 172.27.* 172.28.* 172.29.* 172.30.* 172.31.*
++	allow dashboard from = localhost 10.* 192.168.* 172.16.* 172.17.* 172.18.* 172.19.* 172.20.* 172.21.* 172.22.* 172.23.* 172.24.* 172.25.* 172.26.* 172.27.* 172.28.* 172.29.* 172.30.* 172.31.*
++	# allow badges from = *
++	# allow streaming from = *
++	# allow netdata.conf from = localhost fd* 10.* 192.168.* 172.16.* 172.17.* 172.18.* 172.19.* 172.20.* 172.21.* 172.22.* 172.23.* 172.24.* 172.25.* 172.26.* 172.27.* 172.28.* 172.29.* 172.30.* 172.31.*
++	# enable gzip compression = yes
++	# gzip compression strategy = default
++	# gzip compression level = 3
++	# web server threads = 2
++	# web server max sockets = 512
+
+ [plugins]
+-	charts.d = no
++	# PATH environment variable = /usr/sbin:/usr/bin:/sbin:/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin
++	# PYTHONPATH environment variable =
++	# proc = yes
++	# diskspace = yes
++	# cgroups = yes
++	# tc = yes
++	# idlejitter = yes
++	# enable running new plugins = yes
++	# check for new plugins every = 60
+ 	apps = no
++	charts.d = no
++	fping = no
+ 	node.d = no
+-	tc = no
++	python.d = no
++
++[health]
++	enabled = no
++	# in memory max health log entries = 1000
++	# script to execute on alarm = /usr/lib/netdata/plugins.d/alarm-notify.sh
++	# health configuration directory = /etc/netdata/health.d
++	# run at least every seconds = 10
++	# postpone alarms during hibernation for seconds = 60
++	# rotate log every lines = 2000
++
++
++[statsd]
++	enabled = no
++	# update every (flushInterval) = 1
++	# udp messages to process at once = 10
++	# create private charts for metrics matching = *
++	# max private charts allowed = 200
++	# max private charts hard limit = 1000
++	# private charts memory mode = save
++	# private charts history = 4036
++	# decimal detail = 1000
++	# disconnect idle tcp clients after seconds = 600
++	# private charts hidden = no
++	# histograms and timers percentile (percentThreshold) = 95.00000
++	# add dimension for number of events received = yes
++	# gaps on gauges (deleteGauges) = no
++	# gaps on counters (deleteCounters) = no
++	# gaps on meters (deleteMeters) = no
++	# gaps on sets (deleteSets) = no
++	# gaps on histograms (deleteHistograms) = no
++	# gaps on timers (deleteTimers) = no
++	# statsd server max TCP sockets = 256
++	# listen backlog = 4096
++	# default port = 8125
++	# bind to = udp:localhost tcp:localhost
++
+diff --git a/admin/netdata/files/netdata.init b/admin/netdata/files/netdata.init
+index 448e56d..d4be0a7 100644
+--- a/admin/netdata/files/netdata.init
++++ b/admin/netdata/files/netdata.init
+@@ -1,11 +1,21 @@
+ #!/bin/sh /etc/rc.common
+
+ START=99
++USE_PROCD=1
+
+-start() {
+-	service_start /usr/sbin/netdata
+-}
++APPBINARY=/usr/sbin/netdata
++CONFIGFILE=/etc/netdata/netdata.conf
+
+-stop() {
+-	service_stop /usr/sbin/netdata
+-}
++	start_service() {
++	mkdir -m 0755 -p /var/cache/netdata
++	chown nobody /var/cache/netdata
++	mkdir -m 0755 -p /var/lib/netdata
++	chown nobody /var/lib/netdata
++	mkdir -m 0755 -p /var/log/netdata
++	chown nobody /var/log/netdata
++	procd_open_instance
++	procd_set_param command $APPBINARY -nd -c $CONFIGFILE
++	procd_set_param file $CONFIGFILE
++	procd_set_param respawn
++	procd_close_instance
++	}
+diff --git a/admin/netdata/patches/001-disable_external_plugins_by_default.patch b/admin/netdata/patches/001-disable_external_plugins_by_default.patch
+new file mode 100644
+index 0000000..6297892
+--- /dev/null
++++ b/admin/netdata/patches/001-disable_external_plugins_by_default.patch
+@@ -0,0 +1,22 @@
++--- a/conf.d/charts.d.conf
+++++ b/conf.d/charts.d.conf
++@@ -30,7 +30,7 @@
++
++ # the default enable/disable for all charts.d collectors
++ # the default is "yes"
++-# enable_all_charts="yes"
+++enable_all_charts="no"
++
++ # BY DEFAULT ENABLED MODULES
++ # ap=yes
++--- a/conf.d/python.d.conf
+++++ b/conf.d/python.d.conf
++@@ -7,7 +7,7 @@
++ #
++
++ # Enable / disable the whole python.d.plugin (all its modules)
++-enabled: yes
+++enabled: no
++
++ # Prevent log flood
++ # Define how many log messages can be written to log file in one log_interval
+--
+2.17.1
