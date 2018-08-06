@@ -87,4 +87,5 @@ CONFIG_PACKAGE_home-assistant=y
 CONFIG_PACKAGE_clamav=y
 
 CONFIG_PACKAGE_python-stem=y
+CONFIG_PACKAGE_tor=y
 
