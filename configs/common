@@ -267,6 +267,9 @@ CONFIG_PACKAGE_ucollect-refused=n
 CONFIG_PACKAGE_ucollect-sniff=n
 CONFIG_PACKAGE_ucollect-spoof=n
 
+# HaaS
+CONFIG_PACKAGE_twisted=m
+CONFIG_PACKAGE_haas-proxy=m
 
 # Pakoň
 CONFIG_PACKAGE_pakon-dev-detect=m
