@@ -197,6 +197,7 @@ CONFIG_PACKAGE_luci-app-hd-idle=m
 CONFIG_PACKAGE_cryptsetup-openssl=m
 CONFIG_PACKAGE_blkdiscard=m
 CONFIG_PACKAGE_fstrim=m
+CONFIG_PACKAGE_foris-storage-plugin=m
 
 # Packages used in printserver list
 CONFIG_PACKAGE_cups=m
