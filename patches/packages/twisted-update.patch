@@ -24,7 +24,7 @@ index 0b917ddf..60f6f784 100644
    TITLE:=Python networking engine
    URL:=http://twistedmatrix.com/
 -  DEPENDS:=+python-light +zope-interface
-+  DEPENDS:=+python-light +zope-interface +python-incremental
++  DEPENDS:=+python-light +zope-interface +python-incremental +python-constantly
  endef
  
  define Package/twisted/description
