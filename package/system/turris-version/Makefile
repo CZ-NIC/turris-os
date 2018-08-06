@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.10.2
+PKG_VERSION:=3.10.4
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,17 +28,16 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • haas: oprava integrace do firewallu
- • ucollect: robustnější start
- • updater: oprava kolizí při upgrade ze starých verzí
- • dvbsky: oprava kompilace ovladače
- • nut: oprava aktualizace
- • kernel, nextcloud: aktualizace" " • haas: fix firewall integration
- • ucollect: more robust start
- • updater: fix collisions when updating from old versions
- • dvbsky: fix driver compilation
- • nut: fix update
- • kernel, nextcloud: update"
+create_notification -s news " • owfs, ustream-ssl, nextcloud, knot-resolver, kernel, nginx: aktualizace
+ • haas-proxy: aktualizace, větší mořnosti logování a omezení prostředků
+ • storage: drobné opravy a vylepšení
+ • transmission: aktualizace a možnost vlastního vzhledu pro webui
+ • domoticz: rozdělen na turris-gatgets a openwrt verzi
+ • pakon: oprava notifikace nového zařízení a výchozím módem je nyní IDS" " • owfs, ustream-ssl, nextcloud, knot-resolver, kernel, nginx" update
+ • haas-proxy: update, more loging options and limit for resources
+ • storage: small fixes and enhancements
+ • transmission: update and option for custom webui
+ • pakon: fix new device notification and use IDS by default"
 }
 endef
 
