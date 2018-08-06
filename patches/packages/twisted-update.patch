@@ -19,6 +19,15 @@ index 0b917ddf..60f6f784 100644
  
  PKG_BUILD_DIR:=$(BUILD_DIR)/Twisted-$(PKG_VERSION)
  PKG_BUILD_DEPENDS:=python python-setuptools USE_MUSL:librpc
+@@ -33,7 +33,7 @@ define Package/twisted
+   CATEGORY:=Languages
+   TITLE:=Python networking engine
+   URL:=http://twistedmatrix.com/
+-  DEPENDS:=+python-light +zope-interface
++  DEPENDS:=+python-light +zope-interface +python-incremental
+ endef
+ 
+ define Package/twisted/description
 diff --git a/lang/twisted/patches/001-fix-zsh-completion.patch b/lang/twisted/patches/001-fix-zsh-completion.patch
 deleted file mode 100644
 index f7b04869..00000000
