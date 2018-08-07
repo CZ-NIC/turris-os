@@ -33,7 +33,7 @@ create_notification -s news " • owfs, ustream-ssl, nextcloud, knot-resolver, 
  • storage: drobné opravy a vylepšení
  • transmission: aktualizace a možnost vlastního vzhledu pro webui
  • domoticz: rozdělen na turris-gatgets a openwrt verzi
- • pakon: oprava notifikace nového zařízení a výchozím módem je nyní IDS" " • owfs, ustream-ssl, nextcloud, knot-resolver, kernel, nginx" update
+ • pakon: oprava notifikace nového zařízení a výchozím módem je nyní IDS" " • owfs, ustream-ssl, nextcloud, knot-resolver, kernel, nginx update
  • haas-proxy: update, more loging options and limit for resources
  • storage: small fixes and enhancements
  • transmission: update and option for custom webui
