@@ -28,12 +28,14 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • owfs, ustream-ssl, nextcloud, knot-resolver, kernel, nginx: aktualizace
+create_notification -s news " • owfs, ustream-ssl, nextcloud, nginx: aktualizace
+ • knot-resolver, kernel, hostapd: bezpečnostní aktualizace
  • haas-proxy: aktualizace, větší možnosti logování a omezení prostředků
  • storage: drobné opravy a vylepšení
  • transmission: aktualizace a možnost vlastního vzhledu pro webui
  • domoticz: rozdělen na turris-gatgets a openwrt verzi
- • pakon: oprava notifikace nového zařízení a výchozím módem je nyní IDS" " • owfs, ustream-ssl, nextcloud, knot-resolver, kernel, nginx update
+ • pakon: oprava notifikace nového zařízení a výchozím módem je nyní IDS" " • owfs, ustream-ssl, nextcloud, nginx: update
+ • knot-resolver, kernel, hostapd: security updates
  • haas-proxy: update, more logging options and limit for resources
  • storage: small fixes and enhancements
  • transmission: update and option for custom webui
