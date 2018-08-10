@@ -88,4 +88,5 @@ CONFIG_PACKAGE_clamav=y
 
 CONFIG_PACKAGE_python-stem=y
 CONFIG_PACKAGE_tor=y
-
+CONFIG_PACKAGE_meek=y
+CONFIG_PACKAGE_obfs4proxy=y
