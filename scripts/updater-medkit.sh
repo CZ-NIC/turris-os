@@ -11,6 +11,14 @@ while [ $# -gt 0 ]; do
 			echo "  Note that this script is expected to be run in openwrt sdk root"
 			exit 0
 			;;
+		--model)
+			shift
+			if [ "$1" = "omnia" ]; then
+				MODEL="Turris Omnia"
+			elif [ "$1" = "turris" ]; then
+				MODEL="Turris"
+			fi
+			;;
 		*)
 			if [ -z "$OPENWRT_BIN" ]; then
 				OPENWRT_BIN="$1"
@@ -36,6 +44,10 @@ done
 }
 [ -d staging_dir ] || {
 	echo "Directory staging_dir is missing from current working one!" >&2
+	exit 1
+}
+[ -n "$MODEL" ] || {
+	echo "Missing --model value" >&2
 	exit 1
 }
 
@@ -69,13 +81,6 @@ echo Reboot faked!" > $BUILD_DIR/bin/reboot
 chmod +x $BUILD_DIR/bin/reboot
 export PATH="$(readlink -f $BUILD_DIR/bin):$PATH"
 
-# Create /tmp/sysinfo files
-# TODO we should use some internal option of updater it self
-mkdir -p /tmp/sysinfo
-echo "Turris Omnia" > /tmp/sysinfo/model
-# We are only using board_name anyway atm.
-echo "rtunknown" > /tmp/sysinfo/board_name  
-
 ABSOUT="$(readlink -f $ROOT)"
 export PATH="$PATH:$ABSOUT/usr/bin:$ABSOUT/usr/sbin:$ABSOUT/bin:$ABSOUT/sbin"
 # First install base files before anything else
@@ -103,7 +108,7 @@ for USRL in cacerts luci-controls nas netutils; do
 	echo "Script('$USRL', 'file://$OPENWRT_BIN/lists/$USRL.lua')" >> "$UPDATER_CONF"
 done
 # Run updater to pull in packages from base list
-pkgupdate --out-of-root --usign=staging_dir/host/bin/usign -R $ABSOUT --batch file://$UPDATER_CONF
+pkgupdate --model="$MODEL" --board=rtunknown --out-of-root --usign=staging_dir/host/bin/usign -R $ABSOUT --batch file://$UPDATER_CONF
 
 # Run all postinst scripts because as we are bootstrapping environment some
 # packages on beginning might have failed to be settled correctly (for example rc
