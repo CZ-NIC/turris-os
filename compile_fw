@@ -159,7 +159,9 @@ if [ -n "$BUILD_ALL" ]; then
 	MED_PATH="bin-nand/mvebu-musl/medkit"
 	MED_TAR="$TARGET_BOARD-medkit-$(date -d "$COMMIT_DATE" +%Y%m%d%H%M).tar.gz"
 	mkdir -p "$MED_PATH"
-	fakeroot ./scripts/updater-medkit.sh --model "$TARGET_BOARD" $MED_ARGS bin-nand/mvebu-musl "$MED_PATH/$MED_TAR"
+	MED_BIN_SOURCE="bin-nand/mpc85xx"
+	[ "$TARGET_BOARD" = "turris" ] || MED_BIN_SOURCE="bin-nand/mvebu-musl"
+	fakeroot ./scripts/updater-medkit.sh --model "$TARGET_BOARD" $MED_ARGS $MED_BIN_SOURCE "$MED_PATH/$MED_TAR"
 	pushd "$MED_PATH"
 	ln -s "$MED_TAR" "$TARGET_BOARD"-medkit-latest.tar.gz
 	if [ -f "$HOME"/mime.key ]; then
