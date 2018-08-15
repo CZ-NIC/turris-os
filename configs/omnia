@@ -92,3 +92,6 @@ CONFIG_PACKAGE_meek=y
 CONFIG_PACKAGE_obfs4proxy=y
 #test
 CONFIG_PACKAGE_vpn-policy-routing=y
+
+
+CONFIG_PACKAGE_nodogsplash=y
