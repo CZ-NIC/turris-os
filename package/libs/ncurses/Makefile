@@ -77,6 +77,7 @@ HOST_CONFIGURE_ARGS += \
 	--without-debug \
 	--without-manpages \
 	--without-profile \
+	--without-cxx-binding \
 	--without-tests 
 
 
