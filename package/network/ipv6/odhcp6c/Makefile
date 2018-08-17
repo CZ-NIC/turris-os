@@ -8,20 +8,22 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=odhcp6c
-PKG_VERSION:=2017-09-05
+PKG_VERSION:=2018-07-14
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
-PKG_RELEASE:=11
+PKG_RELEASE:=15
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL=https://git.openwrt.org/project/odhcp6c.git
-PKG_SOURCE_VERSION:=1f93bd4c6d267813d1bbe803358499050c47bdeb
-PKG_MIRROR_HASH:=1642d23019671b1b3efd74cefb515a8d8e9e7ebc65a3e5c8c8289320428a5aae
+PKG_SOURCE_VERSION:=67ae6a71b5762292e114b281d0e329cc24209ae6
+#PKG_MIRROR_HASH:=176b637b3856af0d6bb9c526afbddca4e569ea056fc36fc026345e7e22a6cef5
 PKG_MAINTAINER:=Hans Dedecker <dedeckeh@gmail.com>
 PKG_LICENSE:=GPL-2.0
+
+PKG_BUILD_DIR=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
@@ -38,7 +40,6 @@ define Package/odhcp6c
   CATEGORY:=Network
   TITLE:=Embedded DHCPv6-client for OpenWrt
   DEPENDS:=@IPV6 +libubox
-  PROVIDES:=dhcpv6-client
 endef
 
 define Package/odhcp6c/config
