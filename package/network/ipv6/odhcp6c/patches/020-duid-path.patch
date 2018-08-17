@@ -13,7 +13,7 @@ index 4728d89..f3160bd 100644
 @@ -123,7 +124,7 @@ static uint32_t ntohl_unaligned(const uint8_t *data)
  	return ntohl(buf);
  }
- 
+
 -int init_dhcpv6(const char *ifname, unsigned int options, int sol_timeout)
 +int init_dhcpv6(const char *ifname, unsigned int options, int sol_timeout, const char *duid_path)
  {
@@ -22,7 +22,7 @@ index 4728d89..f3160bd 100644
 @@ -175,6 +176,29 @@ int init_dhcpv6(const char *ifname, unsigned int options, int sol_timeout)
  		odhcp6c_add_state(STATE_CLIENT_ID, duid, sizeof(duid));
  	}
- 
+
 +	// Write duid to path
 +	if (duid_path) {
 +		// read duid
@@ -64,16 +64,16 @@ index e03f282..c9c14e7 100644
 @@ -138,7 +139,7 @@ int main(_unused int argc, char* const argv[])
  	unsigned int ra_options = RA_RDNSS_DEFAULT_LIFETIME;
  	unsigned int ra_holdoff_interval = RA_MIN_ADV_INTERVAL;
- 
--	while ((c = getopt(argc, argv, "S::N:V:P:FB:c:i:r:Ru:x:s:kt:m:Lhedp:fav")) != -1) {
-+	while ((c = getopt(argc, argv, "S::N:V:P:FB:c:C:i:r:Ru:x:s:kt:m:Lhedp:fav")) != -1) {
+
+-	while ((c = getopt(argc, argv, "S::N:V:P:FB:c:i:r:Ru:Ux:s:kt:m:Lhedp:fav")) != -1) {
++	while ((c = getopt(argc, argv, "S::N:V:P:FB:c:C:i:r:Ru:Ux:s:kt:m:Lhedp:fav")) != -1) {
  		switch (c) {
  		case 'S':
  			allow_slaac_only = (optarg) ? atoi(optarg) : -1;
 @@ -231,6 +232,10 @@ int main(_unused int argc, char* const argv[])
  				help = true;
  			break;
- 
+
 +		case 'C':
 +			duid_path = optarg;
 +			break;
@@ -83,7 +83,7 @@ index e03f282..c9c14e7 100644
  				help = true;
 @@ -360,7 +365,7 @@ int main(_unused int argc, char* const argv[])
  	signal(SIGUSR2, sighandler);
- 
+
  	if ((urandom_fd = open("/dev/urandom", O_CLOEXEC | O_RDONLY)) < 0 ||
 -			init_dhcpv6(ifname, client_options, sol_timeout) ||
 +			init_dhcpv6(ifname, client_options, sol_timeout, duid_path) ||
@@ -105,19 +105,19 @@ index e41aa3c..5a6009c 100644
 @@ -339,7 +339,7 @@ struct odhcp6c_opt {
  	const char *str;
  };
- 
+
 -int init_dhcpv6(const char *ifname, unsigned int client_options, int sol_timeout);
 +int init_dhcpv6(const char *ifname, unsigned int client_options, int sol_timeout, const char *duid_path);
  int dhcpv6_set_ia_mode(enum odhcp6c_ia_mode na, enum odhcp6c_ia_mode pd);
  int dhcpv6_request(enum dhcpv6_msg type);
  int dhcpv6_poll_reconfigure(void);
 @@ -356,6 +356,7 @@ int ra_conf_retransmit(int newvalue);
- 
+
  int script_init(const char *path, const char *ifname);
  ssize_t script_unhexlify(uint8_t *dst, size_t len, const char *src);
 +void script_hexlify(char *dst, const uint8_t *src, size_t len);
  void script_call(const char *status, int delay, bool resume);
- 
+
  bool odhcp6c_signal_process(void);
 diff --git a/src/script.c b/src/script.c
 index 5696b7f..efe8a8f 100644
@@ -126,7 +126,7 @@ index 5696b7f..efe8a8f 100644
 @@ -84,7 +84,7 @@ ssize_t script_unhexlify(uint8_t *dst, size_t len, const char *src)
  	return c;
  }
- 
+
 -static void script_hexlify(char *dst, const uint8_t *src, size_t len)
 +void script_hexlify(char *dst, const uint8_t *src, size_t len)
  {
