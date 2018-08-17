@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.10.4
+PKG_VERSION:=3.10.5
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,18 +28,13 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • owfs, ustream-ssl, nextcloud, nginx: aktualizace
- • knot-resolver, kernel, hostapd: bezpečnostní aktualizace
- • haas-proxy: aktualizace, větší možnosti logování a omezení prostředků
- • storage: drobné opravy a vylepšení
- • transmission: aktualizace a možnost vlastního vzhledu pro webui
- • domoticz: rozdělen na turris-gatgets a openwrt verzi
- • pakon: oprava notifikace nového zařízení a výchozím módem je nyní IDS" " • owfs, ustream-ssl, nextcloud, nginx: update
- • knot-resolver, kernel, hostapd: security updates
- • haas-proxy: update, more logging options and limit for resources
- • storage: small fixes and enhancements
- • transmission: update and option for custom webui
- • pakon: fix new device notification and use IDS by default"
+create_notification -s news " • kernel, odhcpv6: aktualizace
+ • ca-certificates: přídán balíček pro balík certifikátů
+ • base: zapnuto TCP fast open
+ • odhcpv6: vypnuta podpora unicastu (způsobovalo problémy v některých sítích), lze zapnout /etc/config/network" " • kernel, odhcpv6: update
+ • ca-certificates: package for ca bundle
+ • base: enable TCP fast open
+ • odhcpv6: disable unicast support (caused problems in some networks), can be enabled /etc/config/network"
 }
 endef
 
