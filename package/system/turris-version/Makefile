@@ -28,10 +28,10 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • kernel, odhcpv6, twisted: aktualizace
+create_notification -s news " • kernel, odhcpv6, twisted, openssh: aktualizace
  • ca-certificates: přídán balíček pro balík certifikátů
  • base: zapnuto TCP fast open
- • odhcpv6: vypnuta podpora unicastu (způsobovalo problémy v některých sítích), lze zapnout /etc/config/network" " • kernel, odhcpv6, twisted: update
+ • odhcpv6: vypnuta podpora unicastu (způsobovalo problémy v některých sítích), lze zapnout /etc/config/network" " • kernel, odhcpv6, twisted, openssh: update
  • ca-certificates: package for ca bundle
  • base: enable TCP fast open
  • odhcpv6: disable unicast support (caused problems in some networks), can be enabled /etc/config/network"
