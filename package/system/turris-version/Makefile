@@ -32,11 +32,11 @@ create_notification -s news " • kernel, odhcpv6, twisted, openssh: aktualizac
  • ca-certificates: přídán balíček pro balík certifikátů
  • base: zapnuto TCP fast open
  • haas-proxy: jistější omezení využití CPU
- • odhcpv6: vypnuta podpora unicastu (způsobovalo problémy v některých sítích), lze zapnout /etc/config/network" " • kernel, odhcpv6, twisted, openssh: update
+ • odhcpv6: vypnuta podpora unicastu (způsobovalo problémy v některých sítích), lze zapnout v /etc/config/network" " • kernel, odhcpv6, twisted, openssh: update
  • ca-certificates: package for ca bundle
  • base: enable TCP fast open
  • haas-proxy: more robust CPU usage limits
- • odhcpv6: disable unicast support (caused problems in some networks), can be enabled /etc/config/network"
+ • odhcpv6: disable unicast support (caused problems in some networks), can be enabled in /etc/config/network"
 }
 endef
 
