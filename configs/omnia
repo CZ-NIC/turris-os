@@ -95,4 +95,5 @@ CONFIG_PACKAGE_vpn-policy-routing=y
 
 
 CONFIG_PACKAGE_nodogsplash=y
-CONFIG_PACKAGE_nodogsplash2=y
+#CONFIG_PACKAGE_nodogsplash2=y
+CONFIG_PACKAGE_tiff=y
