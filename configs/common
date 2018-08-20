@@ -362,5 +362,6 @@ CONFIG_PACKAGE_lighttpd-mod-openssl=y
 # netdata
 CONFIG_PACKAGE_netdata=y
 
-# issue turris/turris-os-packages 197
-CONFIG_PACKAGE_ca-bundle=y
+# wireguard
+CONFIG_PACKAGE_wireguard=y
+CONFIG_PACKAGE_wireguard-tools=y
