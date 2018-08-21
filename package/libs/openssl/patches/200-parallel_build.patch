@@ -1,8 +1,6 @@
-Index: openssl-1.0.2f/Makefile.org
-===================================================================
---- openssl-1.0.2f.orig/Makefile.org
-+++ openssl-1.0.2f/Makefile.org
-@@ -279,17 +279,17 @@ build_libcrypto: build_crypto build_engi
+--- a/Makefile.org
++++ b/Makefile.org
+@@ -282,17 +282,17 @@ build_libcrypto: build_crypto build_engi
  build_libssl: build_ssl libssl.pc
  
  build_crypto:
@@ -26,7 +24,7 @@ Index: openssl-1.0.2f/Makefile.org
  
  all_testapps: build_libs build_testapps
  build_testapps:
-@@ -461,7 +461,7 @@ update: errors stacks util/libeay.num ut
+@@ -473,7 +473,7 @@ update: errors stacks util/libeay.num ut
  	@set -e; target=update; $(RECURSIVE_BUILD_CMD)
  
  depend:
@@ -35,7 +33,7 @@ Index: openssl-1.0.2f/Makefile.org
  
  lint:
  	@set -e; target=lint; $(RECURSIVE_BUILD_CMD)
-@@ -523,9 +523,9 @@ dist:
+@@ -535,9 +535,9 @@ dist:
  	@$(MAKE) SDIRS='$(SDIRS)' clean
  	@$(MAKE) TAR='$(TAR)' TARFLAGS='$(TARFLAGS)' $(DISTTARVARS) tar
  
@@ -47,7 +45,7 @@ Index: openssl-1.0.2f/Makefile.org
  	@$(PERL) $(TOP)/util/mkdir-p.pl $(INSTALL_PREFIX)$(INSTALLTOP)/bin \
  		$(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR) \
  		$(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/engines \
-@@ -534,12 +534,19 @@ install_sw:
+@@ -546,12 +546,19 @@ install_sw:
  		$(INSTALL_PREFIX)$(OPENSSLDIR)/misc \
  		$(INSTALL_PREFIX)$(OPENSSLDIR)/certs \
  		$(INSTALL_PREFIX)$(OPENSSLDIR)/private
@@ -68,7 +66,7 @@ Index: openssl-1.0.2f/Makefile.org
  	@set -e; liblist="$(LIBS)"; for i in $$liblist ;\
  	do \
  		if [ -f "$$i" ]; then \
-@@ -623,12 +630,7 @@ install_html_docs:
+@@ -635,12 +642,7 @@ install_html_docs:
  		done; \
  	done
  
@@ -82,10 +80,8 @@ Index: openssl-1.0.2f/Makefile.org
  	@pod2man="`cd ./util; ./pod2mantest $(PERL)`"; \
  	here="`pwd`"; \
  	filecase=; \
-Index: openssl-1.0.2f/Makefile.shared
-===================================================================
---- openssl-1.0.2f.orig/Makefile.shared
-+++ openssl-1.0.2f/Makefile.shared
+--- a/Makefile.shared
++++ b/Makefile.shared
 @@ -120,6 +120,7 @@ SYMLINK_SO=	\
  			done; \
  		fi; \
@@ -94,10 +90,8 @@ Index: openssl-1.0.2f/Makefile.shared
  			( $(SET_X); rm -f $$SHLIB$$SHLIB_SUFFIX; \
  			  ln -s $$prev $$SHLIB$$SHLIB_SUFFIX ); \
  		fi; \
-Index: openssl-1.0.2f/crypto/Makefile
-===================================================================
---- openssl-1.0.2f.orig/crypto/Makefile
-+++ openssl-1.0.2f/crypto/Makefile
+--- a/crypto/Makefile
++++ b/crypto/Makefile
 @@ -85,11 +85,11 @@ testapps:
  	@if [ -z "$(THIS)" ]; then $(MAKE) -f $(TOP)/Makefile reflect THIS=$@; fi
  
@@ -139,10 +133,8 @@ Index: openssl-1.0.2f/crypto/Makefile
  
  lint:
  	@target=lint; $(RECURSIVE_MAKE)
-Index: openssl-1.0.2f/engines/Makefile
-===================================================================
---- openssl-1.0.2f.orig/engines/Makefile
-+++ openssl-1.0.2f/engines/Makefile
+--- a/engines/Makefile
++++ b/engines/Makefile
 @@ -72,7 +72,7 @@ top:
  
  all:	lib subdirs
@@ -170,11 +162,9 @@ Index: openssl-1.0.2f/engines/Makefile
  
  tags:
  	ctags $(SRC)
-Index: openssl-1.0.2f/test/Makefile
-===================================================================
---- openssl-1.0.2f.orig/test/Makefile
-+++ openssl-1.0.2f/test/Makefile
-@@ -138,7 +138,7 @@ install:
+--- a/test/Makefile
++++ b/test/Makefile
+@@ -145,7 +145,7 @@ install:
  tags:
  	ctags $(SRC)
  
@@ -183,7 +173,7 @@ Index: openssl-1.0.2f/test/Makefile
  
  apps:
  	@(cd ..; $(MAKE) DIRS=apps all)
-@@ -549,7 +549,7 @@ $(CLIENTHELLOTEST)$(EXE_EXT): $(CLIENTHE
+@@ -593,7 +593,7 @@ $(DTLSTEST)$(EXE_EXT): $(DTLSTEST).o ssl
  #	fi
  
  dummytest$(EXE_EXT): dummytest.o $(DLIBCRYPTO)

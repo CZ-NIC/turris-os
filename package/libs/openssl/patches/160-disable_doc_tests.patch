@@ -1,8 +1,6 @@
-Index: openssl-1.0.2f/Makefile
-===================================================================
---- openssl-1.0.2f.orig/Makefile
-+++ openssl-1.0.2f/Makefile
-@@ -138,7 +138,7 @@ FIPSCANLIB=
+--- a/Makefile
++++ b/Makefile
+@@ -139,7 +139,7 @@ FIPSCANLIB=
  
  BASEADDR=0xFB00000
  
@@ -11,7 +9,7 @@ Index: openssl-1.0.2f/Makefile
  ENGDIRS= ccgost
  SHLIBDIRS= crypto ssl
  
-@@ -156,7 +156,7 @@ SDIRS=  \
+@@ -157,7 +157,7 @@ SDIRS=  \
  
  # tests to perform.  "alltests" is a special word indicating that all tests
  # should be performed.
@@ -20,7 +18,7 @@ Index: openssl-1.0.2f/Makefile
  
  MAKEFILE= Makefile
  
-@@ -170,7 +170,7 @@ SHELL=/bin/sh
+@@ -171,7 +171,7 @@ SHELL=/bin/sh
  
  TOP=    .
  ONEDIRS=out tmp
@@ -29,7 +27,7 @@ Index: openssl-1.0.2f/Makefile
  WDIRS=  windows
  LIBS=   libcrypto.a libssl.a
  SHARED_CRYPTO=libcrypto$(SHLIB_EXT)
-@@ -273,7 +273,7 @@ reflect:
+@@ -276,7 +276,7 @@ reflect:
  
  sub_all: build_all
  
@@ -38,7 +36,7 @@ Index: openssl-1.0.2f/Makefile
  
  build_libs: build_libcrypto build_libssl openssl.pc
  
-@@ -530,7 +530,7 @@ dist:
+@@ -542,7 +542,7 @@ dist:
  	@$(MAKE) SDIRS='$(SDIRS)' clean
  	@$(MAKE) TAR='$(TAR)' TARFLAGS='$(TARFLAGS)' $(DISTTARVARS) tar
  
@@ -47,11 +45,9 @@ Index: openssl-1.0.2f/Makefile
  
  install_sw:
  	@$(PERL) $(TOP)/util/mkdir-p.pl $(INSTALL_PREFIX)$(INSTALLTOP)/bin \
-Index: openssl-1.0.2f/Makefile.org
-===================================================================
---- openssl-1.0.2f.orig/Makefile.org
-+++ openssl-1.0.2f/Makefile.org
-@@ -528,7 +528,7 @@ dist:
+--- a/Makefile.org
++++ b/Makefile.org
+@@ -540,7 +540,7 @@ dist:
  	@$(MAKE) SDIRS='$(SDIRS)' clean
  	@$(MAKE) TAR='$(TAR)' TARFLAGS='$(TARFLAGS)' $(DISTTARVARS) tar
  
