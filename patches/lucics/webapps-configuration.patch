@@ -1,0 +1,90 @@
+From dc4684996ba6b168e0d2557c9041e330404dc5c1 Mon Sep 17 00:00:00 2001
+From: Michal Hrusecky <michal.hrusecky@nic.cz>
+Date: Wed, 22 Aug 2018 14:21:32 +0200
+Subject: [PATCH] luci-base: Add webapps configuration
+
+---
+ modules/luci-base/Makefile                       |   2 +-
+ .../root/usr/share/turris-webapps/05_luci.conf   |   3 +++
+ .../luci-base/root/www/webapps-icons/luci.png    | Bin 0 -> 2224 bytes
+ 3 files changed, 4 insertions(+), 1 deletion(-)
+ create mode 100644 modules/luci-base/root/usr/share/turris-webapps/05_luci.conf
+ create mode 100755 modules/luci-base/root/www/webapps-icons/luci.png
+
+diff --git a/modules/luci-base/Makefile b/modules/luci-base/Makefile
+index 8319ca0ef..df09b9f08 100644
+--- a/modules/luci-base/Makefile
++++ b/modules/luci-base/Makefile
+@@ -17,7 +17,7 @@ LUCI_DEPENDS:=+lua +libuci-lua +luci-lib-nixio +luci-lib-ip +rpcd +libubus-lua +
+ PKG_SOURCE:=LuaSrcDiet-0.12.1.tar.bz2
+ PKG_SOURCE_URL:=https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/luasrcdiet
+ PKG_MD5SUM:=ed7680f2896269ae8633756e7edcf09050812f78c8f49e280e63c30d14f35aea
+-PKG_RELEASE=9
++PKG_RELEASE=10
+ 
+ HOST_BUILD_DIR:=$(BUILD_DIR_HOST)/LuaSrcDiet-0.12.1
+ 
+diff --git a/modules/luci-base/root/usr/share/turris-webapps/05_luci.conf b/modules/luci-base/root/usr/share/turris-webapps/05_luci.conf
+new file mode 100644
+index 000000000..8eee6ccee
+--- /dev/null
++++ b/modules/luci-base/root/usr/share/turris-webapps/05_luci.conf
+@@ -0,0 +1,3 @@
++URL="/cgi-bin/luci"
++NAME="LuCI - OpenWRT advance web configuration"
++ICON="luci.png"
+diff --git a/modules/luci-base/root/www/webapps-icons/luci.png b/modules/luci-base/root/www/webapps-icons/luci.png
+new file mode 100755
+index 0000000000000000000000000000000000000000..459148c6b63b5eb12b858859dfaa22d88b91db90
+GIT binary patch
+literal 2224
+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
+
+literal 0
+HcmV?d00001
+
+-- 
+2.18.0
+
