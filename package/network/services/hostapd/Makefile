@@ -373,8 +373,11 @@ endif
 define Package/wpad/postinst
 #!/bin/sh
 if [ -z "$${IPKG_INSTROOT}" ]; then
+    /sbin/wifi down
+    sleep 2
+    for i in /var/run/wifi-phy*.pid; do kill `cat $$i 2> /dev/null` 2> /dev/null; done
+    sleep 2
     /sbin/wifi up
-    ( sleep 5 && /sbin/wifi up ) &
 fi
 endef
 
