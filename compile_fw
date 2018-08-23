@@ -155,12 +155,16 @@ if [ -n "$BUILD_ALL" ]; then
 	make package/curl/host/install package/libevent2/host/install package/lua/host/install
 	make package/updater-ng/host/install
 	# Generate medkit
+	if [ "$TARGET_BOARD" = "turris" ]; then
+		MED_ARCH=mpc85xx
+	else
+		MED_ARCH=mvebu-musl
+	fi
 	BASE_PATH="`pwd`"
-	MED_PATH="bin-nand/mvebu-musl/medkit"
+	MED_PATH="bin-nand/${MED_ARCH}/medkit"
 	MED_TAR="$TARGET_BOARD-medkit-$(date -d "$COMMIT_DATE" +%Y%m%d%H%M).tar.gz"
 	mkdir -p "$MED_PATH"
-	MED_BIN_SOURCE="bin-nand/mpc85xx"
-	[ "$TARGET_BOARD" = "turris" ] || MED_BIN_SOURCE="bin-nand/mvebu-musl"
+	MED_BIN_SOURCE="bin-nand/${MED_ARCH}"
 	fakeroot ./scripts/updater-medkit.sh --model "$TARGET_BOARD" $MED_ARGS $MED_BIN_SOURCE "$MED_PATH/$MED_TAR"
 	pushd "$MED_PATH"
 	ln -s "$MED_TAR" "$TARGET_BOARD"-medkit-latest.tar.gz
