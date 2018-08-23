@@ -86,7 +86,7 @@ export PATH="$PATH:$ABSOUT/usr/bin:$ABSOUT/usr/sbin:$ABSOUT/bin:$ABSOUT/sbin"
 # First install base files before anything else
 BASE_FILES="$(ls $OPENWRT_BIN/packages/base/base-files*.ipk | head -1)" # ls magic to get full name of package file
 opkg-trans -R "$ABSOUT" -a "$BASE_FILES"
-REPO_KEYS="$(ls $OPENWRT_BIN/turrispackages/cznic-repo-keys-test*.ipk | head -1)" # ls magic to get full name of package file
+REPO_KEYS="$(ls $OPENWRT_BIN/packages/turrispackages/cznic-repo-keys-test*.ipk | head -1)" # ls magic to get full name of package file
 opkg-trans -R "$ABSOUT" -a "$REPO_KEYS"
 
 # Get base.lua and change path to repository
