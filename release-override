@@ -95,7 +95,6 @@ feeds/routing/quagga 2 3
 feeds/routing/smcroute 1 2
 feeds/turrispackages/admin/syslog-ng3 3 4
 feeds/turrispackages/cznic/domoticz 1 2
-feeds/turrispackages/cznic/foris-tls-plugin 1 2
 feeds/turrispackages/cznic/home-assistant-turris-gadgets 1 2
 feeds/turrispackages/lang/perl 2 3
 feeds/turrispackages/libs/avahi 12 13
