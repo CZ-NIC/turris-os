@@ -91,8 +91,7 @@ opkg-trans -R "$ABSOUT" -a "$REPO_KEYS"
 
 # Get base.lua and change path to repository
 UPDATER_BASECONF="$BUILD_DIR/base.lua"
-cat $OPENWRT_BIN/lists/base.lua | \
-	sed "s#https://repo.turris.cz/omnia.*/packages#file://$OPENWRT_BIN/packages#" > "$UPDATER_BASECONF"
+sed "s#https://repo.turris.cz/\(omnia\|turris\).*/packages#file://$OPENWRT_BIN/packages#" $OPENWRT_BIN/lists/base.lua > "$UPDATER_BASECONF"
 # Dump our entry file
 UPDATER_CONF="$BUILD_DIR/entry.lua"
 echo "l10n = {'cs', 'de'} -- table with selected localizations
