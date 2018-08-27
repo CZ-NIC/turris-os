@@ -71,7 +71,7 @@ $(call Package/openssl/Default)
   SECTION:=libs
   SUBMENU:=SSL
   CATEGORY:=Libraries
-  DEPENDS:=+OPENSSL_WITH_COMPRESSION:zlib
+  DEPENDS:=+zlib
   TITLE+= (libraries)
   ABI_VERSION:=$(PKG_VERSION)
   MENU:=1
