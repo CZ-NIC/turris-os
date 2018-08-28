@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ath10k-ct
-PKG_VERSION:=2017-05-16
+PKG_VERSION:=2018-08-22
 PKG_RELEASE=1
 
 PKG_LICENSE:=GPLv2
@@ -10,7 +10,7 @@ PKG_LICENSE_FILES:=
 PKG_SOURCE_URL:=https://github.com/greearb/ath10k-ct.git
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=c048ef0c3eedf99b41bc12b3f4e47ef3d9fab484
+PKG_SOURCE_VERSION:=34954f0f333fa43827b2af67313db2b1e830bb48
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.xz
 
 PKG_MAINTAINER:=Ben Greear <greearb@candelatech.com>
@@ -23,6 +23,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define KernelPackage/ath10k-ct
   SUBMENU:=Wireless Drivers
+  PROVIDES:=kmod-ath10k
   TITLE:=ath10k-ct driver optimized for CT ath10k firmware
   DEPENDS:=+kmod-mac80211 +kmod-cfg80211 +kmod-thermal +kmod-ath +@DRIVER_11N_SUPPORT @PCI_SUPPORT +@DRIVER_11AC_SUPPORT +@KERNEL_RELAY
   FILES:=\
