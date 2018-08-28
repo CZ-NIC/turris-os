@@ -249,3 +249,26 @@ define KernelPackage/i2c-mux-pca9541/description
 endef
 
 $(eval $(call KernelPackage,i2c-mux-pca9541))
+
+define KernelPackage/ipmi
+  TITLE:=IPMI drivers
+  DEPENDS:=kmod-i2c-core
+  KCONFIG:=\
+  CONFIG_IPMI_HANDLER=y \
+	CONFIG_IPMI_PANIC_EVENT=y \
+	CONFIG_IPMI_PANIC_STRING=y \
+	CONFIG_IPMI_DEVICE_INTERFACE=y \
+	CONFIG_IPMI_SI=y \
+	CONFIG_IPMI_SSIF=y \
+	CONFIG_IPMI_SI_PROBE_DEFAULTS=y \
+	CONFIG_IPMI_WATCHDOG=y \
+	CONFIG_IPMI_IPMI_POWERNV=n \
+	CONFIG_IPMI_POWEROFF=n
+  FILES:=\
+	$(LINUX_DIR)/drivers/char/ipmi/ipmi_ssif.ko \
+	$(LINUX_DIR)/drivers/char/ipmi/ipmi_si.ko \
+	$(LINUX_DIR)/drivers/char/ipmi/ipmi_msghandler.ko \
+	$(LINUX_DIR)/drivers/char/ipmi/ipmi_devintf.ko
+endef
+
+$(eval $(call KernelPackage,ipmi))
