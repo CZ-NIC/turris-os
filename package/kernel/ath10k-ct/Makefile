@@ -16,7 +16,7 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.xz
 # Build the 4.13 ath10k-ct driver version.  Other options are "-4.9", or
 # leave un-defined for 4.7 kernel.  Probably this should match as closely as
 # possible to whatever mac80211 backports version is being used.
-CT_KVER="-4.13"
+CT_KVER=""
 
 PKG_MAINTAINER:=Ben Greear <greearb@candelatech.com>
 PKG_BUILD_PARALLEL:=1
@@ -30,7 +30,7 @@ include $(INCLUDE_DIR)/package.mk
 define KernelPackage/ath10k-ct
   SUBMENU:=Wireless Drivers
   TITLE:=ath10k-ct driver optimized for CT ath10k firmware
-  DEPENDS:=+kmod-mac80211 +kmod-ath +@DRIVER_11N_SUPPORT +@DRIVER_11AC_SUPPORT +@DRIVER_11W_SUPPORT @PCI_SUPPORT +kmod-hwmon-core
+  DEPENDS:=+kmod-mac80211 +kmod-cfg80211 +kmod-thermal +kmod-ath +@DRIVER_11N_SUPPORT +@DRIVER_11AC_SUPPORT +@DRIVER_11W_SUPPORT @PCI_SUPPORT +kmod-hwmon-core
   FILES:=\
 	$(PKG_BUILD_DIR)/ath10k$(CT_KVER)/ath10k_pci.ko \
 	$(PKG_BUILD_DIR)/ath10k$(CT_KVER)/ath10k_core.ko
@@ -74,7 +74,7 @@ ifdef CONFIG_PACKAGE_ATH_DFS
 endif
 
 ifdef CONFIG_PACKAGE_ATH_SPECTRAL
-  CT_MAKEDEFS += CONFIG_ATH10K_SPECTRAL=y
+  CT_MAKEDEFS += CONFIG_ATH10K_SPECTRAL=y CONFIG_CFG80211_CERTIFICATION_ONUS=y
   NOSTDINC_FLAGS += -DCONFIG_ATH10K_SPECTRAL
 endif
 
@@ -89,6 +89,8 @@ endif
 define Build/Compile
 	+$(MAKE) $(CT_MAKEDEFS) $(PKG_JOBS) -C "$(LINUX_DIR)" \
 		$(KERNEL_MAKE_FLAGS) \
+		ARCH="$(LINUX_KARCH)" \
+		CROSS_COMPILE="$(TARGET_CROSS)" \
 		SUBDIRS="$(PKG_BUILD_DIR)/ath10k$(CT_KVER)" \
 		NOSTDINC_FLAGS="$(NOSTDINC_FLAGS)" \
 		modules
