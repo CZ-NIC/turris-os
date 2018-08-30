@@ -1,6 +1,6 @@
 --- a/Makefile.in
 +++ b/Makefile.in
-@@ -591,70 +591,12 @@ install: install-shared install-archive
+@@ -573,14 +573,6 @@ install: install-shared install-archive
  	    (mkdir -p $(DESTDIR)$(includedir); chmod 755 $(DESTDIR)$(includedir))
  	[ -d $(DESTDIR)$(includedir)/pcap ] || \
  	    (mkdir -p $(DESTDIR)$(includedir)/pcap; chmod 755 $(DESTDIR)$(includedir)/pcap)
@@ -15,9 +15,10 @@
  	for i in $(PUBHDR); do \
  		$(INSTALL_DATA) $(srcdir)/$$i \
  		    $(DESTDIR)$(includedir)/$$i; done
- 	[ -d $(DESTDIR)$(bindir) ] || \
- 	    (mkdir -p $(DESTDIR)$(bindir); chmod 755 $(DESTDIR)$(bindir))
- 	$(INSTALL_PROGRAM) pcap-config $(DESTDIR)$(bindir)/pcap-config
+@@ -590,56 +582,6 @@ install: install-shared install-archive
+ 	[ -d $(DESTDIR)$(libdir)/pkgconfig ] || \
+ 	    (mkdir -p $(DESTDIR)$(libdir)/pkgconfig; chmod 755 $(DESTDIR)$(libdir)/pkgconfig)
+ 	$(INSTALL_DATA) libpcap.pc $(DESTDIR)$(libdir)/pkgconfig/libpcap.pc
 -	for i in $(MAN1); do \
 -		$(INSTALL_DATA) $(srcdir)/$$i \
 -		    $(DESTDIR)$(mandir)/man1/$$i; done
@@ -70,4 +71,4 @@
 -		    $(DESTDIR)$(mandir)/man@MAN_MISC_INFO@/`echo $$i | sed 's/.manmisc.in/.@MAN_MISC_INFO@/'`; done
  
  install-shared: install-shared-$(DYEXT)
- install-shared-so: libpcap.so
+ install-shared-so: $(SHAREDLIB)
