@@ -1,3 +1,4 @@
+* knot-resolver: update to version 3.0.0
 * netdata: build old version for Turris 1.x
 * nut: update to upstream state
 * curl: update to version 7.60.0 (security fix)
