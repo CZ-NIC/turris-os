@@ -208,7 +208,6 @@ define Build/DefaultTargets
 	@mkdir -p $(PKG_BUILD_DIR)
 	$(foreach hook,$(Hooks/Prepare/Pre),$(call $(hook))$(sep))
 	$(Build/Prepare)
-	[ \! -d src ] || cp -r src/* $(PKG_BUILD_DIR)
 	$(foreach hook,$(Hooks/Prepare/Post),$(call $(hook))$(sep))
 	touch $$@
 
