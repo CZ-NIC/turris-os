@@ -1,0 +1,17 @@
+diff --git a/utils/lxc/files/lxc-auto.init b/utils/lxc/files/lxc-auto.init
+index 937f0826..e01bc13e 100755
+--- a/utils/lxc/files/lxc-auto.init
++++ b/utils/lxc/files/lxc-auto.init
+@@ -16,8 +16,12 @@ start_container() {
+ 
+ 	config_get name "$cfg" name
+ 	config_list_foreach "$cfg" command run_command
++	LXC_ROOT="$(lxc-config lxc.lxcpath)"
+ 	if [ -n "$name" ]; then
+ 		/usr/bin/lxc-start -n "$name"
++		if df "$LXC_ROOT/$name/rootfs" | grep -q ^/dev/mmcblk; then
++			create_notification -s error "You are running container $name from internal memory which is not recommended and can severally damage your router! This is not covered by warranty! Please use storage module in Foris to move it somewhere else!"
++		fi
+ 	fi
+ }
+ 
