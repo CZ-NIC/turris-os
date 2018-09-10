@@ -6,20 +6,8 @@
 
 menu "Login/Password Management Utilities"
 
-config BUSYBOX_CONFIG_ADD_SHELL
-       bool "add-shell"
-       default BUSYBOX_DEFAULT_ADD_SHELL if BUSYBOX_CONFIG_DESKTOP
-       help
-         Add shells to /etc/shells.
-
-config BUSYBOX_CONFIG_REMOVE_SHELL
-       bool "remove-shell"
-       default BUSYBOX_DEFAULT_REMOVE_SHELL if BUSYBOX_CONFIG_DESKTOP
-       help
-         Remove shells from /etc/shells.
-
 config BUSYBOX_CONFIG_FEATURE_SHADOWPASSWDS
-	bool "Support for shadow passwords"
+	bool "Support shadow passwords"
 	default BUSYBOX_DEFAULT_FEATURE_SHADOWPASSWDS
 	help
 	  Build support for shadow password in /etc/shadow. This file is only
@@ -104,6 +92,36 @@ config BUSYBOX_CONFIG_USE_BB_CRYPT_SHA
 	  With this option off, login will fail password check for any
 	  user which has password encrypted with these algorithms.
 
+config BUSYBOX_CONFIG_ADD_SHELL
+       bool "add-shell"
+       default BUSYBOX_DEFAULT_ADD_SHELL if BUSYBOX_CONFIG_DESKTOP
+       help
+         Add shells to /etc/shells.
+
+config BUSYBOX_CONFIG_REMOVE_SHELL
+       bool "remove-shell"
+       default BUSYBOX_DEFAULT_REMOVE_SHELL if BUSYBOX_CONFIG_DESKTOP
+       help
+         Remove shells from /etc/shells.
+config BUSYBOX_CONFIG_ADDGROUP
+	bool "addgroup"
+	default BUSYBOX_DEFAULT_ADDGROUP
+	help
+	  Utility for creating a new group account.
+
+config BUSYBOX_CONFIG_FEATURE_ADDGROUP_LONG_OPTIONS
+	bool "Enable long options"
+	default BUSYBOX_DEFAULT_FEATURE_ADDGROUP_LONG_OPTIONS
+	depends on BUSYBOX_CONFIG_ADDGROUP && BUSYBOX_CONFIG_LONG_OPTS
+
+config BUSYBOX_CONFIG_FEATURE_ADDUSER_TO_GROUP
+	bool "Support adding users to groups"
+	default BUSYBOX_DEFAULT_FEATURE_ADDUSER_TO_GROUP
+	depends on BUSYBOX_CONFIG_ADDGROUP
+	help
+	  If called with two non-option arguments,
+	  addgroup will add an existing user to an
+	  existing group.
 config BUSYBOX_CONFIG_ADDUSER
 	bool "adduser"
 	default BUSYBOX_DEFAULT_ADDUSER
@@ -114,8 +132,6 @@ config BUSYBOX_CONFIG_FEATURE_ADDUSER_LONG_OPTIONS
 	bool "Enable long options"
 	default BUSYBOX_DEFAULT_FEATURE_ADDUSER_LONG_OPTIONS
 	depends on BUSYBOX_CONFIG_ADDUSER && BUSYBOX_CONFIG_LONG_OPTS
-	help
-	  Support long options for the adduser applet.
 
 config BUSYBOX_CONFIG_FEATURE_CHECK_NAMES
 	bool "Enable sanity check on user/group names in adduser and addgroup"
@@ -151,29 +167,33 @@ config BUSYBOX_CONFIG_LAST_SYSTEM_ID
 	default BUSYBOX_DEFAULT_LAST_SYSTEM_ID
 	help
 	  Last valid system uid or gid for adduser and addgroup
-
-config BUSYBOX_CONFIG_ADDGROUP
-	bool "addgroup"
-	default BUSYBOX_DEFAULT_ADDGROUP
+config BUSYBOX_CONFIG_CHPASSWD
+	bool "chpasswd"
+	default BUSYBOX_DEFAULT_CHPASSWD
 	help
-	  Utility for creating a new group account.
+	  Reads a file of user name and password pairs from standard input
+	  and uses this information to update a group of existing users.
 
-config BUSYBOX_CONFIG_FEATURE_ADDGROUP_LONG_OPTIONS
-	bool "Enable long options"
-	default BUSYBOX_DEFAULT_FEATURE_ADDGROUP_LONG_OPTIONS
-	depends on BUSYBOX_CONFIG_ADDGROUP && BUSYBOX_CONFIG_LONG_OPTS
+config BUSYBOX_CONFIG_FEATURE_DEFAULT_PASSWD_ALGO
+	string "Default encryption method (passwd -a, cryptpw -m, chpasswd -c ALG)"
+	default BUSYBOX_DEFAULT_FEATURE_DEFAULT_PASSWD_ALGO
+	depends on BUSYBOX_CONFIG_PASSWD || BUSYBOX_CONFIG_CRYPTPW || BUSYBOX_CONFIG_CHPASSWD
 	help
-	  Support long options for the addgroup applet.
-
-config BUSYBOX_CONFIG_FEATURE_ADDUSER_TO_GROUP
-	bool "Support for adding users to groups"
-	default BUSYBOX_DEFAULT_FEATURE_ADDUSER_TO_GROUP
-	depends on BUSYBOX_CONFIG_ADDGROUP
+	  Possible choices are "d[es]", "m[d5]", "s[ha256]" or "sha512".
+config BUSYBOX_CONFIG_CRYPTPW
+	bool "cryptpw"
+	default BUSYBOX_DEFAULT_CRYPTPW
 	help
-	  If  called  with two non-option arguments,
-	  addgroup will add an existing user to an
-	  existing group.
+	  Encrypts the given password with the crypt(3) libc function
+	  using the given salt.
 
+config BUSYBOX_CONFIG_MKPASSWD
+	bool "mkpasswd"
+	default BUSYBOX_DEFAULT_MKPASSWD
+	help
+	  Encrypts the given password with the crypt(3) libc function
+	  using the given salt. Debian has this utility under mkpasswd
+	  name. Busybox provides mkpasswd as an alias for cryptpw.
 config BUSYBOX_CONFIG_DELUSER
 	bool "deluser"
 	default BUSYBOX_DEFAULT_DELUSER
@@ -187,13 +207,12 @@ config BUSYBOX_CONFIG_DELGROUP
 	  Utility for deleting a group account.
 
 config BUSYBOX_CONFIG_FEATURE_DEL_USER_FROM_GROUP
-	bool "Support for removing users from groups"
+	bool "Support removing users from groups"
 	default BUSYBOX_DEFAULT_FEATURE_DEL_USER_FROM_GROUP
 	depends on BUSYBOX_CONFIG_DELGROUP
 	help
 	  If called with two non-option arguments, deluser
 	  or delgroup will remove an user from a specified group.
-
 config BUSYBOX_CONFIG_GETTY
 	bool "getty"
 	default BUSYBOX_DEFAULT_GETTY
@@ -212,7 +231,6 @@ config BUSYBOX_CONFIG_GETTY
 	  printf "%s login: " "`hostname`"
 	  read -r login
 	  exec /bin/login "$login"
-
 config BUSYBOX_CONFIG_LOGIN
 	bool "login"
 	default BUSYBOX_DEFAULT_LOGIN
@@ -235,7 +253,7 @@ config BUSYBOX_CONFIG_LOGIN_SESSION_AS_CHILD
 	  will not be cleaned up.
 
 config BUSYBOX_CONFIG_LOGIN_SCRIPTS
-	bool "Support for login scripts"
+	bool "Support login scripts"
 	depends on BUSYBOX_CONFIG_LOGIN
 	default BUSYBOX_DEFAULT_LOGIN_SCRIPTS
 	help
@@ -243,7 +261,7 @@ config BUSYBOX_CONFIG_LOGIN_SCRIPTS
 	  just prior to switching from root to logged-in user.
 
 config BUSYBOX_CONFIG_FEATURE_NOLOGIN
-	bool "Support for /etc/nologin"
+	bool "Support /etc/nologin"
 	default BUSYBOX_DEFAULT_FEATURE_NOLOGIN
 	depends on BUSYBOX_CONFIG_LOGIN
 	help
@@ -251,14 +269,13 @@ config BUSYBOX_CONFIG_FEATURE_NOLOGIN
 	  If it exists, non-root logins are prohibited.
 
 config BUSYBOX_CONFIG_FEATURE_SECURETTY
-	bool "Support for /etc/securetty"
+	bool "Support /etc/securetty"
 	default BUSYBOX_DEFAULT_FEATURE_SECURETTY
 	depends on BUSYBOX_CONFIG_LOGIN
 	help
 	  The file /etc/securetty is used by (some versions of) login(1).
 	  The file contains the device names of tty lines (one per line,
 	  without leading /dev/) on which root is allowed to login.
-
 config BUSYBOX_CONFIG_PASSWD
 	bool "passwd"
 	default BUSYBOX_DEFAULT_PASSWD
@@ -278,29 +295,6 @@ config BUSYBOX_CONFIG_FEATURE_PASSWD_WEAK_CHECK
 	depends on BUSYBOX_CONFIG_PASSWD
 	help
 	  With this option passwd will refuse new passwords which are "weak".
-
-config BUSYBOX_CONFIG_CRYPTPW
-	bool "cryptpw"
-	default BUSYBOX_DEFAULT_CRYPTPW
-	help
-	  Encrypts the given password with the crypt(3) libc function
-	  using the given salt. Debian has this utility under mkpasswd
-	  name. Busybox provides mkpasswd as an alias for cryptpw.
-
-config BUSYBOX_CONFIG_CHPASSWD
-	bool "chpasswd"
-	default BUSYBOX_DEFAULT_CHPASSWD
-	help
-	  Reads a file of user name and password pairs from standard input
-	  and uses this information to update a group of existing users.
-
-config BUSYBOX_CONFIG_FEATURE_DEFAULT_PASSWD_ALGO
-	string "Default password encryption method (passwd -a, cryptpw -m parameter)"
-	default BUSYBOX_DEFAULT_FEATURE_DEFAULT_PASSWD_ALGO
-	depends on BUSYBOX_CONFIG_PASSWD || BUSYBOX_CONFIG_CRYPTPW
-	help
-	  Possible choices are "d[es]", "m[d5]", "s[ha256]" or "sha512".
-
 config BUSYBOX_CONFIG_SU
 	bool "su"
 	default BUSYBOX_DEFAULT_SU
@@ -308,20 +302,23 @@ config BUSYBOX_CONFIG_SU
 	help
 	  su is used to become another user during a login session.
 	  Invoked without a username, su defaults to becoming the super user.
-
-	  Note that Busybox binary must be setuid root for this applet to
+	  Note that busybox binary must be setuid root for this applet to
 	  work properly.
 
 config BUSYBOX_CONFIG_FEATURE_SU_SYSLOG
-	bool "Enable su to write to syslog"
+	bool "Log to syslog all attempts to use su"
 	default BUSYBOX_DEFAULT_FEATURE_SU_SYSLOG
 	depends on BUSYBOX_CONFIG_SU
 
 config BUSYBOX_CONFIG_FEATURE_SU_CHECKS_SHELLS
-	bool "Enable su to check user's shell to be listed in /etc/shells"
-	depends on BUSYBOX_CONFIG_SU
+	bool "If user's shell is not in /etc/shells, disallow -s PROG"
 	default BUSYBOX_DEFAULT_FEATURE_SU_CHECKS_SHELLS
+	depends on BUSYBOX_CONFIG_SU
 
+config BUSYBOX_CONFIG_FEATURE_SU_BLANK_PW_NEEDS_SECURE_TTY
+	bool "Allow blank passwords only on TTYs in /etc/securetty"
+	default BUSYBOX_DEFAULT_FEATURE_SU_BLANK_PW_NEEDS_SECURE_TTY
+	depends on BUSYBOX_CONFIG_SU
 config BUSYBOX_CONFIG_SULOGIN
 	bool "sulogin"
 	default BUSYBOX_DEFAULT_SULOGIN
@@ -329,7 +326,6 @@ config BUSYBOX_CONFIG_SULOGIN
 	help
 	  sulogin is invoked when the system goes into single user
 	  mode (this is done through an entry in inittab).
-
 config BUSYBOX_CONFIG_VLOCK
 	bool "vlock"
 	default BUSYBOX_DEFAULT_VLOCK
