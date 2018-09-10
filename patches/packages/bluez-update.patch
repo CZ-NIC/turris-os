@@ -1,0 +1,403 @@
+From 43a11a869f7b72b1d3e32b98915f52710d7da063 Mon Sep 17 00:00:00 2001
+From: Michal Hrusecky <Michal@Hrusecky.net>
+Date: Mon, 10 Sep 2018 07:22:30 +0200
+Subject: [PATCH] bluez: Update to the latest version from upstream
+
+---
+ utils/bluez/Makefile                          | 21 ++++---
+ utils/bluez/files/bluetooth.dbus              | 37 -----------
+ utils/bluez/files/bluetoothd.init             |  1 +
+ ...01-bcm43xx-Add-bcm43xx-3wire-variant.patch |  2 +-
+ ...ncrease-firmware-load-timeout-to-30s.patch |  2 +-
+ utils/bluez/patches/200-uart-speed.patch      | 40 ------------
+ utils/bluez/patches/201-readline.patch        | 57 +++++++++--------
+ utils/bluez/patches/202-fix-endianness.patch  | 10 +++
+ .../patches/203-obexd_without_systemd.patch   | 61 +++++++++++++++++++
+ 9 files changed, 119 insertions(+), 112 deletions(-)
+ delete mode 100644 utils/bluez/files/bluetooth.dbus
+ delete mode 100644 utils/bluez/patches/200-uart-speed.patch
+ create mode 100644 utils/bluez/patches/202-fix-endianness.patch
+ create mode 100644 utils/bluez/patches/203-obexd_without_systemd.patch
+
+diff --git a/utils/bluez/Makefile b/utils/bluez/Makefile
+index 0430cd6c1..81deda23d 100644
+--- a/utils/bluez/Makefile
++++ b/utils/bluez/Makefile
+@@ -8,12 +8,12 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=bluez
+-PKG_VERSION:=5.38
++PKG_VERSION:=5.49
+ PKG_RELEASE:=1
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+ PKG_SOURCE_URL:=@KERNEL/linux/bluetooth/
+-PKG_MD5SUM:=dae2ed00c63791800ea7d10a381270a5
++PKG_HASH:=33301d7a514c73d535ee1f91c2aed1af1f2e53efe11d3ac06bcf0d7abed2ce95
+ 
+ PKG_LICENSE:=GPL-2.0+
+ PKG_LICENSE_FILES:=COPYING
+@@ -55,7 +55,7 @@ $(call Package/bluez/Default)
+   SECTION:=utils
+   CATEGORY:=Utilities
+   TITLE+= utilities
+-  DEPENDS:=+bluez-libs +libpthread +librt +glib2 +libncurses +libreadline $(INTL_DEPENDS) $(ICONV_DEPENDS)
++  DEPENDS:=+bluez-libs +libpthread +librt +glib2 +libncurses +libreadline $(INTL_DEPENDS) $(ICONV_DEPENDS) +dbus
+ endef
+ 
+ define Package/bluez-daemon
+@@ -70,10 +70,13 @@ define Package/bluez-daemon/conffiles
+ /etc/bluetooth/main.conf
+ /etc/bluetooth/network.conf
+ /etc/bluetooth/input.conf
+-/etc/bluetooth/proximity.conf
++/etc/bluetooth/keys
+ /etc/config/bluetooth
+ endef
+ 
++TARGET_CFLAGS += -D_GNU_SOURCE -ffunction-sections -fdata-sections
++TARGET_LDFLAGS += -Wl,--gc-sections
++
+ CONFIGURE_ARGS += \
+ 	--enable-static \
+ 	--enable-shared \
+@@ -92,9 +95,7 @@ CONFIGURE_ARGS += \
+ 	--disable-systemd \
+ 	--disable-test \
+ 	--disable-udev \
+-
+-TARGET_CPPFLAGS += \
+-	-D_GNU_SOURCE
++	--enable-deprecated
+ 
+ define Build/InstallDev
+ 	$(INSTALL_DIR) $(1)/usr/include
+@@ -119,6 +120,7 @@ define Package/bluez-utils/install
+ 	$(INSTALL_DIR) $(1)/usr/bin
+ 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/bccmd $(1)/usr/bin/
+ 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/bluemoon $(1)/usr/bin/
++	$(CP) $(PKG_INSTALL_DIR)/usr/bin/btattach $(1)/usr/bin/
+ 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/btmon $(1)/usr/bin/
+ 	$(CP) $(PKG_BUILD_DIR)/tools/btmgmt $(1)/usr/bin/
+ 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/ciptool $(1)/usr/bin/
+@@ -129,6 +131,7 @@ define Package/bluez-utils/install
+ 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/hex2hcd $(1)/usr/bin/
+ 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/l2ping $(1)/usr/bin/
+ 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/l2test $(1)/usr/bin/
++	$(CP) $(PKG_INSTALL_DIR)/usr/bin/mpris-proxy $(1)/usr/bin/
+ 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/rctest $(1)/usr/bin/
+ 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/rfcomm $(1)/usr/bin/
+ 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/sdptool $(1)/usr/bin/
+@@ -143,12 +146,12 @@ define Package/bluez-daemon/install
+ 	$(INSTALL_DIR) $(1)/etc/config
+ 	$(INSTALL_DATA) ./files/bluetooth.config $(1)/etc/config/bluetooth
+ 	$(INSTALL_DIR) $(1)/etc/dbus-1/system.d/
+-	$(INSTALL_DATA) ./files/bluetooth.dbus $(1)/etc/dbus-1/system.d/bluetooth.conf
++	$(INSTALL_DATA) $(PKG_BUILD_DIR)/src/bluetooth.conf $(1)/etc/dbus-1/system.d/bluetooth.conf
+ 	$(INSTALL_DIR) $(1)/etc/bluetooth
++	$(INSTALL_DIR) $(1)/etc/bluetooth/keys
+ 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/src/main.conf $(1)/etc/bluetooth/main.conf
+ 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/profiles/network/network.conf $(1)/etc/bluetooth/network.conf
+ 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/profiles/input/input.conf $(1)/etc/bluetooth/input.conf
+-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/profiles/proximity/proximity.conf $(1)/etc/bluetooth/proximity.conf
+ 	$(INSTALL_DIR) $(1)/etc/init.d
+ 	$(INSTALL_BIN) ./files/bluetoothd.init $(1)/etc/init.d/bluetoothd
+ endef
+diff --git a/utils/bluez/files/bluetooth.dbus b/utils/bluez/files/bluetooth.dbus
+deleted file mode 100644
+index 88545fac9..000000000
+--- a/utils/bluez/files/bluetooth.dbus
++++ /dev/null
+@@ -1,37 +0,0 @@
+-<!-- This configuration file specifies the required security policies
+-     for Bluetooth core daemon to work. -->
+-
+-<!DOCTYPE busconfig PUBLIC "-//freedesktop//DTD D-BUS Bus Configuration 1.0//EN"
+- "http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd">
+-<busconfig>
+-
+-  <!-- ../system.conf have denied everything, so we just punch some holes -->
+-
+-  <policy user="root">
+-    <allow own="org.bluez"/>
+-  </policy>
+-
+-  <policy at_console="true">
+-    <allow send_path="/"/>
+-    <allow send_path="/org/bluez"/>
+-
+-    <allow send_destination="org.bluez.Manager"/>
+-    <allow receive_sender="org.bluez.Manager"/>
+-
+-    <allow send_destination="org.bluez.Adapter"/>
+-    <allow receive_sender="org.bluez.Adapter"/>
+-
+-    <allow send_destination="org.bluez.Device"/>
+-    <allow receive_sender="org.bluez.Device"/>
+-
+-    <allow send_destination="org.bluez.Service"/>
+-    <allow receive_sender="org.bluez.Service"/>
+-
+-    <allow send_destination="org.bluez.Database"/>
+-    <allow receive_sender="org.bluez.Database"/>
+-
+-    <allow send_destination="org.bluez.Security"/>
+-    <allow receive_sender="org.bluez.Security"/>
+-  </policy>
+-
+-</busconfig>
+diff --git a/utils/bluez/files/bluetoothd.init b/utils/bluez/files/bluetoothd.init
+index 75f4d9664..8c548bcdb 100644
+--- a/utils/bluez/files/bluetoothd.init
++++ b/utils/bluez/files/bluetoothd.init
+@@ -7,6 +7,7 @@ USE_PROCD=1
+ PROG=/usr/bin/bluetoothd
+ 
+ start_service() {
++	ln -snf /etc/bluetooth/keys/ /var/lib/bluetooth
+ 	procd_open_instance
+ 	procd_set_param command "$PROG" -n
+ 	procd_close_instance
+diff --git a/utils/bluez/patches/001-bcm43xx-Add-bcm43xx-3wire-variant.patch b/utils/bluez/patches/001-bcm43xx-Add-bcm43xx-3wire-variant.patch
+index 96e8a26c5..15eb6e1da 100644
+--- a/utils/bluez/patches/001-bcm43xx-Add-bcm43xx-3wire-variant.patch
++++ b/utils/bluez/patches/001-bcm43xx-Add-bcm43xx-3wire-variant.patch
+@@ -9,7 +9,7 @@ Subject: [PATCH 1/4] bcm43xx: Add bcm43xx-3wire variant
+ 
+ --- a/tools/hciattach.c
+ +++ b/tools/hciattach.c
+-@@ -1144,6 +1144,9 @@ struct uart_t uart[] = {
++@@ -1090,6 +1090,9 @@ struct uart_t uart[] = {
+  	{ "bcm43xx",    0x0000, 0x0000, HCI_UART_H4,   115200, 3000000,
+  				FLOW_CTL, DISABLE_PM, NULL, bcm43xx, NULL  },
+  
+diff --git a/utils/bluez/patches/003-Increase-firmware-load-timeout-to-30s.patch b/utils/bluez/patches/003-Increase-firmware-load-timeout-to-30s.patch
+index fa0948d92..74911d3ca 100644
+--- a/utils/bluez/patches/003-Increase-firmware-load-timeout-to-30s.patch
++++ b/utils/bluez/patches/003-Increase-firmware-load-timeout-to-30s.patch
+@@ -9,7 +9,7 @@ Subject: [PATCH 3/4] Increase firmware load timeout to 30s
+ 
+ --- a/tools/hciattach.c
+ +++ b/tools/hciattach.c
+-@@ -1293,7 +1293,7 @@ int main(int argc, char *argv[])
++@@ -1239,7 +1239,7 @@ int main(int argc, char *argv[])
+  {
+  	struct uart_t *u = NULL;
+  	int detach, printpid, raw, opt, i, n, ld, err;
+diff --git a/utils/bluez/patches/200-uart-speed.patch b/utils/bluez/patches/200-uart-speed.patch
+deleted file mode 100644
+index ebe0153e2..000000000
+--- a/utils/bluez/patches/200-uart-speed.patch
++++ /dev/null
+@@ -1,40 +0,0 @@
+---- a/tools/hciattach.c
+-+++ b/tools/hciattach.c
+-@@ -101,20 +101,37 @@ int uart_speed(int s)
+- 		return B230400;
+- 	case 460800:
+- 		return B460800;
+-+/* FIX: Not all platform support this high serial speed
+-+   claudyus84 @gamil.com
+-+*/
+-+#ifdef B500000
+- 	case 500000:
+- 		return B500000;
+-+#endif
+-+#ifdef B576000
+- 	case 576000:
+- 		return B576000;
+-+#endif
+-+#ifdef B921600
+- 	case 921600:
+- 		return B921600;
+-+#endif
+-+#ifdef B1000000
+- 	case 1000000:
+- 		return B1000000;
+-+#endif
+-+#ifdef B1152000
+- 	case 1152000:
+- 		return B1152000;
+-+#endif
+-+#ifdef B1500000
+- 	case 1500000:
+- 		return B1500000;
+-+#endif
+-+#ifdef B2000000
+- 	case 2000000:
+- 		return B2000000;
+-+#endif
+- #ifdef B2500000
+- 	case 2500000:
+- 		return B2500000;
+diff --git a/utils/bluez/patches/201-readline.patch b/utils/bluez/patches/201-readline.patch
+index 45e155325..ac42cb08c 100644
+--- a/utils/bluez/patches/201-readline.patch
++++ b/utils/bluez/patches/201-readline.patch
+@@ -1,22 +1,24 @@
+---- a/Makefile.in
+-+++ b/Makefile.in
+-@@ -2441,7 +2441,7 @@ unit_tests = $(am__append_35) unit/test-
+- @CLIENT_TRUE@					monitor/uuid.h monitor/uuid.c
++--- a/Makefile.in	2017-09-14 11:47:06.000000000 +0200
+++++ b/Makefile.in	2017-09-15 02:52:39.315926972 +0200
++@@ -2472,7 +2472,7 @@
++ @CLIENT_TRUE@					client/gatt.h client/gatt.c
+  
+- @CLIENT_TRUE@client_bluetoothctl_LDADD = gdbus/libgdbus-internal.la @GLIB_LIBS@ @DBUS_LIBS@ \
+--@CLIENT_TRUE@				-lreadline
+-+@CLIENT_TRUE@				-lreadline -lncurses
++ @CLIENT_TRUE@client_bluetoothctl_LDADD = gdbus/libgdbus-internal.la src/libshared-glib.la \
++-@CLIENT_TRUE@				@GLIB_LIBS@ @DBUS_LIBS@ -lreadline
+++@CLIENT_TRUE@				@GLIB_LIBS@ @DBUS_LIBS@ -lreadline -lncurses
+  
+- @MONITOR_TRUE@monitor_btmon_SOURCES = monitor/main.c monitor/bt.h \
+- @MONITOR_TRUE@				monitor/display.h monitor/display.c \
+-@@ -2691,13 +2691,13 @@ unit_tests = $(am__append_35) unit/test-
+- @READLINE_TRUE@				client/display.h
++ @MESH_TRUE@mesh_meshctl_SOURCES = mesh/main.c \
++ @MESH_TRUE@				mesh/mesh-net.h \
++@@ -2491,7 +2491,7 @@
+  
+- @READLINE_TRUE@attrib_gatttool_LDADD = lib/libbluetooth-internal.la \
+--@READLINE_TRUE@			src/libshared-glib.la @GLIB_LIBS@ -lreadline
+-+@READLINE_TRUE@			src/libshared-glib.la @GLIB_LIBS@ -lreadline -lncurses
++ @MESH_TRUE@mesh_meshctl_LDADD = gdbus/libgdbus-internal.la src/libshared-glib.la \
++ @MESH_TRUE@				lib/libbluetooth-internal.la \
++-@MESH_TRUE@				@GLIB_LIBS@ @DBUS_LIBS@ -ljson-c -lreadline
+++@MESH_TRUE@				@GLIB_LIBS@ @DBUS_LIBS@ -ljson-c -lreadline -lncurses
+  
+- @READLINE_TRUE@tools_obex_client_tool_SOURCES = $(gobex_sources) $(btio_sources) \
++ @MONITOR_TRUE@monitor_btmon_SOURCES = monitor/main.c monitor/bt.h \
++ @MONITOR_TRUE@				monitor/display.h monitor/display.c \
++@@ -2747,7 +2747,7 @@
+  @READLINE_TRUE@						tools/obex-client-tool.c
+  
+  @READLINE_TRUE@tools_obex_client_tool_LDADD = lib/libbluetooth-internal.la \
+@@ -25,17 +27,15 @@
+  
+  @READLINE_TRUE@tools_obex_server_tool_SOURCES = $(gobex_sources) $(btio_sources) \
+  @READLINE_TRUE@						tools/obex-server-tool.c
+-@@ -2707,17 +2707,17 @@ unit_tests = $(am__append_35) unit/test-
+- @READLINE_TRUE@				client/display.h client/display.c
+- 
++@@ -2756,15 +2756,15 @@
++ @READLINE_TRUE@tools_bluetooth_player_SOURCES = tools/bluetooth-player.c
+  @READLINE_TRUE@tools_bluetooth_player_LDADD = gdbus/libgdbus-internal.la \
++ @READLINE_TRUE@				src/libshared-glib.la \
+ -@READLINE_TRUE@				@GLIB_LIBS@ @DBUS_LIBS@ -lreadline
+ +@READLINE_TRUE@				@GLIB_LIBS@ @DBUS_LIBS@ -lreadline -lncurses
+  
+- @READLINE_TRUE@tools_obexctl_SOURCES = tools/obexctl.c \
+- @READLINE_TRUE@				client/display.h client/display.c
+- 
+- @READLINE_TRUE@tools_obexctl_LDADD = gdbus/libgdbus-internal.la \
++ @READLINE_TRUE@tools_obexctl_SOURCES = tools/obexctl.c
++ @READLINE_TRUE@tools_obexctl_LDADD = gdbus/libgdbus-internal.la src/libshared-glib.la \
+ -@READLINE_TRUE@				@GLIB_LIBS@ @DBUS_LIBS@ -lreadline
+ +@READLINE_TRUE@				@GLIB_LIBS@ @DBUS_LIBS@ -lreadline -lncurses
+  
+@@ -44,5 +44,14 @@
+ -@READLINE_TRUE@				-lreadline
+ +@READLINE_TRUE@				-lreadline -lncurses
+  
+- @EXPERIMENTAL_TRUE@tools_gatt_service_SOURCES = tools/gatt-service.c
+- @EXPERIMENTAL_TRUE@tools_gatt_service_LDADD = @GLIB_LIBS@ @DBUS_LIBS@ gdbus/libgdbus-internal.la
++ @DEPRECATED_TRUE@@READLINE_TRUE@attrib_gatttool_SOURCES = attrib/gatttool.c attrib/att.c attrib/gatt.c \
++ @DEPRECATED_TRUE@@READLINE_TRUE@				attrib/gattrib.c btio/btio.c \
++@@ -2773,7 +2773,7 @@
++ @DEPRECATED_TRUE@@READLINE_TRUE@				client/display.h
++ 
++ @DEPRECATED_TRUE@@READLINE_TRUE@attrib_gatttool_LDADD = lib/libbluetooth-internal.la \
++-@DEPRECATED_TRUE@@READLINE_TRUE@			src/libshared-glib.la @GLIB_LIBS@ -lreadline
+++@DEPRECATED_TRUE@@READLINE_TRUE@			src/libshared-glib.la @GLIB_LIBS@ -lreadline -lncurses
++ 
++ @CUPS_TRUE@cupsdir = $(libdir)/cups/backend
++ @CUPS_TRUE@profiles_cups_bluetooth_SOURCES = profiles/cups/main.c \
+diff --git a/utils/bluez/patches/202-fix-endianness.patch b/utils/bluez/patches/202-fix-endianness.patch
+new file mode 100644
+index 000000000..cf76ae149
+--- /dev/null
++++ b/utils/bluez/patches/202-fix-endianness.patch
+@@ -0,0 +1,10 @@
++--- a/src/shared/util.h.old	2016-09-26 07:29:00.000000000 -0500
+++++ b/src/shared/util.h	2017-12-27 22:49:50.538716424 -0600
++@@ -26,6 +26,7 @@
++ #include <alloca.h>
++ #include <byteswap.h>
++ #include <string.h>
+++#include <endian.h>
++ 
++ #if __BYTE_ORDER == __LITTLE_ENDIAN
++ #define le16_to_cpu(val) (val)
+diff --git a/utils/bluez/patches/203-obexd_without_systemd.patch b/utils/bluez/patches/203-obexd_without_systemd.patch
+new file mode 100644
+index 000000000..749787c5b
+--- /dev/null
++++ b/utils/bluez/patches/203-obexd_without_systemd.patch
+@@ -0,0 +1,61 @@
++Submitted By:            Armin K. <krejzi at email dot com>
++Date:                    2013-04-29
++Initial Package Version: 5.17
++Upstream Status:         unknown
++Origin:                  Arch Linux (Giovanni Campagna)
++Description:             Allow using obexd without systemd in the user session
++
++Not all sessions run systemd --user (actually, the majority
++doesn't), so the dbus daemon must be able to spawn obexd
++directly, and to do so it needs the full path of the daemon.
++---
++ Makefile.obexd                      | 4 ++--
++ obexd/src/org.bluez.obex.service    | 4 ----
++ obexd/src/org.bluez.obex.service.in | 4 ++++
++ 3 files changed, 6 insertions(+), 6 deletions(-)
++ delete mode 100644 obexd/src/org.bluez.obex.service
++ create mode 100644 obexd/src/org.bluez.obex.service.in
++
++diff --git a/Makefile.obexd b/Makefile.obexd
++index 3760867..142e7c3 100644
++--- a/Makefile.obexd
+++++ b/Makefile.obexd
++@@ -2,12 +2,12 @@
++ if SYSTEMD
++ systemduserunitdir = @SYSTEMD_USERUNITDIR@
++ systemduserunit_DATA = obexd/src/obex.service
+++endif
++ 
++ dbussessionbusdir = @DBUS_SESSIONBUSDIR@
++ dbussessionbus_DATA = obexd/src/org.bluez.obex.service
++-endif
++ 
++-EXTRA_DIST += obexd/src/obex.service.in obexd/src/org.bluez.obex.service
+++EXTRA_DIST += obexd/src/obex.service.in obexd/src/org.bluez.obex.service.in
++ 
++ obex_plugindir = $(libdir)/obex/plugins
++ 
++diff --git a/obexd/src/org.bluez.obex.service b/obexd/src/org.bluez.obex.service
++deleted file mode 100644
++index a538088..0000000
++--- a/obexd/src/org.bluez.obex.service
+++++ /dev/null
++@@ -1,4 +0,0 @@
++-[D-BUS Service]
++-Name=org.bluez.obex
++-Exec=/bin/false
++-SystemdService=dbus-org.bluez.obex.service
++diff --git a/obexd/src/org.bluez.obex.service.in b/obexd/src/org.bluez.obex.service.in
++new file mode 100644
++index 0000000..9c815f2
++--- /dev/null
+++++ b/obexd/src/org.bluez.obex.service.in
++@@ -0,0 +1,4 @@
+++[D-BUS Service]
+++Name=org.bluez.obex
+++Exec=@libexecdir@/obexd
+++SystemdService=dbus-org.bluez.obex.service
++-- 
++1.8.3.1
++
++
+-- 
+2.18.0
+
