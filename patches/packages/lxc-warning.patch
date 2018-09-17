@@ -9,7 +9,7 @@ index 937f0826..e01bc13e 100755
 +	LXC_ROOT="$(lxc-config lxc.lxcpath)"
  	if [ -n "$name" ]; then
  		/usr/bin/lxc-start -n "$name"
-+		if df "$LXC_ROOT/$name/rootfs" | grep -q ^/dev/mmcblk; then
++		if df "$LXC_ROOT/$name/rootfs" | grep -q $(df / | sed -n 's|\(/dev/[^[:blank:]]*\)[[:blank:]].*|\1|p'); then
 +			create_notification -s error "You are running container $name from internal memory which is not recommended and can severally damage your router! This is not covered by warranty! Please use storage module in Foris to move it somewhere else!"
 +		fi
  	fi
