@@ -52,7 +52,7 @@ define Package/turris-version/postinst
 [ -n "$$IPKG_INSTROOT" ] || {
 	LXC_ROOT="$$(lxc-config lxc.lxcpath)"
 	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do
-		if df "$$LXC_ROOT/$$name/rootfs" | grep -q ^/dev/mmcblk; then
+		if df "$$LXC_ROOT/$$name/rootfs" | grep -q ^$$(df / | sed -n 's|\(/dev/[^[:blank:]]*\)[[:blank:]].*|\1|p'); then
 			create_notification -s error "You are running container $$name from internal memory which is not recommended and can severally damage your router! This is not covered by warranty! Please use storage module in Foris to move it somewhere else!"
 		fi
 	done
