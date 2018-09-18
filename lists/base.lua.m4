@@ -19,6 +19,7 @@ Package('nuci', { replan = replan_str('finished', false) })
 Install("base-files", "busybox", { critical = true })
 Package("kernel", { reboot = "delayed" })
 Package("kmod-mac80211", { reboot = "delayed" })
+Package("wpad", { reboot = "delayed" })
 forInstallCritical(kmod,file2args(kmod.list))
 forInstallCritical(kmod,file2args(kmod-_BOARD_.list))
 Install("fstools", { critical = true })
@@ -72,7 +73,7 @@ Install("bind-client", "bind-dig", { priority = 40 })
 Install("pciutils", "usbutils", "lsof", { priority = 40 })
 
 -- Turris utility
-Install("user_notify", "oneshot", "libatsha204", "watchdog_adjust", "update_mac", "switch-branch", { priority = 40 })
+Install("user_notify", "user_notify_locales", "oneshot", "libatsha204", "watchdog_adjust", "update_mac", "switch-branch", { priority = 40 })
 if not model or model:match("[Oo]mnia") then
 	Install("rainbow-omnia", { priority = 40 })
 	Install("schnapps", "sfpswitch", { priority = 40 })
@@ -80,7 +81,7 @@ else
 	Install("rainbow", { priority = 40 })
 end
 
-Install("foris", "foris-diagnostics-plugin", { priority = 40 })
+Install("foris", "foris-diagnostics-plugin", "turris-webapps", { priority = 40 })
 Install('userlists', { priority = 40 })
 if for_l10n then
 	for_l10n("foris-l10n-")
