@@ -71,6 +71,7 @@ Install("shadow", "shadow-utils", "uboot-envtools", "i2c-tools", { priority = 40
 Install("openssh-client", "openssh-client-utils", "openssh-moduli", "openssh-server", "openssh-sftp-client", "openssh-sftp-server", "openssl-util", { priority = 40 })
 Install("bind-client", "bind-dig", { priority = 40 })
 Install("pciutils", "usbutils", "lsof", { priority = 40 })
+Install("haveged", { priority = 40 })
 
 -- Turris utility
 Install("user_notify", "user_notify_locales", "oneshot", "libatsha204", "watchdog_adjust", "update_mac", "switch-branch", { priority = 40 })
