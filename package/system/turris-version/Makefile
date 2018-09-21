@@ -28,9 +28,9 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • kernel, ath10k-firmware: aktualizace
+create_notification -s news " • kernel, ath10k-firmware, wireguard: aktualizace
  • ath10k-ct: oprava chybejicich symbolu
- • lighttpd: oprava rucne editovaneho konfiguracniho souboru" " • kernel, ath10k-firmware: update
+ • lighttpd: oprava rucne editovaneho konfiguracniho souboru" " • kernel, ath10k-firmware, wireguard: update
  • ath10k-ct: fix missing symbols
  • lighttpd: fix manually edited configuration file"
 }
