@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.10.6
+PKG_VERSION:=3.10.7
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,17 +28,11 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • kernel, tiff: bezpečnostní aktualizace
- • openssh, nextcloud, lighttpd, libpcap, openssl, ath10k-ct, minidlna, wireguard: aktualizace
- • pakon: robustnější zotavení z různých stavů poškození databáze
- • storage: opravena podpora disků bez partition
- • procd: drobné opravy kompatibility
- • lxc: výraznější varování ohledně používání kontejnerů" " • kernel, tiff: security update
- • openssh, nextcloud, lighttpd, libpcap, openssl, ath10k-ct, minidlna, wireguard: updates
- • pakon: more robust recovery from broken database
- • storage: fix support for partitionless drives
- • procd: minor compatibility fixes
- • lxc: more prominent warning about container usage"
+create_notification -s news " • kernel, ath10k-firmware: aktualizace
+ • ath10k-ct: oprava chybejicich symbolu
+ • lighttpd: oprava rucne editovaneho konfiguracniho souboru" " • kernel, ath10k-firmware: update
+ • ath10k-ct: fix missing symbols
+ • lighttpd: fix manually edited configuration file"
 }
 endef
 
