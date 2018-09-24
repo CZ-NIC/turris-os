@@ -1,0 +1,25 @@
+Index: ath10k-ct-2018-08-22/ath10k/debug.c
+===================================================================
+--- ath10k-ct-2018-08-22.orig/ath10k/debug.c
++++ ath10k-ct-2018-08-22/ath10k/debug.c
+@@ -3528,8 +3528,6 @@ void ath10k_dbg_dump(struct ath10k *ar,
+ }
+ EXPORT_SYMBOL(ath10k_dbg_dump);
+ 
+-#endif /* CONFIG_ATH10K_DEBUG */
+-
+ void ath10k_dbg_print_fw_dbg_buffer(struct ath10k *ar, __le32 *ibuf, int len,
+ 				    const char* lvl)
+ {
+@@ -3600,4 +3598,11 @@ void ath10k_dbg_print_fw_dbg_buffer(stru
+ 
+ 	dev_printk(lvl, ar->dev, "ATH10K_END\n");
+ }
++
++#else
++
++void ath10k_dbg_print_fw_dbg_buffer(struct ath10k *ar, __le32 *ibuf, int len,
++				    const char* lvl) {}
++
++#endif /* CONFIG_ATH10K_DEBUG */
+ EXPORT_SYMBOL(ath10k_dbg_print_fw_dbg_buffer);
