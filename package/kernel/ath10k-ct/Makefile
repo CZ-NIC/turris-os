@@ -1,7 +1,6 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ath10k-ct
-PKG_VERSION:=2017-05-16
 PKG_RELEASE=1
 PKG_VERSION:=2018-08-22
 
@@ -11,7 +10,8 @@ PKG_LICENSE_FILES:=
 PKG_SOURCE_URL:=https://github.com/greearb/ath10k-ct.git
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=c048ef0c3eedf99b41bc12b3f4e47ef3d9fab484
+PKG_SOURCE_DATE:=$(PKG_VERSION)
+PKG_SOURCE_VERSION:=34954f0f333fa43827b2af67313db2b1e830bb48
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.xz
 
 PKG_MAINTAINER:=Ben Greear <greearb@candelatech.com>
@@ -25,11 +25,12 @@ include $(INCLUDE_DIR)/package.mk
 define KernelPackage/ath10k-ct
   SUBMENU:=Wireless Drivers
   TITLE:=ath10k-ct driver optimized for CT ath10k firmware
-  DEPENDS:=+kmod-mac80211 +kmod-cfg80211 +kmod-thermal +kmod-ath +@DRIVER_11N_SUPPORT @PCI_SUPPORT +@DRIVER_11AC_SUPPORT +@KERNEL_RELAY
+  PROVIDES:=kmod-ath10k
+  DEPENDS:=+kmod-mac80211 +kmod-ath +@DRIVER_11N_SUPPORT +@DRIVER_11AC_SUPPORT @PCI_SUPPORT +@KERNEL_RELAY +kmod-hwmon-core +kmod-thermal
   FILES:=\
 	$(PKG_BUILD_DIR)/ath10k/ath10k_pci.ko \
 	$(PKG_BUILD_DIR)/ath10k/ath10k_core.ko
-  AUTOLOAD:=$(call AutoLoad,50,compat cfg80211 mac80211 ath ath10k_core ath10k_pci)
+  AUTOLOAD:=$(call AutoLoad,50,mac80211 ath ath10k_core ath10k_pci)
 endef
 
 NOSTDINC_FLAGS = \
@@ -45,7 +46,7 @@ ifdef CONFIG_PACKAGE_MAC80211_MESH
   NOSTDINC_FLAGS += -DCONFIG_MAC80211_MESH
 endif
 
-CT_MAKEDEFS += CONFIG_ATH10K=m CONFIG_ATH10K_PCI=m CONFIG_ATH10K_DFS_CERTIFIED=y CONFIG_CFG80211_CERTIFICATION_ONUS=y
+CT_MAKEDEFS += CONFIG_ATH10K=m CONFIG_ATH10K_PCI=m CONFIG_THERMAL=y
 # No AHB support enabled yet.  Could conditionally enable it later.
 #CT_MAKEDEFS += CONFIG_ATH10K_AHB=y
 #NOSTDINC_FLAGS += -DCONFIG_ATH10K_AHB
