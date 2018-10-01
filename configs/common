@@ -283,6 +283,8 @@ CONFIG_PACKAGE_sentinel-proxy=m
 CONFIG_PACKAGE_sentinel-minipot=m
 CONFIG_PACKAGE_sentinel-dynfw-client=m
 
+# TurrisHW
+CONFIG_PACKAGE_turrishw=m
 
 # Pakoň
 CONFIG_PACKAGE_pakon-dev-detect=m
