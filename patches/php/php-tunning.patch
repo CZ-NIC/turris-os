@@ -7,7 +7,7 @@ index c88ab0a4..d08815a0 100644
  max_input_time = 60	; Maximum amount of time each script may spend parsing request data.
  ;max_input_nesting_level = 64
 -memory_limit = 8M	; Maximum amount of memory a script may consume.
-+memory_limit = 128M	; Maximum amount of memory a script may consume.
++memory_limit = 384M	; Maximum amount of memory a script may consume.
  
  ; Error handling and logging
  
@@ -25,7 +25,7 @@ index c88ab0a4..d08815a0 100644
  file_uploads = On
  upload_tmp_dir = "/tmp"
 -upload_max_filesize = 2M
-+upload_max_filesize = 256M
++upload_max_filesize = 512M
  max_file_uploads = 20
  
  ; Fopen wrappers
@@ -37,9 +37,9 @@ index 00000000..031b26fc
 @@ -0,0 +1,7 @@
 +opcache.enable=1
 +opcache.enable_cli=1
-+opcache.interned_strings_buffer=8
++opcache.interned_strings_buffer=16
 +opcache.max_accelerated_files=10000
-+opcache.memory_consumption=128
++opcache.memory_consumption=256
 +opcache.save_comments=1
 +opcache.revalidate_freq=1
 diff --git a/lang/php7/Makefile b/lang/php7/Makefile
