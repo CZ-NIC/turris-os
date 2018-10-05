@@ -14,7 +14,7 @@ index 2e79e8ea..0b422eae 100644
 @@ -70,19 +70,7 @@ endif
  
  define Package/less/install
- 	$(INSTALL_DIR) $(1)/bin
+-	$(INSTALL_DIR) $(1)/bin
 -	$(CP) $(PKG_INSTALL_DIR)/usr/bin/less $(1)/bin/less
 -endef
 -
@@ -28,6 +28,7 @@ index 2e79e8ea..0b422eae 100644
 -#!/bin/sh
 -/bin/busybox less -h 2>&1 | grep -q BusyBox && ln -sf ../../bin/busybox /usr/bin/less
 -exit 0
++	$(INSTALL_DIR) $(1)/usr/bin
 +	$(CP) $(PKG_INSTALL_DIR)/usr/bin/less $(1)/usr/bin/less
  endef
  
