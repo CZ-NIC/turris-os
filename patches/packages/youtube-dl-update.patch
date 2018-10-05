@@ -1,0 +1,27 @@
+diff --git a/multimedia/youtube-dl/Makefile b/multimedia/youtube-dl/Makefile
+index eaa43393..8aa1160f 100644
+--- a/multimedia/youtube-dl/Makefile
++++ b/multimedia/youtube-dl/Makefile
+@@ -8,18 +8,19 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=youtube-dl
+-PKG_VERSION:=2016.05.16
++PKG_VERSION:=2018.06.04
+ PKG_RELEASE:=1
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+-PKG_SOURCE_URL:=http://youtube-dl.org/downloads/$(PKG_VERSION)/
+-PKG_MD5SUM:=f50b53b9938eeb43a2466e451e71f474
++PKG_SOURCE_URL:=https://yt-dl.org/downloads/$(PKG_VERSION)/
++PKG_HASH:=436ef69e59a1acf8091f5c294a563d6859ce6ec42543ea3abb501e2c09131301
+ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
+ 
+ PKG_LICENSE:=Unlicense
+ PKG_LICENSE_FILES:=LICENSE
+ PKG_MAINTAINER:=Adrian Panella <ianchi74@outlook.com>
+ 
++PKG_BUILD_DEPENDS:=python/host zip/host
+ 
+ include $(INCLUDE_DIR)/package.mk
+ 
