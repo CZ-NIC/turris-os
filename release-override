@@ -106,7 +106,6 @@ feeds/turrispackages/libs/libaudiofile 3 4
 feeds/turrispackages/libs/libgcrypt 1 2
 feeds/turrispackages/libs/libgpg-error 1 2
 feeds/turrispackages/libs/libnet-1.2.x 3 4
-feeds/turrispackages/multimedia/minidlna 1 2
 feeds/turrispackages/multimedia/tvheadend 1 2
 feeds/turrispackages/net/etherwake 4 5
 feeds/turrispackages/net/net-snmp 2 3
@@ -149,7 +148,7 @@ package/network/ipv6/thc-ipv6 1 2
 package/network/utils/iftop 1 2
 package/feeds/packages/cshark X 1
 package/feeds/turrispackages/motion 3 4
-package/feeds/turrispackages/minidlna 4 5
+package/feeds/turrispackages/minidlna 0 1
 package/feeds/turrispackages/mpd 2 3
 package/feeds/packages/forked-daapd 1 2
 package/feeds/packages/squeezelite 1 2
@@ -182,3 +181,6 @@ package/feeds/packages/reaver 2 3
 package/feeds/packages/snort 6 7
 package/feeds/packages/softflowd 2 3
 package/feeds/telephony/pcapsipdump 2 3
+package/feeds/packages/shairplay 1 2
+package/feeds/packages/shairport 2 3
+package/feeds/packages/squeezelite 2 3
