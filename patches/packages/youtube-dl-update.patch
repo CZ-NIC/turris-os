@@ -2,7 +2,7 @@ diff --git a/multimedia/youtube-dl/Makefile b/multimedia/youtube-dl/Makefile
 index eaa43393..8aa1160f 100644
 --- a/multimedia/youtube-dl/Makefile
 +++ b/multimedia/youtube-dl/Makefile
-@@ -8,18 +8,19 @@
+@@ -8,18 +8,18 @@
  include $(TOPDIR)/rules.mk
  
  PKG_NAME:=youtube-dl
@@ -21,7 +21,6 @@ index eaa43393..8aa1160f 100644
  PKG_LICENSE_FILES:=LICENSE
  PKG_MAINTAINER:=Adrian Panella <ianchi74@outlook.com>
  
-+PKG_BUILD_DEPENDS:=python/host
  
  include $(INCLUDE_DIR)/package.mk
  
