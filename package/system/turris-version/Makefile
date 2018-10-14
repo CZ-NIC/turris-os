@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.10.5
+PKG_VERSION:=3.10.8
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,21 +28,29 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • kernel, odhcpv6, twisted, openssh: aktualizace
- • ca-certificates: přídán balíček pro balík certifikátů
- • base: zapnuto TCP fast open
- • haas-proxy: jistější omezení využití CPU
- • odhcpv6: vypnuta podpora unicastu (způsobovalo problémy v některých sítích), lze zapnout v /etc/config/network" " • kernel, odhcpv6, twisted, openssh: update
- • ca-certificates: package for ca bundle
- • base: enable TCP fast open
- • haas-proxy: more robust CPU usage limits
- • odhcpv6: disable unicast support (caused problems in some networks), can be enabled in /etc/config/network"
+create_notification -s news " • kernel, nextcloud, btrfs-progs, php: aktualizace
+ • kernel: odstraněn blkio LED trigger způsobující občas problémy
+ • pakon: robustnější správa databáze" " • kernel, nextcloud, btrfs-progs, php: update
+ • kernel: drop blkio LED trigger as it was causing some issues from time to time
+ • pakon: more robust database maintanance"
 }
 endef
 
 define Package/turris-version/install
 	$(INSTALL_DIR) $(1)/etc
 	echo $(PKG_VERSION) > $(1)/etc/turris-version
+endef
+
+define Package/turris-version/postinst
+#!/bin/sh
+[ -n "$$IPKG_INSTROOT" ] || {
+	LXC_ROOT="$$(lxc-config lxc.lxcpath)"
+	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do
+		if df "$$LXC_ROOT/$$name/rootfs" | grep -q ^$$(df / | sed -n 's|\(/dev/[^[:blank:]]*\)[[:blank:]].*|\1|p'); then
+			create_notification -s error "You are running container $$name from internal memory which is not recommended and can severally damage your router! This is not covered by warranty! Please use storage module in Foris to move it somewhere else!"
+		fi
+	done
+}
 endef
 
 $(eval $(call BuildPackage,turris-version))
