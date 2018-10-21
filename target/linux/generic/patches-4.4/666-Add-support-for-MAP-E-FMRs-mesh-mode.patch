@@ -14,10 +14,10 @@ Signed-off-by: Steven Barth <cyrus@openwrt.org>
  net/ipv6/ip6_tunnel.c          | 276 +++++++++++++++++++++++++++++++++++++++--
  3 files changed, 291 insertions(+), 11 deletions(-)
 
-Index: linux-4.4.118/include/net/ip6_tunnel.h
+Index: linux-4.4.162/include/net/ip6_tunnel.h
 ===================================================================
---- linux-4.4.118.orig/include/net/ip6_tunnel.h
-+++ linux-4.4.118/include/net/ip6_tunnel.h
+--- linux-4.4.162.orig/include/net/ip6_tunnel.h
++++ linux-4.4.162/include/net/ip6_tunnel.h
 @@ -17,6 +17,18 @@
  /* determine capability on a per-packet basis */
  #define IP6_TNL_F_CAP_PER_PACKET 0x40000
@@ -45,10 +45,10 @@ Index: linux-4.4.118/include/net/ip6_tunnel.h
  
  	__be16			i_flags;
  	__be16			o_flags;
-Index: linux-4.4.118/include/uapi/linux/if_tunnel.h
+Index: linux-4.4.162/include/uapi/linux/if_tunnel.h
 ===================================================================
---- linux-4.4.118.orig/include/uapi/linux/if_tunnel.h
-+++ linux-4.4.118/include/uapi/linux/if_tunnel.h
+--- linux-4.4.162.orig/include/uapi/linux/if_tunnel.h
++++ linux-4.4.162/include/uapi/linux/if_tunnel.h
 @@ -57,10 +57,23 @@ enum {
  	IFLA_IPTUN_ENCAP_FLAGS,
  	IFLA_IPTUN_ENCAP_SPORT,
@@ -73,10 +73,10 @@ Index: linux-4.4.118/include/uapi/linux/if_tunnel.h
  enum tunnel_encap_types {
  	TUNNEL_ENCAP_NONE,
  	TUNNEL_ENCAP_FOU,
-Index: linux-4.4.118/net/ipv6/ip6_tunnel.c
+Index: linux-4.4.162/net/ipv6/ip6_tunnel.c
 ===================================================================
---- linux-4.4.118.orig/net/ipv6/ip6_tunnel.c
-+++ linux-4.4.118/net/ipv6/ip6_tunnel.c
+--- linux-4.4.162.orig/net/ipv6/ip6_tunnel.c
++++ linux-4.4.162/net/ipv6/ip6_tunnel.c
 @@ -16,6 +16,8 @@
   *      as published by the Free Software Foundation; either version
   *      2 of the License, or (at your option) any later version.
@@ -153,7 +153,7 @@ Index: linux-4.4.118/net/ipv6/ip6_tunnel.c
  	}
  	return &ip6n->tnls[prio][h];
  }
-@@ -369,6 +378,12 @@ ip6_tnl_dev_uninit(struct net_device *de
+@@ -372,6 +381,12 @@ ip6_tnl_dev_uninit(struct net_device *de
  	struct net *net = t->net;
  	struct ip6_tnl_net *ip6n = net_generic(net, ip6_tnl_net_id);
  
@@ -166,7 +166,7 @@ Index: linux-4.4.118/net/ipv6/ip6_tunnel.c
  	if (dev == ip6n->fb_tnl_dev)
  		RCU_INIT_POINTER(ip6n->tnls_wc[0], NULL);
  	else
-@@ -765,6 +780,108 @@ int ip6_tnl_rcv_ctl(struct ip6_tnl *t,
+@@ -768,6 +783,108 @@ int ip6_tnl_rcv_ctl(struct ip6_tnl *t,
  }
  EXPORT_SYMBOL_GPL(ip6_tnl_rcv_ctl);
  
@@ -275,7 +275,7 @@ Index: linux-4.4.118/net/ipv6/ip6_tunnel.c
  /**
   * ip6_tnl_rcv - decapsulate IPv6 packet and retransmit it locally
   *   @skb: received socket buffer
-@@ -810,6 +927,26 @@ static int ip6_tnl_rcv(struct sk_buff *s
+@@ -813,6 +930,26 @@ static int ip6_tnl_rcv(struct sk_buff *s
  		skb_reset_network_header(skb);
  		skb->protocol = htons(protocol);
  		memset(skb->cb, 0, sizeof(struct inet6_skb_parm));
@@ -302,23 +302,15 @@ Index: linux-4.4.118/net/ipv6/ip6_tunnel.c
  
  		__skb_tunnel_rx(skb, t->dev, t->net);
  
-@@ -1138,6 +1275,7 @@ ip6ip6_tnl_xmit(struct sk_buff *skb, str
- {
- 	struct ip6_tnl *t = netdev_priv(dev);
- 	struct ipv6hdr *ipv6h = ipv6_hdr(skb);
-+	const struct iphdr *iph = ip_hdr(skb);
- 	int encap_limit = -1;
- 	__u16 offset;
- 	struct flowi6 fl6;
-@@ -1145,6 +1283,7 @@ ip6ip6_tnl_xmit(struct sk_buff *skb, str
+@@ -1153,6 +1290,7 @@ ip6ip6_tnl_xmit(struct sk_buff *skb, str
  	__u32 mtu;
  	u8 tproto;
  	int err;
 +	struct __ip6_tnl_fmr *fmr;
  
- 	tproto = ACCESS_ONCE(t->parms.proto);
- 	if ((tproto != IPPROTO_IPV6 && tproto != 0) ||
-@@ -1175,6 +1314,18 @@ ip6ip6_tnl_xmit(struct sk_buff *skb, str
+ 	if (unlikely(!pskb_may_pull(skb, sizeof(*ipv6h))))
+ 		return -1;
+@@ -1187,6 +1325,18 @@ ip6ip6_tnl_xmit(struct sk_buff *skb, str
  	if (t->parms.flags & IP6_TNL_F_USE_ORIG_FWMARK)
  		fl6.flowi6_mark = skb->mark;
  
@@ -337,7 +329,7 @@ Index: linux-4.4.118/net/ipv6/ip6_tunnel.c
  	err = ip6_tnl_xmit2(skb, dev, dsfield, &fl6, encap_limit, &mtu);
  	if (err != 0) {
  		if (err == -EMSGSIZE)
-@@ -1289,6 +1440,14 @@ ip6_tnl_change(struct ip6_tnl *t, const
+@@ -1301,6 +1451,14 @@ ip6_tnl_change(struct ip6_tnl *t, const
  	t->parms.flowinfo = p->flowinfo;
  	t->parms.link = p->link;
  	t->parms.proto = p->proto;
@@ -352,7 +344,7 @@ Index: linux-4.4.118/net/ipv6/ip6_tunnel.c
  	dst_cache_reset(&t->dst_cache);
  	ip6_tnl_link_config(t);
  	return 0;
-@@ -1327,6 +1486,7 @@ ip6_tnl_parm_from_user(struct __ip6_tnl_
+@@ -1339,6 +1497,7 @@ ip6_tnl_parm_from_user(struct __ip6_tnl_
  	p->flowinfo = u->flowinfo;
  	p->link = u->link;
  	p->proto = u->proto;
@@ -360,7 +352,7 @@ Index: linux-4.4.118/net/ipv6/ip6_tunnel.c
  	memcpy(p->name, u->name, sizeof(u->name));
  }
  
-@@ -1622,6 +1782,15 @@ static int ip6_tnl_validate(struct nlatt
+@@ -1634,6 +1793,15 @@ static int ip6_tnl_validate(struct nlatt
  	return 0;
  }
  
@@ -376,7 +368,7 @@ Index: linux-4.4.118/net/ipv6/ip6_tunnel.c
  static void ip6_tnl_netlink_parms(struct nlattr *data[],
  				  struct __ip6_tnl_parm *parms)
  {
-@@ -1653,6 +1822,46 @@ static void ip6_tnl_netlink_parms(struct
+@@ -1665,6 +1833,46 @@ static void ip6_tnl_netlink_parms(struct
  
  	if (data[IFLA_IPTUN_PROTO])
  		parms->proto = nla_get_u8(data[IFLA_IPTUN_PROTO]);
@@ -423,7 +415,7 @@ Index: linux-4.4.118/net/ipv6/ip6_tunnel.c
  }
  
  static int ip6_tnl_newlink(struct net *src_net, struct net_device *dev,
-@@ -1705,6 +1914,12 @@ static void ip6_tnl_dellink(struct net_d
+@@ -1717,6 +1925,12 @@ static void ip6_tnl_dellink(struct net_d
  
  static size_t ip6_tnl_get_size(const struct net_device *dev)
  {
@@ -436,7 +428,7 @@ Index: linux-4.4.118/net/ipv6/ip6_tunnel.c
  	return
  		/* IFLA_IPTUN_LINK */
  		nla_total_size(4) +
-@@ -1722,6 +1937,24 @@ static size_t ip6_tnl_get_size(const str
+@@ -1734,6 +1948,24 @@ static size_t ip6_tnl_get_size(const str
  		nla_total_size(4) +
  		/* IFLA_IPTUN_PROTO */
  		nla_total_size(1) +
@@ -461,7 +453,7 @@ Index: linux-4.4.118/net/ipv6/ip6_tunnel.c
  		0;
  }
  
-@@ -1729,6 +1962,9 @@ static int ip6_tnl_fill_info(struct sk_b
+@@ -1741,6 +1973,9 @@ static int ip6_tnl_fill_info(struct sk_b
  {
  	struct ip6_tnl *tunnel = netdev_priv(dev);
  	struct __ip6_tnl_parm *parm = &tunnel->parms;
@@ -471,7 +463,7 @@ Index: linux-4.4.118/net/ipv6/ip6_tunnel.c
  
  	if (nla_put_u32(skb, IFLA_IPTUN_LINK, parm->link) ||
  	    nla_put_in6_addr(skb, IFLA_IPTUN_LOCAL, &parm->laddr) ||
-@@ -1737,8 +1973,27 @@ static int ip6_tnl_fill_info(struct sk_b
+@@ -1749,8 +1984,27 @@ static int ip6_tnl_fill_info(struct sk_b
  	    nla_put_u8(skb, IFLA_IPTUN_ENCAP_LIMIT, parm->encap_limit) ||
  	    nla_put_be32(skb, IFLA_IPTUN_FLOWINFO, parm->flowinfo) ||
  	    nla_put_u32(skb, IFLA_IPTUN_FLAGS, parm->flags) ||
@@ -500,7 +492,7 @@ Index: linux-4.4.118/net/ipv6/ip6_tunnel.c
  	return 0;
  
  nla_put_failure:
-@@ -1762,6 +2017,7 @@ static const struct nla_policy ip6_tnl_p
+@@ -1774,6 +2028,7 @@ static const struct nla_policy ip6_tnl_p
  	[IFLA_IPTUN_FLOWINFO]		= { .type = NLA_U32 },
  	[IFLA_IPTUN_FLAGS]		= { .type = NLA_U32 },
  	[IFLA_IPTUN_PROTO]		= { .type = NLA_U8 },
