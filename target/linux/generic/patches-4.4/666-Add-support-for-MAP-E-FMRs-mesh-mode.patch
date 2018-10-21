@@ -302,7 +302,15 @@ Index: linux-4.4.162/net/ipv6/ip6_tunnel.c
  
  		__skb_tunnel_rx(skb, t->dev, t->net);
  
-@@ -1153,6 +1290,7 @@ ip6ip6_tnl_xmit(struct sk_buff *skb, str
+@@ -1146,6 +1283,7 @@ ip6ip6_tnl_xmit(struct sk_buff *skb, str
+ {
+ 	struct ip6_tnl *t = netdev_priv(dev);
+ 	struct ipv6hdr *ipv6h;
++	const struct iphdr *iph = ip_hdr(skb);
+ 	int encap_limit = -1;
+ 	__u16 offset;
+ 	struct flowi6 fl6;
+@@ -1153,6 +1291,7 @@ ip6ip6_tnl_xmit(struct sk_buff *skb, str
  	__u32 mtu;
  	u8 tproto;
  	int err;
@@ -310,7 +318,7 @@ Index: linux-4.4.162/net/ipv6/ip6_tunnel.c
  
  	if (unlikely(!pskb_may_pull(skb, sizeof(*ipv6h))))
  		return -1;
-@@ -1187,6 +1325,18 @@ ip6ip6_tnl_xmit(struct sk_buff *skb, str
+@@ -1187,6 +1326,18 @@ ip6ip6_tnl_xmit(struct sk_buff *skb, str
  	if (t->parms.flags & IP6_TNL_F_USE_ORIG_FWMARK)
  		fl6.flowi6_mark = skb->mark;
  
@@ -329,7 +337,7 @@ Index: linux-4.4.162/net/ipv6/ip6_tunnel.c
  	err = ip6_tnl_xmit2(skb, dev, dsfield, &fl6, encap_limit, &mtu);
  	if (err != 0) {
  		if (err == -EMSGSIZE)
-@@ -1301,6 +1451,14 @@ ip6_tnl_change(struct ip6_tnl *t, const
+@@ -1301,6 +1452,14 @@ ip6_tnl_change(struct ip6_tnl *t, const
  	t->parms.flowinfo = p->flowinfo;
  	t->parms.link = p->link;
  	t->parms.proto = p->proto;
@@ -344,7 +352,7 @@ Index: linux-4.4.162/net/ipv6/ip6_tunnel.c
  	dst_cache_reset(&t->dst_cache);
  	ip6_tnl_link_config(t);
  	return 0;
-@@ -1339,6 +1497,7 @@ ip6_tnl_parm_from_user(struct __ip6_tnl_
+@@ -1339,6 +1498,7 @@ ip6_tnl_parm_from_user(struct __ip6_tnl_
  	p->flowinfo = u->flowinfo;
  	p->link = u->link;
  	p->proto = u->proto;
@@ -352,7 +360,7 @@ Index: linux-4.4.162/net/ipv6/ip6_tunnel.c
  	memcpy(p->name, u->name, sizeof(u->name));
  }
  
-@@ -1634,6 +1793,15 @@ static int ip6_tnl_validate(struct nlatt
+@@ -1634,6 +1794,15 @@ static int ip6_tnl_validate(struct nlatt
  	return 0;
  }
  
@@ -368,7 +376,7 @@ Index: linux-4.4.162/net/ipv6/ip6_tunnel.c
  static void ip6_tnl_netlink_parms(struct nlattr *data[],
  				  struct __ip6_tnl_parm *parms)
  {
-@@ -1665,6 +1833,46 @@ static void ip6_tnl_netlink_parms(struct
+@@ -1665,6 +1834,46 @@ static void ip6_tnl_netlink_parms(struct
  
  	if (data[IFLA_IPTUN_PROTO])
  		parms->proto = nla_get_u8(data[IFLA_IPTUN_PROTO]);
@@ -415,7 +423,7 @@ Index: linux-4.4.162/net/ipv6/ip6_tunnel.c
  }
  
  static int ip6_tnl_newlink(struct net *src_net, struct net_device *dev,
-@@ -1717,6 +1925,12 @@ static void ip6_tnl_dellink(struct net_d
+@@ -1717,6 +1926,12 @@ static void ip6_tnl_dellink(struct net_d
  
  static size_t ip6_tnl_get_size(const struct net_device *dev)
  {
@@ -428,7 +436,7 @@ Index: linux-4.4.162/net/ipv6/ip6_tunnel.c
  	return
  		/* IFLA_IPTUN_LINK */
  		nla_total_size(4) +
-@@ -1734,6 +1948,24 @@ static size_t ip6_tnl_get_size(const str
+@@ -1734,6 +1949,24 @@ static size_t ip6_tnl_get_size(const str
  		nla_total_size(4) +
  		/* IFLA_IPTUN_PROTO */
  		nla_total_size(1) +
@@ -453,7 +461,7 @@ Index: linux-4.4.162/net/ipv6/ip6_tunnel.c
  		0;
  }
  
-@@ -1741,6 +1973,9 @@ static int ip6_tnl_fill_info(struct sk_b
+@@ -1741,6 +1974,9 @@ static int ip6_tnl_fill_info(struct sk_b
  {
  	struct ip6_tnl *tunnel = netdev_priv(dev);
  	struct __ip6_tnl_parm *parm = &tunnel->parms;
@@ -463,7 +471,7 @@ Index: linux-4.4.162/net/ipv6/ip6_tunnel.c
  
  	if (nla_put_u32(skb, IFLA_IPTUN_LINK, parm->link) ||
  	    nla_put_in6_addr(skb, IFLA_IPTUN_LOCAL, &parm->laddr) ||
-@@ -1749,8 +1984,27 @@ static int ip6_tnl_fill_info(struct sk_b
+@@ -1749,8 +1985,27 @@ static int ip6_tnl_fill_info(struct sk_b
  	    nla_put_u8(skb, IFLA_IPTUN_ENCAP_LIMIT, parm->encap_limit) ||
  	    nla_put_be32(skb, IFLA_IPTUN_FLOWINFO, parm->flowinfo) ||
  	    nla_put_u32(skb, IFLA_IPTUN_FLAGS, parm->flags) ||
@@ -492,7 +500,7 @@ Index: linux-4.4.162/net/ipv6/ip6_tunnel.c
  	return 0;
  
  nla_put_failure:
-@@ -1774,6 +2028,7 @@ static const struct nla_policy ip6_tnl_p
+@@ -1774,6 +2029,7 @@ static const struct nla_policy ip6_tnl_p
  	[IFLA_IPTUN_FLOWINFO]		= { .type = NLA_U32 },
  	[IFLA_IPTUN_FLAGS]		= { .type = NLA_U32 },
  	[IFLA_IPTUN_PROTO]		= { .type = NLA_U8 },
