@@ -1,6 +1,6 @@
-From 8e9337e5cad38cde340a1184bf93311dc1427618 Mon Sep 17 00:00:00 2001
+From 353e3410b5b7f77f9acb6c9b688c55529d13a4e2 Mon Sep 17 00:00:00 2001
 From: Josef Schlehofer <josef.schlehofer@nic.cz>
-Date: Fri, 26 Oct 2018 00:06:18 +0200
+Date: Fri, 26 Oct 2018 17:22:28 +0200
 Subject: [PATCH] nginx: update to version 1.15.5
 
 ---
@@ -34,7 +34,7 @@ index bf6b834c2..2a8ce3389 100644
 @@ -66,6 +66,11 @@ config NGINX_HTTP_AUTH_BASIC
  	prompt "Enable HTTP auth basic"
  	default y
-
+ 
 +config NGINX_HTTP_AUTH_REQUEST
 +	bool
 +	prompt "Enable HTTP auth request module"
@@ -46,7 +46,7 @@ index bf6b834c2..2a8ce3389 100644
 @@ -167,6 +172,11 @@ config NGINX_HTTP_CACHE
  	prompt "Enable HTTP cache"
  	default y
-
+ 
 +config NGINX_HTTP_V2
 +	bool
 +	prompt "Enable HTTP_V2 module"
@@ -58,7 +58,7 @@ index bf6b834c2..2a8ce3389 100644
 @@ -182,4 +192,48 @@ config NGINX_LUA
  	prompt "Enable Lua module"
  	default n
-
+ 
 +config NGINX_HTTP_REAL_IP
 +	bool
 +	prompt "Enable HTTP real ip module"
@@ -68,19 +68,19 @@ index bf6b834c2..2a8ce3389 100644
 +	bool
 +	prompt "Enable HTTP secure link module"
 +	default n
-+
++	
 +config NGINX_HTTP_SUB
 +	bool
 +	prompt "Enable HTTP sub module"
 +	default n
-+
++	
 +config NGINX_HEADERS_MORE
 +	bool
 +	prompt "Enable Headers_more module"
 +	help
 +		Set and clear input and output headers...more than "add"!
 +	default y
-+
++	
 +config NGINX_HTTP_BROTLI
 +	bool
 +	prompt "Enable Brotli compression module"
@@ -311,14 +311,14 @@ index 000000000..4fc79016f
 +	bool
 +	prompt "Enable HTTP sub module"
 +	default n
-+
++	
 +config NGINX_HEADERS_MORE
 +	bool
 +	prompt "Enable Headers_more module"
 +	help
 +		Set and clear input and output headers...more than "add"!
 +	default y
-+
++	
 +config NGINX_HTTP_BROTLI
 +	bool
 +	prompt "Enable Brotli compression module"
@@ -347,13 +347,13 @@ index fa1e87391..d04dd857a 100644
 +++ b/net/nginx/Makefile
 @@ -8,17 +8,20 @@
  include $(TOPDIR)/rules.mk
-
+ 
  PKG_NAME:=nginx
 -PKG_VERSION:=1.10.1
 -PKG_RELEASE:=2
 +PKG_VERSION:=1.15.5
 +PKG_RELEASE:=1
-
+ 
  PKG_SOURCE:=nginx-$(PKG_VERSION).tar.gz
  PKG_SOURCE_URL:=http://nginx.org/download/
 -PKG_MD5SUM:=088292d9caf6059ef328aa7dda332e44
@@ -363,14 +363,14 @@ index fa1e87391..d04dd857a 100644
 +PKG_MAINTAINER:=Thomas Heil <heil@terminal-consulting.de> \
 +				Ansuel Smith <ansuelsmth@gmail.com>
  PKG_LICENSE:=2-clause BSD-like license
-
+ 
 -PKG_BUILD_DIR:=$(BUILD_DIR)/nginx-$(PKG_VERSION)
 +PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
-
+ 
 +PKG_FIXUP:=autoreconf
  PKG_BUILD_PARALLEL:=1
  PKG_INSTALL:=1
-
+ 
 @@ -33,6 +36,7 @@ PKG_CONFIG_DEPENDS := \
  	CONFIG_NGINX_HTTP_USERID \
  	CONFIG_NGINX_HTTP_ACCESS \
@@ -394,9 +394,9 @@ index fa1e87391..d04dd857a 100644
 +	CONFIG_NGINX_HEADERS_MORE \
 +	CONFIG_NGINX_RTMP_MODULE \
 +	CONFIG_NGINX_TS_MODULE \
-
+ 
  include $(INCLUDE_DIR)/package.mk
-
+ 
 -define Package/nginx
 +define Package/nginx/default
    SECTION:=net
@@ -409,7 +409,7 @@ index fa1e87391..d04dd857a 100644
 +  DEPENDS:=+NGINX_PCRE:libpcre +(NGINX_SSL||NGINX_HTTP_CACHE||NGINX_HTTP_AUTH_BASIC):libopenssl \
 +	+NGINX_HTTP_GZIP:zlib +NGINX_LUA:liblua +libpthread +NGINX_DAV:libexpat
  endef
-
+ 
  define Package/nginx/description
 - nginx is an HTTP and reverse proxy server, as well as a mail proxy server,
 - written by Igor Sysoev.
@@ -430,7 +430,7 @@ index fa1e87391..d04dd857a 100644
 +  VARIANT:=ssl
 +  PROVIDES:=nginx
  endef
-
+ 
 +Package/nginx-ssl/description = $(Package/nginx/description) \
 +  This varian is compiled with SSL support enabled. To enable additional module \
 +  select them in the nginx default configuration menu.
@@ -449,17 +449,17 @@ index fa1e87391..d04dd857a 100644
  define Package/nginx/config
    source "$(SOURCE)/Config.in"
  endef
-
+ 
 +define Package/nginx-ssl/config
 +  source "$(SOURCE)/Config_ssl.in"
 +endef
 +
  config_files=nginx.conf mime.types
-
+ 
  define Package/nginx/conffiles
  /etc/nginx/
  endef
-
+ 
 +Package/nginx-ssl/conffiles = $(Package/nginx/conffiles)
 +Package/nginx-all-module/conffiles = $(Package/nginx/conffiles)
 +
@@ -622,13 +622,13 @@ index fa1e87391..d04dd857a 100644
 +  ifneq ($(CONFIG_NGINX_HTTP_UPSTREAM_KEEPALIVE),y)
 +    ADDITIONAL_MODULES += --without-http_upstream_keepalive_module
 +  endif
-+
++  
 +  ifeq ($(BUILD_VARIANT),ssl)
 +    ifneq ($(CONFIG_NGINX_SSL),y)
 +      ADDITIONAL_MODULES += --with-http_ssl_module
 +    endif
 +  endif
-+
++  
 +  ifeq ($(CONFIG_NGINX_SSL),y)
 +    ADDITIONAL_MODULES += --with-http_ssl_module
 +  endif
@@ -726,9 +726,9 @@ index fa1e87391..d04dd857a 100644
 +	--with-http_secure_link_module --with-http_sub_module --add-module=$(PKG_BUILD_DIR)/nginx-headers-more \
 +	--add-module=$(PKG_BUILD_DIR)/nginx-brotli --add-module=$(PKG_BUILD_DIR)/nginx-rtmp \
 +	--add-module=$(PKG_BUILD_DIR)/nginx-ts
-+  config_files += koi-utf koi-win win-utf fastcgi_params
++  config_files += koi-utf koi-win win-utf fastcgi_params 
  endif
-
+ 
 +define Package/nginx-mod-luci/default
 +  TITLE:=Nginx on LuCI
 +  SECTION:=net
@@ -759,7 +759,7 @@ index fa1e87391..d04dd857a 100644
 +
  TARGET_CFLAGS += -fvisibility=hidden -ffunction-sections -fdata-sections -DNGX_LUA_NO_BY_LUA_BLOCK
  TARGET_LDFLAGS += -Wl,--gc-sections
-
+ 
 -define Build/Configure
 -	( cd $(PKG_BUILD_DIR) ; \
 -		$(if $(CONFIG_NGINX_LUA),LUA_INC=$(STAGING_DIR)/usr/include LUA_LIB=$(STAGING_DIR)/usr/lib) \
@@ -796,12 +796,12 @@ index fa1e87391..d04dd857a 100644
 +	$(INSTALL_DIR) $(1)/etc/uci-defaults
 +	$(INSTALL_BIN) ./files-luci-support/70_nginx-luci-support-ssl $(1)/etc/uci-defaults/70_nginx-luci-support-ssl
  endef
-
+ 
  define Package/nginx/install
 @@ -234,37 +379,149 @@ endif
  	$(if $(CONFIG_NGINX_NAXSI),$(chmod 0640 $(1)/etc/nginx/naxsi_core.rules))
  endef
-
+ 
 +Package/nginx-ssl/install = $(Package/nginx/install)
 +Package/nginx-all-module/install = $(Package/nginx/install)
 +
@@ -818,7 +818,7 @@ index fa1e87391..d04dd857a 100644
 +	$(Prepare/nginx-ts)
 +	$(Prepare/nginx-dav-ext-module)
  endef
-
+ 
 -define Download/nginx-naxsi
 -	VERSION:=7a6ff365f6be736c826b2d69b967a250ac07197d
 -	SUBDIR:=nginx-naxsi
@@ -826,7 +826,7 @@ index fa1e87391..d04dd857a 100644
 -	URL:=https://github.com/nbs-system/naxsi.git
 -	PROTO:=git
 -endef
-
+ 
 -define  Prepare/nginx-naxsi
 -	$(eval $(call Download,nginx-naxsi))
 +ifeq ($(CONFIG_NGINX_HEADERS_MORE),y)
@@ -846,7 +846,7 @@ index fa1e87391..d04dd857a 100644
 -endef
 +  endef
 +endif
-
+ 
 -define Download/lua-nginx
 -	VERSION:=1967998b0eedab1ff51bff8fafa5fc3db47976aa
 -	SUBDIR:=lua-nginx
@@ -854,7 +854,7 @@ index fa1e87391..d04dd857a 100644
 -	URL:=https://github.com/openresty/lua-nginx-module.git
 -	PROTO:=git
 -endef
-
+ 
 -define  Prepare/lua-nginx
 -	$(eval $(call Download,lua-nginx))
 +ifeq ($(CONFIG_NGINX_HTTP_BROTLI),y)
@@ -965,7 +965,7 @@ index fa1e87391..d04dd857a 100644
 +	gzip -dc $(DL_DIR)/$(FILE) | tar -C $(PKG_BUILD_DIR) $(TAR_OPTIONS)
 +  endef
 +endif
-
+ 
  $(eval $(call BuildPackage,nginx))
 +$(eval $(call BuildPackage,nginx-ssl))
 +$(eval $(call BuildPackage,nginx-all-module))
@@ -1036,12 +1036,12 @@ index 000000000..76ce3a819
 +
 +
 +if [ ! -f "/etc/nginx/nginx.key" ]; then
-+
++	
 +	NGINX_KEY=/etc/nginx/nginx.key
 +	NGINX_CER=/etc/nginx/nginx.cer
 +	OPENSSL_BIN=/usr/bin/openssl
 +	PX5G_BIN=/usr/sbin/px5g
-+
++	
 +	# Prefer px5g for certificate generation (existence evaluated last)
 +	GENKEY_CMD=""
 +	UNIQUEID=$(dd if=/dev/urandom bs=1 count=4 | hexdump -e '1/1 "%02x"')
@@ -1087,7 +1087,7 @@ index 000000000..8ef6e5944
 +
 +	sendfile on;
 +    keepalive_timeout 0;
-+
++	
 +	client_body_buffer_size 10K;
 +	client_header_buffer_size 1k;
 +	client_max_body_size 1G;
@@ -1098,14 +1098,14 @@ index 000000000..8ef6e5944
 +    gzip_vary on;
 +    gzip_comp_level 1;
 +    gzip_proxied any;
-+
++	
 +	root /www;
 +
 +    server {
 +        listen 80 default_server;
 +		listen [::]:80 default_server;
 +        server_name  localhost;
-+
++		
 +		location ~* .(jpg|jpeg|png|gif|ico|css|js)$ {
 +			expires 365d;
 +		}
@@ -1143,7 +1143,7 @@ index 000000000..8c8b53d65
 +
 +	sendfile on;
 +    keepalive_timeout 0;
-+
++	
 +	client_body_buffer_size 10K;
 +	client_header_buffer_size 1k;
 +	client_max_body_size 1G;
@@ -1154,9 +1154,9 @@ index 000000000..8c8b53d65
 +    gzip_vary on;
 +    gzip_comp_level 1;
 +    gzip_proxied any;
-+
++	
 +	root /www;
-+
++	
 +	server {
 +		listen 80 default_server;
 +		listen [::]:80 default_server;
@@ -1168,7 +1168,7 @@ index 000000000..8c8b53d65
 +        listen 443 ssl default_server;
 +		listen [::]:443 ssl default_server;
 +        server_name  localhost;
-+
++		
 +		ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
 +        ssl_prefer_server_ciphers on;
 +		ssl_ciphers "EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA+SHA384:EECDH+ECDSA+SHA256:EECDH+aRSA+SHA384:EECDH+aRSA+SHA256:EECDH:DHE+AESGCM:DHE:!RSA!aNULL:!eNULL:!LOW:!RC4:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS:!CAMELLIA:!SEED";
@@ -1176,7 +1176,7 @@ index 000000000..8c8b53d65
 +
 +		ssl_certificate /etc/nginx/nginx.cer;
 +        ssl_certificate_key /etc/nginx/nginx.key;
-+
++		
 +		location ~* .(jpg|jpeg|png|gif|ico|css|js)$ {
 +			expires 365d;
 +		}
@@ -1241,7 +1241,7 @@ index fef983fa7..968e12d58 100644
 -@@ -201,6 +201,7 @@ static ngx_command_t ngx_http_lua_cmds[]
 +@@ -209,6 +209,7 @@ static ngx_command_t ngx_http_lua_cmds[]
         (void *) ngx_http_lua_init_worker_by_file },
-
+  
   #if defined(NDK) && NDK
 @@ -42,7 +42,7 @@
       /* set_by_lua $res { inline Lua code } [$arg1 [$arg2 [...]]] */
@@ -1397,7 +1397,7 @@ index 2c692bc79..930e7da98 100644
           ngx_feature_path=
 -@@ -214,7 +214,7 @@ if [ "$NGX_PLATFORM" != win32 ]; then
 +@@ -218,7 +218,7 @@ if [ "$NGX_PLATFORM" != win32 ]; then
-
+  
       ngx_feature="gcc variadic macros"
       ngx_feature_name="NGX_HAVE_GCC_VARIADIC_MACROS"
 @@ -40,7 +40,7 @@
@@ -1424,7 +1424,7 @@ index 2c692bc79..930e7da98 100644
   ngx_feature_path=
 -@@ -132,7 +132,7 @@ ngx_include="sys/prctl.h"; . auto/includ
 +@@ -149,7 +149,7 @@ ngx_include="sys/prctl.h"; . auto/includ
-
+  
   ngx_feature="prctl(PR_SET_DUMPABLE)"
   ngx_feature_name="NGX_HAVE_PR_SET_DUMPABLE"
 @@ -69,7 +69,7 @@
@@ -1433,7 +1433,7 @@ index 2c692bc79..930e7da98 100644
  +++ b/auto/unix
 -@@ -735,7 +735,7 @@ ngx_feature_test="void *p; p = memalign(
 +@@ -840,7 +840,7 @@ ngx_feature_test="void *p; p = memalign(
-
+  
   ngx_feature="mmap(MAP_ANON|MAP_SHARED)"
   ngx_feature_name="NGX_HAVE_MAP_ANON"
 @@ -78,7 +78,7 @@
@@ -1442,7 +1442,7 @@ index 2c692bc79..930e7da98 100644
   ngx_feature_libs=
 -@@ -748,7 +748,7 @@ ngx_feature_test="void *p;
 +@@ -853,7 +853,7 @@ ngx_feature_test="void *p;
-
+  
   ngx_feature='mmap("/dev/zero", MAP_SHARED)'
   ngx_feature_name="NGX_HAVE_MAP_DEVZERO"
 @@ -87,7 +87,7 @@
@@ -1451,7 +1451,7 @@ index 2c692bc79..930e7da98 100644
                     #include <fcntl.h>"
 -@@ -763,7 +763,7 @@ ngx_feature_test='void *p; int  fd;
 +@@ -868,7 +868,7 @@ ngx_feature_test='void *p; int  fd;
-
+  
   ngx_feature="System V shared memory"
   ngx_feature_name="NGX_HAVE_SYSVSHM"
 @@ -96,7 +96,7 @@
@@ -1460,7 +1460,7 @@ index 2c692bc79..930e7da98 100644
   ngx_feature_path=
 -@@ -777,7 +777,7 @@ ngx_feature_test="int  id;
 +@@ -882,7 +882,7 @@ ngx_feature_test="int  id;
-
+  
   ngx_feature="POSIX semaphores"
   ngx_feature_name="NGX_HAVE_POSIX_SEM"
 diff --git a/net/nginx/patches/102-sizeof_test_fix.patch b/net/nginx/patches/102-sizeof_test_fix.patch
@@ -1477,11 +1477,11 @@ index 36d7aaff4..7d2430eab 100644
  +    printf("dummy use of object_code_block to avoid gc-section: %c", object_code_block[0]);
       return 0;
   }
-
+  
 -@@ -40,7 +45,7 @@ eval "$ngx_test >> $NGX_AUTOCONF_ERR 2>&
 +@@ -40,7 +46,7 @@ eval "$ngx_test >> $NGX_AUTOCONF_ERR 2>&
-
-
+  
+  
   if [ -x $NGX_AUTOTEST ]; then
 diff --git a/net/nginx/patches/201-ignore-invalid-options.patch b/net/nginx/patches/201-ignore-invalid-options.patch
 new file mode 100644
@@ -1493,7 +1493,7 @@ index 000000000..28be2fb71
 ++++ b/auto/options
 +@@ -397,8 +397,7 @@ $0: warning: the \"--with-sha1-asm\" opt
 +         --test-build-solaris-sendfilev)  NGX_TEST_BUILD_SOLARIS_SENDFILEV=YES ;;
-+
++ 
 +         *)
 +-            echo "$0: error: invalid option \"$option\""
 +-            exit 1
@@ -1512,7 +1512,7 @@ index 000000000..acceee310
 +@@ -171,13 +171,6 @@ case "$NGX_GCC_VER" in
 +     ;;
 + esac
-+
++ 
 +-
 +-# stop on warning
 +-CFLAGS="$CFLAGS -Werror"
@@ -1522,6 +1522,7 @@ index 000000000..acceee310
 +-
 + # DragonFly's gcc3 generates DWARF
 + #CFLAGS="$CFLAGS -g -gstabs"
-+
---
++ 
+-- 
 2.17.1
+
