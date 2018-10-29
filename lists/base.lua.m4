@@ -75,9 +75,9 @@ Install("haveged", { priority = 40 })
 
 -- Turris utility
 Install("oneshot", "libatsha204", "watchdog_adjust", "update_mac", "switch-branch", { priority = 40 })
-Install("user_notify", { priority = 40 })
+Install("user-notify", { priority = 40 })
 if for_l10n then
-	for_l10n("user_notify-l10n-")
+	for_l10n("user-notify-l10n-")
 end
 if not model or model:match("[Oo]mnia") then
 	Install("rainbow-omnia", { priority = 40 })
