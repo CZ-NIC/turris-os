@@ -419,3 +419,6 @@ CONFIG_PACKAGE_nginx-all-module=y
 
 # debootstrap
 CONFIG_PACKAGE_debootstrap=y
+
+# LuCI
+CONFIG_PACKAGE_luci-app-openvpn=y
