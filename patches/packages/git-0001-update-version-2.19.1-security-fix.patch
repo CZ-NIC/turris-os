@@ -1,22 +1,20 @@
-From 52d9982e4ffb89429106f6f3858b908467b0c999 Mon Sep 17 00:00:00 2001
+From bbb9c1ac4fefcf66d44aafdc31d6e1c0c60a4525 Mon Sep 17 00:00:00 2001
 From: Jan Pavlinec <jan.pavlinec@nic.cz>
-Date: Tue, 5 Jun 2018 09:53:55 +0200
-Subject: [PATCH] git: update to version 2.17.1 (security fix)
+Date: Wed, 31 Oct 2018 13:47:20 +0100
+Subject: [PATCH] git: update version 2.19.1 (security fix)
 
-CVE-2018-11235 - arbitary code execution via submodule names in .gitmodules
-CVE-2018-11233 - possible to trick the code that sanity-checks paths on NTFS into reading random piece of memory
-CVE-2018-1000021 - input Validation Error vulnerability in Client that can result in problems including messing up terminal configuration to RCE
+CVE-2018-17456 - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-17456
 
-Issue https://gitlab.labs.nic.cz/turris/openwrt/issues/193
+Issue https://gitlab.labs.nic.cz/turris/turris-os-packages/issues/242
 ---
- net/git/Makefile                                   |  55 +++++-
+ net/git/Makefile                                   |  55 ++++--
  .../patches/100-configure_for_crosscompiling.patch |  32 ++++
  net/git/patches/100-convert_builtin.patch          | 208 ---------------------
  net/git/patches/200-disable_fasthash.patch         |  12 --
  net/git/patches/200-imapsend_without_curl.patch    |  11 ++
  net/git/patches/300-configure_for_crosscompiling   |  32 ----
  net/git/patches/400-imapsend_without_curl.patch    |  11 --
- 7 files changed, 89 insertions(+), 272 deletions(-)
+ 7 files changed, 87 insertions(+), 274 deletions(-)
  create mode 100644 net/git/patches/100-configure_for_crosscompiling.patch
  delete mode 100644 net/git/patches/100-convert_builtin.patch
  delete mode 100644 net/git/patches/200-disable_fasthash.patch
@@ -25,7 +23,7 @@ Issue https://gitlab.labs.nic.cz/turris/openwrt/issues/193
  delete mode 100644 net/git/patches/400-imapsend_without_curl.patch
 
 diff --git a/net/git/Makefile b/net/git/Makefile
-index 1b9d772..3cef833 100644
+index 1b9d772..844a5d0 100644
 --- a/net/git/Makefile
 +++ b/net/git/Makefile
 @@ -1,5 +1,5 @@
@@ -40,13 +38,13 @@ index 1b9d772..3cef833 100644
  
  PKG_NAME:=git
 -PKG_VERSION:=2.8.2
-+PKG_VERSION:=2.17.1
++PKG_VERSION:=2.19.1
  PKG_RELEASE:=1
  
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
  PKG_SOURCE_URL:=@KERNEL/software/scm/git/
 -PKG_MD5SUM:=b8edb4ae34828fda6aa2a4478089b107
-+PKG_MD5SUM:=79136e7aa83abae4d8a25c8111f113d3c5a63aeb5fd93cc72c26d49c6d5ba65e
++PKG_MD5SUM:=345056aa9b8084280b1b9fe1374d232dec05a34e8849028a20bfdb56e920dbb5
  
  PKG_INSTALL:=1
  PKG_BUILD_PARALLEL:=1
@@ -77,7 +75,7 @@ index 1b9d772..3cef833 100644
  define Package/git-http
  $(call Package/git/Default)
 -  DEPENDS:=git +libcurl +ca-certificates
-+  DEPENDS+= +git +libcurl +ca-certificates
++  DEPENDS+= +git +libcurl
    TITLE:=Git HTTP commands
  endef
  
@@ -115,7 +113,7 @@ index 1b9d772..3cef833 100644
  
  CONFIGURE_ARGS += \
  	--without-iconv \
-@@ -81,13 +100,21 @@ define Build/Configure
+@@ -81,13 +100,18 @@ define Build/Configure
  	$(call Build/Configure/Default,)
  endef
  
@@ -125,35 +123,31 @@ index 1b9d772..3cef833 100644
 +endef
 +
  define Package/git/install
- 	$(INSTALL_DIR) $(1)/usr/bin
- 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/git $(1)/usr/bin
+-	$(INSTALL_DIR) $(1)/usr/bin
+-	$(CP) $(PKG_INSTALL_DIR)/usr/bin/git $(1)/usr/bin
  	$(RM) $(PKG_INSTALL_DIR)/usr/bin/git-cvsserver
++	$(RM) $(PKG_INSTALL_DIR)/usr/bin/git-shell
++	$(INSTALL_DIR) $(1)/usr/bin
  	$(CP) $(PKG_INSTALL_DIR)/usr/bin/git-* $(1)/usr/bin
  	$(INSTALL_DIR) $(1)/usr/lib/git-core
 -	$(LN) /usr/bin/git $(1)/usr/lib/git-core/git
-+	ln $(1)/usr/bin/git $(1)/usr/lib/git-core/git
-+	ln $(1)/usr/bin/git-shell $(1)/usr/lib/git-core/git-shell
-+	ln $(1)/usr/bin/git-upload-pack $(1)/usr/lib/git-core/git-upload-pack
 +	$(INSTALL_DIR) $(1)/usr/share/git-core/templates
  	( cd $(PKG_INSTALL_DIR); $(TAR) \
  		--exclude=usr/lib/git-core/git-http-backend \
  		--exclude=usr/lib/git-core/git-http-fetch \
-@@ -95,10 +122,13 @@ define Package/git/install
- 		--exclude=usr/lib/git-core/git-remote-ftps \
- 		--exclude=usr/lib/git-core/git-remote-http \
+@@ -97,8 +121,10 @@ define Package/git/install
  		--exclude=usr/lib/git-core/git-remote-https \
-+		--exclude=usr/lib/git-core/git \
-+		--exclude=usr/lib/git-core/git-shell \
-+		--exclude=usr/lib/git-core/git-upload-pack \
  		-cf - \
  		usr/lib/git-core \
 +		usr/share/git-core/templates \
  	) | ( cd $(1); $(TAR) -xf - )
 -	$(INSTALL_DIR) $(1)/usr/share/git-core/templates
++	ln $(1)/usr/lib/git-core/git $(1)/usr/bin/git
++	ln $(1)/usr/lib/git-core/git-shell $(1)/usr/bin/git-shell
  endef
  
  define Package/git-http/install
-@@ -111,5 +141,12 @@ define Package/git-http/install
+@@ -111,5 +137,12 @@ define Package/git-http/install
  	$(CP) $(PKG_INSTALL_DIR)/usr/lib/git-core/git-remote-https $(1)/usr/lib/git-core
  endef
  
@@ -168,15 +162,15 @@ index 1b9d772..3cef833 100644
 +$(eval $(call BuildPackage,git-gitweb))
 diff --git a/net/git/patches/100-configure_for_crosscompiling.patch b/net/git/patches/100-configure_for_crosscompiling.patch
 new file mode 100644
-index 0000000..eb8d4f7
+index 0000000..07796e6
 --- /dev/null
 +++ b/net/git/patches/100-configure_for_crosscompiling.patch
 @@ -0,0 +1,32 @@
 +--- a/configure.ac
 ++++ b/configure.ac
-+@@ -925,7 +925,8 @@ AC_RUN_IFELSE(
++@@ -929,7 +929,8 @@ AC_RUN_IFELSE(
 + 		FILE *f = fopen(".", "r");
-+ 		return f)]])],
++ 		return f != NULL;]])],
 + 	[ac_cv_fread_reads_directories=no],
 +-	[ac_cv_fread_reads_directories=yes])
 ++	[ac_cv_fread_reads_directories=yes],
@@ -184,7 +178,7 @@ index 0000000..eb8d4f7
 + ])
 + if test $ac_cv_fread_reads_directories = yes; then
 + 	FREAD_READS_DIRECTORIES=UnfortunatelyYes
-+@@ -959,7 +960,8 @@ AC_RUN_IFELSE(
++@@ -963,7 +964,8 @@ AC_RUN_IFELSE(
 + 		  if (snprintf(buf, 3, "%s", "12345") != 5
 + 		      || strcmp(buf, "12")) return 1]])],
 + 	[ac_cv_snprintf_returns_bogus=no],
@@ -194,7 +188,7 @@ index 0000000..eb8d4f7
 + ])
 + if test $ac_cv_snprintf_returns_bogus = yes; then
 + 	SNPRINTF_RETURNS_BOGUS=UnfortunatelyYes
-+@@ -982,7 +984,8 @@ yippeeyeswehaveit
++@@ -986,7 +988,8 @@ yippeeyeswehaveit
 + #endif
 + ]),
 + 	[ac_cv_sane_mode_bits=yes],
@@ -438,13 +432,13 @@ index 91f255f..0000000
 - 	BASIC_CFLAGS += -D_OSF_SOURCE
 diff --git a/net/git/patches/200-imapsend_without_curl.patch b/net/git/patches/200-imapsend_without_curl.patch
 new file mode 100644
-index 0000000..9f6f7a5
+index 0000000..75268a4
 --- /dev/null
 +++ b/net/git/patches/200-imapsend_without_curl.patch
 @@ -0,0 +1,11 @@
 +--- a/Makefile
 ++++ b/Makefile
-+@@ -1238,7 +1238,7 @@ else
++@@ -1312,7 +1312,7 @@ else
 + 	endif
 + 	curl_check := $(shell (echo 072200; $(CURL_CONFIG) --vernum | sed -e '/^70[BC]/s/^/0/') 2>/dev/null | sort -r | sed -ne 2p)
 + 	ifeq "$(curl_check)" "072200"
