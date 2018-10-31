@@ -1,0 +1,44 @@
+From 3118b451d9ad8dd22feebdfb57ec4db9cc9c0ff0 Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Wed, 31 Oct 2018 16:53:58 +0100
+Subject: [PATCH] tinc: update to version 1.0.35 (security fix)
+
+CVE-2018-16738 - https://security-tracker.debian.org/tracker/CVE-2018-16738
+CVE-2018-16758 - https://security-tracker.debian.org/tracker/CVE-2018-16758
+
+Issue https://gitlab.labs.nic.cz/turris/turris-os-packages/issues/236
+---
+ net/tinc/Makefile | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/net/tinc/Makefile b/net/tinc/Makefile
+index 3763613..77f0561 100644
+--- a/net/tinc/Makefile
++++ b/net/tinc/Makefile
+@@ -8,12 +8,12 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=tinc
+-PKG_VERSION:=1.0.28
++PKG_VERSION:=1.0.35
+ PKG_RELEASE:=1
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://www.tinc-vpn.org/packages
+-PKG_MD5SUM:=9ca14c9902fb4011b5df6a09ffd40ea9
++PKG_MD5SUM:=18c83b147cc3e2133a7ac2543eeb014d52070de01c7474287d3ccecc9b16895e
+ 
+ PKG_INSTALL:=1
+ 
+@@ -22,7 +22,7 @@ include $(INCLUDE_DIR)/package.mk
+ define Package/tinc
+   SECTION:=net
+   CATEGORY:=Network
+-  DEPENDS:=+liblzo +libopenssl +kmod-tun
++  DEPENDS:=+liblzo +libopenssl +kmod-tun +zlib
+   TITLE:=VPN tunneling daemon
+   URL:=http://www.tinc-vpn.org/
+   MAINTAINER:=Saverio Proto <zioproto@gmail.com>
+-- 
+2.7.4
+
