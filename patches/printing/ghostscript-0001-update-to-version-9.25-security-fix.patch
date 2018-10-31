@@ -1,0 +1,43 @@
+From d1ac0047a7b0c6481d22d6f984eca043d3a7849a Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Wed, 31 Oct 2018 16:03:55 +0100
+Subject: [PATCH] ghostscript: update to version 9.25 (security fix)
+
+Issue https://gitlab.labs.nic.cz/turris/turris-os-packages/issues/239
+---
+ net/ghostscript/Makefile | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/net/ghostscript/Makefile b/net/ghostscript/Makefile
+index 2c1ea8e..8a7b04d 100644
+--- a/net/ghostscript/Makefile
++++ b/net/ghostscript/Makefile
+@@ -1,5 +1,5 @@
+ #
+-# Copyright (C) 2013 OpenWrt.org
++# Copyright (C) 2018 OpenWrt.org
+ #
+ # This is free software, licensed under the GNU General Public License v2.
+ # See /LICENSE for more information.
+@@ -8,11 +8,14 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=ghostscript
+-PKG_VERSION:=9.06
+-PKG_RELEASE:=2
++PKG_VERSION:=9.25
++PKG_RELEASE:=1
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+-PKG_SOURCE_URL:=http://downloads.ghostscript.com/public/old-gs-releases/
+-PKG_MD5SUM:=153ddb0622cb155d2f600146f1e28d84
++#PKG_SOURCE_URL:=http://downloads.ghostscript.com/public/old-gs-releases/
++PKG_SOURCE_URL:=https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs925/
++
++
++#PKG_MD5SUM:=153ddb0622cb155d2f600146f1e28d84
+ 
+ PKG_BUILD_DEPENDS:=ghostscript/host zlib/host
+ PKG_INSTALL:=1
+-- 
+2.7.4
+
