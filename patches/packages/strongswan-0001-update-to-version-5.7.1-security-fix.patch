@@ -1,0 +1,1029 @@
+From 10020f20b586edad764354fe3834f28fdac2efbf Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Thu, 1 Nov 2018 12:26:57 +0100
+Subject: [PATCH] strongswan: update to version 5.7.1 (security fix)
+
+CVE-2018-16152 https://www.strongswan.org/blog/2018/09/24/strongswan-vulnerability-(cve-2018-16151,-cve-2018-16152).html
+CVE-2018-17540 - https://cve.mitre.org/cgi-bin/cvename.cgi?name=2018-17540
+
+Issue https://gitlab.labs.nic.cz/turris/turris-os-packages/issues/237
+---
+ net/strongswan/Makefile                            | 140 +++++++-
+ net/strongswan/files/etc/hotplug.d/ipsec/01-user   |   7 +
+ net/strongswan/files/ipsec.init                    | 381 ++++++++++++++++++++-
+ net/strongswan/patches/101-musl-fixes.patch        |  26 +-
+ net/strongswan/patches/201-kmodloader.patch        |   4 +-
+ net/strongswan/patches/203-uci.patch               |   6 +-
+ net/strongswan/patches/210-sleep.patch             |  11 +
+ .../patches/300-include-ipsec-hotplug.patch        |  16 +
+ .../patches/300-include-ipsec-user-script.patch    |  17 -
+ net/strongswan/patches/305-minimal_dh_plugin.patch |  28 +-
+ 10 files changed, 559 insertions(+), 77 deletions(-)
+ create mode 100644 net/strongswan/files/etc/hotplug.d/ipsec/01-user
+ create mode 100644 net/strongswan/patches/210-sleep.patch
+ create mode 100644 net/strongswan/patches/300-include-ipsec-hotplug.patch
+ delete mode 100644 net/strongswan/patches/300-include-ipsec-user-script.patch
+
+diff --git a/net/strongswan/Makefile b/net/strongswan/Makefile
+index 84cdaf1..e45fd54 100644
+--- a/net/strongswan/Makefile
++++ b/net/strongswan/Makefile
+@@ -1,5 +1,5 @@
+ #
+-# Copyright (C) 2012-2015 OpenWrt.org
++# Copyright (C) 2012-2018 OpenWrt.org
+ #
+ # This is free software, licensed under the GNU General Public License v2.
+ # See /LICENSE for more information.
+@@ -8,14 +8,14 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=strongswan
+-PKG_VERSION:=5.3.5
++PKG_VERSION:=5.7.1
+ PKG_RELEASE:=1
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+ PKG_SOURCE_URL:=http://download.strongswan.org/ http://download2.strongswan.org/
+-PKG_MD5SUM:=a2f9ea185f27e7f8413d4cd2ee61efe4
++PKG_MD5SUM:=006f9c9126e2a2f4e7a874b5e1bd2abec1bbbb193c8b3b3a4c6ccd8c2d454bec
+ PKG_LICENSE:=GPL-2.0+
+-PKG_MAINTAINER:=Steven Barth <cyrus@openwrt.org>
++PKG_MAINTAINER:=Stijn Tintel <stijn@linux-ipv6.be>
+ 
+ PKG_MOD_AVAILABLE:= \
+ 	addrblock \
+@@ -32,6 +32,7 @@ PKG_MOD_AVAILABLE:= \
+ 	coupling \
+ 	ctr \
+ 	curl \
++	curve25519 \
+ 	des \
+ 	dhcp \
+ 	dnskey \
+@@ -43,6 +44,7 @@ PKG_MOD_AVAILABLE:= \
+ 	eap-tls \
+ 	farp \
+ 	fips-prf \
++	forecast \
+ 	gcm \
+ 	gcrypt \
+ 	gmp \
+@@ -84,6 +86,7 @@ PKG_MOD_AVAILABLE:= \
+ 	unity \
+ 	uci \
+ 	updown \
++	vici \
+ 	whitelist \
+ 	x509 \
+ 	xauth-eap \
+@@ -100,6 +103,8 @@ PKG_INSTALL:=1
+ PKG_BUILD_PARALLEL:=1
+ 
+ include $(INCLUDE_DIR)/package.mk
++# strongswan-mod-mysql needs iconv
++include $(INCLUDE_DIR)/nls.mk
+ 
+ define Package/strongswan/Default
+   SUBMENU:=VPN
+@@ -135,6 +140,8 @@ $(call Package/strongswan/Default)
+   TITLE+= (full)
+   DEPENDS:= +strongswan \
+ 	+strongswan-charon \
++	+strongswan-charon-cmd \
++	+strongswan-ipsec \
+ 	+strongswan-mod-addrblock \
+ 	+strongswan-mod-aes \
+ 	+strongswan-mod-af-alg \
+@@ -149,6 +156,7 @@ $(call Package/strongswan/Default)
+ 	+strongswan-mod-coupling \
+ 	+strongswan-mod-ctr \
+ 	+strongswan-mod-curl \
++	+strongswan-mod-curve25519 \
+ 	+strongswan-mod-des \
+ 	+strongswan-mod-dhcp \
+ 	+strongswan-mod-dnskey \
+@@ -160,6 +168,7 @@ $(call Package/strongswan/Default)
+ 	+strongswan-mod-eap-tls \
+ 	+strongswan-mod-farp \
+ 	+strongswan-mod-fips-prf \
++	+strongswan-mod-forecast \
+ 	+strongswan-mod-gcm \
+ 	+strongswan-mod-gcrypt \
+ 	+strongswan-mod-gmp \
+@@ -198,12 +207,15 @@ $(call Package/strongswan/Default)
+ 	+strongswan-mod-uci \
+ 	+strongswan-mod-unity \
+ 	+strongswan-mod-updown \
++	+strongswan-mod-vici \
+ 	+strongswan-mod-whitelist \
+ 	+strongswan-mod-x509 \
+ 	+strongswan-mod-xauth-eap \
+ 	+strongswan-mod-xauth-generic \
+ 	+strongswan-mod-xcbc \
+-	+strongswan-utils \
++	+strongswan-pki \
++	+strongswan-scepclient \
++	+strongswan-swanctl \
+ 	@DEVEL
+ endef
+ 
+@@ -221,6 +233,7 @@ $(call Package/strongswan/Default)
+   TITLE+= (default)
+   DEPENDS:= +strongswan \
+ 	+strongswan-charon \
++	+strongswan-ipsec \
+ 	+strongswan-mod-aes \
+ 	+strongswan-mod-attr \
+ 	+strongswan-mod-connmark \
+@@ -249,8 +262,7 @@ $(call Package/strongswan/Default)
+ 	+strongswan-mod-updown \
+ 	+strongswan-mod-x509 \
+ 	+strongswan-mod-xauth-generic \
+-	+strongswan-mod-xcbc \
+-	+strongswan-utils
++	+strongswan-mod-xcbc
+ endef
+ 
+ define Package/strongswan-default/description
+@@ -264,6 +276,7 @@ $(call Package/strongswan/Default)
+   TITLE+= (isakmp)
+   DEPENDS:= +strongswan \
+ 	+strongswan-charon \
++	+strongswan-ipsec \
+ 	+strongswan-mod-aes \
+ 	+strongswan-mod-des \
+ 	+strongswan-mod-gmpdh \
+@@ -277,8 +290,7 @@ $(call Package/strongswan/Default)
+ 	+strongswan-mod-socket-default \
+ 	+strongswan-mod-stroke \
+ 	+strongswan-mod-uci \
+-	+strongswan-mod-updown \
+-	+strongswan-utils
++	+strongswan-mod-updown
+ endef
+ 
+ define Package/strongswan-isakmp/description
+@@ -325,15 +337,59 @@ $(call Package/strongswan/description/Default)
+  This package contains charon, an IKEv2 keying daemon.
+ endef
+ 
+-define Package/strongswan-utils
++define Package/strongswan-charon-cmd
++$(call Package/strongswan/Default)
++  TITLE+= charon-cmd utility
++  DEPENDS:= +strongswan +strongswan-charon
++endef
++
++define Package/strongswan-charon-cmd/description
++$(call Package/strongswan/description/Default)
++ This package contains the charon-cmd utility.
++endef
++
++define Package/strongswan-ipsec
+ $(call Package/strongswan/Default)
+   TITLE+= utilities
+   DEPENDS:= +strongswan
+ endef
+ 
+-define Package/strongswan-utils/description
++define Package/strongswan-ipsec/description
++$(call Package/strongswan/description/Default)
++ This package contains the ipsec utility.
++endef
++
++define Package/strongswan-pki
++$(call Package/strongswan/Default)
++  TITLE+= PKI tool
++  DEPENDS:= +strongswan
++endef
++
++define Package/strongswan-pki/description
+ $(call Package/strongswan/description/Default)
+- This package contains the pki & scepclient utilities.
++ This package contains the pki tool.
++endef
++
++define Package/strongswan-scepclient
++$(call Package/strongswan/Default)
++  TITLE+= SCEP client
++  DEPENDS:= +strongswan
++endef
++
++define Package/strongswan-scepclient/description
++$(call Package/strongswan/description/Default)
++ This package contains the SCEP client.
++endef
++
++define Package/strongswan-swanctl
++$(call Package/strongswan/Default)
++  TITLE+= swanctl utility
++  DEPENDS:= +strongswan +strongswan-mod-vici
++endef
++
++define Package/strongswan-swanctl/description
++$(call Package/strongswan/description/Default)
++ This package contains the swanctl utility.
+ endef
+ 
+ define Package/strongswan-libtls
+@@ -372,15 +428,19 @@ CONFIGURE_ARGS+= \
+ 	--disable-scripts \
+ 	--disable-static \
+ 	--disable-fast \
++	--enable-mediation \
+ 	--with-systemdsystemunitdir=no \
+-	$(if $(CONFIG_PACKAGE_strongswan-utils),--enable-pki --enable-scepclient,--disable-pki --disable-scepclient) \
++	$(if $(CONFIG_PACKAGE_strongswan-charon-cmd),--enable-cmd,--disable-cmd) \
++	$(if $(CONFIG_PACKAGE_strongswan-pki),--enable-pki,--disable-pki) \
++	$(if $(CONFIG_PACKAGE_strongswan-scepclient),--enable-scepclient,--disable-scepclient) \
+ 	--with-random-device=/dev/random \
+ 	--with-urandom-device=/dev/urandom \
+ 	--with-routing-table="$(call qstrip,$(CONFIG_STRONGSWAN_ROUTING_TABLE))" \
+ 	--with-routing-table-prio="$(call qstrip,$(CONFIG_STRONGSWAN_ROUTING_TABLE_PRIO))" \
+ 	$(foreach m,$(PKG_MOD_AVAILABLE), \
+ 	  $(if $(CONFIG_PACKAGE_strongswan-mod-$(m)),--enable-$(m),--disable-$(m)) \
+-	)
++	) \
++	ac_cv_search___atomic_load=no
+ 
+ EXTRA_LDFLAGS+= -Wl,-rpath-link,$(STAGING_DIR)/usr/lib
+ 
+@@ -390,6 +450,7 @@ define Package/strongswan/conffiles
+ /etc/ipsec.secrets
+ /etc/ipsec.user
+ /etc/strongswan.conf
++/etc/strongswan.d/
+ endef
+ 
+ define Package/strongswan/install
+@@ -397,7 +458,7 @@ define Package/strongswan/install
+ 	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/ipsec.conf $(1)/etc/
+ 	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/strongswan.conf $(1)/etc/
+ 	$(INSTALL_DIR) $(1)/usr/lib/ipsec
+-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/ipsec/{libstrongswan.so.*,libhydra.so.*} $(1)/usr/lib/ipsec/
++	$(CP) $(PKG_INSTALL_DIR)/usr/lib/ipsec/libstrongswan.so.* $(1)/usr/lib/ipsec/
+ 	$(INSTALL_CONF) ./files/ipsec.secrets $(1)/etc/
+ 	$(INSTALL_CONF) ./files/ipsec.user $(1)/etc/
+ 	$(INSTALL_DIR) $(1)/etc/init.d
+@@ -421,20 +482,46 @@ define Package/strongswan-minimal/install
+ endef
+ 
+ define Package/strongswan-charon/install
++	$(INSTALL_DIR) $(1)/etc/strongswan.d
++	$(CP) $(PKG_INSTALL_DIR)/etc/strongswan.d/charon.conf $(1)/etc/strongswan.d
++	$(CP) $(PKG_INSTALL_DIR)/etc/strongswan.d/charon-logging.conf $(1)/etc/strongswan.d
+ 	$(INSTALL_DIR) $(1)/usr/lib/ipsec
+ 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/ipsec/charon $(1)/usr/lib/ipsec/
+ 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/ipsec/libcharon.so.* $(1)/usr/lib/ipsec/
+ endef
+ 
+-define Package/strongswan-utils/install
++define Package/strongswan-charon-cmd/install
++	$(INSTALL_DIR) $(1)/usr/sbin
++	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/charon-cmd $(1)/usr/sbin/
++endef
++
++define Package/strongswan-ipsec/install
+ 	$(INSTALL_DIR) $(1)/usr/sbin
+ 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/ipsec $(1)/usr/sbin/
++endef
++
++define Package/strongswan-pki/install
++	$(INSTALL_DIR) $(1)/etc/strongswan.d
++	$(CP) $(PKG_INSTALL_DIR)/etc/strongswan.d/pki.conf $(1)/etc/strongswan.d/
+ 	$(INSTALL_DIR) $(1)/usr/bin
+ 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/pki $(1)/usr/bin/
++endef
++
++define Package/strongswan-scepclient/install
++	$(INSTALL_DIR) $(1)/etc/strongswan.d
++	$(CP) $(PKG_INSTALL_DIR)/etc/strongswan.d/scepclient.conf $(1)/etc/strongswan.d/
+ 	$(INSTALL_DIR) $(1)/usr/lib/ipsec
+ 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/ipsec/scepclient $(1)/usr/lib/ipsec/
+ endef
+ 
++define Package/strongswan-swanctl/install
++	$(INSTALL_DIR) $(1)/etc/swanctl/{bliss,ecdsa,pkcs{12,8},private,pubkey,rsa}
++	$(INSTALL_DIR) $(1)/etc/swanctl/x509{,aa,ac,ca,crl,ocsp}
++	$(CP) $(PKG_INSTALL_DIR)/etc/swanctl/swanctl.conf $(1)/etc/swanctl/
++	$(INSTALL_DIR) $(1)/usr/sbin
++	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/swanctl $(1)/usr/sbin/
++endef
++
+ define Package/strongswan-libtls/install
+ 	$(INSTALL_DIR) $(1)/usr/lib/ipsec
+ 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/ipsec/libtls.so.* $(1)/usr/lib/ipsec/
+@@ -476,7 +563,15 @@ define Plugin/updown/install
+ 	$(INSTALL_DIR) $(1)/usr/lib/ipsec/plugins
+ 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/ipsec/_updown $(1)/usr/lib/ipsec/
+ 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/ipsec/plugins/libstrongswan-updown.so $(1)/usr/lib/ipsec/plugins/
+-	$(INSTALL_DIR) $(1)/etc
++	$(INSTALL_DIR) $(1)/etc/hotplug.d/ipsec
++	$(CP) ./files/etc/hotplug.d/ipsec/01-user \
++		$(1)/etc/hotplug.d/ipsec/01-user
++endef
++
++define Plugin/vici/install
++	$(INSTALL_DIR) $(1)/usr/lib/ipsec/plugins
++	$(CP) $(PKG_INSTALL_DIR)/usr/lib/ipsec/libvici.so.* $(1)/usr/lib/ipsec/
++	$(CP) $(PKG_INSTALL_DIR)/usr/lib/ipsec/plugins/libstrongswan-vici.so $(1)/usr/lib/ipsec/plugins/
+ endef
+ 
+ define Plugin/whitelist/install
+@@ -496,7 +591,11 @@ $(eval $(call BuildPackage,strongswan-full))
+ $(eval $(call BuildPackage,strongswan-minimal))
+ $(eval $(call BuildPackage,strongswan-isakmp))
+ $(eval $(call BuildPackage,strongswan-charon))
+-$(eval $(call BuildPackage,strongswan-utils))
++$(eval $(call BuildPackage,strongswan-charon-cmd))
++$(eval $(call BuildPackage,strongswan-ipsec))
++$(eval $(call BuildPackage,strongswan-pki))
++$(eval $(call BuildPackage,strongswan-scepclient))
++$(eval $(call BuildPackage,strongswan-swanctl))
+ $(eval $(call BuildPackage,strongswan-libtls))
+ $(eval $(call BuildPlugin,addrblock,RFC 3779 address block constraint support,))
+ $(eval $(call BuildPlugin,aes,AES crypto,))
+@@ -512,6 +611,7 @@ $(eval $(call BuildPlugin,constraints,advanced X509 constraint checking,))
+ $(eval $(call BuildPlugin,coupling,IKEv2 plugin to couple peer certificates permanently to authentication,))
+ $(eval $(call BuildPlugin,ctr,Counter Mode wrapper crypto,))
+ $(eval $(call BuildPlugin,curl,cURL fetcher plugin,+PACKAGE_strongswan-mod-curl:libcurl))
++$(eval $(call BuildPlugin,curve25519,Curve25519 Diffie-Hellman,))
+ $(eval $(call BuildPlugin,des,DES crypto,))
+ $(eval $(call BuildPlugin,dhcp,DHCP based attribute provider,))
+ $(eval $(call BuildPlugin,dnskey,DNS RR key decoding,))
+@@ -523,6 +623,7 @@ $(eval $(call BuildPlugin,eap-radius,EAP RADIUS auth,))
+ $(eval $(call BuildPlugin,eap-tls,EAP TLS auth,+strongswan-libtls))
+ $(eval $(call BuildPlugin,farp,fake arp respsonses,))
+ $(eval $(call BuildPlugin,fips-prf,FIPS PRF crypto,+strongswan-mod-sha1))
++$(eval $(call BuildPlugin,forecast,forward multi/broadcast traffic,+kmod-ipt-conntrack-extra))
+ $(eval $(call BuildPlugin,gcm,GCM AEAD wrapper crypto,))
+ $(eval $(call BuildPlugin,gcrypt,libgcrypt,+PACKAGE_strongswan-mod-gcrypt:libgcrypt))
+ $(eval $(call BuildPlugin,gmp,libgmp,+PACKAGE_strongswan-mod-gmp:libgmp))
+@@ -559,11 +660,12 @@ $(eval $(call BuildPlugin,socket-dynamic,dynamic socket implementation for charo
+ $(eval $(call BuildPlugin,sql,SQL database interface,))
+ $(eval $(call BuildPlugin,sqlite,SQLite database interface,+strongswan-mod-sql +PACKAGE_strongswan-mod-sqlite:libsqlite3))
+ $(eval $(call BuildPlugin,sshkey,SSH key decoding,))
+-$(eval $(call BuildPlugin,stroke,Stroke,+strongswan-utils))
++$(eval $(call BuildPlugin,stroke,Stroke,+strongswan-charon +strongswan-ipsec))
+ $(eval $(call BuildPlugin,test-vectors,crypto test vectors,))
+ $(eval $(call BuildPlugin,uci,UCI config interface,+PACKAGE_strongswan-mod-uci:libuci))
+ $(eval $(call BuildPlugin,unity,Cisco Unity extension,))
+ $(eval $(call BuildPlugin,updown,updown firewall,))
++$(eval $(call BuildPlugin,vici,Versatile IKE Configuration Interface,))
+ $(eval $(call BuildPlugin,whitelist,peer identity whitelisting,))
+ $(eval $(call BuildPlugin,x509,x509 certificate,))
+ $(eval $(call BuildPlugin,xauth-eap,EAP XAuth backend,))
+diff --git a/net/strongswan/files/etc/hotplug.d/ipsec/01-user b/net/strongswan/files/etc/hotplug.d/ipsec/01-user
+new file mode 100644
+index 0000000..3d485c8
+--- /dev/null
++++ b/net/strongswan/files/etc/hotplug.d/ipsec/01-user
+@@ -0,0 +1,7 @@
++#!/bin/sh
++
++[ -e "/etc/ipsec.user" ] && {
++	. /etc/ipsec.user "$2"
++}
++
++exit 0
+diff --git a/net/strongswan/files/ipsec.init b/net/strongswan/files/ipsec.init
+index 391a2ae..07ccffd 100644
+--- a/net/strongswan/files/ipsec.init
++++ b/net/strongswan/files/ipsec.init
+@@ -3,18 +3,383 @@
+ START=90
+ STOP=10
+ 
+-start() {
+-	ipsec start
++USE_PROCD=1
++PROG=/usr/lib/ipsec/starter
++
++. $IPKG_INSTROOT/lib/functions.sh
++. $IPKG_INSTROOT/lib/functions/network.sh
++
++IPSEC_SECRETS_FILE=/etc/ipsec.secrets
++IPSEC_CONN_FILE=/etc/ipsec.conf
++STRONGSWAN_CONF_FILE=/etc/strongswan.conf
++
++IPSEC_VAR_SECRETS_FILE=/var/ipsec/ipsec.secrets
++IPSEC_VAR_CONN_FILE=/var/ipsec/ipsec.conf
++STRONGSWAN_VAR_CONF_FILE=/var/ipsec/strongswan.conf
++
++WAIT_FOR_INTF=0
++
++file_reset() {
++	: > "$1"
++}
++
++xappend() {
++	local file="$1"
++	shift
++
++	echo "${@}" >> "${file}"
++}
++
++remove_include() {
++	local file="$1"
++	local include="$2"
++
++	sed -i "\_${include}_d" "${file}"
++}
++
++remove_includes() {
++	remove_include "${IPSEC_CONN_FILE}" "${IPSEC_VAR_CONN_FILE}"
++	remove_include "${IPSEC_SECRETS_FILE}" "${IPSEC_VAR_SECRETS_FILE}"
++	remove_include "${STRONGSWAN_CONF_FILE}" "${STRONGSWAN_VAR_CONF_FILE}"
+ }
+ 
+-stop() {
+-	ipsec stop
++do_include() {
++	local conf="$1"
++	local uciconf="$2"
++	local backup=`mktemp -t -p /tmp/ ipsec-init-XXXXXX`
++
++	[ ! -f "${conf}" ] && rm -rf "${conf}"
++	touch "${conf}"
++
++	cat "${conf}" | grep -v "${uciconf}" > "${backup}"
++	mv "${backup}" "${conf}"
++	xappend "${conf}" "include ${uciconf}"
++	file_reset "${uciconf}"
++}
++
++ipsec_reset() {
++	do_include "${IPSEC_CONN_FILE}" "${IPSEC_VAR_CONN_FILE}"
+ }
+ 
+-restart() {
+-	ipsec restart
++ipsec_xappend() {
++	xappend "${IPSEC_VAR_CONN_FILE}" "$@"
+ }
+ 
+-reload() {
+-	ipsec update
++swan_reset() {
++	do_include "${STRONGSWAN_CONF_FILE}" "${STRONGSWAN_VAR_CONF_FILE}"
++}
++
++swan_xappend() {
++	xappend "${STRONGSWAN_VAR_CONF_FILE}" "$@"
++}
++
++secret_reset() {
++	do_include "${IPSEC_SECRETS_FILE}" "${IPSEC_VAR_SECRETS_FILE}"
++}
++
++secret_xappend() {
++	xappend "${IPSEC_VAR_SECRETS_FILE}" "$@"
++}
++
++warning() {
++	echo "WARNING: $@" >&2
++}
++
++add_crypto_proposal() {
++	local encryption_algorithm
++	local hash_algorithm
++	local dh_group
++
++	config_get encryption_algorithm  "$1" encryption_algorithm
++	config_get hash_algorithm        "$1" hash_algorithm
++	config_get dh_group              "$1" dh_group
++
++	[ -n "${encryption_algorithm}" ] && \
++		crypto="${crypto:+${crypto},}${encryption_algorithm}${hash_algorithm:+-${hash_algorithm}}${dh_group:+-${dh_group}}"
++}
++
++set_crypto_proposal() {
++	local conf="$1"
++	local proposal
++
++	crypto=""
++
++	config_get crypto_proposal "$conf" crypto_proposal ""
++	for proposal in $crypto_proposal; do
++		add_crypto_proposal "$proposal"
++	done
++
++	[ -n "${crypto}" ] && {
++		local force_crypto_proposal
++
++		config_get_bool force_crypto_proposal "$conf" force_crypto_proposal
++
++		[ "${force_crypto_proposal}" = "1" ] && crypto="${crypto}!"
++	}
++
++	crypto_proposal="${crypto}"
++}
++
++config_conn() {
++	# Generic ipsec conn section shared by tunnel and transport
++	local mode
++	local local_subnet
++	local local_nat
++	local local_sourceip
++	local local_updown
++	local local_firewall
++	local remote_subnet
++	local remote_sourceip
++	local remote_updown
++	local remote_firewall
++	local ikelifetime
++	local lifetime
++	local margintime
++	local keyingtries
++	local dpdaction
++	local dpddelay
++	local inactivity
++	local keyexchange
++
++	config_get mode                     "$1"           mode "route"
++	config_get local_subnet             "$1"           local_subnet ""
++	config_get local_nat                "$1"           local_nat ""
++	config_get local_sourceip           "$1"           local_sourceip ""
++	config_get local_updown             "$1"           local_updown ""
++	config_get local_firewall           "$1"           local_firewall ""
++	config_get remote_subnet            "$1"           remote_subnet ""
++	config_get remote_sourceip          "$1"           remote_sourceip ""
++	config_get remote_updown            "$1"           remote_updown ""
++	config_get remote_firewall          "$1"           remote_firewall ""
++	config_get ikelifetime              "$1"           ikelifetime "3h"
++	config_get lifetime                 "$1"           lifetime "1h"
++	config_get margintime               "$1"           margintime "9m"
++	config_get keyingtries              "$1"           keyingtries "3"
++	config_get dpdaction                "$1"           dpdaction "none"
++	config_get dpddelay                 "$1"           dpddelay "30s"
++	config_get inactivity               "$1"           inactivity
++	config_get keyexchange              "$1"           keyexchange "ikev2"
++
++	[ -n "$local_nat" ] && local_subnet=$local_nat
++
++	ipsec_xappend "conn $config_name-$1"
++	ipsec_xappend "  left=%any"
++	ipsec_xappend "  right=$remote_gateway"
++
++	[ -n "$local_sourceip" ] && ipsec_xappend "  leftsourceip=$local_sourceip"
++	[ -n "$local_subnet" ] && ipsec_xappend "  leftsubnet=$local_subnet"
++
++	[ -n "$local_firewall" ] && ipsec_xappend "  leftfirewall=$local_firewall"
++	[ -n "$remote_firewall" ] && ipsec_xappend "  rightfirewall=$remote_firewall"
++
++	ipsec_xappend "  ikelifetime=$ikelifetime"
++	ipsec_xappend "  lifetime=$lifetime"
++	ipsec_xappend "  margintime=$margintime"
++	ipsec_xappend "  keyingtries=$keyingtries"
++	ipsec_xappend "  dpdaction=$dpdaction"
++	ipsec_xappend "  dpddelay=$dpddelay"
++
++	[ -n "$inactivity" ] && ipsec_xappend "  inactivity=$inactivity"
++
++	if [ "$auth_method" = "psk" ]; then
++		ipsec_xappend "  leftauth=psk"
++		ipsec_xappend "  rightauth=psk"
++
++		[ "$remote_sourceip" != "" ] && ipsec_xappend "  rightsourceip=$remote_sourceip"
++		[ "$remote_subnet" != "" ] && ipsec_xappend "  rightsubnet=$remote_subnet"
++
++		ipsec_xappend "  auto=$mode"
++	else
++		warning "AuthenticationMethod $auth_method not supported"
++	fi
++
++	[ -n "$local_identifier" ] && ipsec_xappend "  leftid=$local_identifier"
++	[ -n "$remote_identifier" ] && ipsec_xappend "  rightid=$remote_identifier"
++	[ -n "$local_updown" ] && ipsec_xappend "  leftupdown=$local_updown"
++	[ -n "$remote_updown" ] && ipsec_xappend "  rightupdown=$remote_updown"
++	ipsec_xappend "  keyexchange=$keyexchange"
++
++	set_crypto_proposal "$1"
++	[ -n "${crypto_proposal}" ] && ipsec_xappend "  esp=$crypto_proposal"
++	[ -n "${ike_proposal}" ] && ipsec_xappend "  ike=$ike_proposal"
++}
++
++config_tunnel() {
++	config_conn "$1"
++
++	# Specific for the tunnel part
++	ipsec_xappend "  type=tunnel"
++}
++
++config_transport() {
++	config_conn "$1"
++
++	# Specific for the transport part
++	ipsec_xappend "  type=transport"
++}
++
++config_remote() {
++	local enabled
++	local gateway
++	local pre_shared_key
++	local auth_method
++
++	config_name=$1
++
++	config_get_bool enabled "$1" enabled 0
++	[ $enabled -eq 0 ] && return
++
++	config_get gateway           "$1" gateway
++	config_get pre_shared_key    "$1" pre_shared_key
++	config_get auth_method       "$1" authentication_method
++	config_get local_identifier  "$1" local_identifier ""
++	config_get remote_identifier "$1" remote_identifier ""
++
++	[ "$gateway" = "any" ] && remote_gateway="%any" || remote_gateway="$gateway"
++
++	[ -z "$local_identifier" ] && {
++		local ipdest
++
++		[ "$remote_gateway" = "%any" ] && ipdest="1.1.1.1" || ipdest="$remote_gateway"
++		local_gateway=`ip route get $ipdest | awk -F"src" '/src/{gsub(/ /,"");print $2}'`
++	}
++
++	[ -n "$local_identifier" ] && secret_xappend -n "$local_identifier " || secret_xappend -n "$local_gateway "
++	[ -n "$remote_identifier" ] && secret_xappend -n "$remote_identifier " || secret_xappend -n "$remote_gateway "
++
++	secret_xappend ": PSK \"$pre_shared_key\""
++
++	set_crypto_proposal "$1"
++	ike_proposal="$crypto_proposal"
++
++	config_list_foreach "$1" tunnel config_tunnel
++
++	config_list_foreach "$1" transport config_transport
++
++	ipsec_xappend ""
++}
++
++config_ipsec() {
++	local debug
++	local rtinstall_enabled
++	local routing_tables_ignored
++	local routing_table
++	local routing_table_id
++	local interface
++	local device_list
++
++	ipsec_reset
++	secret_reset
++	swan_reset
++
++	ipsec_xappend "# generated by /etc/init.d/ipsec"
++	ipsec_xappend "version 2"
++	ipsec_xappend ""
++
++	secret_xappend "# generated by /etc/init.d/ipsec"
++
++	config_get debug "$1" debug 0
++	config_get_bool rtinstall_enabled "$1" rtinstall_enabled 1
++	[ $rtinstall_enabled -eq 1 ] && install_routes=yes || install_routes=no
++
++	# prepare extra charon config option ignore_routing_tables
++	for routing_table in $(config_get "$1" "ignore_routing_tables"); do
++		if [ "$routing_table" -ge 0 ] 2>/dev/null; then
++			routing_table_id=$routing_table
++		else
++			routing_table_id=$(sed -n '/[ \t]*[0-9]\+[ \t]\+'$routing_table'[ \t]*$/s/[ \t]*\([0-9]\+\).*/\1/p' /etc/iproute2/rt_tables)
++		fi
++
++		[ -n "$routing_table_id" ] && append routing_tables_ignored "$routing_table_id"
++	done
++
++	local interface_list=$(config_get "$1" "interface")
++	if [ -z "$interface_list" ]; then
++		WAIT_FOR_INTF=0
++	else
++		for interface in $interface_list; do
++			network_get_device device $interface
++			[ -n "$device" ] && append device_list "$device" ","
++		done
++		[ -n "$device_list" ] && WAIT_FOR_INTF=0 || WAIT_FOR_INTF=1
++	fi
++
++	swan_xappend "# generated by /etc/init.d/ipsec"
++	swan_xappend "charon {"
++	swan_xappend "  load_modular = yes"
++	swan_xappend "  install_routes = $install_routes"
++	[ -n "$routing_tables_ignored" ] && swan_xappend "  ignore_routing_tables = $routing_tables_ignored"
++	[ -n "$device_list" ] && swan_xappend "  interfaces_use = $device_list"
++	swan_xappend "    plugins {"
++	swan_xappend "      include /etc/strongswan.d/charon/*.conf"
++	swan_xappend "    }"
++	swan_xappend "  syslog {"
++	swan_xappend "    identifier = ipsec"
++	swan_xappend "    daemon {"
++	swan_xappend "      default = $debug"
++	swan_xappend "    }"
++	swan_xappend "    auth {"
++	swan_xappend "      default = $debug"
++	swan_xappend "    }"
++	swan_xappend "  }"
++	swan_xappend "}"
++}
++
++prepare_env() {
++	mkdir -p /var/ipsec
++	remove_includes
++	config_load ipsec
++	config_foreach config_ipsec ipsec
++	config_foreach config_remote remote
++}
++
++service_running() {
++	ipsec status > /dev/null 2>&1
++}
++
++reload_service() {
++	running && {
++		prepare_env
++		[ $WAIT_FOR_INTF -eq 0 ] && {
++			ipsec rereadall
++			ipsec reload
++			return
++		}
++	}
++
++	start
++}
++
++check_ipsec_interface() {
++	local intf
++
++	for intf in $(config_get "$1" interface); do
++		procd_add_interface_trigger "interface.*" "$intf" /etc/init.d/ipsec reload
++	done
++}
++
++service_triggers() {
++	procd_add_reload_trigger "ipsec"
++	config load "ipsec"
++	config_foreach check_ipsec_interface ipsec
++}
++
++start_service() {
++	prepare_env
++
++	[ $WAIT_FOR_INTF -eq 1 ] && return
++
++	procd_open_instance
++
++	procd_set_param command $PROG --daemon charon --nofork
++
++	procd_set_param file $IPSEC_CONN_FILE
++	procd_append_param file $IPSEC_SECRETS_FILE
++	procd_append_param file $STRONGSWAN_CONF_FILE
++	procd_append_param file /etc/strongswan.d/*.conf
++	procd_append_param file /etc/strongswan.d/charon/*.conf
++
++	procd_set_param respawn
++
++	procd_close_instance
+ }
+diff --git a/net/strongswan/patches/101-musl-fixes.patch b/net/strongswan/patches/101-musl-fixes.patch
+index 3b90e6c..8db9221 100644
+--- a/net/strongswan/patches/101-musl-fixes.patch
++++ b/net/strongswan/patches/101-musl-fixes.patch
+@@ -10,7 +10,7 @@
+  
+ --- /dev/null
+ +++ b/src/libstrongswan/musl.h
+-@@ -0,0 +1,39 @@
++@@ -0,0 +1,38 @@
+ +#include <sys/types.h>
+ +
+ +#define crypt x_crypt
+@@ -31,7 +31,6 @@
+ +#define nlink_t x_nlink_t
+ +#define timer_t x_timer_t
+ +#define blkcnt_t x_blkcnt_t
+-+#define __kernel_nlink_t void
+ +
+ +#include <linux/types.h>
+ +
+@@ -50,19 +49,18 @@
+ +#undef blkcnt_t
+ +#undef crypt
+ +#undef encrypt
+---- a/src/libhydra/plugins/kernel_netlink/kernel_netlink_ipsec.c
+-+++ b/src/libhydra/plugins/kernel_netlink/kernel_netlink_ipsec.c
+-@@ -18,6 +18,8 @@
+-  * for more details.
++--- a/src/libcharon/plugins/kernel_netlink/kernel_netlink_ipsec.c
+++++ b/src/libcharon/plugins/kernel_netlink/kernel_netlink_ipsec.c
++@@ -40,6 +40,7 @@
+   */
+  
++ #define _GNU_SOURCE
+ +#include <musl.h>
+-+
+  #include <sys/types.h>
+  #include <sys/socket.h>
+- #include <stdint.h>
+---- a/src/libhydra/plugins/kernel_netlink/kernel_netlink_net.c
+-+++ b/src/libhydra/plugins/kernel_netlink/kernel_netlink_net.c
++ #include <sys/ioctl.h>
++--- a/src/libcharon/plugins/kernel_netlink/kernel_netlink_net.c
+++++ b/src/libcharon/plugins/kernel_netlink/kernel_netlink_net.c
+ @@ -37,6 +37,8 @@
+   * THE SOFTWARE.
+   */
+@@ -72,10 +70,10 @@
+  #include <sys/socket.h>
+  #include <sys/utsname.h>
+  #include <linux/netlink.h>
+---- a/src/libhydra/plugins/kernel_netlink/kernel_netlink_shared.c
+-+++ b/src/libhydra/plugins/kernel_netlink/kernel_netlink_shared.c
+-@@ -15,6 +15,8 @@
+-  * for more details.
++--- a/src/libcharon/plugins/kernel_netlink/kernel_netlink_shared.c
+++++ b/src/libcharon/plugins/kernel_netlink/kernel_netlink_shared.c
++@@ -38,6 +38,8 @@
++  * THE SOFTWARE.
+   */
+  
+ +#include "musl.h"
+diff --git a/net/strongswan/patches/201-kmodloader.patch b/net/strongswan/patches/201-kmodloader.patch
+index 7d46156..cd74f27 100644
+--- a/net/strongswan/patches/201-kmodloader.patch
++++ b/net/strongswan/patches/201-kmodloader.patch
+@@ -1,6 +1,6 @@
+ --- a/src/starter/netkey.c
+ +++ b/src/starter/netkey.c
+-@@ -31,7 +31,7 @@ bool starter_netkey_init(void)
++@@ -30,7 +30,7 @@ bool starter_netkey_init(void)
+  		/* af_key module makes the netkey proc interface visible */
+  		if (stat(PROC_MODULES, &stb) == 0)
+  		{
+@@ -9,7 +9,7 @@
+  		}
+  
+  		/* now test again */
+-@@ -45,11 +45,11 @@ bool starter_netkey_init(void)
++@@ -44,11 +44,11 @@ bool starter_netkey_init(void)
+  	/* make sure that all required IPsec modules are loaded */
+  	if (stat(PROC_MODULES, &stb) == 0)
+  	{
+diff --git a/net/strongswan/patches/203-uci.patch b/net/strongswan/patches/203-uci.patch
+index 274ea86..21ae848 100644
+--- a/net/strongswan/patches/203-uci.patch
++++ b/net/strongswan/patches/203-uci.patch
+@@ -1,6 +1,6 @@
+ --- a/src/libcharon/plugins/uci/uci_parser.c
+ +++ b/src/libcharon/plugins/uci/uci_parser.c
+-@@ -78,7 +78,7 @@ METHOD(enumerator_t, section_enumerator_
++@@ -75,7 +75,7 @@ METHOD(enumerator_t, section_enumerator_
+  		if (uci_lookup(this->ctx, &element, this->package,
+  					   this->current->name, "name") == UCI_OK)
+  		{	/* use "name" attribute as config name if available ... */
+@@ -9,7 +9,7 @@
+  		}
+  		else
+  		{	/* ... or the section name becomes config name */
+-@@ -93,7 +93,7 @@ METHOD(enumerator_t, section_enumerator_
++@@ -90,7 +90,7 @@ METHOD(enumerator_t, section_enumerator_
+  		if (value && uci_lookup(this->ctx, &element, this->package,
+  						  this->current->name, this->keywords[i]) == UCI_OK)
+  		{
+@@ -17,4 +17,4 @@
+ +			*value = uci_to_option(element)->v.string;
+  		}
+  	}
+- 	va_end(args);
++ 
+diff --git a/net/strongswan/patches/210-sleep.patch b/net/strongswan/patches/210-sleep.patch
+new file mode 100644
+index 0000000..d8f2f3b
+--- /dev/null
++++ b/net/strongswan/patches/210-sleep.patch
+@@ -0,0 +1,11 @@
++--- a/src/ipsec/_ipsec.in
+++++ b/src/ipsec/_ipsec.in
++@@ -257,7 +257,7 @@ stop)
++ 			loop=110
++ 			while [ $loop -gt 0 ] ; do
++ 				kill -0 $spid 2>/dev/null || break
++-				sleep 0.1 2>/dev/null
+++				sleep 1 2>/dev/null
++ 				if [ $? -ne 0 ]
++ 				then
++ 					sleep 1
+diff --git a/net/strongswan/patches/300-include-ipsec-hotplug.patch b/net/strongswan/patches/300-include-ipsec-hotplug.patch
+new file mode 100644
+index 0000000..a61da3a
+--- /dev/null
++++ b/net/strongswan/patches/300-include-ipsec-hotplug.patch
+@@ -0,0 +1,16 @@
++--- a/src/_updown/_updown.in
+++++ b/src/_updown/_updown.in
++@@ -22,6 +22,13 @@
++ # that, and use the (left/right)updown parameters in ipsec.conf to make
++ # strongSwan use yours instead of this default one.
++ 
+++# Add your custom commands to the file "/etc/ipsec.user". Other packages could
+++# also install their scripts in the directory "/etc/hotplug.d/ipsec".
+++# This files/scripts are executed by the openwrt hotplug functionality on
+++# ipsec events.
+++
+++/sbin/hotplug-call ipsec "$1"
+++
++ #      PLUTO_VERSION
++ #              indicates  what  version of this interface is being
++ #              used.  This document describes version  1.1.   This
+diff --git a/net/strongswan/patches/300-include-ipsec-user-script.patch b/net/strongswan/patches/300-include-ipsec-user-script.patch
+deleted file mode 100644
+index 6835e02..0000000
+--- a/net/strongswan/patches/300-include-ipsec-user-script.patch
++++ /dev/null
+@@ -1,17 +0,0 @@
+---- a/src/_updown/_updown.in
+-+++ b/src/_updown/_updown.in
+-@@ -16,11 +16,9 @@
+- # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+- # for more details.
+- 
+--# CAUTION:  Installing a new version of strongSwan will install a new
+--# copy of this script, wiping out any custom changes you make.  If
+--# you need changes, make a copy of this under another name, and customize
+--# that, and use the (left/right)updown parameters in ipsec.conf to make
+--# strongSwan use yours instead of this default one.
+-+# Add your custom ip rules to the /etc/ipsec.user file if you need that functionality.
+-+
+-+[ -e /etc/ipsec.user ] && . /etc/ipsec.user "$1"
+- 
+- #      PLUTO_VERSION
+- #              indicates  what  version of this interface is being
+diff --git a/net/strongswan/patches/305-minimal_dh_plugin.patch b/net/strongswan/patches/305-minimal_dh_plugin.patch
+index e060ec3..1dab114 100644
+--- a/net/strongswan/patches/305-minimal_dh_plugin.patch
++++ b/net/strongswan/patches/305-minimal_dh_plugin.patch
+@@ -1,40 +1,40 @@
+ --- a/configure.ac
+ +++ b/configure.ac
+-@@ -135,6 +135,7 @@ ARG_DISBL_SET([fips-prf],       [disable
++@@ -136,6 +136,7 @@ ARG_DISBL_SET([fips-prf],       [disable
+  ARG_ENABL_SET([gcm],            [enables the GCM AEAD wrapper crypto plugin.])
+  ARG_ENABL_SET([gcrypt],         [enables the libgcrypt plugin.])
+  ARG_DISBL_SET([gmp],            [disable GNU MP (libgmp) based crypto implementation plugin.])
+ +ARG_DISBL_SET([gmpdh],          [disable GNU MP (libgmp) based static-linked crypto DH minimal implementation plugin.])
++ ARG_DISBL_SET([curve25519],     [disable Curve25519 Diffie-Hellman plugin.])
+  ARG_DISBL_SET([hmac],           [disable HMAC crypto implementation plugin.])
+  ARG_ENABL_SET([md4],            [enable MD4 software implementation plugin.])
+- ARG_DISBL_SET([md5],            [disable MD5 software implementation plugin.])
+-@@ -1312,6 +1313,7 @@ ADD_PLUGIN([gcrypt],               [s ch
++@@ -1410,6 +1411,7 @@ ADD_PLUGIN([botan],                [s ch
+  ADD_PLUGIN([af-alg],               [s charon scepclient pki scripts medsrv attest nm cmd aikgen])
+  ADD_PLUGIN([fips-prf],             [s charon nm cmd])
+- ADD_PLUGIN([gmp],                  [s charon scepclient pki scripts manager medsrv attest nm cmd aikgen])
++ ADD_PLUGIN([gmp],                  [s charon scepclient pki scripts manager medsrv attest nm cmd aikgen fuzz])
+ +ADD_PLUGIN([gmpdh],                [s charon scepclient pki scripts manager medsrv attest nm cmd aikgen])
++ ADD_PLUGIN([curve25519],           [s charon pki scripts nm cmd])
+  ADD_PLUGIN([agent],                [s charon nm cmd])
+  ADD_PLUGIN([keychain],             [s charon cmd])
+- ADD_PLUGIN([chapoly],              [s charon scripts nm cmd])
+-@@ -1444,6 +1446,7 @@ AM_CONDITIONAL(USE_SHA2, test x$sha2 = x
+- AM_CONDITIONAL(USE_SHA3, test x$sha3 = xtrue)
++@@ -1550,6 +1552,7 @@ AM_CONDITIONAL(USE_SHA3, test x$sha3 = x
++ AM_CONDITIONAL(USE_MGF1, test x$mgf1 = xtrue)
+  AM_CONDITIONAL(USE_FIPS_PRF, test x$fips_prf = xtrue)
+  AM_CONDITIONAL(USE_GMP, test x$gmp = xtrue)
+ +AM_CONDITIONAL(USE_GMPDH, test x$gmpdh = xtrue)
++ AM_CONDITIONAL(USE_CURVE25519, test x$curve25519 = xtrue)
+  AM_CONDITIONAL(USE_RDRAND, test x$rdrand = xtrue)
+  AM_CONDITIONAL(USE_AESNI, test x$aesni = xtrue)
+- AM_CONDITIONAL(USE_RANDOM, test x$random = xtrue)
+-@@ -1692,6 +1695,7 @@ AC_CONFIG_FILES([
+- 	src/libstrongswan/plugins/sha3/Makefile
++@@ -1824,6 +1827,7 @@ AC_CONFIG_FILES([
++ 	src/libstrongswan/plugins/mgf1/Makefile
+  	src/libstrongswan/plugins/fips_prf/Makefile
+  	src/libstrongswan/plugins/gmp/Makefile
+ +	src/libstrongswan/plugins/gmpdh/Makefile
++ 	src/libstrongswan/plugins/curve25519/Makefile
+  	src/libstrongswan/plugins/rdrand/Makefile
+  	src/libstrongswan/plugins/aesni/Makefile
+- 	src/libstrongswan/plugins/random/Makefile
+ --- a/src/libstrongswan/Makefile.am
+ +++ b/src/libstrongswan/Makefile.am
+-@@ -303,6 +303,13 @@ if MONOLITHIC
++@@ -341,6 +341,13 @@ if MONOLITHIC
+  endif
+  endif
+  
+@@ -45,8 +45,8 @@
+ +endif
+ +endif
+ +
+- if USE_RDRAND
+-   SUBDIRS += plugins/rdrand
++ if USE_CURVE25519
++   SUBDIRS += plugins/curve25519
+  if MONOLITHIC
+ --- /dev/null
+ +++ b/src/libstrongswan/plugins/gmpdh/Makefile.am
+-- 
+2.7.4
+
