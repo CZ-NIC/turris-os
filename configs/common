@@ -423,6 +423,3 @@ CONFIG_PACKAGE_debootstrap=y
 # LuCI
 CONFIG_PACKAGE_luci-app-openvpn=y
 CONFIG_PACKAGE_luci-theme-rosy=y
-
-# OOR (https://github.com/CZ-NIC/turris-os-packages/issues/51)
-CONFIG_PACKAGE_oor=y
