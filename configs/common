@@ -423,3 +423,9 @@ CONFIG_PACKAGE_debootstrap=y
 # LuCI
 CONFIG_PACKAGE_luci-app-openvpn=y
 CONFIG_PACKAGE_luci-theme-rosy=y
+
+# tor
+CONFIG_PACKAGE_tor=y
+CONFIG_PACKAGE_tor-gencert=y
+CONFIG_PACKAGE_tor-resolve=y
+CONFIG_PACKAGE_tor-geoip=y
