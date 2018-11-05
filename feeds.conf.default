@@ -1,5 +1,5 @@
 # Note: If you are adding new repository, don't forget to bump up opkg package and add new repository to lists/base.lua
-src-git turrispackages https://gitlab.labs.nic.cz/turris/turris-os-packages.git^d702767dc625b820491f57a873e61ea9fe0253d5
+src-git turrispackages https://gitlab.labs.nic.cz/turris/turris-os-packages.git^c49cbf15521e785bfab26a4900e17f3b2e1ad2e0
 src-git torconffeed https://github.com/ja-pa/torconffeed.git^04df64fd47fe9e27e119fa3fd8e2cd0382830c45
 src-git hardware https://github.com/xtompok/turris-packages.git^d81453b1df48ec1c8945feaf96a1e744c3218b38
 src-git php https://github.com/openwrt/packages.git^d6c333b705e53b99bd216f0a7e5c22aa493dfefc .*php.*
