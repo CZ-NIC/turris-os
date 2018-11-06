@@ -9,15 +9,16 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=fuse
-PKG_VERSION:=2.9.3
-PKG_RELEASE:=2
+PKG_VERSION:=2.9.8
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=@SF/$(PKG_NAME)
-PKG_MD5SUM:=33cae22ca50311446400daf8a6255c6a
+PKG_SOURCE_URL:=https://github.com/libfuse/libfuse/releases/download/$(PKG_NAME)-$(PKG_VERSION)
+PKG_MD5SUM:=5e84f81d8dd527ea74f39b6bc001c874c02bad6871d7a9b0c14efb57430eafe3
 
 PKG_LICENSE:=LGPLv2.1 GPLv2
 PKG_LICENSE_FILES:=COPYING.LIB COPYING
+PKG_CPE_ID:=cpe:/a:fuse_project:fuse
 
 PKG_INSTALL:=1
 
