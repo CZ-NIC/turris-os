@@ -8,7 +8,7 @@ int main(int argc, char **argv) {
 	int c;
 	int translating = 0;
 	int verbose = 0;
-	if((argc > 0) && (strcmp(argv[1], "-v")==0))
+	if((argc > 1) && (strcmp(argv[1], "-v")==0))
 		verbose = 1;
 	const char *txtdir = "/usr/share/locale/";
 	const char *txtdom = NULL;
