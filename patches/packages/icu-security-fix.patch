@@ -19,8 +19,8 @@ index 000000000..4ef88312a
 @@ -0,0 +1,12 @@
 +diff --git a/icu4c/source/i18n/zonemeta.cpp b/icu4c/source/i18n/zonemeta.cpp
 +index b26798f990a..c386b0cae5e 100644
-+--- a/icu4c/source/i18n/zonemeta.cpp
-++++ b/icu4c/source/i18n/zonemeta.cpp
++--- a/i18n/zonemeta.cpp
+++++ b/i18n/zonemeta.cpp
 +@@ -690,7 +690,6 @@ ZoneMeta::createMetazoneMappings(const UnicodeString &tzid) {
 +                     mzMappings = new UVector(deleteOlsonToMetaMappingEntry, NULL, status);
 +                     if (U_FAILURE(status)) {
