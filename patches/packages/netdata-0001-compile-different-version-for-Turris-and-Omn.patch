@@ -97,7 +97,7 @@ index e88221e0..b070608e 100644
    SECTION:=admin
    CATEGORY:=Administration
 -  DEPENDS:=+zlib
-+  DEPENDS:=+zlib +USE_UCLIBC:libpthread
++  DEPENDS:=+zlib +USE_UCLIBC:libpthread +libuuid
    TITLE:=Real-time performance monitoring tool
    URL:=http://netdata.firehol.org/
  endef
