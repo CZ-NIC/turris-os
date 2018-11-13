@@ -4,7 +4,7 @@ divert(-1)
 
 # This is definition of subrepositories
 # TODO generate this dynamically from feed.conf.default
-pushdef(`SUBDIRS',``subdirs = {"base", "turrispackages", "php", "hardware", "lucics", "packages", "routing", "management", "telephony", "printing", "openwisp", "sidn"}'')
+pushdef(`SUBDIRS',``subdirs = {"base", "turrispackages", "php", "node", "hardware", "lucics", "packages", "routing", "management", "telephony", "printing", "openwisp", "sidn"}'')
 
 divert(0)dnl
 dnl
