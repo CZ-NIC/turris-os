@@ -1,0 +1,779 @@
+From d90ecba79fe08205d470152b1b3883df576d6eeb Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Tue, 13 Nov 2018 12:23:04 +0100
+Subject: [PATCH] isc-dhcp: update to version 4.4.1 (security fix)
+
+Issue https://gitlab.labs.nic.cz/turris/turris-os-packages/issues/140
+---
+ net/isc-dhcp/Makefile                              |  32 ++-
+ net/isc-dhcp/files/dhcpd.conf                      |  13 -
+ net/isc-dhcp/files/dhcpd.defaults                  |  11 +
+ net/isc-dhcp/files/dhcpd.init                      | 313 +++++++++++++++++++--
+ net/isc-dhcp/files/dhcrelay.conf                   |  29 ++
+ net/isc-dhcp/files/dhcrelay4.init                  |  14 +-
+ net/isc-dhcp/files/dhcrelay6.init                  |   2 +-
+ net/isc-dhcp/files/etc/config/dhcrelay             |  27 --
+ net/isc-dhcp/patches/000-compile.patch             |  25 +-
+ .../patches/100-relay-rfc3527-link-selection.patch | 100 -------
+ net/isc-dhcp/patches/510-bind-CC.patch             |  19 +-
+ 11 files changed, 383 insertions(+), 202 deletions(-)
+ delete mode 100644 net/isc-dhcp/files/dhcpd.conf
+ create mode 100644 net/isc-dhcp/files/dhcpd.defaults
+ create mode 100644 net/isc-dhcp/files/dhcrelay.conf
+ delete mode 100644 net/isc-dhcp/files/etc/config/dhcrelay
+ delete mode 100644 net/isc-dhcp/patches/100-relay-rfc3527-link-selection.patch
+
+diff --git a/net/isc-dhcp/Makefile b/net/isc-dhcp/Makefile
+index 1de5981..d325576 100644
+--- a/net/isc-dhcp/Makefile
++++ b/net/isc-dhcp/Makefile
+@@ -9,16 +9,18 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=isc-dhcp
+ UPSTREAM_NAME:=dhcp
+-PKG_VERSION:=4.3.3
+-PKG_RELEASE:=1
++PKG_VERSION:=4.4.1
++PKG_RELEASE:=3
+ 
+ PKG_LICENSE:=BSD-3-Clause
+ PKG_LICENSE_FILES:=LICENSE
+-PKG_MAINTAINER:=Antony Antony <antony@phenome.org>
++PKG_MAINTAINER:=Philip Prindeville <philipp@redfish-solutions.com>
+ 
+ PKG_SOURCE:=$(UPSTREAM_NAME)-$(PKG_VERSION).tar.gz
+-PKG_SOURCE_URL:=ftp://ftp.isc.org/isc/dhcp/$(PKG_VERSION)
+-PKG_MD5SUM:=c5577b09c9017cdd319a11ff6364268e
++PKG_SOURCE_URL:=ftp://ftp.isc.org/isc/dhcp/$(PKG_VERSION) \
++		http://ftp.funet.fi/pub/mirrors/ftp.isc.org/isc/dhcp/$(PKG_VERSION) \
++		http://ftp.iij.ad.jp/pub/network/isc/dhcp/$(PKG_VERSION)
++PKG_MD5SUM:=2a22508922ab367b4af4664a0472dc220cc9603482cf3c16d9aff14f3a76b608
+ 
+ PKG_FIXUP:=autoreconf
+ PKG_BUILD_PARALLEL:=1
+@@ -27,12 +29,15 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(UPSTREAM_NAME)-$(PKG_
+ 
+ include $(INCLUDE_DIR)/package.mk
+ 
++DISABLE_NLS:=
++
+ define Package/isc-dhcp/Default
+   SECTION:=net
+   CATEGORY:=Network
+   SUBMENU:=IP Addresses and Names
+   TITLE:=ISC's DHCP
+   URL:=https://www.isc.org/software/dhcp
++  DEPENDS:=+zlib
+ endef
+ 
+ define Package/isc-dhcp-relay-ipv4
+@@ -158,6 +163,7 @@ endef
+ CONFIGURE_ARGS += \
+ 	--disable-tracing 		\
+ 	--enable-paranoia		\
++	--enable-failover 		\
+ 	--disable-dependency-tracking	\
+ 	--with-randomdev=/dev/urandom \
+ 	ac_cv_file__dev_random=yes
+@@ -171,30 +177,36 @@ endif
+ 
+ define Build/Compile
+ 	$(MAKE) -C $(PKG_BUILD_DIR)			\
++		BUILD_CC="$(HOSTCC_NOCACHE)"		\
++		CROSS_CC="$(TARGET_CC)"			\
++		host_alias="$(GNU_TARGET_NAME)"		\
++		target_alias="$(GNU_TARGET_NAME)"	\
++		build_alias="$(GNU_HOST_NAME)"		\
++		all
++	$(MAKE) -C $(PKG_BUILD_DIR)			\
+ 		DESTDIR="$(PKG_INSTALL_DIR)"		\
+ 		BUILD_CC="$(HOSTCC_NOCACHE)"		\
+ 		CROSS_CC="$(TARGET_CC)"			\
+ 		host_alias="$(GNU_TARGET_NAME)"		\
+ 		target_alias="$(GNU_TARGET_NAME)"	\
+ 		build_alias="$(GNU_HOST_NAME)"		\
+-		all install-exec
++		install-exec
+ endef
+ 
+ define Package/isc-dhcp-relay-$(BUILD_VARIANT)/install
+ 	$(INSTALL_DIR) $(1)/usr/sbin
+ 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/dhcrelay $(1)/usr/sbin
+ 	$(INSTALL_DIR) $(1)/etc/config
+-	$(INSTALL_DATA) ./files/etc/config/dhcrelay $(1)/etc/config
++	$(INSTALL_DATA) ./files/dhcrelay.conf $(1)/etc/config/dhcrelay
+ 	$(INSTALL_DIR) $(1)/etc/init.d
+ 	$(INSTALL_BIN) ./files/dhcrelay4.init $(1)/etc/init.d/dhcrelay4
+ endef
+ 
+ define Package/isc-dhcp-server-$(BUILD_VARIANT)/install
+-	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc
+-	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d
++	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d $(1)/etc/uci-defaults
+ 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/dhcpd $(1)/usr/sbin
+ 	$(INSTALL_BIN) ./files/dhcpd.init $(1)/etc/init.d/dhcpd
+-	$(INSTALL_BIN) ./files/dhcpd.conf $(1)/etc
++	$(INSTALL_BIN) ./files/dhcpd.defaults $(1)/etc/uci-defaults
+ ifeq ($(BUILD_VARIANT),ipv6)
+ 	$(INSTALL_BIN) ./files/dhcpd6.init $(1)/etc/init.d/dhcpd6
+ 	$(INSTALL_BIN) ./files/dhcpd6.conf $(1)/etc
+diff --git a/net/isc-dhcp/files/dhcpd.conf b/net/isc-dhcp/files/dhcpd.conf
+deleted file mode 100644
+index 11985ce..0000000
+--- a/net/isc-dhcp/files/dhcpd.conf
++++ /dev/null
+@@ -1,13 +0,0 @@
+-# dhcpd.conf
+-
+-authoritative;
+-
+-default-lease-time 3600;
+-max-lease-time 86400;
+-
+-option domain-name-servers 192.168.1.1;
+-
+-subnet 192.168.1.0 netmask 255.255.255.0 {
+-  range 192.168.1.10 192.168.1.50;
+-  option routers 192.168.1.1;
+-}
+diff --git a/net/isc-dhcp/files/dhcpd.defaults b/net/isc-dhcp/files/dhcpd.defaults
+new file mode 100644
+index 0000000..bd6f3d2
+--- /dev/null
++++ b/net/isc-dhcp/files/dhcpd.defaults
+@@ -0,0 +1,11 @@
++#!/bin/sh
++uci -q get dhcp.isc_dhcpcd && exit 0
++touch /etc/config/dhcp
++
++uci batch <<EOF
++set dhcp.isc_dhcpd=isc_dhcpd
++set dhcp.isc_dhcpd.authoritative='1'
++set dhcp.isc_dhcpd.default_lease_time='3600'
++set dhcp.isc_dhcpd.max_lease_time='86400'
++commit dhcp
++EOF
+diff --git a/net/isc-dhcp/files/dhcpd.init b/net/isc-dhcp/files/dhcpd.init
+index 3ca6c64..954d332 100644
+--- a/net/isc-dhcp/files/dhcpd.init
++++ b/net/isc-dhcp/files/dhcpd.init
+@@ -1,33 +1,314 @@
+ #!/bin/sh /etc/rc.common
+ 
+-START=65
++START=19
++USE_PROCD=1
++PROG=/usr/sbin/dhcpd
+ 
+ lease_file=/tmp/dhcpd.leases
+-config_file=/etc/dhcpd.conf
+-pid_file=/var/run/dhcpd.pid
++config_file=/tmp/run/dhcpd.conf
+ 
+-start() {
+-	if [ ! -e $lease_file ]; then
+-		touch $lease_file
+-	fi
++time2seconds() {
++	local timestring=$1
++	local multiplier number suffix
+ 
+-	/usr/sbin/dhcpd -q -cf $config_file -lf $lease_file -pf $pid_file $dhcp_ifs
++	suffix="${timestring//[0-9 ]}"
++	number="${timestring%%$suffix}"
++	[ "$number$suffix" != "$timestring" ] && return 1
++	case "$suffix" in
++		"" | s)
++			multiplier=1
++			;;
++		m)
++			multiplier=60
++			;;
++		h)
++			multiplier=3600
++			;;
++		d)
++			multiplier=86400
++			;;
++		w)
++			multiplier=604800
++			;;
++		*)
++			return 1
++			;;
++	esac
++	echo $(( number * multiplier ))
++}
+ 
+-	if [ $? -ne 0 ]; then
++# duplicated from dnsmasq init script
++hex_to_hostid() {
++	local var="$1"
++	local hex="${2#0x}" # strip optional "0x" prefix
++
++	if [ -n "${hex//[0-9a-fA-F]/}" ]; then
++		# is invalid hex literal
+ 		return 1
+ 	fi
++
++	# convert into host id
++	export "$var=$(
++		printf "%0x:%0x" \
++		$(((0x$hex >> 16) % 65536)) \
++		$(( 0x$hex        % 65536))
++		)"
++
++	return 0
+ }
+ 
+-stop() {
+-	if [ ! -e $pid_file ]; then
+-		return 1
++static_host_add() {
++	local cfg="$1"
++	local broadcast hostid macn macs mac name ip leasetime
++
++	config_get macs "$cfg" "mac"
++	[ -n "$macs" ] || return 0
++	config_get name "$cfg" "name"
++	[ -n "$name" ] || return 0
++	config_get ip "$cfg" "ip"
++	[ -n "$ip" ] || return 0
++
++	config_get_bool broadcast "$cfg" "broadcast" 0
++	config_get dns "$cfg" "dns"
++	config_get gateway "$cfg" "gateway"
++	config_get leasetime "$cfg" "leasetime"
++	if [ -n "$leasetime" ] ; then
++		leasetime="$(time2seconds "$leasetime")"
++		[ "$?" -ne 0 ] && return 1
+ 	fi
+ 
+-	kill -9 `cat $pid_file`
++	config_get hostid "$cfg" "hostid"
++	if [ -n "$hostid" ] ; then
++		hex_to_hostid hostid "$hostid" || return 1
++	fi
+ 
+-	if [ $? -ne 0 ]; then
+-		return 1
++	macn=0
++	for mac in $macs; do
++		macn=$(( macn + 1 ))
++	done
++
++	for mac in $macs; do
++		local secname="$name"
++		if [ $macn -gt 1 ] ; then
++			secname="${name}-${mac//:}"
++		fi
++		echo "host $secname {"
++		echo " hardware ethernet $mac;"
++		echo " fixed-address $ip;"
++		echo " option host-name \"$name\";"
++		if [ "$broadcast" -eq 1 ] ; then
++			echo " always-broadcast true;"
++		fi
++		if [ -n "$leasetime" ] ; then
++			echo " default-lease-time $leasetime;"
++			echo " max-lease-time $leasetime;"
++		fi
++		if [ -n "$hostid" ] ; then
++			echo " option dhcp-client-identifier $hostid;"
++		fi
++		if [ -n "$dns" ] ; then
++			echo " option domain-name-servers $dns;"
++		fi
++		if [ -n "$gateway" ] ; then
++			echo " option routers $gateway;"
++		fi
++		config_list_foreach "$cfg" "dhcp_option" append_dhcp_options
++		echo "}"
++	done
++}
++
++static_hosts() {
++	config_foreach static_host_add host "$@"
++}
++
++typeof() {
++	echo "$1" | awk '
++/^\d+\.\d+\.\d+\.\d+$/		{ print "ip\n"; next; }
++/^(true|false)$/		{ print "bool\n"; next; }
++/^\d+$/				{ print "integer\n"; next; }
++/^"[^"]*"$/			{ print "string\n"; next; }
++				{ print "other\n"; next; }
++'
++}
++
++append_dhcp_options() {
++	local tuple="$1"
++
++	# strip redundant "option:" prefix
++	tuple="${tuple#option:}"
++
++	local tag="${tuple%%,*}"
++	local values="${tuple#$tag,}"
++
++	local formatted value
++	local IFS=$', \n'
++	for value in $values; do
++		# detect type of $value and quote if necessary
++		case $(typeof "$value") in
++		ip|bool|integer|string)
++			;;
++		other)
++			value="\"$value\""
++			;;
++		esac
++		formatted="$formatted${formatted:+, }$value"
++	done
++	echo " option $tag $formatted;"
++}
++
++gen_dhcp_subnet() {
++	local cfg="$1"
++
++	echo "subnet $NETWORK netmask $NETMASK {"
++	echo " range $START $END;"
++	echo " option subnet-mask $netmask;"
++	if [ "$BROADCAST" != "0.0.0.0" ] ; then
++		echo " option broadcast-address $BROADCAST;"
++	fi
++	if [ "$dynamicdhcp" -eq 0 ] ; then
++		if [ "$authoritative" -eq 1 ] ; then
++			echo " deny unknown-clients;"
++		else
++			echo " ignore unknown-clients;"
++		fi
++	fi
++	if [ -n "$leasetime" ] ; then
++		echo " default-lease-time $leasetime;"
++		echo " max-lease-time $leasetime;"
++	fi
++	echo " option routers $gateway;"
++	echo " option domain-name-servers $DNS;"
++	config_list_foreach "$cfg" "dhcp_option" append_dhcp_options
++	echo "}"
++}
++
++dhcpd_add() {
++	local cfg="$1"
++	local dhcp6range="::"
++	local dynamicdhcp end gateway ifname ignore leasetime limit net netmask
++	local proto networkid start subnet
++	local IP NETMASK BROADCAST NETWORK PREFIX DNS START END
++
++	config_get_bool ignore "$cfg" "ignore" 0
++	[ "$ignore" = "0" ] || return 0
++
++	config_get net "$cfg" "interface"
++	[ -n "$net" ] || return 0
++
++	config_get start "$cfg" "start"
++	[ -n "$start" ] || return 0
++
++	config_get limit "$cfg" "limit"
++	[ -n "$limit" ] || return 0
++
++	network_get_subnet subnet "$net" || return 0
++	network_get_device ifname "$net" || return 0
++	network_get_protocol proto "$net" || return 0
++
++	[ static = "$proto" ] || return 0
++
++	config_get_bool dynamicdhcp "$cfg" "dynamicdhcp" 1
++
++	dhcp_ifs="$dhcp_ifs $ifname"
++
++	eval "$(ipcalc.sh $subnet $start $limit)"
++
++	config_get netmask "$cfg" "netmask" "$NETMASK"
++	config_get leasetime "$cfg" "leasetime"
++	if [ -n "$leasetime" ] ; then
++		leasetime="$(time2seconds "$leasetime")"
++		[ "$?" -ne 0 ] && return 1
++	fi
++
++	if network_get_dnsserver dnsserver "$net" ; then
++		for dnsserv in $dnsserver ; do
++			DNS="$DNS${DNS:+, }$dnsserv"
++		done
++	else
++		DNS="$IP"
++	fi
++
++	if ! network_get_gateway gateway "$net" ; then
++		gateway="$IP"
++	fi
++
++	gen_dhcp_subnet "$cfg" >> $config_file
++}
++
++general_config() {
++	local always_broadcast boot_unknown_clients log_facility
++	local default_lease_time max_lease_time
++	config_get_bool always_broadcast "isc_dhcpd" "always_broadcast" 0
++	config_get_bool authoritative "isc_dhcpd" "authoritative" 1
++	config_get_bool boot_unknown_clients "isc_dhcpd" "boot_unknown_clients" 1
++	config_get default_lease_time "isc_dhcpd" "default_lease_time" 3600
++	config_get max_lease_time "isc_dhcpd" "max_lease_time" 86400
++	config_get log_facility "isc_dhcpd" "log_facility"
++
++	config_get domain "isc_dhcpd" "domain"
++
++	[ $always_broadcast -eq 1 ] && echo "always-broadcast true;"
++	[ $authoritative -eq 1 ] && echo "authoritative;"
++	[ $boot_unknown_clients -eq 0 ] && echo "boot-unknown-clients false;"
++
++	default_lease_time="$(time2seconds "$default_lease_time")"
++	[ "$?" -ne 0 ] && return 1
++	max_lease_time="$(time2seconds "$max_lease_time")"
++	[ "$?" -ne 0 ] && return 1
++
++	if [ -n "$log_facility" ] ; then
++		echo "log-facility $log_facility;"
+ 	fi
++	echo "default-lease-time $default_lease_time;"
++	echo "max-lease-time $max_lease_time;"
++
++	[ -n "$domain" ] && echo "option domain-name \"$domain\";"
++
++	rm -f /tmp/resolv.conf
++	echo "# This file is generated by the DHCPD service" > /tmp/resolv.conf
++	[ -n "$domain" ] && echo "domain $domain" >> /tmp/resolv.conf
++	echo "nameserver 127.0.0.1" >> /tmp/resolv.conf
++}
++
++start_service() {
++	if [ -n "$DHCPD_BOOT" ] ; then
++		return 0
++	fi
++
++	if [ ! -e $lease_file ] ; then
++		touch $lease_file
++	fi
++
++	local domain dhcp_ifs
++
++	if [ -e "/etc/dhcpd.conf" ] ; then
++		config_file="/etc/dhcpd.conf"
++	else
++		. /lib/functions/network.sh
++
++		config_load dhcp
++		local authoritative
++		general_config > $config_file
++
++		config_foreach dhcpd_add dhcp
++
++		static_hosts >> $config_file
++
++		[ -z "$dhcp_ifs" ] && return 0
++	fi
++
++	procd_open_instance
++	procd_set_param command $PROG -q -f -cf $config_file -lf $lease_file $dhcp_ifs
++	procd_close_instance
++}
++
++boot() {
++	DHCPD_BOOT=1
++	start "$@"
++}
+ 
+-	rm $pid_file
++service_triggers()
++{
++	procd_add_reload_trigger "dhcp"
++	procd_add_raw_trigger "interface.*" 3000 /etc/init.d/dhcpd reload
+ }
+diff --git a/net/isc-dhcp/files/dhcrelay.conf b/net/isc-dhcp/files/dhcrelay.conf
+new file mode 100644
+index 0000000..8d3ddfe
+--- /dev/null
++++ b/net/isc-dhcp/files/dhcrelay.conf
+@@ -0,0 +1,29 @@
++
++config dhcrelay ipv4
++	option 'enabled' '0'
++
++	# IP address of the server
++	option 'dhcpserver' '192.0.2.10'
++
++	# network interfaces to listen on (e.g. lan or wan)
++	option 'interfaces' ''
++	option 'upstream_interfaces' ''
++	option 'downstream_interfaces' ''
++
++	# What to do about packets that already have a relay option:
++	# 'append': Forward and append our own relay option
++	# 'replace': Forward, but replace theirs with ours (default)
++	# 'forward': Forward without changes
++	# 'discard': Don't forward
++	option 'relay_mode' ''
++
++	# enable RFC3527 link selection sub-option and use the IP address of
++	# the specified network interface as "uplink" IP address (e.g. wan)
++	option 'link_selection' ''
++
++config dhcrelay ipv6
++#	option dhcpserver '2001:db8:1::1'
++	option upper 'eth1'
++	list lower 'eth0.2'
++	list lower 'eth0.3'
++
+diff --git a/net/isc-dhcp/files/dhcrelay4.init b/net/isc-dhcp/files/dhcrelay4.init
+index 9af0f84..0f401a5 100644
+--- a/net/isc-dhcp/files/dhcrelay4.init
++++ b/net/isc-dhcp/files/dhcrelay4.init
+@@ -25,12 +25,24 @@ start() {
+ 			append args "-i $ifname"
+ 		fi
+ 	done
++	config_get interfaces ipv4 upstream_interfaces
++	for net in $interfaces; do
++		if network_get_device ifname "$net"; then
++			append args "-iu $ifname"
++		fi
++	done
++	config_get interfaces ipv4 downstream_interfaces
++	for net in $interfaces; do
++		if network_get_device ifname "$net"; then
++			append args "-id $ifname"
++		fi
++	done
+ 
+ 	# link selection sub-option (RFC3527)
+ 	local link_selection
+ 	config_get link_selection ipv4 link_selection
+ 	if network_get_device ifname "$link_selection"; then
+-		append args "-l $ifname"
++		append args "-U $ifname"
+ 	fi
+ 
+ 	# relay mode
+diff --git a/net/isc-dhcp/files/dhcrelay6.init b/net/isc-dhcp/files/dhcrelay6.init
+index 0c6f756..2d1a170 100644
+--- a/net/isc-dhcp/files/dhcrelay6.init
++++ b/net/isc-dhcp/files/dhcrelay6.init
+@@ -28,7 +28,7 @@ start() {
+     if [ -n "$relay_lowers" ]; then
+         local relay_lower
+         for relay_lower in $relay_lowers; do
+-            append relay_lower_args "-l $relay_lower"
++            append relay_lower_args "-U $relay_lower"
+         done
+     fi
+ 
+diff --git a/net/isc-dhcp/files/etc/config/dhcrelay b/net/isc-dhcp/files/etc/config/dhcrelay
+deleted file mode 100644
+index b3b53b5..0000000
+--- a/net/isc-dhcp/files/etc/config/dhcrelay
++++ /dev/null
+@@ -1,27 +0,0 @@
+-
+-config dhcrelay ipv4
+-	option 'enabled' '0'
+-
+-	# IP address of the server
+-	option 'dhcpserver' '192.0.2.10'
+-
+-	# network interfaces to listen on (e.g. lan or wan)
+-	option 'interfaces' ''
+-
+-	# What to do about packets that already have a relay option:
+-	# 'append': Forward and append our own relay option
+-	# 'replace': Forward, but replace theirs with ours (default)
+-	# 'forward': Forward without changes
+-	# 'discard': Don't forward
+-	option 'relay_mode' ''
+-
+-	# enable RFC3527 link selection sub-option and use the IP address of
+-	# the specified network interface as "uplink" IP address (e.g. wan)
+-	option 'link_selection' ''
+-
+-config dhcrelay ipv6
+-#	option dhcpserver '2001:db8:1::1'
+-	option upper 'eth1'
+-	list lower 'eth0.2'
+-	list lower 'eth0.3'
+-
+diff --git a/net/isc-dhcp/patches/000-compile.patch b/net/isc-dhcp/patches/000-compile.patch
+index 27ce1e9..664cc63 100644
+--- a/net/isc-dhcp/patches/000-compile.patch
++++ b/net/isc-dhcp/patches/000-compile.patch
+@@ -1,30 +1,9 @@
+-diff --git a/bind/Makefile.in b/bind/Makefile.in
+-index bd784c6..5950d19 100644
+ --- a/bind/Makefile.in
+ +++ b/bind/Makefile.in
+-@@ -85,13 +85,13 @@ bind2:
+- 		echo Bind export libraries already installed ;               \
+- 	else                                                                 \
+- 		echo Building BIND Export libraries - this takes some time. ;\
+--		(cd ${bindsrcdir}/lib/export ;                               \
+--		  echo building in `pwd` ;                                   \
+--		  MAKE=${GMAKE} ${GMAKE} >> ${binddir}/build.log) ;          \
+-+		(cd ${bindsrcdir}/lib/export/dns ;			     \
+-+		  echo building gen using ${BUILD_CC} in `pwd` ;             \
+-+		  $(MAKE) CC=${BUILD_CC} CFLAGS="-O2" LIBS="" gen) ;         \
+-                                                                              \
+- 		echo Installing BIND Export libraries to ${binddir}. ;       \
+- 		(cd ${bindsrcdir}/lib/export ;                               \
+--		  MAKE=${GMAKE} ${GMAKE} install > ${binddir}/install.log) ; \
+-+		  $(MAKE) DESTDIR="" install > ${binddir}/build.log) ;       \
+- 	fi
+- 
+- clean:
+-@@ -100,6 +100,7 @@ clean:
++@@ -116,5 +116,6 @@ uninstall-bind: all
+  
+  # Include the following so that this Makefile is happy when the parent
+  # tries to use them.
+ +install-exec:
+  
+- distdir:
+- 
++ check distdir distclean dvi installcheck:
+diff --git a/net/isc-dhcp/patches/100-relay-rfc3527-link-selection.patch b/net/isc-dhcp/patches/100-relay-rfc3527-link-selection.patch
+deleted file mode 100644
+index 1c86590..0000000
+--- a/net/isc-dhcp/patches/100-relay-rfc3527-link-selection.patch
++++ /dev/null
+@@ -1,100 +0,0 @@
+---- a/relay/dhcrelay.c
+-+++ b/relay/dhcrelay.c
+-@@ -60,6 +60,7 @@
+- int client_packet_errors = 0;	/* Errors sending packets to clients. */
+- 
+- int add_agent_options = 0;	/* If nonzero, add relay agent options. */
+-+int add_rfc3527_suboption = 0;	/* If nonzero, add RFC3527 link selection sub-option. */
+- 
+- int agent_option_errors = 0;    /* Number of packets forwarded without
+- 				   agent options because there was no room. */
+-@@ -99,6 +100,8 @@
+- 	struct sockaddr_in to;
+- } *servers;
+- 
+-+struct interface_info *uplink;
+-+
+- #ifdef DHCPv6
+- struct stream_list {
+- 	struct stream_list *next;
+-@@ -147,6 +150,7 @@
+- "                     [-pf <pid-file>] [--no-pid]\n"\
+- "                     [-m append|replace|forward|discard]\n" \
+- "                     [-i interface0 [ ... -i interfaceN]\n" \
+-+"                     [-l interface]\n" \
+- "                     server0 [ ... serverN]\n\n" \
+- "       dhcrelay -6   [-d] [-q] [-I] [-c <hops>] [-p <port>]\n" \
+- "                     [-pf <pid-file>] [--no-pid]\n" \
+-@@ -161,6 +165,7 @@
+- "                [-pf <pid-file>] [--no-pid]\n" \
+- "                [-m append|replace|forward|discard]\n" \
+- "                [-i interface0 [ ... -i interfaceN]\n" \
+-+"                [-l interface]\n" \
+- "                server0 [ ... serverN]\n\n"
+- #endif
+- 
+-@@ -325,6 +330,20 @@
+- 				agent_relay_mode = discard;
+- 			} else
+- 				usage();
+-+		} else if (!strcmp (argv [i], "-l")) {
+-+			add_agent_options = 1;
+-+			add_rfc3527_suboption = 1;
+-+			if (++i == argc)
+-+				usage();
+-+
+-+			status = interface_allocate(&uplink, MDL);
+-+			if (status != ISC_R_SUCCESS)
+-+				log_fatal("%s: interface_allocate: %s",
+-+					  argv[i],
+-+					  isc_result_totext(status));
+-+			strcpy(uplink->name, argv[i]);
+-+			interface_snorf(uplink, INTERFACE_REQUESTED);
+-+			//interface_dereference(&uplink, MDL);
+- 		} else if (!strcmp(argv[i], "-D")) {
+- #ifdef DHCPv6
+- 			if (local_family_set && (local_family == AF_INET6)) {
+-@@ -711,12 +730,17 @@
+- 					       ip->addresses[0])))
+- 		return;
+- 
+-+	/* RFC3527: Replace giaddr address by uplink address. The original
+-+	 * giaddr will be used in the link selection sub-option */
+-+	if (add_rfc3527_suboption)
+-+		packet->giaddr = uplink->addresses[0];
+-+
+- 	/* If giaddr is not already set, Set it so the server can
+- 	   figure out what net it's from and so that we can later
+- 	   forward the response to the correct net.    If it's already
+- 	   set, the response will be sent directly to the relay agent
+- 	   that set giaddr, so we won't see it. */
+--	if (!packet->giaddr.s_addr)
+-+	else if (!packet->giaddr.s_addr)
+- 		packet->giaddr = ip->addresses[0];
+- 	if (packet->hops < max_hop_count)
+- 		packet->hops = packet->hops + 1;
+-@@ -1090,6 +1114,9 @@
+- 		optlen += ip->remote_id_len + 2;    /* RAI_REMOTE_ID + len */
+- 	}
+- 
+-+	if (add_rfc3527_suboption)
+-+		optlen += 6;
+-+
+- 	/* We do not support relay option fragmenting(multiple options to
+- 	 * support an option data exceeding 255 bytes).
+- 	 */
+-@@ -1121,6 +1148,14 @@
+- 			memcpy(sp, ip->remote_id, ip->remote_id_len);
+- 			sp += ip->remote_id_len;
+- 		}
+-+
+-+		if (add_rfc3527_suboption) {
+-+			*sp++ = RAI_LINK_SELECT;
+-+			*sp++ = 4u;
+-+			memcpy(sp, &giaddr.s_addr, 4);
+-+			sp += 4;
+-+			log_debug ("RFC3527 link selection sub-option added: %s", inet_ntoa(giaddr));
+-+		}
+- 	} else {
+- 		++agent_option_errors;
+- 		log_error("No room in packet (used %d of %d) "
+diff --git a/net/isc-dhcp/patches/510-bind-CC.patch b/net/isc-dhcp/patches/510-bind-CC.patch
+index ddef4f2..c100f71 100644
+--- a/net/isc-dhcp/patches/510-bind-CC.patch
++++ b/net/isc-dhcp/patches/510-bind-CC.patch
+@@ -1,19 +1,16 @@
+ --- a/bind/Makefile.in
+ +++ b/bind/Makefile.in
+-@@ -63,8 +63,14 @@
+- 	else                                                            \
+- 		echo Configuring BIND Export libraries for DHCP. ;      \
++@@ -56,7 +56,12 @@ bind1:
++ 		echo Configuring BIND libraries for DHCP. ;             \
+  		rm -rf ${cleandirs} ${cleanfiles} ;                     \
+--		(cd ${bindsrcdir} &&                                    \
++ 		(cd ${bindsrcdir} &&                                    \
+ -                 ./configure ${bindconfig} > ${binddir}/configure.log); \
+-+               (cd ${bindsrcdir} && export CC=${CROSS_CC} &&           \
+-+                ./configure  --disable-atomic --disable-kqueue         \
+++		 export CC=${CROSS_CC} &&                               \
+++                ./configure ${bindconfig} --disable-atomic             \
+++		 --disable-kqueue --disable-epoll --disable-kqueue      \
+ +                --disable-epoll --disable-devpoll --without-openssl    \
+-+                --without-libxml2 --enable-exportlib                   \
+-+                --enable-threads=no                                    \
+-+                --with-export-includedir=${binddir}/include            \
+-+                --with-export-libdir=${binddir}/lib --with-gssapi=no   \
+-+               --without-randomdev > ${binddir}/configure.log);       \
+++                --without-libxml2 --disable-threads --without-gssapi   \
+++                --without-randomdev > ${binddir}/configure.log);       \
+  	fi
+  
+  atf:
+-- 
+2.7.4
+
