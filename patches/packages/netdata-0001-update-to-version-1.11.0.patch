@@ -1,17 +1,15 @@
-From e3d1bd6d92fe89025af1ebdc6803b5f9d7e07f64 Mon Sep 17 00:00:00 2001
+From bc911506d349fe7defbdde3093f7068991c4de74 Mon Sep 17 00:00:00 2001
 From: Josef Schlehofer <josef.schlehofer@nic.cz>
-Date: Wed, 14 Nov 2018 15:47:40 +0100
+Date: Wed, 14 Nov 2018 16:18:23 +0100
 Subject: [PATCH] netdata: update to version 1.11.0
 
 ---
  admin/netdata/Makefile                        |  63 ++++++---
  admin/netdata/files/netdata.conf              | 121 ++++++++++++++++--
  admin/netdata/files/netdata.init              |  22 +++-
- ...-disable_external_plugins_by_default.patch |  22 ++++
- admin/netdata/patches/002-force-python3.patch |  12 ++
- 5 files changed, 207 insertions(+), 33 deletions(-)
- create mode 100644 admin/netdata/patches/001-disable_external_plugins_by_default.patch
- create mode 100644 admin/netdata/patches/002-force-python3.patch
+ admin/netdata/patches/001-force-python3.patch |  12 ++
+ 4 files changed, 185 insertions(+), 33 deletions(-)
+ create mode 100644 admin/netdata/patches/001-force-python3.patch
 
 diff --git a/admin/netdata/Makefile b/admin/netdata/Makefile
 index e88221e09..668ae0a97 100644
@@ -282,39 +280,11 @@ index 448e56d91..d4be0a7c2 100644
 +	procd_set_param respawn
 +	procd_close_instance
 +	}
-diff --git a/admin/netdata/patches/001-disable_external_plugins_by_default.patch b/admin/netdata/patches/001-disable_external_plugins_by_default.patch
-new file mode 100644
-index 000000000..d55d7d886
---- /dev/null
-+++ b/admin/netdata/patches/001-disable_external_plugins_by_default.patch
-@@ -0,0 +1,22 @@
-+--- a/conf.d/charts.d.conf
-++++ b/conf.d/charts.d.conf
-+@@ -30,7 +30,7 @@
-+
-+ # the default enable/disable for all charts.d collectors
-+ # the default is "yes"
-+-# enable_all_charts="yes"
-++enable_all_charts="no"
-+
-+ # BY DEFAULT ENABLED MODULES
-+ # ap=yes
-+--- a/conf.d/python.d.conf
-++++ b/conf.d/python.d.conf
-+@@ -7,7 +7,7 @@
-+ #
-+
-+ # Enable / disable the whole python.d.plugin (all its modules)
-+-enabled: yes
-++enabled: no
-+
-+ # Prevent log flood
-+ # Define how many log messages can be written to log file in one log_interval
-diff --git a/admin/netdata/patches/002-force-python3.patch b/admin/netdata/patches/002-force-python3.patch
+diff --git a/admin/netdata/patches/001-force-python3.patch b/admin/netdata/patches/001-force-python3.patch
 new file mode 100644
 index 000000000..9f7f731e3
 --- /dev/null
-+++ b/admin/netdata/patches/002-force-python3.patch
++++ b/admin/netdata/patches/001-force-python3.patch
 @@ -0,0 +1,12 @@
 +diff --git a/collectors/python.d.plugin/python.d.plugin.in b/collectors/python.d.plugin/python.d.plugin.in
 +index 7ac03fd..d0a3f19 100755
