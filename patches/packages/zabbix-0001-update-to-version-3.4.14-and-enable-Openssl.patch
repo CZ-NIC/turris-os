@@ -1,0 +1,432 @@
+From 21eaa5160fbdf71d378fe0b4de329f2f85dffb42 Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Thu, 15 Nov 2018 13:43:05 +0100
+Subject: [PATCH] zabbix: update to version  3.4.14 and enable Openssl
+
+---
+ admin/zabbix/Makefile                              | 105 ++++++++++++++++++---
+ admin/zabbix/files/mac80211                        |  20 ++--
+ admin/zabbix/files/network                         |   5 +-
+ admin/zabbix/files/wifi                            |   1 -
+ admin/zabbix/files/zabbix-network-ubus-acl.json    |   8 ++
+ admin/zabbix/files/zabbix-wifi-ubus-acl.json       |   8 ++
+ .../patches/002-fix-res_send-on-uclibc.patch       |  35 -------
+ .../zabbix/patches/010-change-agentd-config.patch  |   8 +-
+ admin/zabbix/patches/100-musl-compat.patch         |  12 ---
+ admin/zabbix/patches/110-reproducible-builds.patch |  11 +++
+ 10 files changed, 135 insertions(+), 78 deletions(-)
+ create mode 100644 admin/zabbix/files/zabbix-network-ubus-acl.json
+ create mode 100644 admin/zabbix/files/zabbix-wifi-ubus-acl.json
+ delete mode 100644 admin/zabbix/patches/002-fix-res_send-on-uclibc.patch
+ create mode 100644 admin/zabbix/patches/110-reproducible-builds.patch
+
+diff --git a/admin/zabbix/Makefile b/admin/zabbix/Makefile
+index f66c237..b0b7dd9 100644
+--- a/admin/zabbix/Makefile
++++ b/admin/zabbix/Makefile
+@@ -8,32 +8,74 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=zabbix
+-PKG_VERSION:=3.0.3
+-PKG_RELEASE:=1
++PKG_VERSION:=3.4.14
++PKG_RELEASE:=6
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
++PKG_MD5SUM:=7443873cc970672d3c884230d3aeb082f2d8afcc2b757506c2d684ffdd12d77e
+ PKG_SOURCE_URL:=@SF/zabbix
+-PKG_MD5SUM:=7c45d37000e67d75042695344c9937e0
+ 
+ PKG_LICENSE:=GPL-2.0
+ PKG_LICENSE_FILES:=COPYING
++PKG_CPE_ID:=cpe:/a:zabbix:zabbix
+ 
+ PKG_INSTALL:=1
+ 
+ PKG_FIXUP:=autoreconf
+ 
++PKG_CONFIG_DEPENDS:= \
++  CONFIG_ZABBIX_GNUTLS \
++  CONFIG_ZABBIX_OPENSSL \
++  CONFIG_ZABBIX_MYSQL \
++  CONFIG_ZABBIX_POSTGRESQL
++
+ include $(INCLUDE_DIR)/package.mk
+ include $(INCLUDE_DIR)/nls.mk
+ 
++define Package/zabbix-agentd/config
++comment "SSL support"
++
++choice
++        prompt "Selected SSL library"
++        default ZABBIX_OPENSSL
++
++        config ZABBIX_OPENSSL
++                bool "OpenSSL"
++
++        config ZABBIX_GNUTLS
++                bool "GnuTLS"
++
++        config ZABBIX_NOSSL
++                bool "No SSL support"
++
++endchoice
++endef
++
++define Package/zabbix-server/config
++comment "Database Software"
++
++choice
++        prompt "Selected Database Software"
++        default ZABBIX_MYSQL
++
++        config ZABBIX_MYSQL
++                bool "MySQL/MariaDB"
++
++        config ZABBIX_POSTGRESQL
++                bool "PostgreSQL"
++
++endchoice
++endef
++
+ define Package/zabbix/Default
+   SECTION:=admin
+   CATEGORY:=Administration
+   TITLE:=Zabbix
+-  URL:=http://www.zabbix.com/
++  URL:=https://www.zabbix.com/
+   SUBMENU:=zabbix
+   MAINTAINER:=Etienne CHAMPETIER <champetier.etienne@gmail.com>
+   USERID:=zabbix=53:zabbix=53
+-  DEPENDS += $(ICONV_DEPENDS)
++  DEPENDS += $(ICONV_DEPENDS) +libpcre +ZABBIX_GNUTLS:libgnutls +ZABBIX_OPENSSL:libopenssl
+ endef
+ 
+ define Package/zabbix-agentd
+@@ -50,13 +92,13 @@ endef
+ define Package/zabbix-extra-network
+   $(call Package/zabbix/Default)
+   TITLE+= discovery/userparameters for network
+-  DEPENDS = +zabbix-agentd +libuci-lua +lua
++  DEPENDS = +zabbix-agentd +libubus-lua +lua
+ endef
+ 
+ define Package/zabbix-extra-wifi
+   $(call Package/zabbix/Default)
+   TITLE+= discovery/userparameters for wifi
+-  DEPENDS = +zabbix-agentd +libiwinfo-lua +libuci-lua +lua
++  DEPENDS = +zabbix-agentd +libiwinfo-lua +libubus-lua +lua
+ endef
+ 
+ define Package/zabbix-sender
+@@ -72,31 +114,39 @@ endef
+ define Package/zabbix-server
+   $(call Package/zabbix/Default)
+   TITLE+= server
+-  DEPENDS += +libsqlite3
++  DEPENDS += +ZABBIX_POSTGRESQL:libpq +ZABBIX_MYSQL:libmariadbclient +libevent2
++endef
++
++define Package/zabbix-server-frontend
++  $(call Package/zabbix/Default)
++  TITLE+= server-frontend
++  DEPENDS += +php7 +php7-cgi +ZABBIX_POSTGRESQL:php7-mod-pgsql +ZABBIX_MYSQL:php7-mod-mysqli \
++  +php7-mod-gd +php7-mod-bcmath +php7-mod-ctype +php7-mod-xmlreader +php7-mod-xmlwriter \
++  +php7-mod-session +php7-mod-sockets +php7-mod-mbstring +php7-mod-gettext
+ endef
+ 
+ define Package/zabbix-proxy
+   $(call Package/zabbix/Default)
+   TITLE+= proxy
+-  DEPENDS += +libsqlite3
++  DEPENDS += +ZABBIX_POSTGRESQL:libpq +ZABBIX_MYSQL:libmariadbclient
+ endef
+ 
+ define Package/zabbix-extra-mac80211/description
+ An extra package for zabbix-agentd that adds a discovery rule for mac80211 wifi phy and many userparameters.
+ It contains an suid helper to allow zabbix-agentd to still run as zabbix user and not as root.
+-See http://wiki.openwrt.org/doc/howto/zabbix for ready to use zabbix templates.
++See https://openwrt.org/docs/guide-user/services/network_monitoring/zabbix for ready to use zabbix templates.
+ endef
+ 
+ define Package/zabbix-extra-network/description
+ An extra package for zabbix-agentd that adds a discovery rule for openwrt network interfaces.
+ The idea here is to discover only interfaces listed in /etc/config/network (discover br-lan and not eth0.1 and wlan0)
+-See http://wiki.openwrt.org/doc/howto/zabbix for ready to use zabbix templates.
++See https://openwrt.org/docs/guide-user/services/network_monitoring/zabbix for ready to use zabbix templates.
+ endef
+ 
+ define Package/zabbix-extra-wifi/description
+ An extra package for zabbix-agentd that adds a discovery rule for wifi interfaces and many userparameters.
+ As it uses libiwinfo, it works with all wifi devices supported by openwrt.
+-See http://wiki.openwrt.org/doc/howto/zabbix for ready to use zabbix templates.
++See https://openwrt.org/docs/guide-user/services/network_monitoring/zabbix for ready to use zabbix templates.
+ endef
+ 
+ CONFIGURE_ARGS+= \
+@@ -105,7 +155,12 @@ CONFIGURE_ARGS+= \
+ 	--enable-proxy \
+ 	$(call autoconf_bool,CONFIG_IPV6,ipv6) \
+ 	--disable-java \
+-	--with-sqlite3="$(STAGING_DIR)/usr"
++	$(if $(CONFIG_ZABBIX_MYSQL),--with-mysql) \
++	$(if $(CONFIG_ZABBIX_POSTGRESQL),--with-postgresql) \
++	--with-libevent=$(STAGING_DIR)/usr/include/libevent \
++	--with-libpcre=$(STAGING_DIR)/usr/include \
++	$(if $(CONFIG_ZABBIX_GNUTLS),--with-gnutls="$(STAGING_DIR)/usr") \
++	$(if $(CONFIG_ZABBIX_OPENSSL),--with-openssl="$(STAGING_DIR)/usr")
+ 
+ MAKE_FLAGS += ARCH="linux"
+ 
+@@ -201,10 +256,28 @@ endef
+ 
+ define Package/zabbix-extra-network/install
+ 	$(call Package/zabbix/install/zabbix.conf.d,$(1),network)
++	$(INSTALL_DIR) $(1)/usr/share/acl.d
++	$(INSTALL_DATA) ./files/zabbix-network-ubus-acl.json $(1)/usr/share/acl.d/zabbix-network.json
++endef
++
++define Package/zabbix-extra-network/postinst
++#!/bin/sh
++if [ -z "$${IPKG_INSTROOT}" ]; then
++	killall -HUP ubusd
++fi
+ endef
+ 
+ define Package/zabbix-extra-wifi/install
+ 	$(call Package/zabbix/install/zabbix.conf.d,$(1),wifi)
++	$(INSTALL_DIR) $(1)/usr/share/acl.d
++	$(INSTALL_DATA) ./files/zabbix-wifi-ubus-acl.json $(1)/usr/share/acl.d/zabbix-wifi.json
++endef
++
++define Package/zabbix-extra-wifi/postinst
++#!/bin/sh
++if [ -z "$${IPKG_INSTROOT}" ]; then
++	killall -HUP ubusd
++fi
+ endef
+ 
+ define Package/zabbix-sender/install
+@@ -220,6 +293,11 @@ define Package/zabbix-server/install
+ 	$(call Package/zabbix/install/etc,$(1),server)
+ endef
+ 
++define Package/zabbix-server-frontend/install
++	$(INSTALL_DIR) $(1)/www/zabbix
++	$(CP) $(PKG_BUILD_DIR)/frontends/php/* $(1)/www/zabbix
++endef
++
+ define Package/zabbix-proxy/install
+ 	$(call Package/zabbix/install/sbin,$(1),proxy)
+ 	$(call Package/zabbix/install/etc,$(1),proxy)
+@@ -231,5 +309,6 @@ $(eval $(call BuildPackage,zabbix-extra-network))
+ $(eval $(call BuildPackage,zabbix-extra-wifi))
+ $(eval $(call BuildPackage,zabbix-sender))
+ $(eval $(call BuildPackage,zabbix-server))
++$(eval $(call BuildPackage,zabbix-server-frontend))
+ $(eval $(call BuildPackage,zabbix-proxy))
+ $(eval $(call BuildPackage,zabbix-get))
+diff --git a/admin/zabbix/files/mac80211 b/admin/zabbix/files/mac80211
+index afa50ae..a567f85 100644
+--- a/admin/zabbix/files/mac80211
++++ b/admin/zabbix/files/mac80211
+@@ -15,13 +15,15 @@ UserParameter=mac80211.ACKFailureCount[*],zabbix_helper_mac80211 $1 dot11ACKFail
+ UserParameter=mac80211.FCSErrorCount[*],zabbix_helper_mac80211 $1 dot11FCSErrorCount
+ UserParameter=mac80211.RTSFailureCount[*],zabbix_helper_mac80211 $1 dot11RTSFailureCount
+ UserParameter=mac80211.RTSSuccessCount[*],zabbix_helper_mac80211 $1 dot11RTSSuccessCount
+-UserParameter=mac80211.FailedCount[*],zabbix_helper_mac80211 $1 failed_count
+-UserParameter=mac80211.FrameDuplicateCount[*],zabbix_helper_mac80211 $1 frame_duplicate_count
+-UserParameter=mac80211.MulticastReceivedFrameCount[*],zabbix_helper_mac80211 $1 multicast_received_frame_count
+-UserParameter=mac80211.MulticastTransmittedFrameCount[*],zabbix_helper_mac80211 $1 multicast_transmitted_frame_count
+-UserParameter=mac80211.MultipleRetryCount[*],zabbix_helper_mac80211 $1 multiple_retry_count
+-UserParameter=mac80211.ReceivedFragmentCount[*],zabbix_helper_mac80211 $1 received_fragment_count
+-UserParameter=mac80211.RetryCount[*],zabbix_helper_mac80211 $1 retry_count
+-UserParameter=mac80211.TransmittedFragmentCount[*],zabbix_helper_mac80211 $1 transmitted_fragment_count
+-UserParameter=mac80211.TransmittedFrameCount[*],zabbix_helper_mac80211 $1 transmitted_frame_count
++
++# hidden behind MAC80211_DEBUG_COUNTERS
++UserParameter=mac80211.FailedCount[*],zabbix_helper_mac80211 $1 dot11FailedCount
++UserParameter=mac80211.FrameDuplicateCount[*],zabbix_helper_mac80211 $1 dot11FrameDuplicateCount
++UserParameter=mac80211.MulticastReceivedFrameCount[*],zabbix_helper_mac80211 $1 dot11MulticastReceivedFrameCount
++UserParameter=mac80211.MulticastTransmittedFrameCount[*],zabbix_helper_mac80211 $1 dot11MulticastTransmittedFrameCount
++UserParameter=mac80211.MultipleRetryCount[*],zabbix_helper_mac80211 $1 dot11MultipleRetryCount
++UserParameter=mac80211.ReceivedFragmentCount[*],zabbix_helper_mac80211 $1 dot11ReceivedFragmentCount
++UserParameter=mac80211.RetryCount[*],zabbix_helper_mac80211 $1 dot11RetryCount
++UserParameter=mac80211.TransmittedFragmentCount[*],zabbix_helper_mac80211 $1 dot11TransmittedFragmentCount
++UserParameter=mac80211.TransmittedFrameCount[*],zabbix_helper_mac80211 $1 dot11TransmittedFrameCount
+ 
+diff --git a/admin/zabbix/files/network b/admin/zabbix/files/network
+index b68e2a5..cc01059 100644
+--- a/admin/zabbix/files/network
++++ b/admin/zabbix/files/network
+@@ -3,7 +3,4 @@
+ # network interface discovery
+ # example: {"data":[{"{#IF}":"lo", "{#NET}":"loopback"},{"{#IF}":"br-lan", "{#NET}":"lan"},{"{#IF}":"eth0.1", "{#NET}":"wan"}]}
+ #
+-UserParameter=netowrt.discovery,lua -l uci -e 'x = uci.cursor(nil, "/var/state");list = "{\"data\":[";x:foreach("network", "interface", function(s) list=list.."{\"{#IF}\":\""..s.ifname.."\", \"{#NET}\":\""..s[".name"].."\"}," end); list=string.gsub(list,",$",""); print(list.."]}")'
+-
+-
+-
++UserParameter=netowrt.discovery,lua -l ubus -e 'u=ubus.connect();list="{\"data\":[";dump=u:call("network.interface", "dump", {});for _, intf in ipairs(dump.interface) do list=list.."{\"{#IF}\":\""..intf.device.."\", \"{#NET}\":\""..intf.interface.."\"},";end;list=string.gsub(list,",$","");print(list.."]}")'
+diff --git a/admin/zabbix/files/wifi b/admin/zabbix/files/wifi
+index f03d9b4..e63b18e 100644
+--- a/admin/zabbix/files/wifi
++++ b/admin/zabbix/files/wifi
+@@ -2,7 +2,6 @@
+ 
+ # wifi interface discovery
+ # example: {"data":[{"{#IF}":"wlan0", "{#MODE}":"ap", "{#SSID}":"Openwrt", "{#NET}":"lan", "{#DEV}":"radio0", "{#ENC}":"psk2+ccmp", "{#TYPE}":"mac80211", "{#HWMODE}":"11ng", "{#CHANNEL}":"11", "{#BSSID}":"xx:xx:xx:xx:xx:xx"}]}
+-# ubus call only work as root so you need to run zabbix as root to use wifi.ifdiscovery
+ UserParameter=wifi.ifdiscovery, lua -l ubus -l iwinfo -e 'u=ubus.connect();list="{\"data\":[";stat=u:call("network.wireless", "status", {});for dev, dev_table in pairs(stat) do for i, iface in pairs(dev_table["interfaces"]) do c=iface["config"];i=iface["ifname"];t=iwinfo.type(i);iw=iwinfo[t];e = iw.encryption(i);e = e and e.description or "None";n = table.concat(c["network"]," ");list=list.."{\"{#IF}\":\""..i.."\", \"{#MODE}\":\""..iw.mode(i).."\", \"{#SSID}\":\""..c["ssid"].."\", \"{#NET}\":\""..n.."\", \"{#DEV}\":\""..dev.."\", \"{#ENC}\":\""..e.."\", \"{#TYPE}\":\""..t.."\", \"{#HWMODE}\":\"".."?".."\", \"{#CHANNEL}\":\""..iw.channel(i).."\", \"{#BSSID}\":\""..iw.bssid(i).."\"},";end;end;list=string.gsub(list,",$","");print(list.."]}")'
+ 
+ 
+diff --git a/admin/zabbix/files/zabbix-network-ubus-acl.json b/admin/zabbix/files/zabbix-network-ubus-acl.json
+new file mode 100644
+index 0000000..f19f51b
+--- /dev/null
++++ b/admin/zabbix/files/zabbix-network-ubus-acl.json
+@@ -0,0 +1,8 @@
++{
++	"user": "zabbix",
++	"access": {
++		"network.interface": {
++			"methods": [ "dump" ]
++		}
++	}
++}
+diff --git a/admin/zabbix/files/zabbix-wifi-ubus-acl.json b/admin/zabbix/files/zabbix-wifi-ubus-acl.json
+new file mode 100644
+index 0000000..9d9b093
+--- /dev/null
++++ b/admin/zabbix/files/zabbix-wifi-ubus-acl.json
+@@ -0,0 +1,8 @@
++{
++	"user": "zabbix",
++	"access": {
++		"network.wireless": {
++			"methods": [ "status" ]
++		}
++	}
++}
+diff --git a/admin/zabbix/patches/002-fix-res_send-on-uclibc.patch b/admin/zabbix/patches/002-fix-res_send-on-uclibc.patch
+deleted file mode 100644
+index f4b5d33..0000000
+--- a/admin/zabbix/patches/002-fix-res_send-on-uclibc.patch
++++ /dev/null
+@@ -1,35 +0,0 @@
+---- a/configure.ac
+-+++ b/configure.ac
+-@@ -161,6 +161,10 @@ if test "x$found_resolv" != "xyes"; then
+- 	AC_MSG_ERROR([Unable to do DNS lookups (libresolv check failed)])
+- fi
+- LIBS="${LIBS} ${RESOLV_LIBS}"
+-+AC_SEARCH_LIBS([res_mkquery], [], [AC_DEFINE([HAVE_RES_MKQUERY], 1, [Define if res_mkquery exists])])
+-+AC_SEARCH_LIBS([__res_mkquery], [], [AC_DEFINE([HAVE_RES_MKQUERY], 1, [Define if res_mkquery exists])])
+-+AC_SEARCH_LIBS([res_send], [], [AC_DEFINE([HAVE_RES_SEND], 1, [Define if res_send exists])])
+-+AC_SEARCH_LIBS([__res_send], [], [AC_DEFINE([HAVE_RES_SEND], 1, [Define if res_send exists])]) 
+- 
+- dnl *****************************************************************
+- dnl *                                                               *
+---- a/src/libs/zbxsysinfo/common/net.c
+-+++ b/src/libs/zbxsysinfo/common/net.c
+-@@ -471,6 +471,7 @@ static int	dns_query(AGENT_REQUEST *requ
+- 		return SYSINFO_RET_FAIL;
+- 	}
+- 
+-+#if defined(HAVE_RES_MKQUERY) && defined(HAVE_RES_SEND) 
+- 	if (-1 == (res = res_mkquery(QUERY, zone, C_IN, type, NULL, 0, NULL, buf, sizeof(buf))))
+- 	{
+- 		SET_MSG_RESULT(result, zbx_dsprintf(NULL, "Cannot create DNS query: %s", zbx_strerror(errno)));
+-@@ -505,6 +506,11 @@ static int	dns_query(AGENT_REQUEST *requ
+- 	_res.retry = retry;
+- 
+- 	res = res_send(buf, res, answer.buffer, sizeof(answer.buffer));
+-+#else /* defined(HAVE_RES_QUERY) && defined(HAVE_RES_SEND) */
+-+	/* retrand and retry are ignored */
+-+	if (-1 == (res = res_query(zone, C_IN, type, answer.buffer, sizeof(answer.buffer))))
+-+	return SYSINFO_RET_FAIL;
+-+#endif 
+- 
+- 	_res.options = saved_options;
+- 	_res.retrans = saved_retrans;
+diff --git a/admin/zabbix/patches/010-change-agentd-config.patch b/admin/zabbix/patches/010-change-agentd-config.patch
+index 8b16b28..3113420 100644
+--- a/admin/zabbix/patches/010-change-agentd-config.patch
++++ b/admin/zabbix/patches/010-change-agentd-config.patch
+@@ -27,7 +27,7 @@
+  ### Option: LogFileSize
+  #	Maximum size of log file in MB.
+  #	0 - disable automatic log rotation.
+-@@ -114,6 +111,7 @@ Server=127.0.0.1
++@@ -116,6 +113,7 @@ Server=127.0.0.1
+  # Range: 0-100
+  # Default:
+  # StartAgents=3
+@@ -35,7 +35,7 @@
+  
+  ##### Active checks related
+  
+-@@ -129,8 +127,6 @@ Server=127.0.0.1
++@@ -131,8 +129,6 @@ Server=127.0.0.1
+  # Default:
+  # ServerActive=
+  
+@@ -44,7 +44,7 @@
+  ### Option: Hostname
+  #	Unique, case sensitive hostname.
+  #	Required for active checks and must match hostname as configured on the server.
+-@@ -140,8 +136,6 @@ ServerActive=127.0.0.1
++@@ -142,8 +138,6 @@ ServerActive=127.0.0.1
+  # Default:
+  # Hostname=
+  
+@@ -53,7 +53,7 @@
+  ### Option: HostnameItem
+  #	Item used for generating Hostname if it is undefined. Ignored if Hostname is defined.
+  #	Does not support UserParameters or aliases.
+-@@ -259,8 +253,8 @@ Hostname=Zabbix server
++@@ -261,8 +255,8 @@ Hostname=Zabbix server
+  # Include=
+  
+  # Include=/usr/local/etc/zabbix_agentd.userparams.conf
+diff --git a/admin/zabbix/patches/100-musl-compat.patch b/admin/zabbix/patches/100-musl-compat.patch
+index 61aeb9e..66762c9 100644
+--- a/admin/zabbix/patches/100-musl-compat.patch
++++ b/admin/zabbix/patches/100-musl-compat.patch
+@@ -9,15 +9,3 @@
+    sys/socket.h sys/loadavg.h arpa/inet.h \
+    sys/vmmeter.h strings.h vm/vm_param.h \
+    sys/time.h kstat.h sys/syscall.h sys/sysmacros.h \
+-@@ -63,6 +63,11 @@ AC_CHECK_HEADERS(stdio.h stdlib.h string
+-   Winber.h lber.h ws2tcpip.h inttypes.h sys/file.h grp.h \
+-   execinfo.h libperfstat.h sys/systemcfg.h sys/mnttab.h mntent.h sys/times.h \
+-   dlfcn.h sys/utsname.h)
+-+AC_CHECK_HEADERS(sys/sysinfo.h, [], [], [
+-+#ifdef HAVE_LINUX_KERNEL_H
+-+#  include <linux/kernel.h>
+-+#endif
+-+])
+- AC_CHECK_HEADERS(resolv.h, [], [], [
+- #ifdef HAVE_SYS_TYPES_H
+- #  include <sys/types.h>
+diff --git a/admin/zabbix/patches/110-reproducible-builds.patch b/admin/zabbix/patches/110-reproducible-builds.patch
+new file mode 100644
+index 0000000..2c223ad
+--- /dev/null
++++ b/admin/zabbix/patches/110-reproducible-builds.patch
+@@ -0,0 +1,11 @@
++--- a/src/libs/zbxcommon/str.c
+++++ b/src/libs/zbxcommon/str.c
++@@ -52,7 +52,7 @@ static const char	help_message_footer[]
++ void	version(void)
++ {
++ 	printf("%s (Zabbix) %s\n", title_message, ZABBIX_VERSION);
++-	printf("Revision %s %s, compilation time: %s %s\n\n", ZABBIX_REVISION, ZABBIX_REVDATE, __DATE__, __TIME__);
+++	printf("Revision %s %s\n\n", ZABBIX_REVISION, ZABBIX_REVDATE);
++ 	puts(copyright_message);
++ }
++ 
+-- 
+2.7.4
+
