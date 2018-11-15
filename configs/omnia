@@ -89,3 +89,15 @@ CONFIG_PACKAGE_ddns-scripts_no-ip_com=y
 CONFIG_PACKAGE_ddns-scripts_nsupdate=y
 CONFIG_PACKAGE_ddns-scripts_route53-v1=y
 
+#zabbix
+CONFIG_PACKAGE_zabbix-agentd=y
+CONFIG_ZABBIX_OPENSSL=y
+CONFIG_PACKAGE_zabbix-extra-mac80211=y
+CONFIG_PACKAGE_zabbix-extra-network=y
+CONFIG_PACKAGE_zabbix-extra-wifi=y
+CONFIG_PACKAGE_zabbix-get=y
+CONFIG_PACKAGE_zabbix-proxy=y
+CONFIG_PACKAGE_zabbix-sender=y
+CONFIG_PACKAGE_zabbix-server=y
+CONFIG_ZABBIX_MYSQL=y
+CONFIG_PACKAGE_zabbix-server-frontend=y
