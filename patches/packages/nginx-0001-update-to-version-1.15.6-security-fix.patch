@@ -1,22 +1,24 @@
-From 3dedf09af12014a81025b0fc14f88e3317c53b13 Mon Sep 17 00:00:00 2001
+From 442916c44b7b343b6b7b845cf42303c14b57c2b7 Mon Sep 17 00:00:00 2001
 From: Jan Pavlinec <jan.pavlinec@nic.cz>
-Date: Tue, 10 Jul 2018 17:29:37 +0200
-Subject: [PATCH] nginx: update to upstream version
+Date: Fri, 16 Nov 2018 12:32:06 +0100
+Subject: [PATCH] nginx: update to version 1.15.6 (security fix)
 
+Issue https://gitlab.labs.nic.cz/turris/turris-os-packages/issues/257
 ---
- net/nginx/Config.in                                |  49 ++
- net/nginx/Config_ssl.in                            | 226 +++++++++
- net/nginx/Makefile                                 | 518 +++++++++++++++------
- net/nginx/files-luci-support/60_nginx-luci-support |  26 ++
- .../files-luci-support/70_nginx-luci-support-ssl   |  46 ++
- net/nginx/files-luci-support/luci_nginx.conf       |  55 +++
- net/nginx/files-luci-support/luci_nginx_ssl.conf   |  70 +++
- net/nginx/files-luci-support/luci_uwsgi.conf       |  14 +
+ net/nginx/Config.in                                |  55 +++
+ net/nginx/Config_ssl.in                            | 232 +++++++++
+ net/nginx/Makefile                                 | 545 +++++++++++++++------
+ net/nginx/files-luci-support/60_nginx-luci-support |  28 ++
+ .../files-luci-support/70_nginx-luci-support-ssl   |  48 ++
+ net/nginx/files-luci-support/luci_nginx.conf       |  49 ++
+ net/nginx/files-luci-support/luci_nginx_ssl.conf   |  64 +++
+ net/nginx/files-luci-support/luci_uwsgi.conf       |  20 +
  .../patches-lua-nginx/100-no_by_lua_block.patch    |  36 +-
  net/nginx/patches/101-feature_test_fix.patch       |  18 +-
  net/nginx/patches/102-sizeof_test_fix.patch        |   4 +-
  net/nginx/patches/201-ignore-invalid-options.patch |  12 +
- 12 files changed, 902 insertions(+), 172 deletions(-)
+ net/nginx/patches/400-relax.patch                  |  16 +
+ 13 files changed, 954 insertions(+), 173 deletions(-)
  create mode 100644 net/nginx/Config_ssl.in
  create mode 100644 net/nginx/files-luci-support/60_nginx-luci-support
  create mode 100644 net/nginx/files-luci-support/70_nginx-luci-support-ssl
@@ -24,9 +26,10 @@ Subject: [PATCH] nginx: update to upstream version
  create mode 100644 net/nginx/files-luci-support/luci_nginx_ssl.conf
  create mode 100644 net/nginx/files-luci-support/luci_uwsgi.conf
  create mode 100644 net/nginx/patches/201-ignore-invalid-options.patch
+ create mode 100644 net/nginx/patches/400-relax.patch
 
 diff --git a/net/nginx/Config.in b/net/nginx/Config.in
-index bf6b834..32e6d24 100644
+index bf6b834..fac3de6 100644
 --- a/net/nginx/Config.in
 +++ b/net/nginx/Config.in
 @@ -66,6 +66,11 @@ config NGINX_HTTP_AUTH_BASIC
@@ -53,7 +56,7 @@ index bf6b834..32e6d24 100644
  config NGINX_PCRE
  	bool
  	prompt "Enable PCRE library usage"
-@@ -182,4 +192,43 @@ config NGINX_LUA
+@@ -182,4 +192,49 @@ config NGINX_LUA
  	prompt "Enable Lua module"
  	default n
  
@@ -65,6 +68,11 @@ index bf6b834..32e6d24 100644
 +config NGINX_HTTP_SECURE_LINK
 +	bool
 +	prompt "Enable HTTP secure link module"
++	default n
++	
++config NGINX_HTTP_SUB
++	bool
++	prompt "Enable HTTP sub module"
 +	default n
 +	
 +config NGINX_HEADERS_MORE
@@ -87,6 +95,7 @@ index bf6b834..32e6d24 100644
 +	depends on NGINX_SSL
 +	help
 +		Add support for NGINX-based Media Streaming Server module.
++		DASH enhanced - https://github.com/ut0mt8/nginx-rtmp-module
 +	default n
 +
 +config NGINX_TS_MODULE
@@ -99,10 +108,10 @@ index bf6b834..32e6d24 100644
  endmenu
 diff --git a/net/nginx/Config_ssl.in b/net/nginx/Config_ssl.in
 new file mode 100644
-index 0000000..3b18dbb
+index 0000000..cab6015
 --- /dev/null
 +++ b/net/nginx/Config_ssl.in
-@@ -0,0 +1,226 @@
+@@ -0,0 +1,232 @@
 +#
 +# Copyright (C) 2010-2016 OpenWrt.org
 +#
@@ -299,6 +308,11 @@ index 0000000..3b18dbb
 +	bool
 +	prompt "Enable HTTP secure link module"
 +	default n
++
++config NGINX_HTTP_SUB
++	bool
++	prompt "Enable HTTP sub module"
++	default n
 +	
 +config NGINX_HEADERS_MORE
 +	bool
@@ -319,6 +333,7 @@ index 0000000..3b18dbb
 +	prompt "Enable RTMP module"
 +	help
 +		Add support for NGINX-based Media Streaming Server module.
++		DASH enhanced - https://github.com/ut0mt8/nginx-rtmp-module
 +	default n
 +
 +config NGINX_TS_MODULE
@@ -330,36 +345,36 @@ index 0000000..3b18dbb
 +
 +endmenu
 diff --git a/net/nginx/Makefile b/net/nginx/Makefile
-index fa1e873..723adfa 100644
+index fa1e873..3c95d5b 100644
 --- a/net/nginx/Makefile
 +++ b/net/nginx/Makefile
-@@ -8,17 +8,21 @@
+@@ -8,17 +8,20 @@
  include $(TOPDIR)/rules.mk
  
  PKG_NAME:=nginx
 -PKG_VERSION:=1.10.1
 -PKG_RELEASE:=2
-+PKG_VERSION:=1.15.1
++PKG_VERSION:=1.15.6
 +PKG_RELEASE:=1
  
  PKG_SOURCE:=nginx-$(PKG_VERSION).tar.gz
  PKG_SOURCE_URL:=http://nginx.org/download/
 -PKG_MD5SUM:=088292d9caf6059ef328aa7dda332e44
 -PKG_MAINTAINER:=Thomas Heil <heil@terminal-consulting.de>
-+PKG_HASH:=c7206858d7f832b8ef73a45c9b8f8e436bcb1ee88db2bc85b8e438ecec9d5460
++PKG_MD5SUM:=a3d8c67c2035808c7c0d475fffe263db8c353b11521aa7ade468b780ed826cc6
 +
 +PKG_MAINTAINER:=Thomas Heil <heil@terminal-consulting.de> \
 +				Ansuel Smith <ansuelsmth@gmail.com>
  PKG_LICENSE:=2-clause BSD-like license
  
- PKG_BUILD_DIR:=$(BUILD_DIR)/nginx-$(PKG_VERSION)
+-PKG_BUILD_DIR:=$(BUILD_DIR)/nginx-$(PKG_VERSION)
 +PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
  
 +PKG_FIXUP:=autoreconf
  PKG_BUILD_PARALLEL:=1
  PKG_INSTALL:=1
  
-@@ -33,6 +37,7 @@ PKG_CONFIG_DEPENDS := \
+@@ -33,6 +36,7 @@ PKG_CONFIG_DEPENDS := \
  	CONFIG_NGINX_HTTP_USERID \
  	CONFIG_NGINX_HTTP_ACCESS \
  	CONFIG_NGINX_HTTP_AUTH_BASIC \
@@ -367,7 +382,7 @@ index fa1e873..723adfa 100644
  	CONFIG_NGINX_HTTP_AUTOINDEX \
  	CONFIG_NGINX_HTTP_GEO \
  	CONFIG_NGINX_HTTP_MAP \
-@@ -54,152 +59,272 @@ PKG_CONFIG_DEPENDS := \
+@@ -54,152 +58,279 @@ PKG_CONFIG_DEPENDS := \
  	CONFIG_NGINX_HTTP_UPSTREAM_KEEPALIVE \
  	CONFIG_NGINX_HTTP_UPSTREAM_ZONE \
  	CONFIG_NGINX_HTTP_CACHE \
@@ -395,7 +410,7 @@ index fa1e873..723adfa 100644
 -  DEPENDS:=+NGINX_PCRE:libpcre +(NGINX_SSL||NGINX_HTTP_CACHE||NGINX_HTTP_AUTH_BASIC):libopenssl +NGINX_HTTP_GZIP:zlib +NGINX_LUA:liblua +libpthread
 -  MENU:=1
 +  DEPENDS:=+NGINX_PCRE:libpcre +(NGINX_SSL||NGINX_HTTP_CACHE||NGINX_HTTP_AUTH_BASIC):libopenssl \
-+     +NGINX_HTTP_GZIP:zlib +NGINX_LUA:liblua +libpthread
++	+NGINX_HTTP_GZIP:zlib +NGINX_LUA:liblua +libpthread +NGINX_DAV:libexpat
  endef
  
  define Package/nginx/description
@@ -416,6 +431,7 @@ index fa1e873..723adfa 100644
 +  TITLE += with SSL support
 +  DEPENDS +=+libopenssl
 +  VARIANT:=ssl
++  PROVIDES:=nginx
  endef
  
 +Package/nginx-ssl/description = $(Package/nginx/description) \
@@ -425,8 +441,9 @@ index fa1e873..723adfa 100644
 +define Package/nginx-all-module
 +  $(Package/nginx/default)
 +  TITLE += with ALL module selected
-+  DEPENDS:=+libpcre +libopenssl +zlib +liblua +libpthread
++  DEPENDS:=+libpcre +libopenssl +zlib +liblua +libpthread +libexpat
 +  VARIANT:=all-module
++  PROVIDES:=nginx
 +endef
 +
 +Package/nginx-all-module/description = $(Package/nginx/description) \
@@ -608,13 +625,13 @@ index fa1e873..723adfa 100644
 +  ifneq ($(CONFIG_NGINX_HTTP_UPSTREAM_KEEPALIVE),y)
 +    ADDITIONAL_MODULES += --without-http_upstream_keepalive_module
 +  endif
-+  
++
 +  ifeq ($(BUILD_VARIANT),ssl)
 +    ifneq ($(CONFIG_NGINX_SSL),y)
 +      ADDITIONAL_MODULES += --with-http_ssl_module
 +    endif
 +  endif
-+  
++
 +  ifeq ($(CONFIG_NGINX_SSL),y)
 +    ADDITIONAL_MODULES += --with-http_ssl_module
 +  endif
@@ -634,7 +651,7 @@ index fa1e873..723adfa 100644
 +    ADDITIONAL_MODULES += --with-http_flv_module
 +  endif
 +  ifeq ($(CONFIG_NGINX_DAV),y)
-+    ADDITIONAL_MODULES += --with-http_dav_module
++    ADDITIONAL_MODULES += --with-http_dav_module --add-module=$(PKG_BUILD_DIR)/nginx-dav-ext-module
 +  endif
 +  ifeq ($(CONFIG_NGINX_HTTP_AUTH_REQUEST),y)
 +    ADDITIONAL_MODULES += --with-http_auth_request_module
@@ -647,6 +664,9 @@ index fa1e873..723adfa 100644
 +  endif
 +  ifeq ($(CONFIG_NGINX_HTTP_SECURE_LINK),y)
 +    ADDITIONAL_MODULES += --with-http_secure_link_module
++  endif
++  ifeq ($(CONFIG_NGINX_HTTP_SUB),y)
++	ADDITIONAL_MODULES += --with-http_sub_module
 +  endif
 +  ifeq ($(CONFIG_NGINX_HEADERS_MORE),y)
 +    ADDITIONAL_MODULES += --add-module=$(PKG_BUILD_DIR)/nginx-headers-more
@@ -701,13 +721,15 @@ index fa1e873..723adfa 100644
 +  CONFIG_NGINX_TS_MODULE:=y
 +  CONFIG_NGINX_NAXSI:=y
 +  CONFIG_NGINX_LUA:=y
++  CONFIG_NGINX_DAV:=y
 +  ADDITIONAL_MODULES += --with-http_ssl_module --add-module=$(PKG_BUILD_DIR)/nginx-naxsi/naxsi_src \
 +    --add-module=$(PKG_BUILD_DIR)/lua-nginx --with-ipv6 --with-http_stub_status_module --with-http_flv_module \
-+	--with-http_dav_module --with-http_auth_request_module --with-http_v2_module --with-http_realip_module \
-+	--with-http_secure_link_module --add-module=$(PKG_BUILD_DIR)/nginx-headers-more \
++	--with-http_dav_module --add-module=$(PKG_BUILD_DIR)/nginx-dav-ext-module \
++	--with-http_auth_request_module --with-http_v2_module --with-http_realip_module \
++	--with-http_secure_link_module --with-http_sub_module --add-module=$(PKG_BUILD_DIR)/nginx-headers-more \
 +	--add-module=$(PKG_BUILD_DIR)/nginx-brotli --add-module=$(PKG_BUILD_DIR)/nginx-rtmp \
 +	--add-module=$(PKG_BUILD_DIR)/nginx-ts
-+  config_files += koi-utf koi-win win-utf fastcgi_params 
++  config_files += koi-utf koi-win win-utf fastcgi_params
  endif
  
 +define Package/nginx-mod-luci/default
@@ -754,7 +776,7 @@ index fa1e873..723adfa 100644
  			--crossbuild=Linux::$(ARCH) \
  			--prefix=/usr \
  			--conf-path=/etc/nginx/nginx.conf \
-@@ -214,8 +339,22 @@ define Build/Configure
+@@ -214,8 +345,22 @@ define Build/Configure
  			--with-cc="$(TARGET_CC)" \
  			--with-cc-opt="$(TARGET_CPPFLAGS) $(TARGET_CFLAGS)" \
  			--with-ld-opt="$(TARGET_LDFLAGS)" \
@@ -779,7 +801,7 @@ index fa1e873..723adfa 100644
  endef
  
  define Package/nginx/install
-@@ -234,37 +373,130 @@ endif
+@@ -234,37 +379,149 @@ endif
  	$(if $(CONFIG_NGINX_NAXSI),$(chmod 0640 $(1)/etc/nginx/naxsi_core.rules))
  endef
  
@@ -797,6 +819,7 @@ index fa1e873..723adfa 100644
 +	$(Prepare/nginx-headers-more)
 +	$(Prepare/nginx-rtmp)
 +	$(Prepare/nginx-ts)
++	$(Prepare/nginx-dav-ext-module)
  endef
  
 -define Download/nginx-naxsi
@@ -857,17 +880,17 @@ index fa1e873..723adfa 100644
 +
 +ifeq ($(CONFIG_NGINX_RTMP_MODULE),y)
 +  define Download/nginx-rtmp
-+    VERSION:=791b6136f02bc9613daf178723ac09f4df5a3bbf
++    VERSION:=c0e7c000ed860ef547a59ecf31f775db63f92b56
 +    SUBDIR:=nginx-rtmp
 +    FILE:=ngx-rtmp-module-$(PKG_VERSION)-$$(VERSION).tar.gz
-+    URL:=https://github.com/arut/nginx-rtmp-module.git
-+    MIRROR_HASH:=8db3f7b545ce98f47415e0436e12dfb55ae787afd3cd9515b5642c7b9dc0ef00
++    URL:=https://github.com/ut0mt8/nginx-rtmp-module.git
++    MIRROR_HASH:=ceb8264d920f3ce2fe96af97af824d6800095e3b3ff00e61f088bef9873f421e
 +    PROTO:=git
 +  endef
 +  $(eval $(call Download,nginx-rtmp))
 +
 +  define  Prepare/nginx-rtmp
-+	$(eval $(call Download,nginx-rtmp))
++	$(eval $(Download/nginx-rtmp))
 +	gzip -dc $(DL_DIR)/$(FILE) | tar -C $(PKG_BUILD_DIR) $(TAR_OPTIONS)
 +  endef
 +endif
@@ -885,7 +908,7 @@ index fa1e873..723adfa 100644
 +  $(eval $(call Download,nginx-ts))
 +
 +  define  Prepare/nginx-ts
-+	$(eval $(call Download,nginx-ts))
++	$(eval $(Download/nginx-ts))
 +	gzip -dc $(DL_DIR)/$(FILE) | tar -C $(PKG_BUILD_DIR) $(TAR_OPTIONS)
 +  endef
 +endif
@@ -911,11 +934,11 @@ index fa1e873..723adfa 100644
 +
 +ifeq ($(CONFIG_NGINX_LUA),y)
 +  define Download/lua-nginx
-+    VERSION:=576a10d246daf81c0ce1b959c50ee807769c01a8
++    VERSION:=e94f2e5d64daa45ff396e262d8dab8e56f5f10e0
 +    SUBDIR:=lua-nginx
 +    FILE:=lua-nginx-module-$(PKG_VERSION)-$$(VERSION).tar.gz
 +    URL:=https://github.com/openresty/lua-nginx-module.git
-+    MIRROR_HASH:=85ab2fc752d4e09f266209fdec507b30c57bb966c34bbff148cf3459ae5cac80
++    MIRROR_HASH:=ae439f9a8b3c34d7240735b844db72ee721af4791bbaff5692bca20e6785f541
 +    PROTO:=git
 +  endef
 +  $(eval $(call Download,lua-nginx))
@@ -927,6 +950,24 @@ index fa1e873..723adfa 100644
 -endef
 +  endef
 +endif
++
++
++ifeq ($(CONFIG_NGINX_DAV),y)
++  define Download/nginx-dav-ext-module
++    VERSION:=430fd774fe838a04f1a5defbf1dd571d42300cf9
++    SUBDIR:=nginx-dav-ext-module
++    FILE:=nginx-dav-ext-module-$(PKG_VERSION)-$$(VERSION).tar.gz
++    URL:=https://github.com/arut/nginx-dav-ext-module.git
++    MIRROR_HASH:=0566053a8756423ecab455fd9d218cec1e017598fcbb3d6415a06f816851611e
++    PROTO:=git
++  endef
++  $(eval $(call Download,nginx-dav-ext-module))
++
++  define Prepare/nginx-dav-ext-module
++	$(eval $(Download/nginx-dav-ext-module))
++	gzip -dc $(DL_DIR)/$(FILE) | tar -C $(PKG_BUILD_DIR) $(TAR_OPTIONS)
++  endef
++endif
  
  $(eval $(call BuildPackage,nginx))
 +$(eval $(call BuildPackage,nginx-ssl))
@@ -935,14 +976,14 @@ index fa1e873..723adfa 100644
 +$(eval $(call BuildPackage,nginx-mod-luci-ssl))
 diff --git a/net/nginx/files-luci-support/60_nginx-luci-support b/net/nginx/files-luci-support/60_nginx-luci-support
 new file mode 100644
-index 0000000..38a8aa8
+index 0000000..dd076d2
 --- /dev/null
 +++ b/net/nginx/files-luci-support/60_nginx-luci-support
-@@ -0,0 +1,26 @@
+@@ -0,0 +1,28 @@
 +#!/bin/sh
 +
 +if [ -f "/etc/nginx/luci_nginx.conf" ] && [ -f "/etc/nginx/nginx.conf" ]; then
-+	if [ ! "$(cat '/etc/nginx/nginx.conf' | grep -q 'luci_uwsgi.conf')" ]; then
++	if [ ! "$(cat '/etc/nginx/nginx.conf' | grep 'luci_uwsgi.conf')" ]; then
 +		mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf_old
 +		mv /etc/nginx/luci_nginx.conf /etc/nginx/nginx.conf
 +		core_number=$(grep -c ^processor /proc/cpuinfo)
@@ -961,21 +1002,23 @@ index 0000000..38a8aa8
 +		else
 +			/etc/init.d/uwsgi start
 +		fi
++	else
++		rm /etc/nginx/luci_nginx.conf
 +	fi
 +fi
 +
 +exit 0
 diff --git a/net/nginx/files-luci-support/70_nginx-luci-support-ssl b/net/nginx/files-luci-support/70_nginx-luci-support-ssl
 new file mode 100644
-index 0000000..1cc1a85
+index 0000000..76ce3a8
 --- /dev/null
 +++ b/net/nginx/files-luci-support/70_nginx-luci-support-ssl
-@@ -0,0 +1,46 @@
+@@ -0,0 +1,48 @@
 +#!/bin/sh
 +
 +
 +if [ -f "/etc/nginx/luci_nginx_ssl.conf" ] && [ -f "/etc/nginx/nginx.conf" ]; then
-+	if [ ! "$(cat '/etc/nginx/nginx.conf' | grep -q 'return 301 https://$host$request_uri;')" ]; then
++	if [ ! "$(cat '/etc/nginx/nginx.conf' | grep 'return 301 https://$host$request_uri;')" ]; then
 +		if [ -f "/etc/nginx/nginx.conf_old" ]; then
 +			rm /etc/nginx/nginx.conf
 +		else
@@ -989,6 +1032,8 @@ index 0000000..1cc1a85
 +		else
 +			/etc/init.d/nginx start
 +		fi
++	else
++		rm /etc/nginx/luci_nginx_ssl.conf
 +	fi
 +fi
 +
@@ -1019,12 +1064,12 @@ index 0000000..1cc1a85
 +exit 0
 diff --git a/net/nginx/files-luci-support/luci_nginx.conf b/net/nginx/files-luci-support/luci_nginx.conf
 new file mode 100644
-index 0000000..78f916b
+index 0000000..8ef6e59
 --- /dev/null
 +++ b/net/nginx/files-luci-support/luci_nginx.conf
-@@ -0,0 +1,55 @@
+@@ -0,0 +1,49 @@
 +
-+user  root;
++user nobody nogroup;
 +worker_processes  1;
 +
 +#error_log  logs/error.log;
@@ -1068,23 +1113,17 @@ index 0000000..78f916b
 +			expires 365d;
 +		}
 +
-+        location / {
-+            index  index.html;
-+			include luci_uwsgi.conf;
-+        }
-+		
-+		location /luci-static {
-+			
-+		}
++		include luci_uwsgi.conf;
++
 +    }
 +}
 \ No newline at end of file
 diff --git a/net/nginx/files-luci-support/luci_nginx_ssl.conf b/net/nginx/files-luci-support/luci_nginx_ssl.conf
 new file mode 100644
-index 0000000..4647fec
+index 0000000..8c8b53d
 --- /dev/null
 +++ b/net/nginx/files-luci-support/luci_nginx_ssl.conf
-@@ -0,0 +1,70 @@
+@@ -0,0 +1,64 @@
 +
 +user  root;
 +worker_processes  1;
@@ -1145,37 +1184,37 @@ index 0000000..4647fec
 +			expires 365d;
 +		}
 +
-+        location / {
-+            index  index.html;
-+			include luci_uwsgi.conf;
-+        }
-+		
-+		location /luci-static {
-+			
-+		}
++		include luci_uwsgi.conf;
++
 +    }
 +}
 \ No newline at end of file
 diff --git a/net/nginx/files-luci-support/luci_uwsgi.conf b/net/nginx/files-luci-support/luci_uwsgi.conf
 new file mode 100644
-index 0000000..eec66f4
+index 0000000..6bd1c42
 --- /dev/null
 +++ b/net/nginx/files-luci-support/luci_uwsgi.conf
-@@ -0,0 +1,14 @@
-+uwsgi_param QUERY_STRING $query_string;
-+uwsgi_param REQUEST_METHOD $request_method;
-+uwsgi_param CONTENT_TYPE $content_type;
-+uwsgi_param CONTENT_LENGTH $content_length if_not_empty;
-+uwsgi_param REQUEST_URI $request_uri;
-+uwsgi_param PATH_INFO $document_uri;
-+uwsgi_param SERVER_PROTOCOL $server_protocol;
-+uwsgi_param REMOTE_ADDR $remote_addr;
-+uwsgi_param REMOTE_PORT $remote_port;
-+uwsgi_param SERVER_ADDR $server_addr;
-+uwsgi_param SERVER_PORT $server_port;
-+uwsgi_param SERVER_NAME $server_name;
-+uwsgi_modifier1 9;
-+uwsgi_pass unix:////var/run/uwsgi.sock;
+@@ -0,0 +1,20 @@
++location /cgi-bin/luci {
++	index  index.html;
++	uwsgi_param QUERY_STRING $query_string;
++	uwsgi_param REQUEST_METHOD $request_method;
++	uwsgi_param CONTENT_TYPE $content_type;
++	uwsgi_param CONTENT_LENGTH $content_length if_not_empty;
++	uwsgi_param REQUEST_URI $request_uri;
++	uwsgi_param PATH_INFO $document_uri;
++	uwsgi_param SERVER_PROTOCOL $server_protocol;
++	uwsgi_param REMOTE_ADDR $remote_addr;
++	uwsgi_param REMOTE_PORT $remote_port;
++	uwsgi_param SERVER_ADDR $server_addr;
++	uwsgi_param SERVER_PORT $server_port;
++	uwsgi_param SERVER_NAME $server_name;
++	uwsgi_modifier1 9;
++	uwsgi_pass unix:////var/run/uwsgi.sock;
++}
++
++location /luci-static {
++}
 \ No newline at end of file
 diff --git a/net/nginx/patches-lua-nginx/100-no_by_lua_block.patch b/net/nginx/patches-lua-nginx/100-no_by_lua_block.patch
 index fef983f..968e12d 100644
@@ -1449,13 +1488,13 @@ index 36d7aaf..7d2430e 100644
   if [ -x $NGX_AUTOTEST ]; then
 diff --git a/net/nginx/patches/201-ignore-invalid-options.patch b/net/nginx/patches/201-ignore-invalid-options.patch
 new file mode 100644
-index 0000000..8218023
+index 0000000..28be2fb
 --- /dev/null
 +++ b/net/nginx/patches/201-ignore-invalid-options.patch
 @@ -0,0 +1,12 @@
 +--- a/auto/options
 ++++ b/auto/options
-+@@ -391,8 +391,7 @@
++@@ -397,8 +397,7 @@ $0: warning: the \"--with-sha1-asm\" opt
 +         --test-build-solaris-sendfilev)  NGX_TEST_BUILD_SOLARIS_SENDFILEV=YES ;;
 + 
 +         *)
@@ -1465,6 +1504,28 @@ index 0000000..8218023
 +         ;;
 +     esac
 + done
+diff --git a/net/nginx/patches/400-relax.patch b/net/nginx/patches/400-relax.patch
+new file mode 100644
+index 0000000..acceee3
+--- /dev/null
++++ b/net/nginx/patches/400-relax.patch
+@@ -0,0 +1,16 @@
++--- a/auto/cc/gcc
+++++ b/auto/cc/gcc
++@@ -171,13 +171,6 @@ case "$NGX_GCC_VER" in
++     ;;
++ esac
++ 
++-
++-# stop on warning
++-CFLAGS="$CFLAGS -Werror"
++-
++-# debug
++-CFLAGS="$CFLAGS -g"
++-
++ # DragonFly's gcc3 generates DWARF
++ #CFLAGS="$CFLAGS -g -gstabs"
++ 
 -- 
 2.7.4
 
