@@ -1,0 +1,26 @@
+diff --git a/lang/node-mozilla-iot-gateway/Makefile b/lang/node-mozilla-iot-gateway/Makefile
+index 9bf7d4b1a..49f553b7a 100644
+--- a/lang/node-mozilla-iot-gateway/Makefile
++++ b/lang/node-mozilla-iot-gateway/Makefile
+@@ -34,7 +34,7 @@ define Package/node-mozilla-iot-gateway
+   CATEGORY:=Languages
+   TITLE:=Things Gateway by Mozilla
+   URL:=https://iot.mozilla.org/gateway/
+-  DEPENDS:= +libpthread +node +node-npm +libopenzwave +openzwave-config +python +python3-light +python3-pip +openssl-util
++  DEPENDS:= +libpthread +node +node-npm +libopenzwave +openzwave-config +python +python3-light +python3-pip +openssl-util +mozilla-iot-gateway-webapp
+   DEPENDS+= +MOIT_enable-plugin-support:git-http
+   MENU:=1
+ endef
+diff --git a/lang/node-mozilla-iot-gateway/files/mozilla-iot-gateway.init b/lang/node-mozilla-iot-gateway/files/mozilla-iot-gateway.init
+index 7bd3836ca..72e598f35 100644
+--- a/lang/node-mozilla-iot-gateway/files/mozilla-iot-gateway.init
++++ b/lang/node-mozilla-iot-gateway/files/mozilla-iot-gateway.init
+@@ -22,6 +22,6 @@ start()
+ 	mkdir -p /usr/etc/
+ 	ln -sf /etc/openzwave /usr/etc/openzwave
+ 
+-	mkdir -p "${MOZIOT_HOME}/log"
+-	run_app &> "${MOZIOT_HOME}/log/run-app.log" &
++	mkdir -p "/var/run/mozilla-iot/log"
++	run_app &> "/var/run/mozilla-iot/log/run-app.log" &
+ }
