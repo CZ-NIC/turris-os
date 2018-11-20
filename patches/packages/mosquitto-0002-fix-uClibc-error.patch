@@ -15,14 +15,14 @@ index 7e8ad1f..023f8db 100644
 @@ -223,6 +223,10 @@ define Package/libmosquittopp/install
  	$(LN) libmosquittopp.so.1 $(1)/usr/lib/libmosquittopp.so
  endef
- 
-+ifneq ($(CONFIG_USE_UCLIBC),y)
+
++ifeq ($(CONFIG_USE_UCLIBC),y)
 +	MAKE_FLAGS += WITH_MEMORY_TRACKING=no
 +endif
 +
  # Applies to all...
  MAKE_FLAGS += WITH_DOCS=no UNAME=Linux
  ifeq ($(BUILD_VARIANT),nossl)
--- 
+--
 2.7.4
 
