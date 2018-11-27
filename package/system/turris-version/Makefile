@@ -36,6 +36,7 @@ create_notification -s news " • foris: migrace na python3
  • samba4: experimentální podpora
  • unbound: aktualizace a podpora přesměrování na vybrané servery
  • lepší integrace webových aplikací třetích stran
+ • knot-resolver: podpora přesměrování a DNS over TLS pro vybrané servery
  • aktualizace různých balíčků - například Nextcloud 14" " • foris: migration to python3
  • foris: wizard replaced by guide
  • foris: small cleanups and rearranging
@@ -43,6 +44,7 @@ create_notification -s news " • foris: migrace na python3
  • samba4: experimental support
  • unbound: update and support forwarding to predefined servers
  • better integration of third party web applications
+ • knot-resolver: support forwarding and DNS over TLS for predefined servers
  • various package updates including Nextcloud 14"
 }
 endef
