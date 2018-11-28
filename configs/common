@@ -446,3 +446,10 @@ CONFIG_PACKAGE_bind-tools=y
 CONFIG_PACKAGE_bind-rndc=y
 CONFIG_PACKAGE_bind-dnssec=y
 CONFIG_PACKAGE_bind-host=y
+
+# findutils (https://gitlab.labs.nic.cz/turris/turris-os-packages/issues/261)
+
+CONFIG_PACKAGE_findutils=y
+CONFIG_PACKAGE_findutils-find=y
+CONFIG_PACKAGE_findutils-xargs=y
+CONFIG_PACKAGE_findutils-locate=y
