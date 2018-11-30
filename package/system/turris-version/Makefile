@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.10.8
+PKG_VERSION:=3.10.9
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,11 +28,7 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • kernel, nextcloud, btrfs-progs, php: aktualizace
- • kernel: odstraněn blkio LED trigger způsobující občas problémy
- • pakon: robustnější správa databáze" " • kernel, nextcloud, btrfs-progs, php: update
- • kernel: drop blkio LED trigger as it was causing some issues from time to time
- • pakon: more robust database maintanance"
+create_notification -s news " • nor: Update factory image" " • nor: Aktualizace továrního image"
 }
 endef
 
