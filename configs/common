@@ -453,4 +453,3 @@ CONFIG_PACKAGE_findutils=y
 CONFIG_PACKAGE_findutils-find=y
 CONFIG_PACKAGE_findutils-xargs=y
 CONFIG_PACKAGE_findutils-locate=y
-CONFIG_PACKAGE_findutils-updatedb=y
