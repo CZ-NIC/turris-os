@@ -1,29 +1,22 @@
-From bbb9c1ac4fefcf66d44aafdc31d6e1c0c60a4525 Mon Sep 17 00:00:00 2001
-From: Jan Pavlinec <jan.pavlinec@nic.cz>
-Date: Wed, 31 Oct 2018 13:47:20 +0100
-Subject: [PATCH] git: update version 2.19.1 (security fix)
+From 3411bcce57878ccc903f4216189e4a09110c3fc9 Mon Sep 17 00:00:00 2001
+From: Josef Schlehofer <josef.schlehofer@nic.cz>
+Date: Tue, 4 Dec 2018 01:14:58 +0100
+Subject: [PATCH] git: update to version 2.19.2
 
-CVE-2018-17456 - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-17456
-
-Issue https://gitlab.labs.nic.cz/turris/turris-os-packages/issues/242
 ---
- net/git/Makefile                                   |  55 ++++--
- .../patches/100-configure_for_crosscompiling.patch |  32 ++++
- net/git/patches/100-convert_builtin.patch          | 208 ---------------------
- net/git/patches/200-disable_fasthash.patch         |  12 --
- net/git/patches/200-imapsend_without_curl.patch    |  11 ++
- net/git/patches/300-configure_for_crosscompiling   |  32 ----
- net/git/patches/400-imapsend_without_curl.patch    |  11 --
- 7 files changed, 87 insertions(+), 274 deletions(-)
- create mode 100644 net/git/patches/100-configure_for_crosscompiling.patch
+ net/git/Makefile                              |  58 +++--
+ ...=> 100-configure_for_crosscompiling.patch} |   8 +-
+ net/git/patches/100-convert_builtin.patch     | 208 ------------------
+ net/git/patches/200-disable_fasthash.patch    |  12 -
+ ....patch => 200-imapsend_without_curl.patch} |   2 +-
+ 5 files changed, 50 insertions(+), 238 deletions(-)
+ rename net/git/patches/{300-configure_for_crosscompiling => 100-configure_for_crosscompiling.patch} (85%)
  delete mode 100644 net/git/patches/100-convert_builtin.patch
  delete mode 100644 net/git/patches/200-disable_fasthash.patch
- create mode 100644 net/git/patches/200-imapsend_without_curl.patch
- delete mode 100644 net/git/patches/300-configure_for_crosscompiling
- delete mode 100644 net/git/patches/400-imapsend_without_curl.patch
+ rename net/git/patches/{400-imapsend_without_curl.patch => 200-imapsend_without_curl.patch} (92%)
 
 diff --git a/net/git/Makefile b/net/git/Makefile
-index 1b9d772..844a5d0 100644
+index 1b9d7729e..9b50a025a 100644
 --- a/net/git/Makefile
 +++ b/net/git/Makefile
 @@ -1,5 +1,5 @@
@@ -33,56 +26,57 @@ index 1b9d772..844a5d0 100644
  #
  # This is free software, licensed under the GNU General Public License v2.
  # See /LICENSE for more information.
-@@ -8,16 +8,17 @@
+@@ -8,16 +8,16 @@
  include $(TOPDIR)/rules.mk
- 
+
  PKG_NAME:=git
 -PKG_VERSION:=2.8.2
-+PKG_VERSION:=2.19.1
++PKG_VERSION:=2.19.2
  PKG_RELEASE:=1
- 
+
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
  PKG_SOURCE_URL:=@KERNEL/software/scm/git/
 -PKG_MD5SUM:=b8edb4ae34828fda6aa2a4478089b107
-+PKG_MD5SUM:=345056aa9b8084280b1b9fe1374d232dec05a34e8849028a20bfdb56e920dbb5
- 
++PKG_HASH:=fce9a3a3297db5f3756c4553a2fc1fec209ee08178f8491e76ff4ff8fe7b8be9
+
  PKG_INSTALL:=1
- PKG_BUILD_PARALLEL:=1
+-PKG_BUILD_PARALLEL:=1
  PKG_FIXUP:=autoreconf
 +PKG_BUILD_PARALLEL:=1
- 
+
  include $(INCLUDE_DIR)/package.mk
- 
-@@ -25,15 +26,13 @@ define Package/git/Default
+
+@@ -25,15 +25,13 @@ define Package/git/Default
    SECTION:=net
    CATEGORY:=Network
    SUBMENU:=Version Control Systems
 -  DEPENDS:=+libopenssl +libpthread +librt
 -  TITLE:=The fast version control system
+-  URL:=http://git-scm.com
 +  DEPENDS:=+libopenssl +libpthread +librt +zlib
-   URL:=http://git-scm.com
++  URL:=https://git-scm.com
    MAINTAINER:=Peter Wagner <tripolar@gmx.at>
  endef
- 
+
  define Package/git
  $(call Package/git/Default)
 -  DEPENDS:=+libopenssl +libpthread +librt
    TITLE:=The fast version control system
  endef
- 
-@@ -45,7 +44,7 @@ endef
- 
+
+@@ -45,7 +43,7 @@ endef
+
  define Package/git-http
  $(call Package/git/Default)
 -  DEPENDS:=git +libcurl +ca-certificates
 +  DEPENDS+= +git +libcurl
    TITLE:=Git HTTP commands
  endef
- 
-@@ -55,6 +54,21 @@ $(call Package/git/description)
+
+@@ -55,6 +53,21 @@ $(call Package/git/description)
   This package allows git push/fetch over http(s) and ftp(s)
  endef
- 
+
 +define Package/git-gitweb
 +$(call Package/git/Default)
 +  TITLE:=Git repository web interface
@@ -101,7 +95,7 @@ index 1b9d772..844a5d0 100644
  MAKE_FLAGS := \
  	CC="$(TARGET_CC)" \
  	CFLAGS="$(TARGET_CFLAGS)" \
-@@ -70,6 +84,11 @@ MAKE_FLAGS := \
+@@ -70,6 +83,11 @@ MAKE_FLAGS := \
  	NO_PYTHON="YesPlease" \
  	NO_TCLTK="YesPlease" \
  	NO_INSTALL_HARDLINKS="yes" \
@@ -110,13 +104,13 @@ index 1b9d772..844a5d0 100644
 +	GITWEB_CSS="/gitweb/gitweb.css" \
 +	GITWEB_LOGO="/gitweb/gitweb-logo.png" \
 +	GITWEB_FAVICON="/gitweb/gitweb-favicon.png"
- 
+
  CONFIGURE_ARGS += \
  	--without-iconv \
-@@ -81,13 +100,18 @@ define Build/Configure
+@@ -81,13 +99,18 @@ define Build/Configure
  	$(call Build/Configure/Default,)
  endef
- 
+
 +define Build/Compile
 +	mkdir -p $(PKG_INSTALL_DIR)/www/cgi-bin $(PKG_INSTALL_DIR)/www/gitweb
 +	$(call Build/Compile/Default,DESTDIR=$(PKG_INSTALL_DIR) all install gitweb install-gitweb)
@@ -135,7 +129,7 @@ index 1b9d772..844a5d0 100644
  	( cd $(PKG_INSTALL_DIR); $(TAR) \
  		--exclude=usr/lib/git-core/git-http-backend \
  		--exclude=usr/lib/git-core/git-http-fetch \
-@@ -97,8 +121,10 @@ define Package/git/install
+@@ -97,8 +120,10 @@ define Package/git/install
  		--exclude=usr/lib/git-core/git-remote-https \
  		-cf - \
  		usr/lib/git-core \
@@ -145,12 +139,12 @@ index 1b9d772..844a5d0 100644
 +	ln $(1)/usr/lib/git-core/git $(1)/usr/bin/git
 +	ln $(1)/usr/lib/git-core/git-shell $(1)/usr/bin/git-shell
  endef
- 
+
  define Package/git-http/install
-@@ -111,5 +137,12 @@ define Package/git-http/install
+@@ -111,5 +136,12 @@ define Package/git-http/install
  	$(CP) $(PKG_INSTALL_DIR)/usr/lib/git-core/git-remote-https $(1)/usr/lib/git-core
  endef
- 
+
 +define Package/git-gitweb/install
 +	$(INSTALL_DIR) $(1)/www/cgi-bin $(1)/www/gitweb
 +	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/www/cgi-bin/gitweb.cgi $(1)/www/cgi-bin/
@@ -160,47 +154,45 @@ index 1b9d772..844a5d0 100644
  $(eval $(call BuildPackage,git))
  $(eval $(call BuildPackage,git-http))
 +$(eval $(call BuildPackage,git-gitweb))
-diff --git a/net/git/patches/100-configure_for_crosscompiling.patch b/net/git/patches/100-configure_for_crosscompiling.patch
-new file mode 100644
-index 0000000..07796e6
---- /dev/null
+diff --git a/net/git/patches/300-configure_for_crosscompiling b/net/git/patches/100-configure_for_crosscompiling.patch
+similarity index 85%
+rename from net/git/patches/300-configure_for_crosscompiling
+rename to net/git/patches/100-configure_for_crosscompiling.patch
+index 8a8ce289d..07796e6df 100644
+--- a/net/git/patches/300-configure_for_crosscompiling
 +++ b/net/git/patches/100-configure_for_crosscompiling.patch
-@@ -0,0 +1,32 @@
-+--- a/configure.ac
-++++ b/configure.ac
+@@ -1,8 +1,8 @@
+ --- a/configure.ac
+ +++ b/configure.ac
+-@@ -867,7 +867,8 @@ AC_RUN_IFELSE(
 +@@ -929,7 +929,8 @@ AC_RUN_IFELSE(
-+ 		FILE *f = fopen(".", "r");
+  		FILE *f = fopen(".", "r");
+- 		return f && fread(&c, 1, 1, f)]])],
 + 		return f != NULL;]])],
-+ 	[ac_cv_fread_reads_directories=no],
-+-	[ac_cv_fread_reads_directories=yes])
-++	[ac_cv_fread_reads_directories=yes],
-++	[ac_cv_fread_reads_directories=no])
-+ ])
-+ if test $ac_cv_fread_reads_directories = yes; then
-+ 	FREAD_READS_DIRECTORIES=UnfortunatelyYes
+  	[ac_cv_fread_reads_directories=no],
+ -	[ac_cv_fread_reads_directories=yes])
+ +	[ac_cv_fread_reads_directories=yes],
+@@ -10,7 +10,7 @@
+  ])
+  if test $ac_cv_fread_reads_directories = yes; then
+  	FREAD_READS_DIRECTORIES=UnfortunatelyYes
+-@@ -901,7 +902,8 @@ AC_RUN_IFELSE(
 +@@ -963,7 +964,8 @@ AC_RUN_IFELSE(
-+ 		  if (snprintf(buf, 3, "%s", "12345") != 5
-+ 		      || strcmp(buf, "12")) return 1]])],
-+ 	[ac_cv_snprintf_returns_bogus=no],
-+-	[ac_cv_snprintf_returns_bogus=yes])
-++	[ac_cv_snprintf_returns_bogus=yes],
-++	[ac_cv_snprintf_returns_bogus=no])
-+ ])
-+ if test $ac_cv_snprintf_returns_bogus = yes; then
-+ 	SNPRINTF_RETURNS_BOGUS=UnfortunatelyYes
+  		  if (snprintf(buf, 3, "%s", "12345") != 5
+  		      || strcmp(buf, "12")) return 1]])],
+  	[ac_cv_snprintf_returns_bogus=no],
+@@ -20,7 +20,7 @@
+  ])
+  if test $ac_cv_snprintf_returns_bogus = yes; then
+  	SNPRINTF_RETURNS_BOGUS=UnfortunatelyYes
+-@@ -924,7 +926,8 @@ yippeeyeswehaveit
 +@@ -986,7 +988,8 @@ yippeeyeswehaveit
-+ #endif
-+ ]),
-+ 	[ac_cv_sane_mode_bits=yes],
-+-	[ac_cv_sane_mode_bits=no])
-++	[ac_cv_sane_mode_bits=no],
-++	[ac_cv_sane_mode_bits=yes])
-+ ])
-+ if test $ac_cv_sane_mode_bits = yes; then
-+ 	NEEDS_MODE_TRANSLATION=
+  #endif
+  ]),
+  	[ac_cv_sane_mode_bits=yes],
 diff --git a/net/git/patches/100-convert_builtin.patch b/net/git/patches/100-convert_builtin.patch
 deleted file mode 100644
-index e08963c..0000000
+index e08963cf9..000000000
 --- a/net/git/patches/100-convert_builtin.patch
 +++ /dev/null
 @@ -1,208 +0,0 @@
@@ -209,7 +201,7 @@ index e08963c..0000000
 -@@ -574,16 +574,7 @@ EXTRA_PROGRAMS =
 - # ... and all the rest that could be moved out of bindir to gitexecdir
 - PROGRAMS += $(EXTRA_PROGRAMS)
-- 
+-
 --PROGRAM_OBJS += credential-store.o
 --PROGRAM_OBJS += daemon.o
 --PROGRAM_OBJS += fast-import.o
@@ -220,7 +212,7 @@ index e08963c..0000000
 --PROGRAM_OBJS += show-index.o
 --PROGRAM_OBJS += upload-pack.o
 --PROGRAM_OBJS += remote-testsvn.o
-- 
+-
 - # Binary suffix, set to .exe for Windows builds
 - X =
 -@@ -945,6 +936,11 @@ BUILTIN_OBJS += builtin/verify-pack.o
@@ -232,12 +224,12 @@ index e08963c..0000000
 -+BUILTIN_OBJS += builtin/imap-send.o
 -+BUILTIN_OBJS += builtin/shell.o
 -+BUILTIN_OBJS += builtin/upload-pack.o
-- 
+-
 - GITLIBS = $(LIB_FILE) $(XDIFF_LIB)
 - EXTLIBS =
 -@@ -1128,7 +1124,7 @@ endif
 - EXTLIBS += -lz
-- 
+-
 - ifndef NO_OPENSSL
 --	OPENSSL_LIBSSL = -lssl
 -+	EXTLIBS += -lssl
@@ -247,7 +239,7 @@ index e08963c..0000000
 -@@ -2006,10 +2002,6 @@ endif
 - git-%$X: %.o GIT-LDFLAGS $(GITLIBS)
 - 	$(QUIET_LINK)$(CC) $(ALL_CFLAGS) -o $@ $(ALL_LDFLAGS) $(filter %.o,$^) $(LIBS)
-- 
+-
 --git-imap-send$X: imap-send.o $(IMAP_SEND_BUILDDEPS) GIT-LDFLAGS $(GITLIBS)
 --	$(QUIET_LINK)$(CC) $(ALL_CFLAGS) -o $@ $(ALL_LDFLAGS) $(filter %.o,$^) \
 --		$(LIBS) $(IMAP_SEND_LDFLAGS)
@@ -279,7 +271,7 @@ index e08963c..0000000
 -+extern int cmd_imap_send(int argc, char **argv, const char *prefix);
 -+extern int cmd_shell(int argc, char **argv, const char *prefix);
 -+extern int cmd_upload_pack(int argc, char **argv, const char *prefix);
-- 
+-
 - #endif
 ---- /dev/null
 -+++ b/builtin/daemon.c
@@ -306,7 +298,7 @@ index e08963c..0000000
 -@@ -1178,7 +1178,7 @@ static int serve(struct string_list *lis
 - 	return service_loop(&socklist);
 - }
-- 
+-
 --int main(int argc, char **argv)
 -+int cmd_daemon(int argc, char **argv, const char *prefix)
 - {
@@ -314,7 +306,7 @@ index e08963c..0000000
 - 	struct string_list listen_addr = STRING_LIST_INIT_NODUP;
 -@@ -1374,6 +1374,7 @@ int main(int argc, char **argv)
 - 		write_file(pid_file, "%"PRIuMAX, (uintmax_t) getpid());
-- 
+-
 - 	/* prepare argv for serving-processes */
 -+	argv_array_push(&cld_argv, "git"); /* git-daemon */
 - 	argv_array_push(&cld_argv, argv[0]); /* git-daemon */
@@ -325,23 +317,23 @@ index e08963c..0000000
 -@@ -3381,7 +3381,7 @@ static void parse_argv(void)
 - 		read_marks();
 - }
-- 
+-
 --int main(int argc, char **argv)
 -+int cmd_fast_import(int argc, char **argv, const char *prefix)
 - {
 - 	unsigned int i;
-- 
+-
 ---- a/git.c
 -+++ b/git.c
 -@@ -313,11 +313,11 @@ static int handle_alias(int *argcp, cons
-- 
+-
 - struct cmd_struct {
 - 	const char *cmd;
 --	int (*fn)(int, const char **, const char *);
 -+	int (*fn)(int, char **, const char *);
 - 	int option;
 - };
-- 
+-
 --static int run_builtin(struct cmd_struct *p, int argc, const char **argv)
 -+static int run_builtin(struct cmd_struct *p, int argc, char **argv)
 - {
@@ -384,7 +376,7 @@ index e08963c..0000000
 -@@ -1494,7 +1494,7 @@ static int curl_append_msgs_to_imap(stru
 - }
 - #endif
-- 
+-
 --int main(int argc, char **argv)
 -+int cmd_imap_send(int argc, char **argv, const char *prefix)
 - {
@@ -395,7 +387,7 @@ index e08963c..0000000
 -@@ -138,7 +138,7 @@ static struct commands {
 - 	{ NULL },
 - };
-- 
+-
 --int main(int argc, char **argv)
 -+int cmd_shell(int argc, char **argv, const char *prefix)
 - {
@@ -406,7 +398,7 @@ index e08963c..0000000
 -@@ -817,7 +817,7 @@ static int upload_pack_config(const char
 - 	return parse_hide_refs_config(var, value, "uploadpack");
 - }
-- 
+-
 --int main(int argc, char **argv)
 -+int cmd_upload_pack(int argc, char **argv, const char *prefix)
 - {
@@ -414,7 +406,7 @@ index e08963c..0000000
 - 	int i;
 diff --git a/net/git/patches/200-disable_fasthash.patch b/net/git/patches/200-disable_fasthash.patch
 deleted file mode 100644
-index 91f255f..0000000
+index 91f255f80..000000000
 --- a/net/git/patches/200-disable_fasthash.patch
 +++ /dev/null
 @@ -1,12 +0,0 @@
@@ -423,85 +415,27 @@ index 91f255f..0000000
 -@@ -17,9 +17,6 @@ endif
 - # because maintaining the nesting to match is a pain.  If
 - # we had "elif" things would have been much nicer...
-- 
+-
 --ifeq ($(uname_M),x86_64)
 --	XDL_FAST_HASH = YesPlease
 --endif
 - ifeq ($(uname_S),OSF1)
 - 	# Need this for u_short definitions et al
 - 	BASIC_CFLAGS += -D_OSF_SOURCE
-diff --git a/net/git/patches/200-imapsend_without_curl.patch b/net/git/patches/200-imapsend_without_curl.patch
-new file mode 100644
-index 0000000..75268a4
---- /dev/null
-+++ b/net/git/patches/200-imapsend_without_curl.patch
-@@ -0,0 +1,11 @@
-+--- a/Makefile
-++++ b/Makefile
-+@@ -1312,7 +1312,7 @@ else
-+ 	endif
-+ 	curl_check := $(shell (echo 072200; $(CURL_CONFIG) --vernum | sed -e '/^70[BC]/s/^/0/') 2>/dev/null | sort -r | sed -ne 2p)
-+ 	ifeq "$(curl_check)" "072200"
-+-		USE_CURL_FOR_IMAP_SEND = YesPlease
-++#		USE_CURL_FOR_IMAP_SEND = YesPlease
-+ 	endif
-+ 	ifdef USE_CURL_FOR_IMAP_SEND
-+ 		BASIC_CFLAGS += -DUSE_CURL_FOR_IMAP_SEND
-diff --git a/net/git/patches/300-configure_for_crosscompiling b/net/git/patches/300-configure_for_crosscompiling
-deleted file mode 100644
-index 8a8ce28..0000000
---- a/net/git/patches/300-configure_for_crosscompiling
-+++ /dev/null
-@@ -1,32 +0,0 @@
----- a/configure.ac
--+++ b/configure.ac
--@@ -867,7 +867,8 @@ AC_RUN_IFELSE(
-- 		FILE *f = fopen(".", "r");
-- 		return f && fread(&c, 1, 1, f)]])],
-- 	[ac_cv_fread_reads_directories=no],
---	[ac_cv_fread_reads_directories=yes])
--+	[ac_cv_fread_reads_directories=yes],
--+	[ac_cv_fread_reads_directories=no])
-- ])
-- if test $ac_cv_fread_reads_directories = yes; then
-- 	FREAD_READS_DIRECTORIES=UnfortunatelyYes
--@@ -901,7 +902,8 @@ AC_RUN_IFELSE(
-- 		  if (snprintf(buf, 3, "%s", "12345") != 5
-- 		      || strcmp(buf, "12")) return 1]])],
-- 	[ac_cv_snprintf_returns_bogus=no],
---	[ac_cv_snprintf_returns_bogus=yes])
--+	[ac_cv_snprintf_returns_bogus=yes],
--+	[ac_cv_snprintf_returns_bogus=no])
-- ])
-- if test $ac_cv_snprintf_returns_bogus = yes; then
-- 	SNPRINTF_RETURNS_BOGUS=UnfortunatelyYes
--@@ -924,7 +926,8 @@ yippeeyeswehaveit
-- #endif
-- ]),
-- 	[ac_cv_sane_mode_bits=yes],
---	[ac_cv_sane_mode_bits=no])
--+	[ac_cv_sane_mode_bits=no],
--+	[ac_cv_sane_mode_bits=yes])
-- ])
-- if test $ac_cv_sane_mode_bits = yes; then
-- 	NEEDS_MODE_TRANSLATION=
-diff --git a/net/git/patches/400-imapsend_without_curl.patch b/net/git/patches/400-imapsend_without_curl.patch
-deleted file mode 100644
-index a839705..0000000
+diff --git a/net/git/patches/400-imapsend_without_curl.patch b/net/git/patches/200-imapsend_without_curl.patch
+similarity index 92%
+rename from net/git/patches/400-imapsend_without_curl.patch
+rename to net/git/patches/200-imapsend_without_curl.patch
+index a83970553..75268a48f 100644
 --- a/net/git/patches/400-imapsend_without_curl.patch
-+++ /dev/null
-@@ -1,11 +0,0 @@
----- a/Makefile
--+++ b/Makefile
++++ b/net/git/patches/200-imapsend_without_curl.patch
+@@ -1,6 +1,6 @@
+ --- a/Makefile
+ +++ b/Makefile
 -@@ -1096,7 +1096,7 @@ else
-- 	endif
-- 	curl_check := $(shell (echo 072200; $(CURL_CONFIG) --vernum | sed -e '/^70[BC]/s/^/0/') 2>/dev/null | sort -r | sed -ne 2p)
-- 	ifeq "$(curl_check)" "072200"
---		USE_CURL_FOR_IMAP_SEND = YesPlease
--+#		USE_CURL_FOR_IMAP_SEND = YesPlease
-- 	endif
-- 	ifdef USE_CURL_FOR_IMAP_SEND
-- 		BASIC_CFLAGS += -DUSE_CURL_FOR_IMAP_SEND
--- 
-2.7.4
-
++@@ -1312,7 +1312,7 @@ else
+  	endif
+  	curl_check := $(shell (echo 072200; $(CURL_CONFIG) --vernum | sed -e '/^70[BC]/s/^/0/') 2>/dev/null | sort -r | sed -ne 2p)
+  	ifeq "$(curl_check)" "072200"
+--
+2.17.1
