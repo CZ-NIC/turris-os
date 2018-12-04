@@ -20,24 +20,24 @@ index e88221e0..b070608e 100644
 @@ -5,8 +5,74 @@
  # See /LICENSE for more information.
  #
- 
+
 +
  include $(TOPDIR)/rules.mk
- 
+
 +ifeq ($(CONFIG_TARGET_mvebu_Turris-Omnia),y)
 +
 +PKG_NAME:=netdata
-+PKG_VERSION:=1.10.0
-+PKG_RELEASE:=0
++PKG_VERSION:=1.11.1
++PKG_RELEASE:=1
 +PKG_MAINTAINER:=
 +PKG_LICENSE:=GPL-3.0
 +PKG_LICENSE_FILES:=COPYING
 +PKG_BUILD_DEPENDS:=+util-linux
 +
-+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-+PKG_SOURCE_URL:=https://github.com/firehol/netdata/releases/download/v$(PKG_VERSION)
-+PKG_HASH:=0514fc002c5c5fb730156b3fe928965b22327833c6c17e22b7097eda657e77a2
-+
++PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
++PKG_SOURCE_URL:=https://codeload.github.com/netdata/netdata/tar.gz/v$(PKG_VERSION)?
++PKG_HASH:=909388511729d1e3b064d33fcf7ba65e27439787b449303ba8458c300ec46500
++PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 +PKG_INSTALL:=1
 +PKG_FIXUP:=autoreconf
 +
@@ -116,7 +116,7 @@ index e88221e0..b070608e 100644
 @@ -58,4 +123,13 @@ define Package/netdata/install
  	chmod 4755 $(1)/usr/lib/netdata/plugins.d/apps.plugin
  endef
- 
+
 +endif
 +
 +define disable_plugins
@@ -171,7 +171,7 @@ index e1f09644..13418b55 100644
 +	# cache directory = /var/cache/netdata
 +	# lib directory = /var/lib/netdata
 +	# log directory = /var/log/netdata
-+	# host access prefix = 
++	# host access prefix =
 +	# home directory = /var/cache/netdata
 +	# debug flags = 0x00000000
 +	memory deduplication (ksm) = no
@@ -193,7 +193,7 @@ index e1f09644..13418b55 100644
 +	web files group = root
 +	# default port = 19999
 +	# bind to = *
- 
+
  [plugins]
 +	# PATH environment variable = /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin
 +	tc = no
@@ -222,7 +222,7 @@ index e1f09644..13418b55 100644
 +	# registry log file = /var/lib/netdata/registry/registry-log.db
 +	# registry save db every new entries = 1000000
 +	# registry expire idle persons days = 365
-+	# registry domain = 
++	# registry domain =
 +	# registry to announce = https://registry.my-netdata.io
 +	# registry hostname = LEDE
 +	# verify browser cookies support = yes
@@ -254,7 +254,7 @@ index e1f09644..13418b55 100644
 +
 +[plugin:fping]
 +	# update every = 1
-+	# command options = 
++	# command options =
 +
 +[plugin:proc]
 +	# netdata server resources = yes
@@ -310,7 +310,7 @@ index e1f09644..13418b55 100644
 +	# compressed packets for all interfaces = auto
 +	# frames, collisions, carrier counters for all interfaces = auto
 +	# disable by default interfaces matching = lo fireqos* *-ifb
-+	# filename to monitor = /proc/net/dev 
++	# filename to monitor = /proc/net/dev
 +
 +[plugin:proc:/proc/net/dev:eth0]
 +	# enabled = yes
@@ -400,16 +400,16 @@ index 448e56d9..d4be0a7c 100644
 +++ b/admin/netdata/files/netdata.init
 @@ -1,11 +1,21 @@
  #!/bin/sh /etc/rc.common
- 
+
  START=99
 +USE_PROCD=1
- 
+
 -start() {
 -	service_start /usr/sbin/netdata
 -}
 +APPBINARY=/usr/sbin/netdata
 +CONFIGFILE=/etc/netdata/netdata.conf
- 
+
 -stop() {
 -	service_stop /usr/sbin/netdata
 -}
@@ -443,6 +443,5 @@ index 00000000..448e56d9
 +stop() {
 +	service_stop /usr/sbin/netdata
 +}
--- 
+--
 2.17.0
-
