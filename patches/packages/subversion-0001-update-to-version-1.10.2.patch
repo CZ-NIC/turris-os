@@ -1,0 +1,81 @@
+From 99ebb5630ed16442de684772a8f66512179f591b Mon Sep 17 00:00:00 2001
+From: Josef Schlehofer <josef.schlehofer@nic.cz>
+Date: Mon, 10 Dec 2018 23:59:35 +0100
+Subject: [PATCH] subversion: update to version 1.10.2
+
+---
+ net/subversion/Makefile | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/net/subversion/Makefile b/net/subversion/Makefile
+index d78596202..6cbf19bf3 100644
+--- a/net/subversion/Makefile
++++ b/net/subversion/Makefile
+@@ -1,5 +1,5 @@
+ #
+-# Copyright (C) 2007-2016 OpenWrt.org
++# Copyright (C) 2007-2017 OpenWrt.org
+ #
+ # This is free software, licensed under the GNU General Public License v2.
+ # See /LICENSE for more information.
+@@ -9,16 +9,17 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=subversion
+ PKG_RELEASE:=1
+-PKG_VERSION:=1.9.4
++PKG_VERSION:=1.10.2
+ PKG_SOURCE_URL:=@APACHE/subversion
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+-PKG_MD5SUM:=29121a038f87641055a8183f49e9739f
++PKG_HASH:=5b35e3a858d948de9e8892bf494893c9f7886782f6abbe166c0487c19cf6ed88
+ PKG_LICENSE:=Apache-2.0
+ PKG_LICENSE_FILES:=LICENSE
+-PKG_MAINTAINER:=Donald Rumata <donald.rumata@gmail.com>
++PKG_MAINTAINER:=Val Kulkov <val.kulkov@gmail.com>
+ 
+ PKG_FIXUP:=autoreconf
+ PKG_MACRO_PATHS:=build/ac-macros
++PKG_BUILD_DEPENDS:=apr-util
+ 
+ include $(INCLUDE_DIR)/package.mk
+ include $(INCLUDE_DIR)/nls.mk
+@@ -29,7 +30,7 @@ define Package/subversion/Default
+   CATEGORY:=Network
+   SUBMENU:=Version Control Systems
+   TITLE:=A compelling replacement for CVS
+-  DEPENDS:=+zlib +libsqlite3 +libapr +libaprutil +libmagic \
++  DEPENDS:=+zlib +libsqlite3 +PACKAGE_unixodbc:unixodbc +libapr +libaprutil +libmagic \
+   	$(ICONV_DEPENDS) $(INTL_DEPENDS)
+   URL:=http://subversion.apache.org/
+ endef
+@@ -80,6 +81,7 @@ endef
+ 
+ TARGET_CFLAGS += $(FPIC)
+ TARGET_CPPFLAGS += -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE
++APU_LIBS=$(shell $(STAGING_DIR)/usr/bin/apu-1-config --link-libtool --libs)
+ 
+ CONFIGURE_ARGS += \
+ 	--with-apr="$(STAGING_DIR)/usr/bin/apr-1-config" \
+@@ -92,7 +94,9 @@ CONFIGURE_ARGS += \
+ 	--without-junit \
+ 	--without-berkeley-db \
+ 	--without-apxs \
+-	--without-sasl
++	--without-sasl \
++	--with-lz4=internal \
++	--with-utf8proc=internal
+ 
+ ifdef $(INTL_FULL)
+ 	CONFIGURE_ARGS += --enable-nls
+@@ -101,7 +105,7 @@ else
+ endif
+ 
+ CONFIGURE_VARS += \
+-	LDFLAGS="$(TARGET_LDFLAGS) -lcrypt -lm \
++	LDFLAGS="$(TARGET_LDFLAGS) $(APU_LIBS) -lcrypt -lm \
+ 		-lz -lpthread $(if $(INTL_FULL),-lintl)"
+ 	CPPFLAGS="$(TARGET_CPPFLAGS)"
+ 
+-- 
+2.17.1
+
