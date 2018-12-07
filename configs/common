@@ -277,6 +277,10 @@ CONFIG_PACKAGE_ucollect-prog=n
 CONFIG_PACKAGE_ucollect-refused=n
 CONFIG_PACKAGE_ucollect-sniff=n
 CONFIG_PACKAGE_ucollect-spoof=n
+CONFIG_PACKAGE_libatsha204=y
+CONFIG_PACKAGE_python-cryptography=y
+CONFIG_PACKAGE_sentinel-minipot=y
+
 
 # HaaS
 CONFIG_PACKAGE_twisted=m
