@@ -177,6 +177,8 @@ if [ -n "$BUILD_ALL" ]; then
 			"$BASE_PATH"/staging_dir/host/bin/usign -S -m "$MED_TAR" -s "$HOME"/mime.key
 			ln -s "$MED_TAR".sig "$TARGET_BOARD"-medkit-latest.tar.gz.sig
 		fi
+		staging_dir/host/bin/usign -S -m "$MED_TAR" -s "$HOME"/mime.key
+		ln -s "$MED_TAR".sig "$TARGET_BOARD"-medkit-latest.tar.gz.sig
 		md5sum "$MED_TAR" > "$MED_TAR".md5
 		ln -s "$MED_TAR".md5 "$TARGET_BOARD"-medkit-latest.tar.gz.md5
 		sha256sum "$MED_TAR" > "$MED_TAR".sha256
