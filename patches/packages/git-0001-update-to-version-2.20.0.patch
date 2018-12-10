@@ -1,29 +1,20 @@
-From bbb9c1ac4fefcf66d44aafdc31d6e1c0c60a4525 Mon Sep 17 00:00:00 2001
-From: Jan Pavlinec <jan.pavlinec@nic.cz>
-Date: Wed, 31 Oct 2018 13:47:20 +0100
-Subject: [PATCH] git: update version 2.19.1 (security fix)
+From 3041b436a12b696d5c7b07804e03d20a35ba1bcd Mon Sep 17 00:00:00 2001
+From: Josef Schlehofer <josef.schlehofer@nic.cz>
+Date: Tue, 11 Dec 2018 00:15:04 +0100
+Subject: [PATCH] git: update to version 2.20.0
 
-CVE-2018-17456 - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-17456
-
-Issue https://gitlab.labs.nic.cz/turris/turris-os-packages/issues/242
 ---
- net/git/Makefile                                   |  55 ++++--
- .../patches/100-configure_for_crosscompiling.patch |  32 ++++
- net/git/patches/100-convert_builtin.patch          | 208 ---------------------
- net/git/patches/200-disable_fasthash.patch         |  12 --
- net/git/patches/200-imapsend_without_curl.patch    |  11 ++
- net/git/patches/300-configure_for_crosscompiling   |  32 ----
- net/git/patches/400-imapsend_without_curl.patch    |  11 --
- 7 files changed, 87 insertions(+), 274 deletions(-)
- create mode 100644 net/git/patches/100-configure_for_crosscompiling.patch
+ net/git/Makefile                              |  58 +++--
+ net/git/patches/100-convert_builtin.patch     | 208 ------------------
+ net/git/patches/200-disable_fasthash.patch    |  12 -
+ .../patches/300-configure_for_crosscompiling  |   8 +-
+ .../patches/400-imapsend_without_curl.patch   |   2 +-
+ 5 files changed, 50 insertions(+), 238 deletions(-)
  delete mode 100644 net/git/patches/100-convert_builtin.patch
  delete mode 100644 net/git/patches/200-disable_fasthash.patch
- create mode 100644 net/git/patches/200-imapsend_without_curl.patch
- delete mode 100644 net/git/patches/300-configure_for_crosscompiling
- delete mode 100644 net/git/patches/400-imapsend_without_curl.patch
 
 diff --git a/net/git/Makefile b/net/git/Makefile
-index 1b9d772..844a5d0 100644
+index 1b9d7729e..ccdd3d71c 100644
 --- a/net/git/Makefile
 +++ b/net/git/Makefile
 @@ -1,5 +1,5 @@
@@ -33,34 +24,35 @@ index 1b9d772..844a5d0 100644
  #
  # This is free software, licensed under the GNU General Public License v2.
  # See /LICENSE for more information.
-@@ -8,16 +8,17 @@
+@@ -8,16 +8,16 @@
  include $(TOPDIR)/rules.mk
  
  PKG_NAME:=git
 -PKG_VERSION:=2.8.2
-+PKG_VERSION:=2.19.1
++PKG_VERSION:=2.20.0
  PKG_RELEASE:=1
  
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
  PKG_SOURCE_URL:=@KERNEL/software/scm/git/
 -PKG_MD5SUM:=b8edb4ae34828fda6aa2a4478089b107
-+PKG_MD5SUM:=345056aa9b8084280b1b9fe1374d232dec05a34e8849028a20bfdb56e920dbb5
++PKG_HASH:=bc94735073e14b138a1290cc99af3c379d544f514c43f8ebde988fc50d0ad81f
  
  PKG_INSTALL:=1
- PKG_BUILD_PARALLEL:=1
+-PKG_BUILD_PARALLEL:=1
  PKG_FIXUP:=autoreconf
 +PKG_BUILD_PARALLEL:=1
  
  include $(INCLUDE_DIR)/package.mk
  
-@@ -25,15 +26,13 @@ define Package/git/Default
+@@ -25,15 +25,13 @@ define Package/git/Default
    SECTION:=net
    CATEGORY:=Network
    SUBMENU:=Version Control Systems
 -  DEPENDS:=+libopenssl +libpthread +librt
 -  TITLE:=The fast version control system
+-  URL:=http://git-scm.com
 +  DEPENDS:=+libopenssl +libpthread +librt +zlib
-   URL:=http://git-scm.com
++  URL:=https://git-scm.com
    MAINTAINER:=Peter Wagner <tripolar@gmx.at>
  endef
  
@@ -70,7 +62,7 @@ index 1b9d772..844a5d0 100644
    TITLE:=The fast version control system
  endef
  
-@@ -45,7 +44,7 @@ endef
+@@ -45,7 +43,7 @@ endef
  
  define Package/git-http
  $(call Package/git/Default)
@@ -79,7 +71,7 @@ index 1b9d772..844a5d0 100644
    TITLE:=Git HTTP commands
  endef
  
-@@ -55,6 +54,21 @@ $(call Package/git/description)
+@@ -55,6 +53,21 @@ $(call Package/git/description)
   This package allows git push/fetch over http(s) and ftp(s)
  endef
  
@@ -101,7 +93,7 @@ index 1b9d772..844a5d0 100644
  MAKE_FLAGS := \
  	CC="$(TARGET_CC)" \
  	CFLAGS="$(TARGET_CFLAGS)" \
-@@ -70,6 +84,11 @@ MAKE_FLAGS := \
+@@ -70,6 +83,11 @@ MAKE_FLAGS := \
  	NO_PYTHON="YesPlease" \
  	NO_TCLTK="YesPlease" \
  	NO_INSTALL_HARDLINKS="yes" \
@@ -113,7 +105,7 @@ index 1b9d772..844a5d0 100644
  
  CONFIGURE_ARGS += \
  	--without-iconv \
-@@ -81,13 +100,18 @@ define Build/Configure
+@@ -81,13 +99,18 @@ define Build/Configure
  	$(call Build/Configure/Default,)
  endef
  
@@ -135,7 +127,7 @@ index 1b9d772..844a5d0 100644
  	( cd $(PKG_INSTALL_DIR); $(TAR) \
  		--exclude=usr/lib/git-core/git-http-backend \
  		--exclude=usr/lib/git-core/git-http-fetch \
-@@ -97,8 +121,10 @@ define Package/git/install
+@@ -97,8 +120,10 @@ define Package/git/install
  		--exclude=usr/lib/git-core/git-remote-https \
  		-cf - \
  		usr/lib/git-core \
@@ -147,7 +139,7 @@ index 1b9d772..844a5d0 100644
  endef
  
  define Package/git-http/install
-@@ -111,5 +137,12 @@ define Package/git-http/install
+@@ -111,5 +136,12 @@ define Package/git-http/install
  	$(CP) $(PKG_INSTALL_DIR)/usr/lib/git-core/git-remote-https $(1)/usr/lib/git-core
  endef
  
@@ -160,47 +152,9 @@ index 1b9d772..844a5d0 100644
  $(eval $(call BuildPackage,git))
  $(eval $(call BuildPackage,git-http))
 +$(eval $(call BuildPackage,git-gitweb))
-diff --git a/net/git/patches/100-configure_for_crosscompiling.patch b/net/git/patches/100-configure_for_crosscompiling.patch
-new file mode 100644
-index 0000000..07796e6
---- /dev/null
-+++ b/net/git/patches/100-configure_for_crosscompiling.patch
-@@ -0,0 +1,32 @@
-+--- a/configure.ac
-++++ b/configure.ac
-+@@ -929,7 +929,8 @@ AC_RUN_IFELSE(
-+ 		FILE *f = fopen(".", "r");
-+ 		return f != NULL;]])],
-+ 	[ac_cv_fread_reads_directories=no],
-+-	[ac_cv_fread_reads_directories=yes])
-++	[ac_cv_fread_reads_directories=yes],
-++	[ac_cv_fread_reads_directories=no])
-+ ])
-+ if test $ac_cv_fread_reads_directories = yes; then
-+ 	FREAD_READS_DIRECTORIES=UnfortunatelyYes
-+@@ -963,7 +964,8 @@ AC_RUN_IFELSE(
-+ 		  if (snprintf(buf, 3, "%s", "12345") != 5
-+ 		      || strcmp(buf, "12")) return 1]])],
-+ 	[ac_cv_snprintf_returns_bogus=no],
-+-	[ac_cv_snprintf_returns_bogus=yes])
-++	[ac_cv_snprintf_returns_bogus=yes],
-++	[ac_cv_snprintf_returns_bogus=no])
-+ ])
-+ if test $ac_cv_snprintf_returns_bogus = yes; then
-+ 	SNPRINTF_RETURNS_BOGUS=UnfortunatelyYes
-+@@ -986,7 +988,8 @@ yippeeyeswehaveit
-+ #endif
-+ ]),
-+ 	[ac_cv_sane_mode_bits=yes],
-+-	[ac_cv_sane_mode_bits=no])
-++	[ac_cv_sane_mode_bits=no],
-++	[ac_cv_sane_mode_bits=yes])
-+ ])
-+ if test $ac_cv_sane_mode_bits = yes; then
-+ 	NEEDS_MODE_TRANSLATION=
 diff --git a/net/git/patches/100-convert_builtin.patch b/net/git/patches/100-convert_builtin.patch
 deleted file mode 100644
-index e08963c..0000000
+index e08963cf9..000000000
 --- a/net/git/patches/100-convert_builtin.patch
 +++ /dev/null
 @@ -1,208 +0,0 @@
@@ -414,7 +368,7 @@ index e08963c..0000000
 - 	int i;
 diff --git a/net/git/patches/200-disable_fasthash.patch b/net/git/patches/200-disable_fasthash.patch
 deleted file mode 100644
-index 91f255f..0000000
+index 91f255f80..000000000
 --- a/net/git/patches/200-disable_fasthash.patch
 +++ /dev/null
 @@ -1,12 +0,0 @@
@@ -430,78 +384,51 @@ index 91f255f..0000000
 - ifeq ($(uname_S),OSF1)
 - 	# Need this for u_short definitions et al
 - 	BASIC_CFLAGS += -D_OSF_SOURCE
-diff --git a/net/git/patches/200-imapsend_without_curl.patch b/net/git/patches/200-imapsend_without_curl.patch
-new file mode 100644
-index 0000000..75268a4
---- /dev/null
-+++ b/net/git/patches/200-imapsend_without_curl.patch
-@@ -0,0 +1,11 @@
-+--- a/Makefile
-++++ b/Makefile
-+@@ -1312,7 +1312,7 @@ else
-+ 	endif
-+ 	curl_check := $(shell (echo 072200; $(CURL_CONFIG) --vernum | sed -e '/^70[BC]/s/^/0/') 2>/dev/null | sort -r | sed -ne 2p)
-+ 	ifeq "$(curl_check)" "072200"
-+-		USE_CURL_FOR_IMAP_SEND = YesPlease
-++#		USE_CURL_FOR_IMAP_SEND = YesPlease
-+ 	endif
-+ 	ifdef USE_CURL_FOR_IMAP_SEND
-+ 		BASIC_CFLAGS += -DUSE_CURL_FOR_IMAP_SEND
 diff --git a/net/git/patches/300-configure_for_crosscompiling b/net/git/patches/300-configure_for_crosscompiling
-deleted file mode 100644
-index 8a8ce28..0000000
+index 8a8ce289d..07796e6df 100644
 --- a/net/git/patches/300-configure_for_crosscompiling
-+++ /dev/null
-@@ -1,32 +0,0 @@
----- a/configure.ac
--+++ b/configure.ac
++++ b/net/git/patches/300-configure_for_crosscompiling
+@@ -1,8 +1,8 @@
+ --- a/configure.ac
+ +++ b/configure.ac
 -@@ -867,7 +867,8 @@ AC_RUN_IFELSE(
-- 		FILE *f = fopen(".", "r");
++@@ -929,7 +929,8 @@ AC_RUN_IFELSE(
+  		FILE *f = fopen(".", "r");
 - 		return f && fread(&c, 1, 1, f)]])],
-- 	[ac_cv_fread_reads_directories=no],
---	[ac_cv_fread_reads_directories=yes])
--+	[ac_cv_fread_reads_directories=yes],
--+	[ac_cv_fread_reads_directories=no])
-- ])
-- if test $ac_cv_fread_reads_directories = yes; then
-- 	FREAD_READS_DIRECTORIES=UnfortunatelyYes
++ 		return f != NULL;]])],
+  	[ac_cv_fread_reads_directories=no],
+ -	[ac_cv_fread_reads_directories=yes])
+ +	[ac_cv_fread_reads_directories=yes],
+@@ -10,7 +10,7 @@
+  ])
+  if test $ac_cv_fread_reads_directories = yes; then
+  	FREAD_READS_DIRECTORIES=UnfortunatelyYes
 -@@ -901,7 +902,8 @@ AC_RUN_IFELSE(
-- 		  if (snprintf(buf, 3, "%s", "12345") != 5
-- 		      || strcmp(buf, "12")) return 1]])],
-- 	[ac_cv_snprintf_returns_bogus=no],
---	[ac_cv_snprintf_returns_bogus=yes])
--+	[ac_cv_snprintf_returns_bogus=yes],
--+	[ac_cv_snprintf_returns_bogus=no])
-- ])
-- if test $ac_cv_snprintf_returns_bogus = yes; then
-- 	SNPRINTF_RETURNS_BOGUS=UnfortunatelyYes
++@@ -963,7 +964,8 @@ AC_RUN_IFELSE(
+  		  if (snprintf(buf, 3, "%s", "12345") != 5
+  		      || strcmp(buf, "12")) return 1]])],
+  	[ac_cv_snprintf_returns_bogus=no],
+@@ -20,7 +20,7 @@
+  ])
+  if test $ac_cv_snprintf_returns_bogus = yes; then
+  	SNPRINTF_RETURNS_BOGUS=UnfortunatelyYes
 -@@ -924,7 +926,8 @@ yippeeyeswehaveit
-- #endif
-- ]),
-- 	[ac_cv_sane_mode_bits=yes],
---	[ac_cv_sane_mode_bits=no])
--+	[ac_cv_sane_mode_bits=no],
--+	[ac_cv_sane_mode_bits=yes])
-- ])
-- if test $ac_cv_sane_mode_bits = yes; then
-- 	NEEDS_MODE_TRANSLATION=
++@@ -986,7 +988,8 @@ yippeeyeswehaveit
+  #endif
+  ]),
+  	[ac_cv_sane_mode_bits=yes],
 diff --git a/net/git/patches/400-imapsend_without_curl.patch b/net/git/patches/400-imapsend_without_curl.patch
-deleted file mode 100644
-index a839705..0000000
+index a83970553..75268a48f 100644
 --- a/net/git/patches/400-imapsend_without_curl.patch
-+++ /dev/null
-@@ -1,11 +0,0 @@
----- a/Makefile
--+++ b/Makefile
++++ b/net/git/patches/400-imapsend_without_curl.patch
+@@ -1,6 +1,6 @@
+ --- a/Makefile
+ +++ b/Makefile
 -@@ -1096,7 +1096,7 @@ else
-- 	endif
-- 	curl_check := $(shell (echo 072200; $(CURL_CONFIG) --vernum | sed -e '/^70[BC]/s/^/0/') 2>/dev/null | sort -r | sed -ne 2p)
-- 	ifeq "$(curl_check)" "072200"
---		USE_CURL_FOR_IMAP_SEND = YesPlease
--+#		USE_CURL_FOR_IMAP_SEND = YesPlease
-- 	endif
-- 	ifdef USE_CURL_FOR_IMAP_SEND
-- 		BASIC_CFLAGS += -DUSE_CURL_FOR_IMAP_SEND
++@@ -1312,7 +1312,7 @@ else
+  	endif
+  	curl_check := $(shell (echo 072200; $(CURL_CONFIG) --vernum | sed -e '/^70[BC]/s/^/0/') 2>/dev/null | sort -r | sed -ne 2p)
+  	ifeq "$(curl_check)" "072200"
 -- 
-2.7.4
+2.17.1
 
