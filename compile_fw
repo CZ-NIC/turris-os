@@ -156,7 +156,7 @@ fi
 
 if [ -n "$BUILD_ALL" ]; then
 	# Compile host tools
-	make package/curl/host/install package/libevent2/host/install package/lua/host/install
+	make package/curl/host/install package/libevent2/host/install package/lua/host/install package/usign/host/install
 	make package/updater-ng/host/install
 	# Generate medkit
 	if [ "$TARGET_BOARD" = "turris" ]; then
