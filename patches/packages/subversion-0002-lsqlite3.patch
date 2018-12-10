@@ -3,11 +3,11 @@ index d785962..9ff74a3 100644
 --- a/net/subversion/Makefile
 +++ b/net/subversion/Makefile
 @@ -102,7 +102,7 @@ endif
- 
+
  CONFIGURE_VARS += \
- 	LDFLAGS="$(TARGET_LDFLAGS) -lcrypt -lm \
+ 	LDFLAGS="$(TARGET_LDFLAGS) $(APU_LIBS) -lcrypt -lm \
 -		-lz -lpthread $(if $(INTL_FULL),-lintl)"
 +		-lz -lsqlite3 -lpthread $(if $(INTL_FULL),-lintl)"
  	CPPFLAGS="$(TARGET_CPPFLAGS)"
- 
+
  define Build/Compile
