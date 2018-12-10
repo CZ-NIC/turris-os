@@ -1,21 +1,15 @@
-From b6d1a461f447d6bf57d06e658719b051b416e5f8 Mon Sep 17 00:00:00 2001
-From: Michael Heimpold <mhei@heimpold.de>
-Date: Tue, 6 Sep 2016 23:17:43 +0200
-Subject: [PATCH] memcached: upgrade to 1.4.31
+From 73562de65166cc8efef0ff682c70a826a3da4543 Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Thu, 8 Nov 2018 14:46:32 +0100
+Subject: [PATCH] memcached: update to version 1.5.12 (security fix)
 
-This should also fix the build errors, which are reported by
-LEDE buildbots, e.g. at:
-https://downloads.lede-project.org/snapshots/faillogs/arm_cortex-a7_neon-vfpv4/packages/memcached/compile.txt
-
-While at, also fix the licensing information.
-
-Signed-off-by: Michael Heimpold <mhei@heimpold.de>
+Issue https://gitlab.labs.nic.cz/turris/openwrt/issues/194
 ---
  net/memcached/Makefile | 12 ++++++++----
  1 file changed, 8 insertions(+), 4 deletions(-)
 
 diff --git a/net/memcached/Makefile b/net/memcached/Makefile
-index 0bad81b..bd5267a 100644
+index 0bad81b..f6da699 100644
 --- a/net/memcached/Makefile
 +++ b/net/memcached/Makefile
 @@ -9,15 +9,19 @@
@@ -23,14 +17,14 @@ index 0bad81b..bd5267a 100644
  
  PKG_NAME:=memcached
 -PKG_VERSION:=1.4.26
-+PKG_VERSION:=1.4.31
++PKG_VERSION:=1.5.12
  PKG_RELEASE:=1
  
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
  PKG_SOURCE_URL:=http://memcached.org/files
 -PKG_MD5SUM:=59b7bbfbc9cde5731bf4446e1e37b440
 -PKG_INSTALL:=1
-+PKG_MD5SUM:=c19bb0e77e720f64f33ecb43de28a1b4
++PKG_MD5SUM:=c02f97d5685617b209fbe25f3464317b234d765b427d254c2413410a5c095b29
 +
  PKG_MAINTAINER:=Thomas Heil <heil@terminal-consulting.de>
 -PKG_LICENSE:=permissive free software license
@@ -42,3 +36,6 @@ index 0bad81b..bd5267a 100644
  
  include $(INCLUDE_DIR)/package.mk
  
+-- 
+2.7.4
+

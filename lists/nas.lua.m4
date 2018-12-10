@@ -24,6 +24,9 @@ Install("acl", "attr", { priority = 40 })
 Install("mountd", "smartd", "smartmontools", { priority = 40 })
 Install("swap-utils", { priority = 40 })
 Install("foris-storage-plugin", { priority = 40 })
+if for_l10n then
+	for_l10n("foris-storage-plugin-l10n-")
+end
 
 -- File systems
 Install("lvm2", "mdadm", "mkdosfs", "mkhfs", "btrfs-progs", "davfs2", "e2fsprogs", "fuse-utils", "xfs-mkfs", { priority = 40 })

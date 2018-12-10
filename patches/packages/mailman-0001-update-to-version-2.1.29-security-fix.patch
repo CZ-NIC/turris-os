@@ -1,0 +1,131 @@
+From 34b3680d04de1605eb3deb0b734041beb9055882 Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Wed, 7 Nov 2018 13:58:11 +0100
+Subject: [PATCH] mailman: update to version 2.1.29 (security fix)
+
+Issue https://gitlab.labs.nic.cz/turris/openwrt/issues/202
+---
+ mail/mailman/Makefile                          | 13 ++++++++-----
+ mail/mailman/patches/100-postfix.patch         |  7 +++----
+ mail/mailman/patches/200-nohostdnspython.patch |  7 +++----
+ mail/mailman/patches/300-targetpython.patch    |  7 +++----
+ mail/mailman/patches/400-modules.patch         | 14 ++++++--------
+ 5 files changed, 23 insertions(+), 25 deletions(-)
+
+diff --git a/mail/mailman/Makefile b/mail/mailman/Makefile
+index eee50f8..a9175af 100644
+--- a/mail/mailman/Makefile
++++ b/mail/mailman/Makefile
+@@ -1,4 +1,4 @@
+-# 
++#
+ # Copyright (C) 2014 OpenWrt.org
+ #
+ # This is free software, licensed under the GNU General Public License v2.
+@@ -8,14 +8,17 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=mailman
++PKG_VERSION:=2.1.29
+ PKG_RELEASE:=1
+-PKG_SOURCE_URL:=ftp://ftp.gnu.org/gnu/mailman/ http://ftp.gnu.org/gnu/mailman/
+-PKG_VERSION:=2.1.20
+-PKG_MD5SUM:=96819640406f90a12bc28edd3dc09d4a
++
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tgz
++PKG_SOURCE_URL:=@GNU/$(PKG_NAME)
++PKG_MD5SUM:=838872713601e8a124146e550f53709482c1ef168f1e16d201465c651cbf0d2c
++
+ PKG_MAINTAINER:=Denis Shulyaka <Shulyaka@gmail.com>
+ PKG_LICENSE:=GPL-2.0+
+ PKG_LICENSE_FILES:=gnu-COPYING-GPL
++PKG_CPE_ID:=cpe:2.3:a:gnu:mailman
+ 
+ include $(INCLUDE_DIR)/package.mk
+ 
+@@ -23,7 +26,7 @@ define Package/mailman
+   SECTION:=mail
+   CATEGORY:=Mail
+   TITLE:=The GNU Mailing List Manager
+-  URL:=http://www.gnu.org/software/mailman/
++  URL:=https://www.gnu.org/software/mailman/
+   DEPENDS:=+postfix +python +uhttpd +python-dns
+ endef
+ 
+diff --git a/mail/mailman/patches/100-postfix.patch b/mail/mailman/patches/100-postfix.patch
+index 22fec1e..3189911 100644
+--- a/mail/mailman/patches/100-postfix.patch
++++ b/mail/mailman/patches/100-postfix.patch
+@@ -1,7 +1,6 @@
+-diff -rupN mailman-2.1.14-1/Mailman/Defaults.py.in mailman-2.1.14-1_patched/Mailman/Defaults.py.in
+---- mailman-2.1.14-1/Mailman/Defaults.py.in	2011-03-01 23:35:57.000000000 +0300
+-+++ mailman-2.1.14-1_patched/Mailman/Defaults.py.in	2011-03-09 12:26:10.000000000 +0300
+-@@ -461,7 +461,7 @@ DELIVERY_MODULE = 'SMTPDirect'
++--- a/Mailman/Defaults.py.in
+++++ b/Mailman/Defaults.py.in
++@@ -506,7 +506,7 @@ SMTPLIB_DEBUG_LEVEL = 0
+  # standard out (or send an email to the site list owner) for manual twiddling
+  # of an /etc/aliases style file.  Use 'Postfix' if you are using the Postfix
+  # MTA -- but then also see POSTFIX_STYLE_VIRTUAL_DOMAINS.
+diff --git a/mail/mailman/patches/200-nohostdnspython.patch b/mail/mailman/patches/200-nohostdnspython.patch
+index e321106..abadeb8 100644
+--- a/mail/mailman/patches/200-nohostdnspython.patch
++++ b/mail/mailman/patches/200-nohostdnspython.patch
+@@ -1,7 +1,6 @@
+-diff -Naur mailman-2.1.18-1/configure mailman-2.1.18-1_patched/configure
+---- mailman-2.1.18-1/configure	2014-10-26 12:00:38.090360119 +0300
+-+++ mailman-2.1.18-1_patched/configure	2014-10-26 12:00:21.323016430 +0300
+-@@ -2236,35 +2236,35 @@
++--- a/configure
+++++ b/configure
++@@ -2255,35 +2255,35 @@ fi
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $version" >&5
+  $as_echo "$version" >&6; }
+  
+diff --git a/mail/mailman/patches/300-targetpython.patch b/mail/mailman/patches/300-targetpython.patch
+index 1dd2859..49957c0 100644
+--- a/mail/mailman/patches/300-targetpython.patch
++++ b/mail/mailman/patches/300-targetpython.patch
+@@ -1,7 +1,6 @@
+-diff -Naur mailman-2.1.18-1/configure mailman-2.1.18-1_patched/configure
+---- mailman-2.1.18-1/configure	2014-05-06 20:43:56.000000000 +0400
+-+++ mailman-2.1.18-1_patched/configure	2014-11-04 15:02:32.892666331 +0300
+-@@ -3927,6 +3927,8 @@
++--- a/configure
+++++ b/configure
++@@ -3957,6 +3957,8 @@ fi
+  $as_echo "$URLHOST" >&6; }
+  rm -f conftest.out conftest.py
+  
+diff --git a/mail/mailman/patches/400-modules.patch b/mail/mailman/patches/400-modules.patch
+index 9fa72a2..63cc8f9 100644
+--- a/mail/mailman/patches/400-modules.patch
++++ b/mail/mailman/patches/400-modules.patch
+@@ -1,7 +1,6 @@
+-diff -Naur mailman-2.1.18-1/Mailman/MailList.py mailman-2.1.18-1_patched/Mailman/MailList.py
+---- mailman-2.1.18-1/Mailman/MailList.py	2014-05-06 20:43:56.000000000 +0400
+-+++ mailman-2.1.18-1_patched/Mailman/MailList.py	2014-11-04 15:57:06.832636147 +0300
+-@@ -30,7 +30,7 @@
++--- a/Mailman/MailList.py
+++++ b/Mailman/MailList.py
++@@ -30,7 +30,7 @@ import re
+  import shutil
+  import socket
+  import urllib
+@@ -10,10 +9,9 @@ diff -Naur mailman-2.1.18-1/Mailman/MailList.py mailman-2.1.18-1_patched/Mailman
+  
+  from cStringIO import StringIO
+  from UserDict import UserDict
+-diff -Naur mailman-2.1.18-1/misc/paths.py.in mailman-2.1.18-1_patched/misc/paths.py.in
+---- mailman-2.1.18-1/misc/paths.py.in	2014-05-06 20:43:56.000000000 +0400
+-+++ mailman-2.1.18-1_patched/misc/paths.py.in	2014-11-04 15:55:49.594941540 +0300
+-@@ -66,14 +66,14 @@
++--- a/misc/paths.py.in
+++++ b/misc/paths.py.in
++@@ -71,14 +71,14 @@ sys.path.append(distdir)
+  # In a normal interactive Python environment, the japanese.pth and korean.pth
+  # files would be imported automatically.  But because we inhibit the importing
+  # of the site module, we need to be explicit about importing these codecs.
+-- 
+2.7.4
+

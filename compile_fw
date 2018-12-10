@@ -92,7 +92,11 @@ set -- "$@" PKG_BRANCH=${PKG_BRANCH/-/}
 
 [ -z "$PERSISTENT_CCACHE" ] || set -- "$@" CCACHE_DIR="`pwd`/ccache" CCACHE_HOST_DIR="`pwd`/ccache-host"
 
-make "$@"
+if [ -n "$FORCE" ]; then
+	make "$@" || make "$@" -j"`echo x"$@" | sed 's|.*-j\([0-9]\+\).*|\1 / 2 + 1|' | bc`" || make "$@" -j1 V=s
+else
+	make "$@"
+fi
 
 # Get Turris OS and OpenWRT version
 ./scripts/unpack-version.sh bin/*/packages bin/*/

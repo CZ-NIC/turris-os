@@ -1,0 +1,34 @@
+diff --git a/libs/icu/Makefile b/libs/icu/Makefile
+index c70ac166e..5771ad6ba 100644
+--- a/libs/icu/Makefile
++++ b/libs/icu/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=icu4c
+ PKG_VERSION:=55.1
+-PKG_RELEASE:=1
++PKG_RELEASE:=2
+ 
+ PKG_SOURCE:=$(PKG_NAME)-55_1-src.tgz
+ PKG_SOURCE_URL:=http://download.icu-project.org/files/icu4c/55.1
+diff --git a/libs/icu/patches/CVE-2017-14952.patch b/libs/icu/patches/CVE-2017-14952.patch
+new file mode 100644
+index 000000000..4ef88312a
+--- /dev/null
++++ b/libs/icu/patches/CVE-2017-14952.patch
+@@ -0,0 +1,12 @@
++diff --git a/icu4c/source/i18n/zonemeta.cpp b/icu4c/source/i18n/zonemeta.cpp
++index b26798f990a..c386b0cae5e 100644
++--- a/i18n/zonemeta.cpp
+++++ b/i18n/zonemeta.cpp
++@@ -690,7 +690,6 @@ ZoneMeta::createMetazoneMappings(const UnicodeString &tzid) {
++                     mzMappings = new UVector(deleteOlsonToMetaMappingEntry, NULL, status);
++                     if (U_FAILURE(status)) {
++                         delete mzMappings;
++-                        deleteOlsonToMetaMappingEntry(entry);
++                         uprv_free(entry);
++                         break;
++                     }
+-- 
+2.19.1
+

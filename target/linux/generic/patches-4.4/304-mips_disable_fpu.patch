@@ -24,9 +24,11 @@ v2: incorporated changes suggested by Jonas Gorski
  arch/mips/include/asm/fpu_emulator.h | 15 +++++++++++++++
  4 files changed, 33 insertions(+), 3 deletions(-)
 
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -2723,6 +2723,20 @@ config MIPS_O32_FP64_SUPPORT
+Index: linux-4.4.163/arch/mips/Kconfig
+===================================================================
+--- linux-4.4.163.orig/arch/mips/Kconfig
++++ linux-4.4.163/arch/mips/Kconfig
+@@ -2725,6 +2725,20 @@ config MIPS_O32_FP64_SUPPORT
  
  	  If unsure, say N.
  
@@ -47,9 +49,11 @@ v2: incorporated changes suggested by Jonas Gorski
  config USE_OF
  	bool
  	select OF
---- a/arch/mips/Makefile
-+++ b/arch/mips/Makefile
-@@ -289,7 +289,7 @@ OBJCOPYFLAGS		+= --remove-section=.regin
+Index: linux-4.4.163/arch/mips/Makefile
+===================================================================
+--- linux-4.4.163.orig/arch/mips/Makefile
++++ linux-4.4.163/arch/mips/Makefile
+@@ -285,7 +285,7 @@ OBJCOPYFLAGS		+= --remove-section=.regin
  head-y := arch/mips/kernel/head.o
  
  libs-y			+= arch/mips/lib/
@@ -58,8 +62,10 @@ v2: incorporated changes suggested by Jonas Gorski
  
  # See arch/mips/Kbuild for content of core part of the kernel
  core-y += arch/mips/
---- a/arch/mips/include/asm/fpu.h
-+++ b/arch/mips/include/asm/fpu.h
+Index: linux-4.4.163/arch/mips/include/asm/fpu.h
+===================================================================
+--- linux-4.4.163.orig/arch/mips/include/asm/fpu.h
++++ linux-4.4.163/arch/mips/include/asm/fpu.h
 @@ -223,8 +223,10 @@ static inline int init_fpu(void)
  		/* Restore FRE */
  		write_c0_config5(config5);
@@ -72,8 +78,10 @@ v2: incorporated changes suggested by Jonas Gorski
  
  	return ret;
  }
---- a/arch/mips/include/asm/fpu_emulator.h
-+++ b/arch/mips/include/asm/fpu_emulator.h
+Index: linux-4.4.163/arch/mips/include/asm/fpu_emulator.h
+===================================================================
+--- linux-4.4.163.orig/arch/mips/include/asm/fpu_emulator.h
++++ linux-4.4.163/arch/mips/include/asm/fpu_emulator.h
 @@ -30,6 +30,7 @@
  #include <asm/local.h>
  #include <asm/processor.h>
@@ -82,7 +90,7 @@ v2: incorporated changes suggested by Jonas Gorski
  #ifdef CONFIG_DEBUG_FS
  
  struct mips_fpu_emulator_stats {
-@@ -66,6 +67,21 @@ extern int do_dsemulret(struct pt_regs *
+@@ -66,6 +67,20 @@ extern int do_dsemulret(struct pt_regs *
  extern int fpu_emulator_cop1Handler(struct pt_regs *xcp,
  				    struct mips_fpu_struct *ctx, int has_fpu,
  				    void *__user *fault_addr);
@@ -100,7 +108,6 @@ v2: incorporated changes suggested by Jonas Gorski
 +	return SIGILL;	/* we don't speak MIPS FPU */
 +}
 +#endif	/* CONFIG_MIPS_FPU_EMULATOR */
-+
+ void force_fcr31_sig(unsigned long fcr31, void __user *fault_addr,
+ 		     struct task_struct *tsk);
  int process_fpemu_return(int sig, void __user *fault_addr,
- 			 unsigned long fcr31);
- int mm_isBranchInstr(struct pt_regs *regs, struct mm_decoded_insn dec_insn,

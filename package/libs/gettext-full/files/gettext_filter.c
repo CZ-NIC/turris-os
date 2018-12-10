@@ -1,29 +1,36 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <libintl.h>
 #include <locale.h>
 
-int main(void) {
+int main(int argc, char **argv) {
 	int c;
 	int translating = 0;
+	int verbose = 0;
+	if((argc > 1) && (strcmp(argv[1], "-v")==0))
+		verbose = 1;
 	const char *txtdir = "/usr/share/locale/";
-	const char *txtdom = getenv("TEXTDOMAIN");
-	const char *tmp = NULL;
+	const char *txtdom = NULL;
 	unsigned char last_c = 0;
 	char* buffer = NULL;
 	int buf_len = 0, i = 0;
 	setlocale(LC_ALL, "");
-	tmp = getenv("TEXTDOMAINDIR");
-	if(tmp != NULL) {
-		txtdir = tmp;
+	if(getenv("TEXTDOMAIN") != NULL) {
+		asprintf(&txtdom, "%s", getenv("TEXTDOMAIN"));
 	}
-	tmp = getenv("GETTEXT_DOMAIN");
-	if(tmp != NULL) {
-		txtdom = tmp;
+	if(getenv("TEXTDOMAINDIR") != NULL) {
+		asprintf(&txtdir, "%s", getenv("TEXTDOMAINDIR"));
 	}
-	
-	bindtextdomain(txtdom, txtdir);
+	if(getenv("GETTEXT_DOMAIN") != NULL) {
+		asprintf(&txtdom, "%s", getenv("GETTEXT_DOMAIN"));
+	}
+	if(verbose && txtdom)
+		printf("Setting text domain to '%s' and domain dir to '%s'\n", txtdom, txtdir);
 	textdomain(txtdom);
+	bindtextdomain(txtdom, txtdir);
+	if(verbose)
+		printf("Text domain set to '%s'\n", textdomain(NULL));
 	while((c=getchar()) != EOF) {
 		if(translating) {
 			if((c == ')') && (last_c != '\\') ) {

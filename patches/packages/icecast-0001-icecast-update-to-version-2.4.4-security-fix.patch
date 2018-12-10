@@ -1,0 +1,454 @@
+From 58b11d2264706e4148faed154496d675f1672c6c Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Tue, 6 Nov 2018 12:46:16 +0100
+Subject: [PATCH] icecast: icecast: update to version 2.4.4 (security fix)
+
+CVE-2018-18820 - https://security-tracker.debian.org/tracker/CVE-2018-18820
+
+Issue https://gitlab.labs.nic.cz/turris/turris-os-packages/issues/251
+---
+ multimedia/icecast/Makefile                        |  69 +++----
+ multimedia/icecast/libvorbisidec.mk                |  41 -----
+ .../icecast/patches/001-icecast-2.4.0-tremor.patch | 203 +++++++++++----------
+ .../patches/005-no_examples_doc_win32.patch        |  20 ++
+ .../patches/015-add_with-openssl_option.patch      |  25 +++
+ 5 files changed, 173 insertions(+), 185 deletions(-)
+ delete mode 100644 multimedia/icecast/libvorbisidec.mk
+ create mode 100644 multimedia/icecast/patches/005-no_examples_doc_win32.patch
+ create mode 100644 multimedia/icecast/patches/015-add_with-openssl_option.patch
+
+diff --git a/multimedia/icecast/Makefile b/multimedia/icecast/Makefile
+index ea115f3..f1ad51e 100644
+--- a/multimedia/icecast/Makefile
++++ b/multimedia/icecast/Makefile
+@@ -1,6 +1,4 @@
+ #
+-# Copyright (C) 2006-2011 OpenWrt.org
+-#
+ # This is free software, licensed under the GNU General Public License v2.
+ # See /LICENSE for more information.
+ #
+@@ -8,26 +6,28 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=icecast
+-PKG_VERSION:=2.4.3
+-PKG_RELEASE:=2
+-PKG_LICENSE:=GPL-2.0
+-PKG_MAINTAINER:=André Gaul <andre@gaul.io>
++PKG_VERSION:=2.4.4
++PKG_RELEASE:=1
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+-PKG_SOURCE_URL:=http://downloads.xiph.org/releases/icecast/
+-PKG_MD5SUM:=83d7d34dbe22f0f8fc119d2c9839efc0
++PKG_SOURCE_URL:=https://downloads.xiph.org/releases/icecast/
++PKG_MD5SUM:=49b5979f9f614140b6a38046154203ee28218d8fc549888596a683ad604e4d44
++
++PKG_MAINTAINER:=André Gaul <andre@gaul.io>, \
++		Ted Hess <thess@kitschensync.net>
++
++PKG_LICENSE:=GPL-2.0
++PKG_LICENSE_FILES:=COPYING
+ 
+ PKG_FIXUP:=autoreconf
++PKG_INSTALL:= 1
+ 
+ include $(INCLUDE_DIR)/package.mk
+ 
+-TREMOR_BUILD_DIR=$(PKG_BUILD_DIR)/libvorbisidec-1.2.0-dave
+-TREMOR_DIR=$(TREMOR_BUILD_DIR)/ipkg-install/usr
+-
+ define Package/icecast
+   SECTION:=multimedia
+   CATEGORY:=Multimedia
+-  DEPENDS:=+libcurl +libxml2 +libxslt +libogg +libopenssl
++  DEPENDS:=+libcurl +libxml2 +libxslt +libogg +libvorbisidec
+   TITLE:=A streaming media server for Ogg/Vorbis and MP3 audio streams
+   USERID:=icecast=87:icecast=87
+   URL:=http://www.icecast.org/
+@@ -42,39 +42,22 @@ define Package/icecast/description
+ 	interaction.
+ endef
+ 
+-define Build/Prepare
+-	$(Build/Prepare/Default)
+-	$(SUBMAKE) -f libvorbisidec.mk \
+-		BUILD_DIR="$(PKG_BUILD_DIR)" \
+-		V=99 \
+-		prepare
+-endef
++CONFIGURE_ARGS+= \
++	--enable-yp \
++	--with-openssl="no" \
++	--with-curl="yes" \
++	--with-curl-config="$(STAGING_DIR)/usr/bin/curl-config" \
++	--with-ogg="$(STAGING_DIR)/usr" \
++	--with-speex="no" \
++	--with-theora="no" \
++	--with-vorbis="$(STAGING_DIR)/usr" \
++	--with-xslt-config="$(STAGING_DIR)/usr/bin/xslt-config"
+ 
+-define Build/Configure
+-	$(MAKE) -f libvorbisidec.mk \
+-		BUILD_DIR="$(PKG_BUILD_DIR)" \
+-		V=99 \
+-		compile
+-	$(SED) 's,-lvorbis ,$(TREMOR_DIR)/lib/libvorbisidec.a -logg ,g' $(PKG_BUILD_DIR)/configure
+-	$(call Build/Configure/Default, \
+-		--enable-yp \
+-		--with-curl="yes" \
+-		--with-curl-config="$(STAGING_DIR)/usr/bin/curl-config" \
+-		--with-ogg="$(STAGING_DIR)/usr" \
+-		--with-speex="no" \
+-		--with-theora="no" \
+-		--with-vorbis="$(TREMOR_DIR)" \
+-		--with-xslt-config="$(STAGING_DIR)/usr/bin/xslt-config" \
+-		, \
+-		CPPFLAGS="-I$(TREMOR_DIR)/include -I$(STAGING_DIR)/usr/include/libxml2 $(TARGET_CPPFLAGS)" \
+-	)
+-endef
+ 
+-define Build/Compile
+-	$(MAKE) -C $(PKG_BUILD_DIR) \
+-		DESTDIR="$(PKG_INSTALL_DIR)" \
+-		INCLUDES="-I$(PKG_BUILD_DIR)/src -I$(TREMOR_DIR)/include" \
+-		all install
++# Manually edit configure in case both vorbis and tremor host packages are installed
++define Build/Configure
++	$(SED) 's,-lvorbis -lm,-lvorbisidec -logg ,g' $(PKG_BUILD_DIR)/configure
++	$(call Build/Configure/Default)
+ endef
+ 
+ define Package/icecast/install
+diff --git a/multimedia/icecast/libvorbisidec.mk b/multimedia/icecast/libvorbisidec.mk
+deleted file mode 100644
+index eda6e76..0000000
+--- a/multimedia/icecast/libvorbisidec.mk
++++ /dev/null
+@@ -1,41 +0,0 @@
+-# 
+-# Copyright (C) 2006 OpenWrt.org
+-#
+-# This is free software, licensed under the GNU General Public License v2.
+-# See /LICENSE for more information.
+-#
+-
+-include $(TOPDIR)/rules.mk
+-
+-PKG_NAME:=icecast-libvorbisidec
+-PKG_VERSION:=1.2.0-dave
+-PKG_RELEASE:=1
+-
+-PKG_SOURCE:=libvorbisidec-$(PKG_VERSION).tar.gz
+-PKG_SOURCE_URL:=http://users.tpg.com.au/davico/openwrt/
+-PKG_MD5SUM:=cb8e51aab92ef164f8e0e8853f7164fa
+-
+-PKG_BUILD_DIR:=$(BUILD_DIR)/libvorbisidec-$(PKG_VERSION)
+-PKG_INSTALL_DIR:=$(PKG_BUILD_DIR)/ipkg-install
+-PATCH_DIR=./patches-libvorbisidec
+-
+-include $(INCLUDE_DIR)/package.mk
+-
+-define Build/Configure
+-	$(call Build/Configure/Default, \
+-		--disable-shared \
+-		--enable-static \
+-	)
+-endef
+-
+-define Build/Compile
+-	$(MAKE) -C $(PKG_BUILD_DIR) \
+-		DESTDIR="$(PKG_INSTALL_DIR)" \
+-		all install
+-endef
+-
+-define Build/InstallDev
+-	true
+-endef
+-
+-$(eval $(call Build/DefaultTargets))
+diff --git a/multimedia/icecast/patches/001-icecast-2.4.0-tremor.patch b/multimedia/icecast/patches/001-icecast-2.4.0-tremor.patch
+index 6fa6f08..49861d2 100644
+--- a/multimedia/icecast/patches/001-icecast-2.4.0-tremor.patch
++++ b/multimedia/icecast/patches/001-icecast-2.4.0-tremor.patch
+@@ -1,104 +1,114 @@
+---- a/src/format_flac.c
+-+++ b/src/format_flac.c
+-@@ -18,7 +18,7 @@
+- #endif
+- 
+- #include <stdlib.h>
+--#include <ogg/ogg.h>
+-+#include <tremor/ogg.h>
+- #include <string.h>
+- 
+- typedef struct source_tag source_t;
+---- a/src/format_midi.c
+-+++ b/src/format_midi.c
+-@@ -18,7 +18,7 @@
+- #endif
+- 
+- #include <stdlib.h>
+--#include <ogg/ogg.h>
+-+#include <tremor/ogg.h>
+- #include <string.h>
+- 
+- typedef struct source_tag source_t;
+---- a/src/format_ogg.c
+-+++ b/src/format_ogg.c
+-@@ -24,7 +24,7 @@
+- #include <stdlib.h>
+- #include <string.h>
+- 
+--#include <ogg/ogg.h>
+-+#include <tremor/ogg.h>
+- 
+- #include "refbuf.h"
+- #include "source.h"
+---- a/src/format_ogg.h
+-+++ b/src/format_ogg.h
+-@@ -18,7 +18,7 @@
+- #ifndef __FORMAT_OGG_H__
+- #define __FORMAT_OGG_H__
+- 
+--#include <ogg/ogg.h>
+-+#include <tremor/ogg.h>
+- #include "refbuf.h"
+- #include "format.h"
+- 
+---- a/src/format_speex.c
+-+++ b/src/format_speex.c
+-@@ -18,7 +18,7 @@
+- #endif
+- 
+- #include <stdlib.h>
+--#include <ogg/ogg.h>
+-+#include <tremor/ogg.h>
+- #include <speex/speex_header.h>
+- 
+- typedef struct source_tag source_t;
+---- a/src/format_theora.c
+-+++ b/src/format_theora.c
+-@@ -18,7 +18,7 @@
+- #endif
+- 
+- #include <stdlib.h>
+--#include <ogg/ogg.h>
+-+#include <tremor/ogg.h>
+- #include <theora/theora.h>
+- 
+- typedef struct source_tag source_t;
+ --- a/src/format_vorbis.c
+ +++ b/src/format_vorbis.c
+-@@ -18,8 +18,8 @@
+- #endif
++@@ -19,7 +19,7 @@
+  
+  #include <stdlib.h>
+--#include <ogg/ogg.h>
++ #include <ogg/ogg.h>
+ -#include <vorbis/codec.h>
+-+#include <tremor/ogg.h>
+ +#include <tremor/ivorbiscodec.h>
+  #include <memory.h>
+  #include <string.h>
+  
+---- a/src/source.c
+-+++ b/src/source.c
+-@@ -19,7 +19,7 @@
+- #include <stdlib.h>
+- #include <string.h>
+- #include <sys/types.h>
+--#include <ogg/ogg.h>
+-+#include <tremor/ogg.h>
+- #include <errno.h>
+- 
+- #ifndef _WIN32
+---- a/src/format_kate.c
+-+++ b/src/format_kate.c
+-@@ -19,7 +19,7 @@
+- 
+- #include <stdlib.h>
+- #include <string.h>
+--#include <ogg/ogg.h>
+-+#include <tremor/ogg.h>
+- #ifdef HAVE_KATE
+- #include <kate/oggkate.h>
+- #endif
++@@ -34,6 +34,7 @@
++ #define CATMODULE "format-vorbis"
++ #include "logging.h"
++ 
+++int vorbis_commentheader_out(vorbis_comment *vc, ogg_packet *op);
++ 
++ typedef struct vorbis_codec_tag
++ {
++@@ -583,3 +584,91 @@ static refbuf_t *process_vorbis_page (og
++     return NULL;
++ }
++ 
+++/* Some additional functions from vorbis missing from tremor */
+++
+++static void _v_writestring(oggpack_buffer *o,char *s, int bytes)
+++{
+++
+++  while(bytes--){
+++    oggpack_write(o,*s++,8);
+++  }
+++}
+++
+++static int _vorbis_pack_comment(oggpack_buffer *opb,vorbis_comment *vc)
+++{
+++  char temp[]="Xiph.Org libVorbis I 20150104";
+++  int bytes = strlen(temp);
+++
+++  /* preamble */
+++  oggpack_write(opb,0x03,8);
+++  _v_writestring(opb,"vorbis", 6);
+++
+++  /* vendor */
+++  oggpack_write(opb,bytes,32);
+++  _v_writestring(opb,temp, bytes);
+++
+++  /* comments */
+++
+++  oggpack_write(opb,vc->comments,32);
+++  if(vc->comments){
+++    int i;
+++    for(i=0;i<vc->comments;i++){
+++      if(vc->user_comments[i]){
+++	oggpack_write(opb,vc->comment_lengths[i],32);
+++	_v_writestring(opb,vc->user_comments[i], vc->comment_lengths[i]);
+++      }else{
+++	oggpack_write(opb,0,32);
+++      }
+++    }
+++  }
+++  oggpack_write(opb,1,1);
+++
+++  return(0);
+++}
+++
+++void vorbis_comment_add(vorbis_comment *vc,char *comment)
+++{
+++  vc->user_comments=_ogg_realloc(vc->user_comments,
+++			    (vc->comments+2)*sizeof(*vc->user_comments));
+++  vc->comment_lengths=_ogg_realloc(vc->comment_lengths,
+++      			    (vc->comments+2)*sizeof(*vc->comment_lengths));
+++  vc->comment_lengths[vc->comments]=strlen(comment);
+++  vc->user_comments[vc->comments]=_ogg_malloc(vc->comment_lengths[vc->comments]+1);
+++  strcpy(vc->user_comments[vc->comments], comment);
+++  vc->comments++;
+++  vc->user_comments[vc->comments]=NULL;
+++}
+++
+++void vorbis_comment_add_tag(vorbis_comment *vc, char *tag, char *contents)
+++{
+++  char *comment=alloca(strlen(tag)+strlen(contents)+2); /* +2 for = and \0 */
+++  strcpy(comment, tag);
+++  strcat(comment, "=");
+++  strcat(comment, contents);
+++  vorbis_comment_add(vc, comment);
+++
+++  return;
+++}
+++
+++int vorbis_commentheader_out(vorbis_comment *vc, ogg_packet *op)
+++{
+++  oggpack_buffer opb;
+++
+++  oggpack_writeinit(&opb);
+++  if(_vorbis_pack_comment(&opb,vc)){
+++    oggpack_writeclear(&opb);
+++    return OV_EIMPL;
+++  }
+++
+++  op->packet = _ogg_malloc(oggpack_bytes(&opb));
+++  memcpy(op->packet, opb.buffer, oggpack_bytes(&opb));
+++
+++  op->bytes=oggpack_bytes(&opb);
+++  op->b_o_s=0;
+++  op->e_o_s=0;
+++  op->granulepos=0;
+++  op->packetno=1;
+++
+++  oggpack_writeclear(&opb);
+++  return 0;
+++}
+ --- a/m4/vorbis.m4
+ +++ b/m4/vorbis.m4
+ @@ -38,9 +38,9 @@ if test "x$vorbis_prefix" != "x$ogg_pref
+@@ -144,12 +154,3 @@
+  
+  #
+  # check if the installed Ogg is sufficiently new.
+-@@ -42,7 +42,7 @@ LIBS="$LIBS $OGG_LIBS"
+- LDFLAGS="$LDFLAGS $OGG_LDFLAGS"
+- AC_TRY_LINK_FUNC(ogg_sync_init,
+-     [ xt_cv_lib_ogg=ok ],
+--    [ AC_TRY_LINK([#include <ogg/ogg.h>],, 
+-+    [ AC_TRY_LINK([#include <tremor/ogg.h>],, 
+-         [ xt_cv_lib_ogg="pre v1.0, needs updating" ],
+-         [ xt_cv_lib_ogg="not found" ])
+-     ])
+diff --git a/multimedia/icecast/patches/005-no_examples_doc_win32.patch b/multimedia/icecast/patches/005-no_examples_doc_win32.patch
+new file mode 100644
+index 0000000..178df54
+--- /dev/null
++++ b/multimedia/icecast/patches/005-no_examples_doc_win32.patch
+@@ -0,0 +1,20 @@
++--- a/Makefile.am
+++++ b/Makefile.am
++@@ -3,7 +3,7 @@
++ AUTOMAKE_OPTIONS = foreign dist-zip
++ ACLOCAL_AMFLAGS = -I m4
++ 
++-SUBDIRS = src conf doc web admin win32 examples
+++SUBDIRS = src conf web admin
++ 
++ EXTRA_DIST = HACKING m4/acx_pthread.m4 m4/ogg.m4 \
++     m4/theora.m4 m4/vorbis.m4 m4/speex.m4 \
++@@ -11,7 +11,7 @@ EXTRA_DIST = HACKING m4/acx_pthread.m4 m
++     m4/xiph_types.m4 m4/xiph_xml2.m4
++ 
++ docdir = $(datadir)/doc/$(PACKAGE)
++-doc_DATA = README AUTHORS COPYING NEWS TODO ChangeLog
+++doc_DATA = README AUTHORS COPYING
++ 
++ debug:
++ 	$(MAKE) all CFLAGS="@DEBUG@"
+diff --git a/multimedia/icecast/patches/015-add_with-openssl_option.patch b/multimedia/icecast/patches/015-add_with-openssl_option.patch
+new file mode 100644
+index 0000000..f0a5b70
+--- /dev/null
++++ b/multimedia/icecast/patches/015-add_with-openssl_option.patch
+@@ -0,0 +1,25 @@
++--- a/m4/xiph_openssl.m4
+++++ b/m4/xiph_openssl.m4
++@@ -30,13 +30,15 @@ else
++ fi
++ 
++ # Now try linking to openssl
++-xt_save_CFLAGS="$CFLAGS"
++-xt_save_LIBS="$LIBS"
++-CFLAGS="$CFLAGS $OPENSSL_CFLAGS"
++-LIBS="$OPENSSL_LIBS $LIBS"
++-AC_TRY_LINK([#include <openssl/ssl.h>], [void *a = SSL_new], [openssl_ok='yes'])
++-CFLAGS="$xt_save_CFLAGS"
++-LIBS="$xt_save_LIBS"
+++if test "x$openssl_prefix" != "xno"; then
+++    xt_save_CFLAGS="$CFLAGS"
+++    xt_save_LIBS="$LIBS"
+++    CFLAGS="$CFLAGS $OPENSSL_CFLAGS"
+++    LIBS="$OPENSSL_LIBS $LIBS"
+++    AC_TRY_LINK([#include <openssl/ssl.h>], [void *a = SSL_new], [openssl_ok='yes'])
+++    CFLAGS="$xt_save_CFLAGS"
+++    LIBS="$xt_save_LIBS"
+++fi
++ 
++ if test "$openssl_ok" = "yes"; then
++     AC_DEFINE(HAVE_OPENSSL, 1, [Define if you have libopenssl.])
+-- 
+2.7.4
+

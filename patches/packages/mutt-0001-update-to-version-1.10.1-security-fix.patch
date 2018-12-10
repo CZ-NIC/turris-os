@@ -1,0 +1,129 @@
+From 2925daf7b9c6ccdec9c51f4821d52e56e7adb7e7 Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Tue, 6 Nov 2018 12:18:35 +0100
+Subject: [PATCH] mutt: update to version 1.10.1 (security fix)
+
+Issue https://gitlab.labs.nic.cz/turris/openwrt/issues/206
+---
+ mail/mutt/Makefile                          | 15 +++++++++------
+ mail/mutt/patches/0001-no-po-and-docs.patch | 27 ---------------------------
+ mail/mutt/patches/0001-no-po.patch          | 26 ++++++++++++++++++++++++++
+ 3 files changed, 35 insertions(+), 33 deletions(-)
+ delete mode 100644 mail/mutt/patches/0001-no-po-and-docs.patch
+ create mode 100644 mail/mutt/patches/0001-no-po.patch
+
+diff --git a/mail/mutt/Makefile b/mail/mutt/Makefile
+index dca6cb5..ecfbd89 100644
+--- a/mail/mutt/Makefile
++++ b/mail/mutt/Makefile
+@@ -8,17 +8,19 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=mutt
+-PKG_VERSION:=1.5.24
++PKG_VERSION:=1.10.1
+ PKG_RELEASE:=1
+ 
+-PKG_SOURCE_URL:=ftp://ftp.mutt.org/pub/mutt/
++PKG_SOURCE_URL:=ftp://ftp.mutt.org/pub/mutt/ \
++		https://bitbucket.org/mutt/mutt/downloads/
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+-PKG_MD5SUM:=7f25d27f3c7c82285ac07aac35f5f0f2
++PKG_HASH:=734a3883158ec3d180cf6538d8bd7f685ce641d2cdef657aa0038f76e79a54a0
+ 
+ PKG_LICENSE:=GPL-2.0+
+ PKG_LICENSE_FILES:=GPL
+-PKG_MAINTAINER=Phil Eichinger <phil@zankapfel.net>
++PKG_MAINTAINER:=Phil Eichinger <phil@zankapfel.net>
+ 
++PKG_FIXUP:=autoreconf
+ 
+ PKG_INSTALL:=1
+ 
+@@ -27,7 +29,7 @@ include $(INCLUDE_DIR)/package.mk
+ define Package/mutt
+   SECTION:=mail
+   CATEGORY:=Mail
+-  DEPENDS:=+libopenssl +libncursesw
++  DEPENDS:=+libopenssl +libncursesw +terminfo +zlib
+   TITLE:=Console mail client
+   URL:=http://www.mutt.org/
+ endef
+@@ -43,7 +45,8 @@ CONFIGURE_ARGS += \
+ 	--enable-pop \
+ 	--enable-imap \
+ 	--with-ssl \
+-	--without-idn
++	--without-idn \
++	--disable-doc
+ 
+ define Package/mutt/install
+ 	$(INSTALL_DIR) $(1)/usr/bin
+diff --git a/mail/mutt/patches/0001-no-po-and-docs.patch b/mail/mutt/patches/0001-no-po-and-docs.patch
+deleted file mode 100644
+index 607e441..0000000
+--- a/mail/mutt/patches/0001-no-po-and-docs.patch
++++ /dev/null
+@@ -1,27 +0,0 @@
+-From b0e285a8c7faaec8807fdd677da6750f341f0109 Mon Sep 17 00:00:00 2001
+-From: Phil Eichinger <phil@zankapfel.net>
+-Date: Thu, 19 Nov 2015 13:18:53 +0100
+-Subject: [PATCH] no po and docs
+-
+-[adapted old patch and converted to git patch]
+-Signed-off-by: Phil Eichinger <phil@zankapfel.net>
+----
+- Makefile.in | 2 +-
+- 1 file changed, 1 insertion(+), 1 deletion(-)
+-
+-diff --git a/Makefile.in b/Makefile.in
+-index 1909835..cfa7ca0 100644
+---- a/Makefile.in
+-+++ b/Makefile.in
+-@@ -458,7 +458,7 @@ get_cs_cmdline = $(call get_cs_compile,$(1)) $(call get_cs_all_flags,$(1),check_
+- AUTOMAKE_OPTIONS = 1.6 foreign
+- @BUILD_IMAP_TRUE@IMAP_SUBDIR = imap
+- @BUILD_IMAP_TRUE@IMAP_INCLUDES = -I$(top_srcdir)/imap
+--SUBDIRS = m4 po intl doc contrib $(IMAP_SUBDIR)
+-+SUBDIRS = m4 intl contrib $(IMAP_SUBDIR)
+- bin_SCRIPTS = muttbug flea $(SMIMEAUX_TARGET)
+- @BUILD_HCACHE_TRUE@HCVERSION = hcversion.h
+- BUILT_SOURCES = keymap_defs.h patchlist.c reldate.h conststrings.c $(HCVERSION)
+--- 
+-2.1.4
+-
+diff --git a/mail/mutt/patches/0001-no-po.patch b/mail/mutt/patches/0001-no-po.patch
+new file mode 100644
+index 0000000..51ea760
+--- /dev/null
++++ b/mail/mutt/patches/0001-no-po.patch
+@@ -0,0 +1,26 @@
++From 6dbfafd4b8bfc9f5e53db90c5279784c506a3253 Mon Sep 17 00:00:00 2001
++From: Phil Eichinger <phil@zankapfel.net>
++Date: Tue, 17 Oct 2017 06:44:04 +0200
++Subject: [PATCH] no po
++
++docs are disabled via ./configure --disable-doc now
++---
++ Makefile.am | 2 +-
++ 1 file changed, 1 insertion(+), 1 deletion(-)
++
++diff --git a/Makefile.am b/Makefile.am
++index 4bc2db4..bb00927 100644
++--- a/Makefile.am
+++++ b/Makefile.am
++@@ -14,7 +14,7 @@ IMAP_SUBDIR = imap
++ IMAP_INCLUDES = -I$(top_srcdir)/imap
++ endif
++ 
++-SUBDIRS = m4 po intl $(DOC_SUBDIR) contrib $(IMAP_SUBDIR)
+++SUBDIRS = m4 intl $(DOC_SUBDIR) contrib $(IMAP_SUBDIR)
++ 
++ bin_SCRIPTS = muttbug flea $(SMIMEAUX_TARGET)
++ 
++-- 
++2.11.0
++
+-- 
+2.7.4
+
