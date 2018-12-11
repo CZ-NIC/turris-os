@@ -1,14 +1,14 @@
-From 99ebb5630ed16442de684772a8f66512179f591b Mon Sep 17 00:00:00 2001
+From 9f24a50213a47d6ced38bbad34e700496f98fcfb Mon Sep 17 00:00:00 2001
 From: Josef Schlehofer <josef.schlehofer@nic.cz>
-Date: Mon, 10 Dec 2018 23:59:35 +0100
+Date: Thu, 6 Dec 2018 16:50:25 +0100
 Subject: [PATCH] subversion: update to version 1.10.2
 
 ---
- net/subversion/Makefile | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ net/subversion/Makefile | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
 diff --git a/net/subversion/Makefile b/net/subversion/Makefile
-index d78596202..6cbf19bf3 100644
+index 9ff74a318..6cbf19bf3 100644
 --- a/net/subversion/Makefile
 +++ b/net/subversion/Makefile
 @@ -1,5 +1,5 @@
@@ -67,15 +67,17 @@ index d78596202..6cbf19bf3 100644
  
  ifdef $(INTL_FULL)
  	CONFIGURE_ARGS += --enable-nls
-@@ -101,7 +105,7 @@ else
+@@ -101,8 +105,8 @@ else
  endif
  
  CONFIGURE_VARS += \
 -	LDFLAGS="$(TARGET_LDFLAGS) -lcrypt -lm \
+-		-lz -lsqlite3 -lpthread $(if $(INTL_FULL),-lintl)"
 +	LDFLAGS="$(TARGET_LDFLAGS) $(APU_LIBS) -lcrypt -lm \
- 		-lz -lpthread $(if $(INTL_FULL),-lintl)"
++		-lz -lpthread $(if $(INTL_FULL),-lintl)"
  	CPPFLAGS="$(TARGET_CPPFLAGS)"
  
+ define Build/Compile
 -- 
 2.17.1
 
