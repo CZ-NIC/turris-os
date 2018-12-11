@@ -1,0 +1,11 @@
+--- a/mdadm.h
++++ b/mdadm.h
+@@ -526,7 +526,7 @@ extern int restore_stripes(int *dest, un
+ 			   char *src_buf);
+ 
+ #ifndef Sendmail
+-#define Sendmail "/usr/lib/sendmail -t"
++#define Sendmail "/usr/sbin/sendmail -t"
+ #endif
+ 
+ #define SYSLOG_FACILITY LOG_DAEMON
