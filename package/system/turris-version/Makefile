@@ -33,13 +33,13 @@ create_notification -s news " • netdata: aktualizace na Omnii
  • samba4, bzip2, openssl, tiff: bezpečnostní aktualizace
  • pakon: vylepšení archivace
  • majordomo: odstraněn ze seznamu na stránce updater, lze stále doinstalovat ručně
- • mdadm, webapps: drobné opravy
+ • mdadm, webapps, nextcloud: drobné opravy
  • tvheadend: oprava úvodního nastavení" " • netdata: update for Omnia
  • subversion, unbound, git: updates
  • samba4, bzip2, openssl, tiff: security updates
  • pakon: further improvements of archivation
  • majordomo: removed from the list of applications on updater page, still available for manual installation
- • mdadm, webapps: minor fixes
+ • mdadm, webapps, nextcloud: minor fixes
  • tvheadend: fix first time setup"
 }
 endef
