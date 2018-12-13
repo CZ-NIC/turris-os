@@ -29,13 +29,13 @@ define Package/turris-version/postinst
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • netdata: aktualizace na Omnii
- • subversion, unbound, git: aktualizace
+ • subversion, unbound, git, mac80211, ath10k-ct, miniupnpd: aktualizace
  • samba4, bzip2, openssl, tiff: bezpečnostní aktualizace
  • pakon: vylepšení archivace
  • majordomo: odstraněn ze seznamu na stránce updater, lze stále doinstalovat ručně
  • mdadm, webapps, nextcloud: drobné opravy
  • tvheadend: oprava úvodního nastavení" " • netdata: update for Omnia
- • subversion, unbound, git: updates
+ • subversion, unbound, git, mac80211, ath10k-ct, miniupnpd: updates
  • samba4, bzip2, openssl, tiff: security updates
  • pakon: further improvements of archivation
  • majordomo: removed from the list of applications on updater page, still available for manual installation
