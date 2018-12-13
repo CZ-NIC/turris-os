@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.11
+PKG_VERSION:=3.11.1
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,22 +28,19 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • foris: migrace na python3
- • foris: kouzelník nahrazen průvodcem
- • foris: různá drobná pročištění a přerovnání
- • sentinel: první části nového sběru dat
- • Turris 1.X: aktualizace factory image
- • samba4: experimentální podpora
- • unbound: aktualizace a podpora přesměrování na vybrané servery
- • lepší integrace webových aplikací třetích stran
- • aktualizace různých balíčků - například Nextcloud 14" " • foris: migration to python3
- • foris: wizard replaced by guide
- • foris: small cleanups and rearranging
- • sentinel: first parts of new data collection engine
- • samba4: experimental support
- • unbound: update and support forwarding to predefined servers
- • better integration of third party web applications
- • various package updates including Nextcloud 14"
+create_notification -s news " • netdata: aktualizace na Omnii
+ • subversion, unbound, git: aktualizace
+ • samba4, bzip2, openssl, tiff: bezpečnostní aktualizace
+ • pakon: vylepšení archivace
+ • majordomo: odstraněn ze seznamu na stránce updater, lze stále doinstalovat ručně
+ • mdadm, webapps: drobné opravy
+ • tvheadend: oprava úvodního nastavení" " • netdata: update for Omnia
+ • subversion, unbound, git: updates
+ • samba4, bzip2, openssl, tiff: security updates
+ • pakon: further improvements of archivation
+ • majordomo: removed from the list of applications on updater page, still available for manual installation
+ • mdadm, webapps: minor fixes
+ • tvheadend: fix first time setup"
 }
 endef
 
