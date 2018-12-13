@@ -1,18 +1,19 @@
-From 7e9c1e5963f1b0968b0f35875deff0b3dacd110f Mon Sep 17 00:00:00 2001
+From 89236ca53fd8651cf2fc8d0eacd7547554d473d9 Mon Sep 17 00:00:00 2001
 From: Jan Pavlinec <jan.pavlinec@nic.cz>
-Date: Fri, 2 Nov 2018 14:43:14 +0100
-Subject: [PATCH] apache: update to version 2.4.28 (security fix)
+Date: Thu, 13 Dec 2018 16:18:43 +0100
+Subject: [PATCH] apache: update to version 2.4.37
 
-Issue https://gitlab.labs.nic.cz/turris/turris-os-packages/issues/156
+Issue https://gitlab.labs.nic.cz/turris/openwrt/issues/229
 ---
  net/apache/Config.in                             | 11 ++++++
- net/apache/Makefile                              | 34 +++++++++++++++---
- net/apache/patches/002-test_char_h.patch         | 25 +++++++++++++-
- net/apache/patches/003-logdir_fix.patch          | 14 +++++---
+ net/apache/Makefile                              | 45 +++++++++++++++++++-----
+ net/apache/patches/001-Makefile_in.patch         |  2 +-
+ net/apache/patches/002-test_char_h.patch         | 25 ++++++++++++-
+ net/apache/patches/003-logdir_fix.patch          | 16 +++++----
  net/apache/patches/004-pidfile_fix.patch         | 10 +++---
- net/apache/patches/005-httpd_conf.patch          | 29 +++++++++-------
- net/apache/patches/010-reproducible-builds.patch | 44 ++++++++++++++++++++++++
- 7 files changed, 139 insertions(+), 28 deletions(-)
+ net/apache/patches/005-httpd_conf.patch          | 29 ++++++++-------
+ net/apache/patches/010-reproducible-builds.patch | 44 +++++++++++++++++++++++
+ 8 files changed, 148 insertions(+), 34 deletions(-)
  create mode 100644 net/apache/Config.in
  create mode 100644 net/apache/patches/010-reproducible-builds.patch
 
@@ -34,31 +35,35 @@ index 0000000..5eb42b3
 +
 +endmenu
 diff --git a/net/apache/Makefile b/net/apache/Makefile
-index f65be87..8667730 100644
+index f65be87..bb96794 100644
 --- a/net/apache/Makefile
 +++ b/net/apache/Makefile
-@@ -8,20 +8,31 @@
+@@ -8,20 +8,33 @@
  include $(TOPDIR)/rules.mk
  
  PKG_NAME:=apache
 -PKG_VERSION:=2.2.31
 -PKG_RELEASE:=1
-+PKG_VERSION:=2.4.28
++PKG_VERSION:=2.4.37
 +PKG_RELEASE:=2
  PKG_SOURCE_NAME:=httpd
- PKG_MAINTAINER:=Thomas Heil <heil@terminal-consulting.de>
- PKG_LICENSE:=Apache License
+-PKG_MAINTAINER:=Thomas Heil <heil@terminal-consulting.de>
+-PKG_LICENSE:=Apache License
  
  PKG_SOURCE:=$(PKG_SOURCE_NAME)-$(PKG_VERSION).tar.bz2
  PKG_SOURCE_URL:=@APACHE/httpd/
 -PKG_MD5SUM:=6c10e15835ab214464228a9beb7afba8
-+PKG_MD5SUM:=c1197a3a62a4ab5c584ab89b249af38cf28b4adee9c0106b62999fd29f920666
++PKG_MD5SUM:=3498dc5c6772fac2eb7307dc7963122ffe243b5e806e0be4fb51974ff759d726
  
  PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_SOURCE_NAME)-$(PKG_VERSION)
  
++PKG_MAINTAINER:=Thomas Heil <heil@terminal-consulting.de>
++PKG_LICENSE:=Apache License
++PKG_CPE_ID:=cpe:/a:apache:http_server
++
  PKG_INSTALL:=1
  
-+PKG_CONFIG_DEPENDS := \
++PKG_CONFIG_DEPENDS:= \
 +	CONFIG_APACHE_HTTP2
 +
 +ADDITIONAL_MODULES:=
@@ -72,7 +77,16 @@ index f65be87..8667730 100644
  include $(INCLUDE_DIR)/package.mk
  
  define Package/apache/Default
-@@ -38,9 +49,13 @@ define Package/apache/Default/description
+@@ -29,7 +42,7 @@ define Package/apache/Default
+   CATEGORY:=Network
+   SUBMENU:=Web Servers/Proxies
+   TITLE:=The Apache Web Server
+-  URL:=http://httpd.apache.org/
++  URL:=https://httpd.apache.org/
+ endef
+ 
+ define Package/apache/Default/description
+@@ -38,9 +51,13 @@ define Package/apache/Default/description
   Server, it has grown to be the most popular web server on the Internet.
  endef
  
@@ -87,9 +101,12 @@ index f65be87..8667730 100644
  endef
  
  define Package/apache/description
-@@ -90,23 +105,31 @@ endef
+@@ -88,25 +105,34 @@ $(call Package/apache/Default/description)
+  This package contains the icons from Apache.
+ endef
  
- TARGET_CFLAGS += $(FPIC)
+-TARGET_CFLAGS += $(FPIC)
++TARGET_CFLAGS += $(FPIC) -Wno-error
  TARGET_CPPFLAGS += -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE
 +TARGET_LDFLAGS += -lpthread
  
@@ -105,6 +122,7 @@ index f65be87..8667730 100644
 +		--with-openssl="$(STAGING_DIR)/usr" \
  		--enable-ssl \
  		--enable-proxy \
++		--disable-md \
  		--disable-disk-cache \
  		--enable-maintainer-mode \
 +		--with-mpm=prefork \
@@ -119,7 +137,7 @@ index f65be87..8667730 100644
  	)
  endef
  
-@@ -140,7 +163,8 @@ endef
+@@ -140,7 +166,8 @@ endef
  define Package/apache/install
  	$(INSTALL_DIR) $(1)/usr/sbin
  	# we don't need apxs on the router, it's just for building apache modules.
@@ -129,6 +147,18 @@ index f65be87..8667730 100644
  	$(INSTALL_DIR) $(1)/usr/lib
  	$(CP) $(PKG_INSTALL_DIR)/usr/lib/httpd.exp $(1)/usr/lib/
  	$(INSTALL_DIR) $(1)/usr/share
+diff --git a/net/apache/patches/001-Makefile_in.patch b/net/apache/patches/001-Makefile_in.patch
+index 0bccfd3..4daf14f 100644
+--- a/net/apache/patches/001-Makefile_in.patch
++++ b/net/apache/patches/001-Makefile_in.patch
+@@ -1,6 +1,6 @@
+ --- a/server/Makefile.in
+ +++ b/server/Makefile.in
+-@@ -26,7 +26,10 @@ gen_test_char: $(gen_test_char_OBJECTS)
++@@ -29,7 +29,10 @@ gen_test_char: $(gen_test_char_OBJECTS)
+  	$(LINK) $(EXTRA_LDFLAGS) $(gen_test_char_OBJECTS) $(EXTRA_LIBS)
+  
+  test_char.h: gen_test_char
 diff --git a/net/apache/patches/002-test_char_h.patch b/net/apache/patches/002-test_char_h.patch
 index e8ea3cd..ad07704 100644
 --- a/net/apache/patches/002-test_char_h.patch
@@ -168,7 +198,7 @@ index e8ea3cd..ad07704 100644
 +  * Examine a field value (such as a media-/content-type) string and return
 +  * it sans any parameters; e.g., strip off any ';charset=foo' and the like.
 diff --git a/net/apache/patches/003-logdir_fix.patch b/net/apache/patches/003-logdir_fix.patch
-index 635c65c..fd22410 100644
+index 635c65c..19fcbf7 100644
 --- a/net/apache/patches/003-logdir_fix.patch
 +++ b/net/apache/patches/003-logdir_fix.patch
 @@ -1,6 +1,8 @@
@@ -196,6 +226,15 @@ index 635c65c..fd22410 100644
  @@ -28,8 +28,8 @@
       cgidir:        ${datadir}/cgi-bin
       includedir:    ${prefix}/include
+@@ -22,7 +26,7 @@
+      proxycachedir: ${localstatedir}/proxy
+  </Layout>
+  
+-@@ -150,7 +150,7 @@
++@@ -174,7 +174,7 @@
+      includedir:    ${prefix}/include
+      localstatedir: /var${prefix}
+      runtimedir:    ${localstatedir}/run
 diff --git a/net/apache/patches/004-pidfile_fix.patch b/net/apache/patches/004-pidfile_fix.patch
 index e9f0b6d..647f821 100644
 --- a/net/apache/patches/004-pidfile_fix.patch
@@ -293,7 +332,7 @@ index 60f0dca..04a73a9 100644
 + 
 diff --git a/net/apache/patches/010-reproducible-builds.patch b/net/apache/patches/010-reproducible-builds.patch
 new file mode 100644
-index 0000000..7a5324b
+index 0000000..0289da1
 --- /dev/null
 +++ b/net/apache/patches/010-reproducible-builds.patch
 @@ -0,0 +1,44 @@
@@ -330,7 +369,7 @@ index 0000000..7a5324b
 + 
 + CLEAN_TARGETS = gen_test_char test_char.h \
 + 	ApacheCoreOS2.def httpd.exp export_files \
-+@@ -80,8 +81,8 @@ httpd.exp: exports.c export_vars.h
++@@ -85,8 +86,8 @@ httpd.exp: exports.c export_vars.h
 + 	@echo "#! ." > $@
 + 	@echo "* This file was AUTOGENERATED at build time." >> $@
 + 	@echo "* Please do not edit by hand." >> $@
