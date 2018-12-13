@@ -1,1 +1,0 @@
--- This userlist is obsolete. It stays only for backward compatibility.
