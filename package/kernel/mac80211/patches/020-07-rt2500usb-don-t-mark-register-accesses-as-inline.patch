@@ -21,9 +21,11 @@ Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
  drivers/net/wireless/ralink/rt2x00/rt2500usb.c | 19 +++++--------------
  1 file changed, 5 insertions(+), 14 deletions(-)
 
+diff --git a/drivers/net/wireless/ralink/rt2x00/rt2500usb.c b/drivers/net/wireless/ralink/rt2x00/rt2500usb.c
+index 62357465fe29..0d2670a56c4c 100644
 --- a/drivers/net/wireless/ralink/rt2x00/rt2500usb.c
 +++ b/drivers/net/wireless/ralink/rt2x00/rt2500usb.c
-@@ -55,7 +55,7 @@ MODULE_PARM_DESC(nohwcrypt, "Disable har
+@@ -55,7 +55,7 @@ MODULE_PARM_DESC(nohwcrypt, "Disable hardware encryption.");
   * If the csr_mutex is already held then the _lock variants must
   * be used instead.
   */
@@ -32,7 +34,7 @@ Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
  					   const unsigned int offset,
  					   u16 *value)
  {
-@@ -66,7 +66,7 @@ static inline void rt2500usb_register_re
+@@ -66,7 +66,7 @@ static inline void rt2500usb_register_read(struct rt2x00_dev *rt2x00dev,
  	*value = le16_to_cpu(reg);
  }
  
@@ -41,7 +43,7 @@ Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
  						const unsigned int offset,
  						u16 *value)
  {
-@@ -77,16 +77,7 @@ static inline void rt2500usb_register_re
+@@ -77,16 +77,7 @@ static inline void rt2500usb_register_read_lock(struct rt2x00_dev *rt2x00dev,
  	*value = le16_to_cpu(reg);
  }
  
@@ -59,7 +61,7 @@ Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
  					    const unsigned int offset,
  					    u16 value)
  {
-@@ -96,7 +87,7 @@ static inline void rt2500usb_register_wr
+@@ -96,7 +87,7 @@ static inline void rt2500usb_register_write(struct rt2x00_dev *rt2x00dev,
  				      &reg, sizeof(reg));
  }
  
@@ -68,7 +70,7 @@ Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
  						 const unsigned int offset,
  						 u16 value)
  {
-@@ -106,7 +97,7 @@ static inline void rt2500usb_register_wr
+@@ -106,7 +97,7 @@ static inline void rt2500usb_register_write_lock(struct rt2x00_dev *rt2x00dev,
  				       &reg, sizeof(reg), REGISTER_TIMEOUT);
  }
  
@@ -77,3 +79,6 @@ Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
  						 const unsigned int offset,
  						 void *value, const u16 length)
  {
+-- 
+2.12.1
+
