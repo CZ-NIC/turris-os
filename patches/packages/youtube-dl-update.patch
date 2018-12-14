@@ -1,0 +1,31 @@
+diff --git a/multimedia/youtube-dl/Makefile b/multimedia/youtube-dl/Makefile
+index eaa43393d..a168f841f 100644
+--- a/multimedia/youtube-dl/Makefile
++++ b/multimedia/youtube-dl/Makefile
+@@ -8,12 +8,12 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=youtube-dl
+-PKG_VERSION:=2016.05.16
++PKG_VERSION:=2018.12.09
+ PKG_RELEASE:=1
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+-PKG_SOURCE_URL:=http://youtube-dl.org/downloads/$(PKG_VERSION)/
+-PKG_MD5SUM:=f50b53b9938eeb43a2466e451e71f474
++PKG_SOURCE_URL:=https://yt-dl.org/downloads/$(PKG_VERSION)/
++PKG_HASH:=fda38f3239094d31fc9df2433aea15b5256c6b23813b0941e81ee5987f071569
+ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
+ 
+ PKG_LICENSE:=Unlicense
+@@ -37,6 +37,10 @@ define Package/youtube-dl/description
+   It requires the Python interpreter.
+ endef
+ 
++define Build/Compile
++	$(eval $(call Build/Compile/Default,youtube-dl))
++endef
++
+ define Package/youtube-dl/install
+ 	$(INSTALL_DIR) $(1)/usr/bin
+ 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/youtube-dl $(1)/usr/bin/
