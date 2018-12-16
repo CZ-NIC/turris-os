@@ -8,15 +8,22 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=util-linux
-PKG_VERSION:=2.29.2
+PKG_VERSION:=2.33
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=@KERNEL/linux/utils/$(PKG_NAME)/v2.29
-PKG_MD5SUM:=accea4d678209f97f634f40a93b7e9fcad5915d1f4749f6c47bee6bf110fe8e3
+PKG_SOURCE_URL:=@KERNEL/linux/utils/$(PKG_NAME)/v2.33
+PKG_HASH:=f261b9d73c35bfeeea04d26941ac47ee1df937bd3b0583e748217c1ea423658a
+PKG_CPE_ID:=cpe:/a:kernel:util-linux
 
 PKG_LICENSE:=GPL-2.0
-PKG_LICENSE_FILES:=COPYING getopt/COPYING libblkid/COPYING libmount/COPYING Documentation/licenses/COPYING.GPLv2 Documentation/licenses/COPYING.LGPLv2.1 libuuid/COPYING Documentation/licenses/COPYING.BSD-3
+PKG_LICENSE_FILES:=	COPYING					\
+				libblkid/COPYING			\
+				libmount/COPYING			\
+				Documentation/licenses/COPYING.GPLv2	\
+				Documentation/licenses/COPYING.LGPLv2.1	\
+				libuuid/COPYING				\
+				Documentation/licenses/COPYING.BSD-3
 
 PKG_BUILD_PARALLEL:=1
 
