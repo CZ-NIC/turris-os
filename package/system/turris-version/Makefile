@@ -58,7 +58,7 @@ define Package/turris-version/postinst
 			create_notification -s error "You are running container $$name from internal memory which is not recommended and can severally damage your router! This is not covered by warranty! Please use storage module in Foris to move it somewhere else!"
 		fi
 	done
-}
+} 2> /dev/null
 endef
 
 $(eval $(call BuildPackage,turris-version))
