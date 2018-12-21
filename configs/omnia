@@ -106,3 +106,5 @@ CONFIG_PACKAGE_augeas=y
 
 CONFIG_PACKAGE_python3-jinja2=y
 CONFIG_PACKAGE_python3-pyyaml=y
+
+CONDIG_PACKAGE_shadowsocks-libev=y
