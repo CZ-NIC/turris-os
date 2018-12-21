@@ -101,7 +101,7 @@ CONFIG_PACKAGE_apache=y
 #dependecy for deckard
 CONFIG_PACKAGE_python3-pytest=y
 CONFIG_PACKAGE_python3-dns=y
-CONFIG_PACKAGE_python3-augeas=y
+#CONFIG_PACKAGE_python3-augeas=y
 CONFIG_PACKAGE_augeas=y
 
 CONFIG_PACKAGE_python3-jinja2=y
