@@ -452,3 +452,6 @@ CONFIG_PACKAGE_tvheadend=y
 
 # travelmate
 CONFIG_PACKAGE_travelmate=y
+
+# youtube-dl
+CONFIG_PACKAGE_youtube-dl=yes
