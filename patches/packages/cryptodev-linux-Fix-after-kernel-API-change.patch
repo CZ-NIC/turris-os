@@ -1,0 +1,32 @@
+From 9a1b42b7622c46b95ada73159f28786738599d5f Mon Sep 17 00:00:00 2001
+From: Michal Hrusecky <michal.hrusecky@nic.cz>
+Date: Wed, 2 Jan 2019 13:31:22 +0100
+Subject: [PATCH] cryptodev-linux: Fix after kernel API change
+
+---
+ .../patches/get_user_pages-api-change.patch         | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+ create mode 100644 utils/cryptodev-linux/patches/get_user_pages-api-change.patch
+
+diff --git a/utils/cryptodev-linux/patches/get_user_pages-api-change.patch b/utils/cryptodev-linux/patches/get_user_pages-api-change.patch
+new file mode 100644
+index 000000000..324461de0
+--- /dev/null
++++ b/utils/cryptodev-linux/patches/get_user_pages-api-change.patch
+@@ -0,0 +1,13 @@
++Index: cryptodev-linux-1.8/zc.c
++===================================================================
++--- cryptodev-linux-1.8.orig/zc.c
+++++ cryptodev-linux-1.8/zc.c
++@@ -60,7 +60,7 @@ int __get_userbuf(uint8_t __user *addr,
++ 
++ 	down_read(&mm->mmap_sem);
++ 	ret = get_user_pages(task, mm,
++-			(unsigned long)addr, pgcount, write, 0, pg, NULL);
+++			(unsigned long)addr, pgcount, (write ? FOLL_WRITE : 0 ), pg, NULL);
++ 	up_read(&mm->mmap_sem);
++ 	if (ret != pgcount)
++ 		return -EINVAL;
+-- 
+2.20.1
+
