@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.11.1
+PKG_VERSION:=3.11.2
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,19 +28,11 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • netdata: aktualizace na Omnii
- • subversion, unbound, git, ath10k-ct, miniupnpd, youtube-dl: aktualizace
- • samba4, bzip2, openssl, tiff: bezpečnostní aktualizace
- • pakon: vylepšení archivace
- • majordomo: odstraněn ze seznamu na stránce updater, lze stále doinstalovat ručně
- • mdadm, webapps, nextcloud: drobné opravy
- • tvheadend: oprava úvodního nastavení" " • netdata: update for Omnia
- • subversion, unbound, git, ath10k-ct, miniupnpd, youtube-dl: updates
- • samba4, bzip2, openssl, tiff: security updates
- • pakon: further improvements of archivation
- • majordomo: removed from the list of applications on updater page, still available for manual installation
- • mdadm, webapps, nextcloud: minor fixes
- • tvheadend: fix first time setup"
+create_notification -s news " • knot-resolver: aktualizace vylepšující chování bez IPv6
+ • mac80211: aktualizace na poslední verzi z LEDE 17.01
+ • kernel a další balíčky: aktualizace" " • knot-resolver: update improving behaviour without IPv6
+ • mac80211: update to the latest version from LEDE 17.01
+ • kernel and various minor packages: update"
 }
 endef
 
