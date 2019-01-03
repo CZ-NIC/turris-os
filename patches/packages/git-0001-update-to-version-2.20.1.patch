@@ -1,7 +1,7 @@
-From 3041b436a12b696d5c7b07804e03d20a35ba1bcd Mon Sep 17 00:00:00 2001
+From cb7683f158d80050e79df5f42d5b8412581afe54 Mon Sep 17 00:00:00 2001
 From: Josef Schlehofer <josef.schlehofer@nic.cz>
-Date: Tue, 11 Dec 2018 00:15:04 +0100
-Subject: [PATCH] git: update to version 2.20.0
+Date: Thu, 3 Jan 2019 02:38:09 +0100
+Subject: [PATCH] git: update to version 2.20.1
 
 ---
  net/git/Makefile                              |  58 +++--
@@ -14,7 +14,7 @@ Subject: [PATCH] git: update to version 2.20.0
  delete mode 100644 net/git/patches/200-disable_fasthash.patch
 
 diff --git a/net/git/Makefile b/net/git/Makefile
-index 1b9d7729e..ccdd3d71c 100644
+index 1b9d7729e..fbcd6eec8 100644
 --- a/net/git/Makefile
 +++ b/net/git/Makefile
 @@ -1,5 +1,5 @@
@@ -29,13 +29,13 @@ index 1b9d7729e..ccdd3d71c 100644
  
  PKG_NAME:=git
 -PKG_VERSION:=2.8.2
-+PKG_VERSION:=2.20.0
++PKG_VERSION:=2.20.1
  PKG_RELEASE:=1
  
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
  PKG_SOURCE_URL:=@KERNEL/software/scm/git/
 -PKG_MD5SUM:=b8edb4ae34828fda6aa2a4478089b107
-+PKG_HASH:=bc94735073e14b138a1290cc99af3c379d544f514c43f8ebde988fc50d0ad81f
++PKG_HASH:=9d2e91e2faa2ea61ba0a70201d023b36f54d846314591a002c610ea2ab81c3e9
  
  PKG_INSTALL:=1
 -PKG_BUILD_PARALLEL:=1
