@@ -30,8 +30,10 @@ define Package/turris-version/postinst
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • knot-resolver: aktualizace vylepšující chování bez IPv6
  • mac80211: aktualizace na poslední verzi z LEDE 17.01
+ • pakon: oprava řazení a jiné drobnosti
  • kernel a další balíčky: aktualizace" " • knot-resolver: update improving behaviour without IPv6
  • mac80211: update to the latest version from LEDE 17.01
+ • pakon: fix sorting and other small issues
  • kernel and various minor packages: update"
 }
 endef
