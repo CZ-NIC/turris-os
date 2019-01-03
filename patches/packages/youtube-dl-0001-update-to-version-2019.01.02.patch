@@ -1,5 +1,14 @@
+From dd8144aafd73802499838ae557f3357e33874205 Mon Sep 17 00:00:00 2001
+From: Josef Schlehofer <josef.schlehofer@nic.cz>
+Date: Thu, 3 Jan 2019 01:52:46 +0100
+Subject: [PATCH] youtube-dl: update to version 2019.01.02
+
+---
+ multimedia/youtube-dl/Makefile | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
+
 diff --git a/multimedia/youtube-dl/Makefile b/multimedia/youtube-dl/Makefile
-index eaa43393d..a168f841f 100644
+index eaa43393d..de1aaf7e9 100644
 --- a/multimedia/youtube-dl/Makefile
 +++ b/multimedia/youtube-dl/Makefile
 @@ -8,12 +8,12 @@
@@ -7,18 +16,25 @@ index eaa43393d..a168f841f 100644
  
  PKG_NAME:=youtube-dl
 -PKG_VERSION:=2016.05.16
-+PKG_VERSION:=2018.12.09
++PKG_VERSION:=2019.01.02
  PKG_RELEASE:=1
  
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 -PKG_SOURCE_URL:=http://youtube-dl.org/downloads/$(PKG_VERSION)/
 -PKG_MD5SUM:=f50b53b9938eeb43a2466e451e71f474
 +PKG_SOURCE_URL:=https://yt-dl.org/downloads/$(PKG_VERSION)/
-+PKG_HASH:=fda38f3239094d31fc9df2433aea15b5256c6b23813b0941e81ee5987f071569
++PKG_HASH:=cba43fd3f37d427d90586e94221a46087adf478596e7510f167d42f8be638847
  PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
  
  PKG_LICENSE:=Unlicense
-@@ -37,6 +37,10 @@ define Package/youtube-dl/description
+@@ -32,11 +32,15 @@ define Package/youtube-dl
+ endef
+ 
+ define Package/youtube-dl/description
+-  youtube-dl is a small command-line program to download videos 
+-  from YouTube.com and a few more sites. 
++  youtube-dl is a small command-line program to download videos
++  from YouTube.com and a few more sites.
    It requires the Python interpreter.
  endef
  
@@ -29,3 +45,6 @@ index eaa43393d..a168f841f 100644
  define Package/youtube-dl/install
  	$(INSTALL_DIR) $(1)/usr/bin
  	$(INSTALL_BIN) $(PKG_BUILD_DIR)/youtube-dl $(1)/usr/bin/
+-- 
+2.17.1
+
