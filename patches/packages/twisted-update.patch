@@ -1,33 +1,3 @@
-diff --git a/lang/twisted/Makefile b/lang/twisted/Makefile
-index 0b917ddf..60f6f784 100644
---- a/lang/twisted/Makefile
-+++ b/lang/twisted/Makefile
-@@ -8,13 +8,13 @@
- include $(TOPDIR)/rules.mk
- 
- PKG_NAME:=twisted
--PKG_VERSION:=16.0.0
-+PKG_VERSION:=17.5.0
- PKG_RELEASE:=1
- 
- PKG_SOURCE:=Twisted-$(PKG_VERSION).tar.bz2
- PKG_SOURCE_URL:=https://pypi.python.org/packages/source/T/Twisted \
--		http://twistedmatrix.com/Releases/Twisted/16.0
--PKG_MD5SUM:=c6aa35e9a1e40fce6797247f39647d2a
-+		http://twistedmatrix.com/Releases/Twisted/17.5
-+PKG_MD5SUM:=0fd10e5db7c87daf0d2225cec9929f1040f0c67e9605bfb1a5bc84db8b825e943cfa08e094c32c25c680bddc6587bfdc525a994ad7b785396e5ddb2621649379
- 
- PKG_BUILD_DIR:=$(BUILD_DIR)/Twisted-$(PKG_VERSION)
- PKG_BUILD_DEPENDS:=python python-setuptools USE_MUSL:librpc
-@@ -33,7 +33,7 @@ define Package/twisted
-   CATEGORY:=Languages
-   TITLE:=Python networking engine
-   URL:=http://twistedmatrix.com/
--  DEPENDS:=+python-light +zope-interface
-+  DEPENDS:=+python-light +zope-interface +python-incremental +python-constantly
- endef
- 
- define Package/twisted/description
 diff --git a/lang/twisted/patches/001-fix-zsh-completion.patch b/lang/twisted/patches/001-fix-zsh-completion.patch
 deleted file mode 100644
 index f7b04869..00000000
@@ -71,7 +41,7 @@ index 58c004fc..a0564ea7 100644
 +             "src/twisted/internet/iocpreactor/iocpsupport/iocpsupport.c",
 +@@ -229,7 +224,7 @@ def getSetupArgs(extensions=_EXTENSIONS)
 +     requirements.append("incremental >= 16.10.1")
-  
+
 -     setup_args.update(dict(
 --        packages=getPackages('twisted'),
 -+        packages=getPackages('twisted', ignore=['test']),
@@ -93,7 +63,7 @@ index 58c004fc..a0564ea7 100644
 --        data_files=getDataFiles('twisted'),
 -+        data_files=getDataFiles('twisted', ignore=['test']),
 -         **STATIC_PACKAGE_METADATA))
-- 
+-
 -     setup(**setup_args)
 -diff -Nur a/twisted/python/dist.py b/twisted/python/dist.py
 ---- a/twisted/python/dist.py	2015-11-29 11:30:47.000000000 +0800
@@ -111,6 +81,5 @@ index 58c004fc..a0564ea7 100644
 -             ["twisted/internet/iocpreactor/iocpsupport/iocpsupport.c",
 -              "twisted/internet/iocpreactor/iocpsupport/winsock_pointers.c"],
 +         package_dir={"": "src"},
--- 
+--
 2.18.0
-

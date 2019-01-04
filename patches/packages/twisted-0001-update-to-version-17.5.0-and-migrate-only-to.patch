@@ -1,0 +1,75 @@
+From c8730cff834910bcce5f3bbd253dc72d102b9f8b Mon Sep 17 00:00:00 2001
+From: Josef Schlehofer <josef.schlehofer@nic.cz>
+Date: Sat, 5 Jan 2019 00:49:54 +0100
+Subject: [PATCH] twisted: update to version 17.5.0 and migrate only to python
+
+---
+ lang/twisted/Makefile | 24 +++++++++++++++---------
+ 1 file changed, 15 insertions(+), 9 deletions(-)
+
+diff --git a/lang/twisted/Makefile b/lang/twisted/Makefile
+index 55dae8da8..d07a11134 100644
+--- a/lang/twisted/Makefile
++++ b/lang/twisted/Makefile
+@@ -8,32 +8,34 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=twisted
+-PKG_VERSION:=16.0.0
++PKG_VERSION:=17.5.0
+ PKG_RELEASE:=1
+ 
+ PKG_SOURCE:=Twisted-$(PKG_VERSION).tar.bz2
+ PKG_SOURCE_URL:=https://pypi.python.org/packages/source/T/Twisted \
+-		http://twistedmatrix.com/Releases/Twisted/16.0
+-PKG_MD5SUM:=c6aa35e9a1e40fce6797247f39647d2a
++		https://twistedmatrix.com/Releases/Twisted/17.5
++PKG_MD5SUM:=0fd10e5db7c87daf0d2225cec9929f1040f0c67e9605bfb1a5bc84db8b825e943cfa08e094c32c25c680bddc6587bfdc525a994ad7b785396e5ddb2621649379
++
++HOST_BUILD_DEPENDS:=python3 python3/host
+ 
+ PKG_BUILD_DIR:=$(BUILD_DIR)/Twisted-$(PKG_VERSION)
+-PKG_BUILD_DEPENDS:=python python-setuptools USE_MUSL:librpc
++PKG_BUILD_DEPENDS:=python3 python3-setuptools USE_MUSL:librpc
+ 
+ PKG_LICENSE:=MIT
+ PKG_LICENSE_FILES:=LICENSE
+ PKG_MAINTAINER:=Jeffery To <jeffery.to@gmail.com>
+ 
+ include $(INCLUDE_DIR)/package.mk
+-$(call include_mk, python-package.mk)
++$(call include_mk, python3-package.mk)
+ 
+ define Package/twisted
+   SUBMENU:=Python
+   SECTION:=lang
+-  PROVIDES:=python-twisted
++	PROVIDES:=python3-twisted
+   CATEGORY:=Languages
+   TITLE:=Python networking engine
+   URL:=http://twistedmatrix.com/
+-  DEPENDS:=+python-light +zope-interface
++  DEPENDS:=+python-light +zope-interface +python-incremental +python-constantly
+ endef
+ 
+ define Package/twisted/description
+@@ -56,10 +58,14 @@ define PyPackage/twisted/filespec
+ endef
+ 
+ define Build/Compile
+-	$(call Build/Compile/PyMod,, \
++	$(call Build/Compile/Py3Mod,, \
+ 		install --prefix="/usr" --root="$(PKG_INSTALL_DIR)" --no-compile, \
+ 	)
+ endef
+ 
+-$(eval $(call PyPackage,twisted))
++define Host/Compile
++	$(call Build/Compile/HostPy3Mod,,install --prefix="" --root="$(STAGING_DIR_HOSTPKG)")
++endef
++
++$(eval $(call Py3Package,twisted))
+ $(eval $(call BuildPackage,twisted))
+-- 
+2.17.1
+
