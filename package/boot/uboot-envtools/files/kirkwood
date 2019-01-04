@@ -7,23 +7,24 @@
 
 touch /etc/config/ubootenv
 
-. /lib/kirkwood.sh
 . /lib/uboot-envtools.sh
 . /lib/functions.sh
 
-board=$(kirkwood_board_name)
+board=$(board_name)
 
 case "$board" in
-"ea3500")
-	ubootenv_add_uci_config "/dev/mtd1" "0x0" "0x4000" "0x20000"
-	;;
-"ea4500" | \
-"guruplug-server-plus" | \
-"ib62x0" | \
-"pogo_e02" | \
-"sheevaplug" | \
-"sheevaplug-esata" )
+cloudengines,pogoe02|\
+cloudengines,pogoplugv4|\
+iom,ix2-200|\
+linksys,viper|\
+raidsonic,ib-nas62x0|\
+seagate,dockstar|\
+zyxel,nsa310b|\
+zyxel,nsa325)
 	ubootenv_add_uci_config "/dev/mtd1" "0x0" "0x20000" "0x20000"
+	;;
+linksys,audi)
+	ubootenv_add_uci_config "/dev/mtd1" "0x0" "0x4000" "0x4000"
 	;;
 esac
 

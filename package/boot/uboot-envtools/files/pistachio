@@ -1,6 +1,9 @@
 #!/bin/sh
 #
-# Copyright (C) 2013 OpenWrt.org
+# Copyright (C) 2017 OpenWrt.org
+#
+# This is free software, licensed under the GNU General Public License v2.
+# See /LICENSE for more information.
 #
 
 [ -e /etc/config/ubootenv ] && exit 0
@@ -13,11 +16,8 @@ touch /etc/config/ubootenv
 board=$(board_name)
 
 case "$board" in
-akitio|\
-kd20|\
-stg212)
-	ubootenv_add_uci_config "/dev/ubi0_0" "0x0" "0x4000" "0x1F000" "1"
-	ubootenv_add_uci_config "/dev/ubi0_1" "0x0" "0x4000" "0x1F000" "1"
+img,pistachio-marduk)
+	ubootenv_add_uci_config "/dev/mtd2" "0x0" "0x2000" "0x1000"
 	;;
 esac
 
