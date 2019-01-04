@@ -92,12 +92,12 @@ define Package/uboot-envtools/install
 		$(1)/etc/uci-defaults/30_uboot-envtools \
 	)
 ifneq ($(CONFIG_TARGET_mpc85xx_p2020_nand_TURRISNAND),)
-       $(INSTALL_DIR) $(1)/etc
-       $(INSTALL_CONF) ./files/turris.cfg $(1)/etc/fw_env.config
+	$(INSTALL_DIR) $(1)/etc
+	$(INSTALL_CONF) ./files/turris.cfg $(1)/etc/fw_env.config
 endif
 ifneq ($(CONFIG_TARGET_mvebu_Turris-Omnia),)
-       $(INSTALL_DIR) $(1)/etc
-       $(INSTALL_CONF) ./files/turris-omnia.cfg $(1)/etc/fw_env.config
+	$(INSTALL_DIR) $(1)/etc
+	$(INSTALL_CONF) ./files/turris-omnia.cfg $(1)/etc/fw_env.config
 endif
 endef
 
