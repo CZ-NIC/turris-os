@@ -109,3 +109,4 @@ CONFIG_PACKAGE_python3-pyyaml=y
 
 CONFIG_PACKAGE_shadowsocks-libev=y
 CONFIG_PACKAGE_mwan3=y
+CONFIG_PACKAGE_libarchive=y
