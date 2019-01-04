@@ -1,0 +1,327 @@
+From eaf44798f180b260ada7f4e78b8fd46d4a20287b Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Fri, 4 Jan 2019 12:53:58 +0100
+Subject: [PATCH] libarchive: update and patch version 3.3.3 (security fix)
+
+Issue https://gitlab.labs.nic.cz/turris/openwrt/issues/238
+---
+ libs/libarchive/Makefile                           | 52 +++++++++++-----
+ libs/libarchive/patches/100-CVE-2018-1000880.patch | 37 +++++++++++
+ libs/libarchive/patches/101-CVE-2018-1000879.patch | 43 +++++++++++++
+ libs/libarchive/patches/102-CVE-2018-1000878.patch | 72 ++++++++++++++++++++++
+ libs/libarchive/patches/103-CVE-2018-1000877.patch | 31 ++++++++++
+ 5 files changed, 219 insertions(+), 16 deletions(-)
+ create mode 100644 libs/libarchive/patches/100-CVE-2018-1000880.patch
+ create mode 100644 libs/libarchive/patches/101-CVE-2018-1000879.patch
+ create mode 100644 libs/libarchive/patches/102-CVE-2018-1000878.patch
+ create mode 100644 libs/libarchive/patches/103-CVE-2018-1000877.patch
+
+diff --git a/libs/libarchive/Makefile b/libs/libarchive/Makefile
+index 9c42aad..80061ec 100644
+--- a/libs/libarchive/Makefile
++++ b/libs/libarchive/Makefile
+@@ -8,12 +8,12 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=libarchive
+-PKG_VERSION:=3.1.2
++PKG_VERSION:=3.3.3
+ PKG_RELEASE:=1
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://www.libarchive.org/downloads
+-PKG_MD5SUM:=efad5a503f66329bb9d2f4308b5de98a
++#PKG_HASH:=ed2dbd6954792b2c054ccf8ec4b330a54b85904a80cef477a1c74643ddafa0ce
+ PKG_MAINTAINER:=Johannes Morgenroth <morgenroth@ibr.cs.tu-bs.de>
+ PKG_LICENSE:=BSD-2-Clause
+ 
+@@ -22,37 +22,50 @@ PKG_FIXUP:=autoreconf
+ 
+ include $(INCLUDE_DIR)/package.mk
+ 
+-define Package/$(PKG_NAME)/Default
++define Package/libarchive/Default
+ 	SECTION:=libs
+ 	CATEGORY:=Libraries
+-	DEPENDS:=+zlib
++	DEPENDS:=+zlib +liblzma +libbz2 +libexpat
+ 	TITLE:=Multi-format archive and compression library
+ 	URL:=http://www.libarchive.org/
+ endef
+ 
+-define Package/$(PKG_NAME)
+-	$(call Package/$(PKG_NAME)/Default)
++define Package/libarchive
++	$(call Package/libarchive/Default)
+ 	DEPENDS += +libopenssl
+ endef
+ 
+-define Package/$(PKG_NAME)-noopenssl
+-	$(call Package/$(PKG_NAME)/Default)
++define Package/libarchive-noopenssl
++	$(call Package/libarchive/Default)
+ 	TITLE += (without OpenSSL dependency)
+ 	VARIANT:=noopenssl
+ endef
+ 
++define Package/bsdtar
++	SECTION:=utils
++	CATEGORY:=Utilities
++	SUBMENU:=Compression
++	DEPENDS:=+libarchive-noopenssl
++	TITLE:=BSD variant that supports various file compression formats
++	URL:=http://www.libarchive.org/
++endef
++
++define Package/bsdtar/description
++	Reads a variety of formats including tar, pax, zip, xar, lha, ar,
++	cab, mtree, rar, warc, 7z and ISO images. Writes tar, pax, zip,
++	xar, ar, ISO, mtree and shar archives. Automatically handles
++	archives compressed with gzip, bzip2, lzip, xz, lzma or compress.
++endef
++
+ CONFIGURE_ARGS += \
+ 	--disable-bsdcpio \
+-	--disable-bsdtar \
++	--enable-bsdtar=shared \
+ 	--disable-acl \
+ 	--disable-xattr \
+-	--without-bz2lib \
+-	--without-lzma \
+-	--without-lzmadec \
+-	--without-lzo2 \
+ 	--without-nettle \
+-	--without-expat \
+-	--without-xml2
++	--without-xml2 \
++	--without-lz4 \
++	--without-cng \
+ 
+ ifeq ($(BUILD_VARIANT),noopenssl)
+ 	CONFIGURE_ARGS += --without-openssl
+@@ -71,7 +84,14 @@ define Package/libarchive/install
+ 	$(INSTALL_DIR) $(1)/usr/lib
+ 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/*.so.* $(1)/usr/lib/
+ endef
+-Package/$(PKG_NAME)-noopenssl/install = $(Package/$(PKG_NAME)/install)
++
++define Package/bsdtar/install
++	$(INSTALL_DIR) $(1)/usr/bin
++	$(CP) $(PKG_INSTALL_DIR)/usr/bin/bsdtar $(1)/usr/bin
++endef
++
++Package/libarchive-noopenssl/install = $(Package/libarchive/install)
+ 
+ $(eval $(call BuildPackage,libarchive))
+ $(eval $(call BuildPackage,libarchive-noopenssl))
++$(eval $(call BuildPackage,bsdtar))
+diff --git a/libs/libarchive/patches/100-CVE-2018-1000880.patch b/libs/libarchive/patches/100-CVE-2018-1000880.patch
+new file mode 100644
+index 0000000..0d9566f
+--- /dev/null
++++ b/libs/libarchive/patches/100-CVE-2018-1000880.patch
+@@ -0,0 +1,37 @@
++From 9c84b7426660c09c18cc349f6d70b5f8168b5680 Mon Sep 17 00:00:00 2001
++From: Daniel Axtens <dja@axtens.net>
++Date: Tue, 4 Dec 2018 16:33:42 +1100
++Subject: [PATCH] warc: consume data once read
++
++The warc decoder only used read ahead, it wouldn't actually consume
++data that had previously been printed. This means that if you specify
++an invalid content length, it will just reprint the same data over
++and over and over again until it hits the desired length.
++
++This means that a WARC resource with e.g.
++Content-Length: 666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666665
++but only a few hundred bytes of data, causes a quasi-infinite loop.
++
++Consume data in subsequent calls to _warc_read.
++
++Found with an AFL + afl-rb + qsym setup.
++---
++ libarchive/archive_read_support_format_warc.c | 5 +++++
++ 1 file changed, 5 insertions(+)
++
++diff --git a/libarchive/archive_read_support_format_warc.c b/libarchive/archive_read_support_format_warc.c
++index e8753853f..e8fc8428b 100644
++--- a/libarchive/archive_read_support_format_warc.c
+++++ b/libarchive/archive_read_support_format_warc.c
++@@ -386,6 +386,11 @@ _warc_read(struct archive_read *a, const void **buf, size_t *bsz, int64_t *off)
++ 		return (ARCHIVE_EOF);
++ 	}
++ 
+++	if (w->unconsumed) {
+++		__archive_read_consume(a, w->unconsumed);
+++		w->unconsumed = 0U;
+++	}
+++
++ 	rab = __archive_read_ahead(a, 1U, &nrd);
++ 	if (nrd < 0) {
++ 		*bsz = 0U;
+diff --git a/libs/libarchive/patches/101-CVE-2018-1000879.patch b/libs/libarchive/patches/101-CVE-2018-1000879.patch
+new file mode 100644
+index 0000000..ecd4da5
+--- /dev/null
++++ b/libs/libarchive/patches/101-CVE-2018-1000879.patch
+@@ -0,0 +1,43 @@
++From 15bf44fd2c1ad0e3fd87048b3fcc90c4dcff1175 Mon Sep 17 00:00:00 2001
++From: Daniel Axtens <dja@axtens.net>
++Date: Tue, 4 Dec 2018 14:29:42 +1100
++Subject: [PATCH] Skip 0-length ACL fields
++
++Currently, it is possible to create an archive that crashes bsdtar
++with a malformed ACL:
++
++Program received signal SIGSEGV, Segmentation fault.
++archive_acl_from_text_l (acl=<optimised out>, text=0x7e2e92 "", want_type=<optimised out>, sc=<optimised out>) at libarchive/archive_acl.c:1726
++1726				switch (*s) {
++(gdb) p n
++$1 = 1
++(gdb) p field[n]
++$2 = {start = 0x0, end = 0x0}
++
++Stop this by checking that the length is not zero before beginning
++the switch statement.
++
++I am pretty sure this is the bug mentioned in the qsym paper [1],
++and I was able to replicate it with a qsym + AFL + afl-rb setup.
++
++[1] https://www.usenix.org/conference/usenixsecurity18/presentation/yun
++---
++ libarchive/archive_acl.c | 5 +++++
++ 1 file changed, 5 insertions(+)
++
++diff --git a/libarchive/archive_acl.c b/libarchive/archive_acl.c
++index 512beee1f..7beeee86e 100644
++--- a/libarchive/archive_acl.c
+++++ b/libarchive/archive_acl.c
++@@ -1723,6 +1723,11 @@ archive_acl_from_text_l(struct archive_acl *acl, const char *text,
++ 			st = field[n].start + 1;
++ 			len = field[n].end - field[n].start;
++ 
+++			if (len == 0) {
+++				ret = ARCHIVE_WARN;
+++				continue;
+++			}
+++
++ 			switch (*s) {
++ 			case 'u':
++ 				if (len == 1 || (len == 4
+diff --git a/libs/libarchive/patches/102-CVE-2018-1000878.patch b/libs/libarchive/patches/102-CVE-2018-1000878.patch
+new file mode 100644
+index 0000000..df48969
+--- /dev/null
++++ b/libs/libarchive/patches/102-CVE-2018-1000878.patch
+@@ -0,0 +1,72 @@
++From bfcfe6f04ed20db2504db8a254d1f40a1d84eb28 Mon Sep 17 00:00:00 2001
++From: Daniel Axtens <dja@axtens.net>
++Date: Tue, 4 Dec 2018 00:55:22 +1100
++Subject: [PATCH] rar: file split across multi-part archives must match
++
++Fuzzing uncovered some UAF and memory overrun bugs where a file in a
++single file archive reported that it was split across multiple
++volumes. This was caused by ppmd7 operations calling
++rar_br_fillup. This would invoke rar_read_ahead, which would in some
++situations invoke archive_read_format_rar_read_header.  That would
++check the new file name against the old file name, and if they didn't
++match up it would free the ppmd7 buffer and allocate a new
++one. However, because the ppmd7 decoder wasn't actually done with the
++buffer, it would continue to used the freed buffer. Both reads and
++writes to the freed region can be observed.
++
++This is quite tricky to solve: once the buffer has been freed it is
++too late, as the ppmd7 decoder functions almost universally assume
++success - there's no way for ppmd_read to signal error, nor are there
++good ways for functions like Range_Normalise to propagate them. So we
++can't detect after the fact that we're in an invalid state - e.g. by
++checking rar->cursor, we have to prevent ourselves from ever ending up
++there. So, when we are in the dangerous part or rar_read_ahead that
++assumes a valid split, we set a flag force read_header to either go
++down the path for split files or bail. This means that the ppmd7
++decoder keeps a valid buffer and just runs out of data.
++
++Found with a combination of AFL, afl-rb and qsym.
++---
++ libarchive/archive_read_support_format_rar.c | 9 +++++++++
++ 1 file changed, 9 insertions(+)
++
++diff --git a/libarchive/archive_read_support_format_rar.c b/libarchive/archive_read_support_format_rar.c
++index 6f419c270..a8cc5c94d 100644
++--- a/libarchive/archive_read_support_format_rar.c
+++++ b/libarchive/archive_read_support_format_rar.c
++@@ -258,6 +258,7 @@ struct rar
++   struct data_block_offsets *dbo;
++   unsigned int cursor;
++   unsigned int nodes;
+++  char filename_must_match;
++ 
++   /* LZSS members */
++   struct huffman_code maincode;
++@@ -1560,6 +1561,12 @@ read_header(struct archive_read *a, struct archive_entry *entry,
++     }
++     return ret;
++   }
+++  else if (rar->filename_must_match)
+++  {
+++    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
+++      "Mismatch of file parts split across multi-volume archive");
+++    return (ARCHIVE_FATAL);
+++  }
++ 
++   rar->filename_save = (char*)realloc(rar->filename_save,
++                                       filename_size + 1);
++@@ -2933,12 +2940,14 @@ rar_read_ahead(struct archive_read *a, size_t min, ssize_t *avail)
++     else if (*avail == 0 && rar->main_flags & MHD_VOLUME &&
++       rar->file_flags & FHD_SPLIT_AFTER)
++     {
+++      rar->filename_must_match = 1;
++       ret = archive_read_format_rar_read_header(a, a->entry);
++       if (ret == (ARCHIVE_EOF))
++       {
++         rar->has_endarc_header = 1;
++         ret = archive_read_format_rar_read_header(a, a->entry);
++       }
+++      rar->filename_must_match = 0;
++       if (ret != (ARCHIVE_OK))
++         return NULL;
++       return rar_read_ahead(a, min, avail);
+diff --git a/libs/libarchive/patches/103-CVE-2018-1000877.patch b/libs/libarchive/patches/103-CVE-2018-1000877.patch
+new file mode 100644
+index 0000000..7998b55
+--- /dev/null
++++ b/libs/libarchive/patches/103-CVE-2018-1000877.patch
+@@ -0,0 +1,31 @@
++From 021efa522ad729ff0f5806c4ce53e4a6cc1daa31 Mon Sep 17 00:00:00 2001
++From: Daniel Axtens <dja@axtens.net>
++Date: Tue, 20 Nov 2018 17:56:29 +1100
++Subject: [PATCH] Avoid a double-free when a window size of 0 is specified
++
++new_size can be 0 with a malicious or corrupted RAR archive.
++
++realloc(area, 0) is equivalent to free(area), so the region would
++be free()d here and the free()d again in the cleanup function.
++
++Found with a setup running AFL, afl-rb, and qsym.
++---
++ libarchive/archive_read_support_format_rar.c | 5 +++++
++ 1 file changed, 5 insertions(+)
++
++diff --git a/libarchive/archive_read_support_format_rar.c b/libarchive/archive_read_support_format_rar.c
++index 234522229..6f419c270 100644
++--- a/libarchive/archive_read_support_format_rar.c
+++++ b/libarchive/archive_read_support_format_rar.c
++@@ -2300,6 +2300,11 @@ parse_codes(struct archive_read *a)
++       new_size = DICTIONARY_MAX_SIZE;
++     else
++       new_size = rar_fls((unsigned int)rar->unp_size) << 1;
+++    if (new_size == 0) {
+++      archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
+++                        "Zero window size is invalid.");
+++      return (ARCHIVE_FATAL);
+++    }
++     new_window = realloc(rar->lzss.window, new_size);
++     if (new_window == NULL) {
++       archive_set_error(&a->archive, ENOMEM,
+-- 
+2.7.4
+
