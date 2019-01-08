@@ -112,3 +112,4 @@ CONFIG_PACKAGE_mwan3=y
 CONFIG_PACKAGE_libarchive=y
 CONFIG_PACKAGE_keepalived=y
 CONFIG_PACKAGE_mwan3-luci=y
+CONFIG_PACKAGE_tor=y
