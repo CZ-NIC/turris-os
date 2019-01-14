@@ -455,3 +455,6 @@ CONFIG_PACKAGE_travelmate=y
 
 # youtube-dl
 CONFIG_PACKAGE_youtube-dl=yes
+
+# twisted
+CONFIG_PACKAGE_python3-twisted=y
