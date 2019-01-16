@@ -5017,7 +5017,7 @@ CONFIG_PACKAGE_fdisk=y
 # CONFIG_PACKAGE_gettext is not set
 # CONFIG_PACKAGE_gpioctl-sysfs is not set
 # CONFIG_PACKAGE_grep is not set
-# CONFIG_PACKAGE_gzip is not set
+CONFIG_PACKAGE_gzip=y
 # CONFIG_PACKAGE_haserl is not set
 # CONFIG_PACKAGE_hashdeep is not set
 # CONFIG_PACKAGE_haveged is not set
