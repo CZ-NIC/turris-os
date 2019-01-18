@@ -48,8 +48,8 @@ index 9bf7d4b1a..1681d3102 100644
 -	$(RM) -r $(1)/opt/mozilla-iot/gateway/node_modules/ursa-optional/build/Release/ursaNative.node
 -	$(RM) -r $(1)/opt/mozilla-iot/gateway/node_modules/ursa-optional/build/Release/obj.target/ursaNative.node
 +	$(RM) -r $(1)/srv/mozilla-iot/gateway/node_modules/sqlite3/lib/binding/node-v57-linux-x64
-+	$(RM) -r $(1)/srv/mozilla-iot/gateway/node_modules/ursa-srvional/build/Release/ursaNative.node
-+	$(RM) -r $(1)/srv/mozilla-iot/gateway/node_modules/ursa-srvional/build/Release/obj.target/ursaNative.node
++	$(RM) -r $(1)/srv/mozilla-iot/gateway/node_modules/ursa-optional/build/Release/ursaNative.node
++	$(RM) -r $(1)/srv/mozilla-iot/gateway/node_modules/ursa-optional/build/Release/obj.target/ursaNative.node
  
 -	$(INSTALL_DIR) $(1)/opt/mozilla-iot/gateway/node_modules/sqlite3/lib/binding/node-v57-linux-arm/
 +	$(INSTALL_DIR) $(1)/srv/mozilla-iot/gateway/node_modules/sqlite3/lib/binding/node-v57-linux-arm/
