@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.11.2
+PKG_VERSION:=3.11.3
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,17 +28,15 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • knot-resolver: aktualizace vylepšující chování bez IPv6
- • mac80211: aktualizace na poslední verzi z LEDE 17.01
- • pakon: oprava řazení a jiné drobnosti
- • foris: interní sběrnice nahrazena mosquitem, pokud mosquito používáte, zkontrolujte si že je stále aktivované
- • uboot-mkimage a dtc: nové balíčky
- • kernel, samba, wget a další balíčky: aktualizace" " • knot-resolver: update improving behaviour without IPv6
- • mac80211: update to the latest version from LEDE 17.01
- • pakon: fix sorting and other small issues
- • foris: internal bus replaced by mosquito, if you are using mosquito, make sure it is still active
- • uboot-mkimage and dtc: new packages
- • kernel, samba, wget and various minor packages: update"
+create_notification -s news " • openssh, zmq, keepalived: bezpečnostní aktualizace
+ • tvheadend, mpc, youtube-dl, czmq a další balíčky: aktualizace
+ • kernel: aktualizace
+ • logread: oprava
+ • foris-pakon: oprava pro Safari" " • openssh, zmq, keepalived: security updates
+ • tvheadend, mpc, youtube-dl, czmq and varios minor packages: update
+ • kernel: update
+ • logread: fix
+ • foris-pakon: fix for Safari"
 }
 endef
 
