@@ -31,7 +31,7 @@ index 9bf7d4b1a..1681d3102 100644
    DEPENDS+= +MOIT_enable-plugin-support:git-http
    MENU:=1
  endef
-@@ -65,18 +65,19 @@ define Build/Compile
+@@ -65,18 +65,23 @@ define Build/Compile
  endef
  
  define Package/node-mozilla-iot-gateway/install
@@ -56,6 +56,10 @@ index 9bf7d4b1a..1681d3102 100644
  	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/things-gateway/node_modules/sqlite3/lib/binding/node-v57-linux-arm/node_sqlite3.node \
 -		$(1)/opt/mozilla-iot/gateway/node_modules/sqlite3/lib/binding/node-v57-linux-arm/
 +		$(1)/srv/mozilla-iot/gateway/node_modules/sqlite3/lib/binding/node-v57-linux-arm/
++
++	# Custom configuration
++	sed -i "s|home = .*|home = '/srv/mozilla-iot-home';|" $(1)/srv/mozilla-iot/gateway/config/default.js
++	sed -i "s|behindForwarding:.*|behindForwarding: false,|" $(1)/srv/mozilla-iot/gateway/config/default.js
  
  	$(INSTALL_DIR) $(1)/etc/init.d
  	$(INSTALL_BIN) ./files/mozilla-iot-gateway.init $(1)/etc/init.d/mozilla-iot-gateway
