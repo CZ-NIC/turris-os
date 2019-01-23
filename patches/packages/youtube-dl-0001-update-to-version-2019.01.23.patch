@@ -1,32 +1,38 @@
-From ffab7b88a9cb834afe0abeca5fad556ce0412d47 Mon Sep 17 00:00:00 2001
+From f3a4107ab5d16156c3c713d368d210902fa16a8d Mon Sep 17 00:00:00 2001
 From: Josef Schlehofer <josef.schlehofer@nic.cz>
-Date: Fri, 18 Jan 2019 11:36:00 +0100
-Subject: [PATCH] youtube-dl: update to version 2019.01.17
+Date: Wed, 23 Jan 2019 16:24:53 +0100
+Subject: [PATCH] youtube-dl: update to version 2019.01.23
 
 ---
- multimedia/youtube-dl/Makefile | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ multimedia/youtube-dl/Makefile | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
 diff --git a/multimedia/youtube-dl/Makefile b/multimedia/youtube-dl/Makefile
-index eaa43393d..d276fe25c 100644
+index eaa43393d..5ea9c08d8 100644
 --- a/multimedia/youtube-dl/Makefile
 +++ b/multimedia/youtube-dl/Makefile
-@@ -8,12 +8,12 @@
+@@ -8,17 +8,17 @@
  include $(TOPDIR)/rules.mk
  
  PKG_NAME:=youtube-dl
 -PKG_VERSION:=2016.05.16
-+PKG_VERSION:=2019.01.17
++PKG_VERSION:=2019.01.23
  PKG_RELEASE:=1
  
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 -PKG_SOURCE_URL:=http://youtube-dl.org/downloads/$(PKG_VERSION)/
 -PKG_MD5SUM:=f50b53b9938eeb43a2466e451e71f474
 +PKG_SOURCE_URL:=https://yt-dl.org/downloads/$(PKG_VERSION)/
-+PKG_HASH:=278f04408ce2f80d58843b1d4ab1b5e5fa913269bd728a13970bac803697aa3b
++PKG_HASH:=06e8278214aebad6592611bb63754a8dcfe6df476e7b0db52c3bb4136de486bc
  PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
  
  PKG_LICENSE:=Unlicense
+ PKG_LICENSE_FILES:=LICENSE
+-PKG_MAINTAINER:=Adrian Panella <ianchi74@outlook.com>
++PKG_MAINTAINER:=Adrian Panella <ianchi74@outlook.com>, Josef Schlehofer <pepe.schlehofer@gmail.com>
+ 
+ 
+ include $(INCLUDE_DIR)/package.mk
 @@ -32,11 +32,15 @@ define Package/youtube-dl
  endef
  
