@@ -33,7 +33,7 @@ create_notification -s news " • openssh, zmq, keepalived: bezpečnostní aktua
  • kernel: aktualizace
  • logread: oprava
  • foris-pakon: oprava pro Safari" " • openssh, zmq, keepalived: security updates
- • tvheadend, mpc, youtube-dl, czmq and varios minor packages: update
+ • tvheadend, mpc, youtube-dl, czmq, wireguard, and various minor packages: update
  • kernel: update
  • logread: fix
  • foris-pakon: fix for Safari"
