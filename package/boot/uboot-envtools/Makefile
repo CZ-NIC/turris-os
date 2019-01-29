@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=uboot-envtools
 PKG_DISTNAME:=u-boot
 PKG_VERSION:=2018.03
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE:=$(PKG_DISTNAME)-$(PKG_VERSION).tar.xz
@@ -72,7 +72,14 @@ define Build/Compile
 		CROSS_COMPILE="$(TARGET_CROSS)" \
 		TARGET_CFLAGS="$(TARGET_CFLAGS)" \
 		HOSTLDFLAGS= \
-		defconfig envtools cross_tools
+		no-dot-config-targets=envtools \
+		envtools
+	mv $(PKG_BUILD_DIR)/tools/env/fw_printenv $(PKG_BUILD_DIR)/tools/env/fw_printenv.bak
+	$(MAKE) -C $(PKG_BUILD_DIR) \
+		CROSS_COMPILE="$(TARGET_CROSS)" \
+		TARGET_CFLAGS="$(TARGET_CFLAGS)" \
+		HOSTLDFLAGS= \
+		defconfig	cross_tools
 endef
 
 define Package/uboot-envtools/conffiles
@@ -82,7 +89,7 @@ endef
 
 define Package/uboot-envtools/install
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/tools/env/fw_printenv $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/tools/env/fw_printenv.bak $(1)/usr/sbin
 	$(LN) fw_printenv $(1)/usr/sbin/fw_setenv
 	$(INSTALL_DIR) $(1)/lib
 	$(INSTALL_DATA) ./files/uboot-envtools.sh $(1)/lib
