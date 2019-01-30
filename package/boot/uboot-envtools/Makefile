@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=uboot-envtools
 PKG_DISTNAME:=u-boot
 PKG_VERSION:=2018.03
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE:=$(PKG_DISTNAME)-$(PKG_VERSION).tar.xz
@@ -89,7 +89,7 @@ endef
 
 define Package/uboot-envtools/install
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/tools/env/fw_printenv.bak $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/tools/env/fw_printenv.bak $(1)/usr/sbin/fw_printenv
 	$(LN) fw_printenv $(1)/usr/sbin/fw_setenv
 	$(INSTALL_DIR) $(1)/lib
 	$(INSTALL_DATA) ./files/uboot-envtools.sh $(1)/lib
