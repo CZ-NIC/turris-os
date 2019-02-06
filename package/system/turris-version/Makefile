@@ -33,11 +33,13 @@ create_notification -s news " • openssh, zmq, keepalived: bezpečnostní aktua
  • kernel: aktualizace
  • foris: sjednocení vzhledu napříč produkty Turris
  • logread: oprava
+ • turris-netboot: základní podpora bootování Turris MOX po síti
  • foris-pakon: oprava pro Safari" " • openssh, zmq, keepalived: security updates
  • tvheadend, mpc, unbound, youtube-dl, czmq, wireguard, and various minor packages: update
  • kernel: update
  • foris: unification of themes accross all Turris products
  • logread: fix
+ • turris-netboot: initial support for booting Turris MOX over network
  • foris-pakon: fix for Safari"
 }
 endef
