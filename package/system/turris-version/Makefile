@@ -29,12 +29,14 @@ define Package/turris-version/postinst
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • openssh, zmq, keepalived: bezpečnostní aktualizace
- • tvheadend, mpc, youtube-dl, czmq a další balíčky: aktualizace
+ • tvheadend, mpc, unbound, youtube-dl, czmq a další balíčky: aktualizace
  • kernel: aktualizace
+ • foris: sjednocení vzhledu napříč produkty Turris
  • logread: oprava
  • foris-pakon: oprava pro Safari" " • openssh, zmq, keepalived: security updates
- • tvheadend, mpc, youtube-dl, czmq, wireguard, and various minor packages: update
+ • tvheadend, mpc, unbound, youtube-dl, czmq, wireguard, and various minor packages: update
  • kernel: update
+ • foris: unification of themes accross all Turris products
  • logread: fix
  • foris-pakon: fix for Safari"
 }
