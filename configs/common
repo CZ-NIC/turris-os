@@ -462,3 +462,11 @@ CONFIG_PACKAGE_python3-twisted=y
 # dovecot
 CONFIG_PACKAGE_dovecot=y
 CONFIG_PACKAGE_dovecot-utils=y
+
+# bird
+CONFIG_PACKAGE_bird4=y
+CONFIG_PACKAGE_birdc4=y
+CONFIG_PACKAGE_birdcl4=y
+CONFIG_PACKAGE_bird6=y
+CONFIG_PACKAGE_birdc6=y
+CONFIG_PACKAGE_birdcl6=y
