@@ -1,0 +1,244 @@
+From 657b7700fb90e685040a1e11aabd75fc3d408ccf Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Wed, 16 Jan 2019 13:26:41 +0100
+Subject: [PATCH] zmq: update to version 4.3.1 (security fix)
+
+CVE-2019-6250 - https://nvd.nist.gov/vuln/detail/CVE-2019-6250
+
+Issue https://gitlab.labs.nic.cz/turris/turris-os-packages/issues/303
+---
+ libs/zmq/Makefile                                  | 11 +--
+ .../020-map_with_const_string_with_ublic++.patch   | 45 +++---------
+ .../030-streamoff_missing_with_ulibc++.patch       | 10 ---
+ .../040-fix_GNUC_conditional_for_GCC5.patch        | 11 ---
+ libs/zmq/patches/100-fix-cxx-include-order.patch   | 84 ----------------------
+ 5 files changed, 14 insertions(+), 147 deletions(-)
+ delete mode 100644 libs/zmq/patches/030-streamoff_missing_with_ulibc++.patch
+ delete mode 100644 libs/zmq/patches/040-fix_GNUC_conditional_for_GCC5.patch
+ delete mode 100644 libs/zmq/patches/100-fix-cxx-include-order.patch
+
+diff --git a/libs/zmq/Makefile b/libs/zmq/Makefile
+index 5ad5384..b9f2c8d 100644
+--- a/libs/zmq/Makefile
++++ b/libs/zmq/Makefile
+@@ -1,4 +1,4 @@
+-# 
++#
+ # Copyright (C) 2016 OpenWrt.org
+ #
+ # This is free software, licensed under the GNU General Public License v2.
+@@ -10,21 +10,22 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=zeromq
+-PKG_VERSION:=4.1.4
++PKG_VERSION:=4.3.1
+ PKG_RELEASE:=1
+ PKG_MAINTAINER:=Dirk Chang <dirk@kooiot.com>
+ PKG_LICENSE:=GPL-3.0+
+ PKG_LICENSE_FILES:=LICENCE.txt
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+-PKG_SOURCE_URL:= https://github.com/zeromq/zeromq4-1/releases/download/v$(PKG_VERSION)/
+-PKG_MD5SUM:=a611ecc93fffeb6d058c0e6edf4ad4fb
++PKG_SOURCE_URL:= https://github.com/zeromq/libzmq/releases/download/v$(PKG_VERSION)/
++PKG_MD5SUM:=bcbabe1e2c7d0eec4ed612e10b94b112dd5f06fcefa994a0c79a45d835cd21eb
+ 
+ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
+ PKG_BUILD_DEPENDS:=libuuid
+ 
+ PKG_FIXUP:=autoreconf
+ 
++TARGET_LDFLAGS += -lm
+ PKG_INSTALL:=1
+ 
+ 
+@@ -49,7 +50,7 @@ define Package/libzmq-curve
+   $(call Package/libzmq/default)
+   VARIANT:=curve
+   TITLE+= (CurveZMQ)
+-  DEPENDS+=+libsodium 
++  DEPENDS+=+libsodium
+ endef
+ 
+ define Package/libzmq-nc/description
+diff --git a/libs/zmq/patches/020-map_with_const_string_with_ublic++.patch b/libs/zmq/patches/020-map_with_const_string_with_ublic++.patch
+index 3e13e27..8a90780 100644
+--- a/libs/zmq/patches/020-map_with_const_string_with_ublic++.patch
++++ b/libs/zmq/patches/020-map_with_const_string_with_ublic++.patch
+@@ -1,41 +1,12 @@
+---- a/src/metadata.hpp
+-+++ b/src/metadata.hpp
+-@@ -41,7 +41,7 @@ namespace zmq
+-     {
+-         public:
+- 
+--            typedef std::map <std::string, const std::string> dict_t;
+-+            typedef std::map <std::string, std::string> dict_t;
+- 
+-             metadata_t (const dict_t &dict);
+-             virtual ~metadata_t ();
+---- a/src/socket_base.cpp
+-+++ b/src/socket_base.cpp
+-@@ -30,6 +30,7 @@
++Index: zeromq-4.2.2/src/socket_base.cpp
++===================================================================
++--- zeromq-4.2.2.orig/src/socket_base.cpp
+++++ zeromq-4.2.2/src/socket_base.cpp
++@@ -31,6 +31,7 @@
+  #include <new>
+  #include <string>
+  #include <algorithm>
+ +#include <ctype.h>
+- 
+- #include "platform.hpp"
+- 
+---- a/src/stream_engine.cpp
+-+++ b/src/stream_engine.cpp
+-@@ -208,7 +208,7 @@ void zmq::stream_engine_t::plug (io_thre
+-             //  Compile metadata.
+-             typedef metadata_t::dict_t properties_t;
+-             properties_t properties;
+--            properties.insert(std::make_pair("Peer-Address", peer_address));
+-+            properties.insert(std::make_pair<std::string, std::string>("Peer-Address", peer_address));
+-             zmq_assert (metadata == NULL);
+-             metadata = new (std::nothrow) metadata_t (properties);
+-         }
+-@@ -815,7 +815,7 @@ void zmq::stream_engine_t::mechanism_rea
+- 
+-     //  If we have a peer_address, add it to metadata
+-     if (!peer_address.empty()) {
+--        properties.insert(std::make_pair("Peer-Address", peer_address));
+-+        properties.insert(std::make_pair<std::string, std::string>("Peer-Address", peer_address));
+-     }
+- 
+-     //  Add ZAP properties.
++
++ #include "macros.hpp"
++
+diff --git a/libs/zmq/patches/030-streamoff_missing_with_ulibc++.patch b/libs/zmq/patches/030-streamoff_missing_with_ulibc++.patch
+deleted file mode 100644
+index 8c137c8..0000000
+--- a/libs/zmq/patches/030-streamoff_missing_with_ulibc++.patch
++++ /dev/null
+@@ -1,10 +0,0 @@
+---- a/src/blob.hpp
+-+++ b/src/blob.hpp
+-@@ -31,6 +31,7 @@
+- #define __ZMQ_BLOB_HPP_INCLUDED__
+- 
+- #include <string>
+-+#include <ios>
+- #include <string.h>
+- 
+- // Borrowed from id3lib_strings.h:
+diff --git a/libs/zmq/patches/040-fix_GNUC_conditional_for_GCC5.patch b/libs/zmq/patches/040-fix_GNUC_conditional_for_GCC5.patch
+deleted file mode 100644
+index dea9b48..0000000
+--- a/libs/zmq/patches/040-fix_GNUC_conditional_for_GCC5.patch
++++ /dev/null
+@@ -1,11 +0,0 @@
+---- a/src/blob.hpp
+-+++ b/src/blob.hpp
+-@@ -38,7 +38,7 @@
+- // They seem to be doing something for MSC, but since I only have gcc, I'll just do that
+- // Assuming this is uneccessary on GCC 4
+- // #if (defined(__GNUC__) && (__GNUC__ >= 3) || (defined(_MSC_VER) && _MSC_VER > 1000))
+--#if (defined(__GNUC__) && (__GNUC__ >= 3) && (__GNUC__ <= 4))
+-+#if (defined(__GNUC__) && (__GNUC__ >= 3))
+- namespace std
+- {
+-   template<>
+diff --git a/libs/zmq/patches/100-fix-cxx-include-order.patch b/libs/zmq/patches/100-fix-cxx-include-order.patch
+deleted file mode 100644
+index 120e965..0000000
+--- a/libs/zmq/patches/100-fix-cxx-include-order.patch
++++ /dev/null
+@@ -1,84 +0,0 @@
+---- a/src/mtrie.cpp
+-+++ b/src/mtrie.cpp
+-@@ -27,11 +27,11 @@
+-     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+- */
+- 
+--#include <stdlib.h>
+--
+- #include <new>
+- #include <algorithm>
+- 
+-+#include <stdlib.h>
+-+
+- #include "platform.hpp"
+- #if defined ZMQ_HAVE_WINDOWS
+- #include "windows.hpp"
+---- a/src/raw_encoder.cpp
+-+++ b/src/raw_encoder.cpp
+-@@ -27,6 +27,11 @@
+-     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+- */
+- 
+-+#include <basic_definitions>
+-+#include <exception>
+-+#include <cstddef>
+-+#include <algorithm>
+-+
+- #include "encoder.hpp"
+- #include "raw_encoder.hpp"
+- #include "likely.hpp"
+---- a/src/trie.cpp
+-+++ b/src/trie.cpp
+-@@ -27,11 +27,11 @@
+-     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+- */
+- 
+--#include <stdlib.h>
+--
+- #include <new>
+- #include <algorithm>
+- 
+-+#include <stdlib.h>
+-+
+- #include "platform.hpp"
+- #if defined ZMQ_HAVE_WINDOWS
+- #include "windows.hpp"
+---- a/src/encoder.hpp
+-+++ b/src/encoder.hpp
+-@@ -39,7 +39,6 @@
+- #include <stddef.h>
+- #include <string.h>
+- #include <stdlib.h>
+--#include <algorithm>
+- 
+- #include "err.hpp"
+- #include "msg.hpp"
+---- a/src/v1_encoder.cpp
+-+++ b/src/v1_encoder.cpp
+-@@ -27,6 +27,11 @@
+-     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+- */
+- 
+-+#include <basic_definitions>
+-+#include <exception>
+-+#include <cstddef>
+-+#include <algorithm>
+-+
+- #include "encoder.hpp"
+- #include "v1_encoder.hpp"
+- #include "likely.hpp"
+---- a/src/v2_encoder.cpp
+-+++ b/src/v2_encoder.cpp
+-@@ -27,6 +27,11 @@
+-     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+- */
+- 
+-+#include <basic_definitions>
+-+#include <exception>
+-+#include <cstddef>
+-+#include <algorithm>
+-+
+- #include "v2_protocol.hpp"
+- #include "v2_encoder.hpp"
+- #include "likely.hpp"
+-- 
+2.7.4
+

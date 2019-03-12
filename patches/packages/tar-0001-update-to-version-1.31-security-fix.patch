@@ -1,0 +1,62 @@
+From 4d06e222b8000075062a7753dcb4cb0e2e5194a3 Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Tue, 29 Jan 2019 18:09:16 +0100
+Subject: [PATCH] tar: update to version 1.31 (security fix)
+
+Issue https://gitlab.labs.nic.cz/turris/openwrt/issues/257
+---
+ utils/tar/Makefile | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
+
+diff --git a/utils/tar/Makefile b/utils/tar/Makefile
+index 96a6421..a263ca6 100644
+--- a/utils/tar/Makefile
++++ b/utils/tar/Makefile
+@@ -1,5 +1,5 @@
+ #
+-# Copyright (C) 2008-2016 OpenWrt.org
++# Copyright (C) 2008-2017 OpenWrt.org
+ #
+ # This is free software, licensed under the GNU General Public License v2.
+ # See /LICENSE for more information.
+@@ -8,20 +8,22 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=tar
+-PKG_VERSION:=1.29
+-PKG_RELEASE:=2
++PKG_VERSION:=1.31
++PKG_RELEASE:=1
+ 
+-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
++PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+ PKG_SOURCE_URL:=@GNU/$(PKG_NAME)
+-PKG_MD5SUM:=955cd533955acb1804b83fd70218da51
+-PKG_MAINTAINER:=Álvaro Fernández Rojas <noltari@gmail.com>
++PKG_HASH:=37f3ef1ceebd8b7e1ebf5b8cc6c65bb8ebf002c7d049032bf456860f25ec2dc1
+ 
++PKG_MAINTAINER:=Álvaro Fernández Rojas <noltari@gmail.com>
+ PKG_LICENSE:=GPL-3.0
+ PKG_LICENSE_FILES:=COPYING
++PKG_CPE_ID:=cpe:/a:gnu:tar
+ 
++PKG_BUILD_PARALLEL:=1
+ PKG_INSTALL:=1
+ 
+-BUILD_DEPENDS:=xz
++PKG_BUILD_DEPENDS:=xz
+ 
+ include $(INCLUDE_DIR)/package.mk
+ 
+@@ -31,7 +33,7 @@ define Package/tar
+   DEPENDS:=+PACKAGE_TAR_POSIX_ACL:libacl +PACKAGE_TAR_XATTR:libattr +PACKAGE_TAR_BZIP2:bzip2
+   EXTRA_DEPENDS:=$(if $(CONFIG_PACKAGE_TAR_XZ),xz)
+   TITLE:=GNU tar
+-  URL:=http://www.gnu.org/software/tar/
++  URL:=https://www.gnu.org/software/tar/
+   MENU:=1
+ endef
+ 
+-- 
+2.7.4
+

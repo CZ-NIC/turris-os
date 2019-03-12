@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.11.1
+PKG_VERSION:=3.11.3
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,19 +28,19 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • netdata: aktualizace na Omnii
- • subversion, unbound, git, ath10k-ct, miniupnpd, youtube-dl, mwan3: aktualizace
- • samba4, bzip2, openssl, tiff, apache, sqlite3: bezpečnostní aktualizace
- • pakon: vylepšení archivace
- • majordomo: odstraněn ze seznamu na stránce updater, lze stále doinstalovat ručně
- • mdadm, webapps, nextcloud: drobné opravy
- • tvheadend: oprava úvodního nastavení" " • netdata: update for Omnia
- • subversion, unbound, git, ath10k-ct, miniupnpd, youtube-dl, mwan3: updates
- • samba4, bzip2, openssl, tiff, apache, sqlite3: security updates
- • pakon: further improvements of archivation
- • majordomo: removed from the list of applications on updater page, still available for manual installation
- • mdadm, webapps, nextcloud: minor fixes
- • tvheadend: fix first time setup"
+create_notification -s news " • openssh, zmq, keepalived: bezpečnostní aktualizace
+ • tvheadend, mpc, unbound, youtube-dl, czmq a další balíčky: aktualizace
+ • kernel: aktualizace
+ • foris: sjednocení vzhledu napříč produkty Turris
+ • logread: oprava
+ • turris-netboot: základní podpora bootování Turris MOX po síti
+ • foris-pakon: oprava pro Safari" " • openssh, zmq, keepalived: security updates
+ • tvheadend, mpc, unbound, youtube-dl, czmq, wireguard, and various minor packages: update
+ • kernel: update
+ • foris: unification of themes accross all Turris products
+ • logread: fix
+ • turris-netboot: initial support for booting Turris MOX over network
+ • foris-pakon: fix for Safari"
 }
 endef
 
@@ -58,7 +58,7 @@ define Package/turris-version/postinst
 			create_notification -s error "You are running container $$name from internal memory which is not recommended and can severally damage your router! This is not covered by warranty! Please use storage module in Foris to move it somewhere else!"
 		fi
 	done
-}
+} 2> /dev/null
 endef
 
 $(eval $(call BuildPackage,turris-version))

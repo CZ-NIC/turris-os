@@ -1,0 +1,31 @@
+Index: compat-wireless-2017-01-31/backport-include/linux/mm.h
+===================================================================
+--- compat-wireless-2017-01-31.orig/backport-include/linux/mm.h
++++ compat-wireless-2017-01-31/backport-include/linux/mm.h
+@@ -40,7 +40,7 @@ long backport_get_user_pages_locked(unsi
+ 		    int write, int force, struct page **pages, int *locked)
+ {
+ 	return get_user_pages_locked(current, current->mm, start, nr_pages,
+-		    write, force, pages, locked);
++		    (write ? FOLL_WRITE : 0 ) | (force ? FOLL_FORCE : 0), pages, locked);
+ }
+ #define get_user_pages_locked LINUX_BACKPORT(get_user_pages_locked)
+ 
+@@ -49,7 +49,7 @@ long backport_get_user_pages_unlocked(un
+ 				      int write, int force, struct page **pages)
+ {
+ 	return get_user_pages_unlocked(current, current->mm, start,  nr_pages,
+-		    write, force, pages);
++		    pages, (write ? FOLL_WRITE : 0 ) | (force ? FOLL_FORCE : 0));
+ }
+ #define get_user_pages_unlocked LINUX_BACKPORT(get_user_pages_unlocked)
+ #endif
+@@ -61,7 +61,7 @@ long backport_get_user_pages(unsigned lo
+ 			    struct vm_area_struct **vmas)
+ {
+ 	return get_user_pages(current, current->mm, start,  nr_pages,
+-		    write, force, pages, vmas);
++		    (write ? FOLL_WRITE : 0 ) | (force ? FOLL_FORCE : 0), pages, vmas);
+ }
+ #define get_user_pages LINUX_BACKPORT(get_user_pages)
+ #endif

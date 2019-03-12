@@ -14,8 +14,10 @@ Signed-off-by: Jonas Gorski <jogo@openwrt.org>
  include/uapi/linux/libc-compat.h | 11 +++++++++++
  2 files changed, 14 insertions(+)
 
---- a/include/uapi/linux/if_ether.h.orig
-+++ b/include/uapi/linux/if_ether.h
+Index: linux-4.4.175/include/uapi/linux/if_ether.h
+===================================================================
+--- linux-4.4.175.orig/include/uapi/linux/if_ether.h
++++ linux-4.4.175/include/uapi/linux/if_ether.h
 @@ -22,6 +22,7 @@
  #define _UAPI_LINUX_IF_ETHER_H
  
@@ -24,22 +26,10 @@ Signed-off-by: Jonas Gorski <jogo@openwrt.org>
  
  /*
   *	IEEE 802.3 Ethernet magic constants.  The frame sizes omit the preamble
-@@ -135,11 +136,13 @@
-  *	This is an Ethernet frame header.
-  */
- 
-+#if __UAPI_DEF_ETHHDR
- struct ethhdr {
- 	unsigned char	h_dest[ETH_ALEN];	/* destination eth addr	*/
- 	unsigned char	h_source[ETH_ALEN];	/* source ether addr	*/
- 	__be16		h_proto;		/* packet type ID field	*/
- } __attribute__((packed));
-+#endif
- 
- 
- #endif /* _UAPI_LINUX_IF_ETHER_H */
---- a/include/uapi/linux/libc-compat.h.orig
-+++ b/include/uapi/linux/libc-compat.h
+Index: linux-4.4.175/include/uapi/linux/libc-compat.h
+===================================================================
+--- linux-4.4.175.orig/include/uapi/linux/libc-compat.h
++++ linux-4.4.175/include/uapi/linux/libc-compat.h
 @@ -51,6 +51,14 @@
  /* We have included libc headers... */
  #if !defined(__KERNEL__)
@@ -53,7 +43,7 @@ Signed-off-by: Jonas Gorski <jogo@openwrt.org>
 +#endif
 +
  /* Coordinate with libc net/if.h header. */
- #if defined(_NET_IF_H)
+ #if defined(_NET_IF_H) && defined(__USE_MISC)
  
 @@ -161,6 +169,9 @@
  /* For the future if glibc adds IFF_LOWER_UP, IFF_DORMANT and IFF_ECHO */

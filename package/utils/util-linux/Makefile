@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=util-linux
 PKG_VERSION:=2.29.2
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@KERNEL/linux/utils/$(PKG_NAME)/v2.29
@@ -620,7 +620,7 @@ endef
 
 define Package/sfdisk/install
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/sfdisk $(1)/usr/sbin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/.libs/sfdisk $(1)/usr/sbin/
 endef
 
 define Package/swap-utils/install

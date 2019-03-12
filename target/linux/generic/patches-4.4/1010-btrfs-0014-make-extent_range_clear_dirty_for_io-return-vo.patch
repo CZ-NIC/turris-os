@@ -16,8 +16,10 @@ Signed-off-by: David Sterba <dsterba@suse.com>
  fs/btrfs/extent_io.h |    2 +-
  2 files changed, 2 insertions(+), 3 deletions(-)
 
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
+Index: linux-4.4.171/fs/btrfs/extent_io.c
+===================================================================
+--- linux-4.4.171.orig/fs/btrfs/extent_io.c
++++ linux-4.4.171/fs/btrfs/extent_io.c
 @@ -1451,7 +1451,7 @@ int unlock_extent(struct extent_io_tree
  				GFP_NOFS);
  }
@@ -35,12 +37,14 @@ Signed-off-by: David Sterba <dsterba@suse.com>
  }
  
  int extent_range_redirty_for_io(struct inode *inode, u64 start, u64 end)
---- a/fs/btrfs/extent_io.h
-+++ b/fs/btrfs/extent_io.h
-@@ -338,7 +338,7 @@ int map_private_extent_buffer(struct ext
- 		      unsigned long min_len, char **map,
- 		      unsigned long *map_start,
- 		      unsigned long *map_len);
+Index: linux-4.4.171/fs/btrfs/extent_io.h
+===================================================================
+--- linux-4.4.171.orig/fs/btrfs/extent_io.h
++++ linux-4.4.171/fs/btrfs/extent_io.h
+@@ -337,7 +337,7 @@ int map_private_extent_buffer(const stru
+ 			      unsigned long offset, unsigned long min_len,
+ 			      char **map, unsigned long *map_start,
+ 			      unsigned long *map_len);
 -int extent_range_clear_dirty_for_io(struct inode *inode, u64 start, u64 end);
 +void extent_range_clear_dirty_for_io(struct inode *inode, u64 start, u64 end);
  int extent_range_redirty_for_io(struct inode *inode, u64 start, u64 end);

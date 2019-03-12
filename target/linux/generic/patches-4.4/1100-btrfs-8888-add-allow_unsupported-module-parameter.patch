@@ -27,17 +27,19 @@ Signed-off-by: David Sterba <dsterba@suse.cz>
  fs/btrfs/super.c   |   20 ++++++++++++++++++++
  4 files changed, 48 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -35,6 +35,7 @@
- #include <linux/btrfs.h>
+Index: linux-4.4.171/fs/btrfs/ctree.h
+===================================================================
+--- linux-4.4.171.orig/fs/btrfs/ctree.h
++++ linux-4.4.171/fs/btrfs/ctree.h
+@@ -36,6 +36,7 @@
  #include <linux/workqueue.h>
  #include <linux/security.h>
+ #include <linux/sizes.h>
 +#include <linux/unsupported-feature.h>
  #include "extent_io.h"
  #include "extent_map.h"
  #include "async-thread.h"
-@@ -4392,4 +4393,10 @@ static inline int btrfs_test_is_dummy_ro
+@@ -4420,4 +4421,10 @@ static inline int btrfs_test_is_dummy_ro
  	return 0;
  }
  
@@ -48,9 +50,11 @@ Signed-off-by: David Sterba <dsterba@suse.cz>
 +#define btrfs_allow_unsupported btrfs_allow_unsupported()
 +
  #endif
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -2722,6 +2722,14 @@ int open_ctree(struct super_block *sb,
+Index: linux-4.4.171/fs/btrfs/disk-io.c
+===================================================================
+--- linux-4.4.171.orig/fs/btrfs/disk-io.c
++++ linux-4.4.171/fs/btrfs/disk-io.c
+@@ -2654,6 +2654,14 @@ int open_ctree(struct super_block *sb,
  	if (btrfs_super_flags(disk_super) & BTRFS_SUPER_FLAG_ERROR)
  		set_bit(BTRFS_FS_STATE_ERROR, &fs_info->fs_state);
  
@@ -65,7 +69,7 @@ Signed-off-by: David Sterba <dsterba@suse.cz>
  	/*
  	 * run through our array of backup supers and setup
  	 * our ring pointer to the oldest one
-@@ -2786,6 +2794,12 @@ int open_ctree(struct super_block *sb,
+@@ -2718,6 +2726,12 @@ int open_ctree(struct super_block *sb,
  				sb->s_id);
  		goto fail_alloc;
  	}
@@ -78,9 +82,11 @@ Signed-off-by: David Sterba <dsterba@suse.cz>
  
  	/*
  	 * Needn't use the lock because there is no other task which will
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -5541,6 +5541,7 @@ long btrfs_ioctl(struct file *file, unsi
+Index: linux-4.4.171/fs/btrfs/ioctl.c
+===================================================================
+--- linux-4.4.171.orig/fs/btrfs/ioctl.c
++++ linux-4.4.171/fs/btrfs/ioctl.c
+@@ -5563,6 +5563,7 @@ long btrfs_ioctl(struct file *file, unsi
  {
  	struct btrfs_root *root = BTRFS_I(file_inode(file))->root;
  	void __user *argp = (void __user *)arg;
@@ -88,7 +94,7 @@ Signed-off-by: David Sterba <dsterba@suse.cz>
  
  	switch (cmd) {
  	case FS_IOC_GETFLAGS:
-@@ -5659,6 +5660,11 @@ long btrfs_ioctl(struct file *file, unsi
+@@ -5681,6 +5682,11 @@ long btrfs_ioctl(struct file *file, unsi
  	case BTRFS_IOC_QUOTA_RESCAN_WAIT:
  		return btrfs_ioctl_quota_rescan_wait(file, argp);
  	case BTRFS_IOC_DEV_REPLACE:
@@ -100,7 +106,7 @@ Signed-off-by: David Sterba <dsterba@suse.cz>
  		return btrfs_ioctl_dev_replace(root, argp);
  	case BTRFS_IOC_GET_FSLABEL:
  		return btrfs_ioctl_get_fslabel(file, argp);
-@@ -5674,7 +5680,7 @@ long btrfs_ioctl(struct file *file, unsi
+@@ -5696,7 +5702,7 @@ long btrfs_ioctl(struct file *file, unsi
  		return btrfs_ioctl_set_features(file, argp);
  	}
  
@@ -109,8 +115,10 @@ Signed-off-by: David Sterba <dsterba@suse.cz>
  }
  
  #ifdef CONFIG_COMPAT
---- a/fs/btrfs/super.c
-+++ b/fs/btrfs/super.c
+Index: linux-4.4.171/fs/btrfs/super.c
+===================================================================
+--- linux-4.4.171.orig/fs/btrfs/super.c
++++ linux-4.4.171/fs/btrfs/super.c
 @@ -18,6 +18,7 @@
  
  #include <linux/blkdev.h>

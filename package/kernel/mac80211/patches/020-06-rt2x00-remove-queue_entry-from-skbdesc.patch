@@ -13,9 +13,11 @@ Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
  drivers/net/wireless/ralink/rt2x00/rt2x00queue.h | 2 --
  2 files changed, 5 deletions(-)
 
+diff --git a/drivers/net/wireless/ralink/rt2x00/rt2x00queue.c b/drivers/net/wireless/ralink/rt2x00/rt2x00queue.c
+index 380daf4e1b8d..e1660b92b20c 100644
 --- a/drivers/net/wireless/ralink/rt2x00/rt2x00queue.c
 +++ b/drivers/net/wireless/ralink/rt2x00/rt2x00queue.c
-@@ -83,7 +83,6 @@ struct sk_buff *rt2x00queue_alloc_rxskb(
+@@ -83,7 +83,6 @@ struct sk_buff *rt2x00queue_alloc_rxskb(struct queue_entry *entry, gfp_t gfp)
  	 */
  	skbdesc = get_skb_frame_desc(skb);
  	memset(skbdesc, 0, sizeof(*skbdesc));
@@ -23,7 +25,7 @@ Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
  
  	if (rt2x00_has_cap_flag(rt2x00dev, REQUIRE_DMA)) {
  		dma_addr_t skb_dma;
-@@ -689,7 +688,6 @@ int rt2x00queue_write_tx_frame(struct da
+@@ -689,7 +688,6 @@ int rt2x00queue_write_tx_frame(struct data_queue *queue, struct sk_buff *skb,
  		goto out;
  	}
  
@@ -31,7 +33,7 @@ Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
  	entry->skb = skb;
  
  	/*
-@@ -774,7 +772,6 @@ int rt2x00queue_update_beacon(struct rt2
+@@ -774,7 +772,6 @@ int rt2x00queue_update_beacon(struct rt2x00_dev *rt2x00dev,
  	 */
  	skbdesc = get_skb_frame_desc(intf->beacon->skb);
  	memset(skbdesc, 0, sizeof(*skbdesc));
@@ -39,6 +41,8 @@ Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
  
  	/*
  	 * Send beacon to hardware.
+diff --git a/drivers/net/wireless/ralink/rt2x00/rt2x00queue.h b/drivers/net/wireless/ralink/rt2x00/rt2x00queue.h
+index 2233b911a1d7..22d18818e850 100644
 --- a/drivers/net/wireless/ralink/rt2x00/rt2x00queue.h
 +++ b/drivers/net/wireless/ralink/rt2x00/rt2x00queue.h
 @@ -116,8 +116,6 @@ struct skb_frame_desc {
@@ -50,3 +54,6 @@ Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
  };
  
  /**
+-- 
+2.12.1
+
