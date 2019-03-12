@@ -22,3 +22,4 @@ src-git sidn https://github.com/SIDN/sidn_openwrt_pkgs.git^58bd674ffc56dc95515e2
 #src-svn xfce svn://svn.openwrt.org/openwrt/feeds/xfce
 #src-svn lxde svn://svn.openwrt.org/openwrt/feeds/lxde
 #src-link custom /usr/src/openwrt/custom-feed
+
