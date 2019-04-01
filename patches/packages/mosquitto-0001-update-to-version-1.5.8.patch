@@ -1,17 +1,16 @@
-From dab03e7c55956051e58c2bc410231e6c9e3ecb0f Mon Sep 17 00:00:00 2001
-From: Jan Pavlinec <jan.pavlinec@nic.cz>
-Date: Fri, 9 Nov 2018 11:23:17 +0100
-Subject: [PATCH] mosquitto: update version 1.5.3 (security fix)
+From e7dd3922f672193ba9abfd572969d1008114e5c6 Mon Sep 17 00:00:00 2001
+From: Josef Schlehofer <josef.schlehofer@nic.cz>
+Date: Mon, 1 Apr 2019 03:11:03 +0200
+Subject: [PATCH] mosquitto: update to version 1.5.8
 
-Issue https://gitlab.labs.nic.cz/turris/turris-os-packages/issues/235
 ---
  net/mosquitto/Config.in                  |   4 +-
- net/mosquitto/Makefile                   |  82 ++++++++++++++----------
- net/mosquitto/files/etc/init.d/mosquitto | 103 ++++++++++++++++++++++++++++---
- 3 files changed, 144 insertions(+), 45 deletions(-)
+ net/mosquitto/Makefile                   |  82 ++++++++++-------
+ net/mosquitto/files/etc/init.d/mosquitto | 108 ++++++++++++++++++++---
+ 3 files changed, 150 insertions(+), 44 deletions(-)
 
 diff --git a/net/mosquitto/Config.in b/net/mosquitto/Config.in
-index 9b169c5..4599736 100644
+index 9b169c58e..4599736fc 100644
 --- a/net/mosquitto/Config.in
 +++ b/net/mosquitto/Config.in
 @@ -1,13 +1,13 @@
@@ -31,7 +30,7 @@ index 9b169c5..4599736 100644
      help
          mosquitto_passwd is a tool for managing password files for mosquitto.
 diff --git a/net/mosquitto/Makefile b/net/mosquitto/Makefile
-index 7fecd2f..7e8ad1f 100644
+index 7fecd2f20..2a1ee5914 100644
 --- a/net/mosquitto/Makefile
 +++ b/net/mosquitto/Makefile
 @@ -9,19 +9,20 @@
@@ -39,9 +38,8 @@ index 7fecd2f..7e8ad1f 100644
  
  PKG_NAME:=mosquitto
 -PKG_VERSION:=1.4.9
--PKG_RELEASE:=1
-+PKG_VERSION:=1.5.3
-+PKG_RELEASE:=3
++PKG_VERSION:=1.5.8
+ PKG_RELEASE:=1
  PKG_LICENSE:=BSD-3-Clause
  PKG_LICENSE_FILES:=LICENSE.txt
 +PKG_CPE_ID:=cpe:/a:eclipse:mosquitto
@@ -50,7 +48,7 @@ index 7fecd2f..7e8ad1f 100644
 -PKG_SOURCE_URL:=http://mosquitto.org/files/source/
 -PKG_MD5SUM:=67943e2c5afebf7329628616eb2c41c5
 +PKG_SOURCE_URL:=https://mosquitto.org/files/source/
-+PKG_MD5SUM:=3081a998d303a883b1cd064009beabc88aa9159e26f5258a4ae6007160491d10
++PKG_HASH:=78d7e70c3794dc3a1d484b4f2f8d3addebe9c2da3f5a1cebe557f7d13beb0da4
  PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
  
  include $(INCLUDE_DIR)/package.mk
@@ -190,7 +188,7 @@ index 7fecd2f..7e8ad1f 100644
  	$(call Package/mosquitto/install/default,$(1))
  ifeq ($(CONFIG_MOSQUITTO_PASSWD),y)
  	$(INSTALL_DIR) $(1)/usr/bin
-@@ -175,12 +181,12 @@ ifeq ($(CONFIG_MOSQUITTO_PASSWD),y)
+@@ -175,32 +181,43 @@ ifeq ($(CONFIG_MOSQUITTO_PASSWD),y)
  endif
  endef
  
@@ -205,7 +203,13 @@ index 7fecd2f..7e8ad1f 100644
  
  # This installs files into ./staging_dir/. so that you can cross compile from the host
  define Build/InstallDev
-@@ -192,15 +198,24 @@ define Build/InstallDev
+ 	$(INSTALL_DIR) $(1)/usr/include
+ 	$(CP) $(PKG_BUILD_DIR)/lib/mosquitto.h $(1)/usr/include
+ 	$(CP) $(PKG_BUILD_DIR)/lib/cpp/mosquittopp.h $(1)/usr/include
++	$(CP) $(PKG_BUILD_DIR)/src/mosquitto_plugin.h $(1)/usr/include
++	$(CP) $(PKG_BUILD_DIR)/src/mosquitto_broker.h $(1)/usr/include
+ 	$(INSTALL_DIR) $(1)/usr/lib
+ 	$(CP) $(PKG_BUILD_DIR)/lib/libmosquitto.so.1 $(1)/usr/lib/
  	$(CP) $(PKG_BUILD_DIR)/lib/cpp/libmosquittopp.so.1 $(1)/usr/lib/
  	$(LN) libmosquitto.so.1 $(1)/usr/lib/libmosquitto.so
  	$(LN) libmosquittopp.so.1 $(1)/usr/lib/libmosquittopp.so
@@ -232,7 +236,7 @@ index 7fecd2f..7e8ad1f 100644
  
  define Package/libmosquittopp/install
  	$(INSTALL_DIR) $(1)/usr/lib
-@@ -209,17 +224,18 @@ define Package/libmosquittopp/install
+@@ -209,17 +226,18 @@ define Package/libmosquittopp/install
  endef
  
  # Applies to all...
@@ -257,7 +261,7 @@ index 7fecd2f..7e8ad1f 100644
 +$(eval $(call BuildPackage,mosquitto-client-ssl))
  $(eval $(call BuildPackage,mosquitto-client-nossl))
 diff --git a/net/mosquitto/files/etc/init.d/mosquitto b/net/mosquitto/files/etc/init.d/mosquitto
-index 5641908..0fa7a3a 100755
+index 564190882..e7c1110c1 100755
 --- a/net/mosquitto/files/etc/init.d/mosquitto
 +++ b/net/mosquitto/files/etc/init.d/mosquitto
 @@ -6,6 +6,7 @@
@@ -278,7 +282,7 @@ index 5641908..0fa7a3a 100755
      config_get val $cfg $uci_name
      if [ -n "$val" ]; then
          config_get_bool real $cfg $uci_name
-@@ -56,14 +60,37 @@ convert_mosq_general() {
+@@ -56,14 +60,38 @@ convert_mosq_general() {
  
  	config_get_bool no_remote "$1" no_remote_access 0
  	if [ "$no_remote" -eq 1 ]; then
@@ -315,10 +319,11 @@ index 5641908..0fa7a3a 100755
 +	append_if "$1" sys_interval
 +	append_if "$1" upgrade_outgoing_qos
 +	append_if "$1" user
++	append_optional_bool "$1" per_listener_settings
  }
  
  convert_persistence() {
-@@ -71,12 +98,16 @@ convert_persistence() {
+@@ -71,12 +99,16 @@ convert_persistence() {
  
  	append_if "$cfg" client_expiration persistent_client_expiration
  	append_if "$cfg" autosave_interval
@@ -338,7 +343,7 @@ index 5641908..0fa7a3a 100755
  		echo "persistence_location $loc" >> $TCONF
  	fi
  }
-@@ -95,7 +126,24 @@ add_listener() {
+@@ -95,7 +127,28 @@ add_listener() {
          echo "listener $port" >> $TCONF
      fi
  
@@ -360,23 +365,27 @@ index 5641908..0fa7a3a 100755
 +    append_optional_bool "$1" use_identity_as_username
 +    append_optional_bool "$1" use_subject_as_username
 +    append_if "$1" psk_hint
++    append_if "$1" auth_plugin
++
++    # Careful, this relies on internal behaviour of the cfg_load functions!
++    set | grep "CONFIG_$1_auth_opt_" | sed "s/^.*_\(auth_opt_.*\)='\(.*\)'/\1 \2/" >> $TCONF
  }
  
  add_topic() {
-@@ -106,20 +154,54 @@ add_bridge() {
+@@ -106,20 +159,54 @@ add_bridge() {
      config_get conn "$1" connection
      config_get addr "$1" address
      if [ -z "$conn" -o -z "$addr" ]; then
 -        echo "Ignoring bridge section, misisng connection/address"
 +        echo "Ignoring bridge section with missing connection/address"
-+        return
-+    fi
+         return
+     fi
 +    # Also invalid if no topics are defined, mosquitto will not start!
 +    config_get tlen "$1" "topic_LENGTH"
 +    if [ -z "$tlen" ]; then
 +        echo "Ignoring bridge section with no topics defined"
-         return
-     fi
++        return
++    fi
 +
      echo "" >> $TCONF
      echo "# Bridge connection from UCI section" >> $TCONF
@@ -422,7 +431,7 @@ index 5641908..0fa7a3a 100755
      append_if "$1" psk bridge_psk
      append_if "$1" tls_version bridge_tls_version
  }
-@@ -147,6 +229,7 @@ start_service_real() {
+@@ -147,6 +234,7 @@ start_service_real() {
  		convert_uci
  	else
  		CONF=/etc/mosquitto/mosquitto.conf
@@ -430,7 +439,7 @@ index 5641908..0fa7a3a 100755
          fi
  	config_get write_pid "$cfg" write_pid 0
  
-@@ -154,7 +237,7 @@ start_service_real() {
+@@ -154,7 +242,7 @@ start_service_real() {
  	procd_set_param command mosquitto
  	procd_append_param command -c $CONF
  	# Makes /etc/init.d/mosquitto reload work if you edit the final file.
@@ -440,5 +449,5 @@ index 5641908..0fa7a3a 100755
  	procd_close_instance
  }
 -- 
-2.7.4
+2.19.1
 
