@@ -1,5 +1,5 @@
 #
-## Copyright (C) 2014-2015 CZ.NIC z.s.p.o. (http://www.nic.cz/)
+## Copyright (C) 2014-2019 CZ.NIC z.s.p.o. (http://www.nic.cz/)
 #
 ## This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.11.3
+PKG_VERSION:=3.11.4
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,19 +28,15 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • openssh, zmq, keepalived: bezpečnostní aktualizace
- • tvheadend, mpc, unbound, youtube-dl, czmq a další balíčky: aktualizace
- • kernel: aktualizace
- • foris: sjednocení vzhledu napříč produkty Turris
- • logread: oprava
- • turris-netboot: základní podpora bootování Turris MOX po síti
- • foris-pakon: oprava pro Safari" " • openssh, zmq, keepalived: security updates
- • tvheadend, mpc, unbound, youtube-dl, czmq, wireguard, and various minor packages: update
- • kernel: update
- • foris: unification of themes accross all Turris products
- • logread: fix
- • turris-netboot: initial support for booting Turris MOX over network
- • foris-pakon: fix for Safari"
+create_notification -s news " • mosquitto, libatsha204, libssh2, dovecot: bezpečnostní aktualizace
+ • unbound, netdata, youtube-dl, ca-certificates, czmq: aktualizace
+ • python3-certifi, python3-urllib3: nové balíčky
+ • pakon: drobné opravy
+ • kernel: aktualizace" " • mosquitto, libatsha204, libssh2, dovecot: security updates
+ • unbound, netdata, youtube-dl, ca-certificates, czmq: update
+ • python3-certifi, python3-urllib3: new packages 
+ • pakon: minor fixes
+ • kernel: update"
 }
 endef
 

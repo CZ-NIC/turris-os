@@ -1,0 +1,32 @@
+From 48eadeb4fad2888581844ddea2998986182cb87d Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Tue, 19 Mar 2019 17:26:23 +0100
+Subject: [PATCH] libssh2: update to version 1.8.1 (security issue)
+
+Issue https://gitlab.labs.nic.cz/turris/turris-os-packages/issues/340
+---
+ libs/libssh2/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/libs/libssh2/Makefile b/libs/libssh2/Makefile
+index 911d34e..95a903e 100644
+--- a/libs/libssh2/Makefile
++++ b/libs/libssh2/Makefile
+@@ -8,12 +8,12 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=libssh2
+-PKG_VERSION:=1.7.0
++PKG_VERSION:=1.8.1
+ PKG_RELEASE:=1
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://www.libssh2.org/download
+-PKG_MD5SUM:=b01662a210e94cccf2f76094db7dac5c
++PKG_MD5SUM:=40b517f35b1bb869d0075b15125c7a015557f53a5a3a6a8bffb89b69fd70f159
+ 
+ PKG_INSTALL:=1
+ 
+-- 
+2.7.4
+
