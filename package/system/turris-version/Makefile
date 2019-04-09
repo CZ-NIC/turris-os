@@ -34,27 +34,22 @@ create_notification -s news " • mosquitto, libatsha204, libssh2, dovecot: bezp
  • pakon: drobné opravy
  • kernel: aktualizace" " • mosquitto, libatsha204, libssh2, dovecot: security updates
  • unbound, netdata, youtube-dl, ca-certificates, czmq: update
- • python3-certifi, python3-urllib3: new packages 
+ • python3-certifi, python3-urllib3: new packages
  • pakon: minor fixes
  • kernel: update"
-}
-endef
 
-define Package/turris-version/install
-	$(INSTALL_DIR) $(1)/etc
-	echo $(PKG_VERSION) > $(1)/etc/turris-version
-endef
-
-define Package/turris-version/postinst
-#!/bin/sh
-[ -n "$$IPKG_INSTROOT" ] || {
-	LXC_ROOT="$$(lxc-config lxc.lxcpath)"
+LXC_ROOT="$$(lxc-config lxc.lxcpath)"
 	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do
 		if df "$$LXC_ROOT/$$name/rootfs" | grep -q ^$$(df / | sed -n 's|\(/dev/[^[:blank:]]*\)[[:blank:]].*|\1|p'); then
 			create_notification -s error "You are running container $$name from internal memory which is not recommended and can severally damage your router! This is not covered by warranty! Please use storage module in Foris to move it somewhere else!"
 		fi
 	done
 } 2> /dev/null
+endef
+
+define Package/turris-version/install
+	$(INSTALL_DIR) $(1)/etc
+	echo $(PKG_VERSION) > $(1)/etc/turris-version
 endef
 
 $(eval $(call BuildPackage,turris-version))
