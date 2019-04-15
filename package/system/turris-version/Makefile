@@ -29,11 +29,11 @@ define Package/turris-version/postinst
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • mosquitto, libatsha204, libssh2, dovecot: bezpečnostní aktualizace
- • unbound, netdata, youtube-dl, ca-certificates, czmq: aktualizace
+ • unbound, netdata, nextcloud, youtube-dl, ca-certificates, czmq: aktualizace
  • python3-certifi, python3-urllib3: nové balíčky
  • pakon: drobné opravy
  • kernel: aktualizace" " • mosquitto, libatsha204, libssh2, dovecot: security updates
- • unbound, netdata, youtube-dl, ca-certificates, czmq: update
+ • unbound, netdata, nextcloud, youtube-dl, ca-certificates, czmq: update
  • python3-certifi, python3-urllib3: new packages
  • pakon: minor fixes
  • kernel: update"
