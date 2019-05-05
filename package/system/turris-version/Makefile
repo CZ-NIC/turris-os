@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.11.4
+PKG_VERSION:=3.11.5
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,14 +28,12 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • mosquitto, libatsha204, libssh2, dovecot: bezpečnostní aktualizace
- • unbound, netdata, nextcloud, youtube-dl, ca-certificates, czmq: aktualizace
- • python3-certifi, python3-urllib3: nové balíčky
- • pakon: drobné opravy
- • kernel: aktualizace" " • mosquitto, libatsha204, libssh2, dovecot: security updates
- • unbound, netdata, nextcloud, youtube-dl, ca-certificates, czmq: update
- • python3-certifi, python3-urllib3: new packages
- • pakon: minor fixes
+create_notification -s news " • bind, libxslt, libpng, dovecot, gnutls, wget, samba4, tiff, suricata: bezpečnostní aktualizace
+ • schnapps, netdata, youtube-dl, libhtp, foris, resolver-conf: aktualizace
+ • python3-pyroute: nové balíčky
+ • kernel: aktualizace" " • bind, libxslt, libpng, dovecot, gnutls, wget, samba4, tiff, suricata: security updates
+ • schnapps, netdata, youtube-dl, libhtp, foris, resolver-conf: update
+ • python3-pyroute2: new packages
  • kernel: update"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
