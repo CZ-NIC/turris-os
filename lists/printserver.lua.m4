@@ -12,7 +12,7 @@ if model and not model:match("^[Tt]urris$") then
 end
 
 -- Kernel
-Install("kmod-usb2", "kmod-usb-printer", { priority = 40 })
+Install("kmod-usb-printer", { priority = 40 })
 
 -- Luci
 Install("luci-app-p910nd", { priority = 40 })
