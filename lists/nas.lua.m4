@@ -10,7 +10,7 @@ forInstall(kmod-nls,cp1250,cp1251,cp437,cp775,cp850,cp852,cp862,cp864,cp866,cp93
 -- Raid
 forInstall(kmod-md,linear,multipath,raid0,raid1,raid10,raid456)
 -- Additional kernel drivers
-Install("kmod-usb-storage-extras", "kmod-usb2", "kmod-usb-storage-uas", { priority = 40 })
+Install("kmod-usb-storage-extras", "kmod-usb-storage-uas", { priority = 40 })
 if model and model:match("[Oo]mnia") then
 	Install("kmod-ata-ahci-platform", "kmod-ata-mvebu-ahci", "kmod-crypto-marvell-cesa", "blkdiscard", "fstrim", "asm1062-fix", { priority = 40 })
 elseif model and model:match("^[Tt]urris$") then
