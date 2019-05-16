@@ -1,0 +1,142 @@
+From 23f9a9588a79a51919c4d9abbbf6e3d710bde7ea Mon Sep 17 00:00:00 2001
+From: Jan Pavlinec <jan.pavlinec@nic.cz>
+Date: Thu, 16 May 2019 16:51:47 +0200
+Subject: [PATCH] libcap: update to version 2.26
+
+---
+ libs/libcap/Makefile                               | 48 ++++++++++++++++++----
+ .../patches/200-change-hardcoded-shell-to-sh.patch | 34 +++++++++++++++
+ 2 files changed, 74 insertions(+), 8 deletions(-)
+ create mode 100644 libs/libcap/patches/200-change-hardcoded-shell-to-sh.patch
+
+diff --git a/libs/libcap/Makefile b/libs/libcap/Makefile
+index 50b31e0..3126f6c 100644
+--- a/libs/libcap/Makefile
++++ b/libs/libcap/Makefile
+@@ -8,13 +8,16 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=libcap
+-PKG_VERSION:=2.24
++PKG_VERSION:=2.26
+ PKG_RELEASE:=1
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+ PKG_SOURCE_URL:=@KERNEL/linux/libs/security/linux-privs/libcap2
+-PKG_MD5SUM:=d43ab9f680435a7fff35b4ace8d45b80
+-PKG_MAINTAINER:=Steven Barth <cyrus@openwrt.org>
++PKG_HASH:=b630b7c484271b3ba867680d6a14b10a86cfa67247a14631b14c06731d5a458b
++
++PKG_MAINTAINER:=Paul Wassi <p.wassi@gmx.at>
++PKG_LICENSE:=GPL-2.0
++PKG_LICENSE_FILES:=License
+ 
+ PKG_INSTALL:=1
+ 
+@@ -25,22 +28,44 @@ define Package/libcap
+   TITLE:=Linux capabilities library
+   SECTION:=libs
+   CATEGORY:=Libraries
+-  URL:=http://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/
++  URL:=https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/
++endef
++
++define Package/libcap/config
++  if PACKAGE_libcap
++
++  config PACKAGE_libcap-bin
++    bool "install libcap executables"
++    help
++      Install capsh, getcap, getpcaps, setcap into the target image.
++    default n
++
++  config PACKAGE_libcap-bin-capsh-shell
++    string "capsh shell"
++    depends on PACKAGE_libcap-bin
++    help
++      Set the capsh shell.
++    default "/bin/sh"
++
++  endif
+ endef
+ 
+ MAKE_FLAGS += \
+-    CFLAGS="$(TARGET_CFLAGS)" \
+     BUILD_CC="$(CC)" \
+     BUILD_CFLAGS="$(FPIC) -I$(PKG_BUILD_DIR)/libcap/include" \
+     CFLAGS="$(TARGET_CFLAGS)" \
+-    LD="$(TARGET_CC)" \
+-    LDFLAGS="$(TARGET_LDFLAGS) -shared" \
++    LD="$(TARGET_CC) -Wl,-x -shared" \
++    LDFLAGS="$(TARGET_LDFLAGS)" \
+     INDENT="| true" \
+     PAM_CAP="no" \
+-    LIBATTR="no" \
++    RAISE_SETFCAP="no" \
+     DYNAMIC="yes" \
+     lib="lib"
+ 
++ifneq ($(CONFIG_PACKAGE_libcap-bin-capsh-shell),)
++TARGET_CFLAGS += -DSHELL='\"$(CONFIG_PACKAGE_libcap-bin-capsh-shell)\"'
++endif
++
+ define Build/InstallDev
+ 	$(INSTALL_DIR) $(1)/usr/include/sys
+ 	$(CP) $(PKG_INSTALL_DIR)/usr/include/* $(1)/usr/include/
+@@ -51,6 +76,13 @@ endef
+ define Package/libcap/install
+ 	$(INSTALL_DIR) $(1)/usr/lib
+ 	$(CP) $(PKG_INSTALL_DIR)/lib/libcap.so* $(1)/usr/lib/
++ifneq ($(CONFIG_PACKAGE_libcap-bin),)
++	$(INSTALL_DIR) $(1)/usr/sbin
++	$(CP) $(PKG_INSTALL_DIR)/sbin/capsh     $(1)/usr/sbin/
++	$(CP) $(PKG_INSTALL_DIR)/sbin/getcap    $(1)/usr/sbin/
++	$(CP) $(PKG_INSTALL_DIR)/sbin/getpcaps  $(1)/usr/sbin/
++	$(CP) $(PKG_INSTALL_DIR)/sbin/setcap    $(1)/usr/sbin/
++endif
+ endef
+ 
+ $(eval $(call BuildPackage,libcap))
+diff --git a/libs/libcap/patches/200-change-hardcoded-shell-to-sh.patch b/libs/libcap/patches/200-change-hardcoded-shell-to-sh.patch
+new file mode 100644
+index 0000000..27865ff
+--- /dev/null
++++ b/libs/libcap/patches/200-change-hardcoded-shell-to-sh.patch
+@@ -0,0 +1,34 @@
++--- a/progs/capsh.c
+++++ b/progs/capsh.c
++@@ -24,6 +24,9 @@
++ #include <sys/wait.h>
++ #include <sys/prctl.h>
++ 
+++#ifndef SHELL
+++#define SHELL "/bin/sh"
+++#endif
++ #define MAX_GROUPS       100   /* max number of supplementary groups for user */
++ 
++ static char *binary(unsigned long value)
++@@ -692,10 +695,10 @@ int main(int argc, char *argv[], char *envp[])
++ 	} else if (!strcmp("--print", argv[i])) {
++ 	    arg_print();
++ 	} else if ((!strcmp("--", argv[i])) || (!strcmp("==", argv[i]))) {
++-	    argv[i] = strdup(argv[i][0] == '-' ? "/bin/bash" : argv[0]);
+++	    argv[i] = strdup(argv[i][0] == '-' ? SHELL : argv[0]);
++ 	    argv[argc] = NULL;
++ 	    execve(argv[i], argv+i, envp);
++-	    fprintf(stderr, "execve /bin/bash failed!\n");
+++	    fprintf(stderr, "execve " SHELL " failed!\n");
++ 	    exit(1);
++ 	} else {
++ 	usage:
++@@ -720,7 +723,7 @@ int main(int argc, char *argv[], char *envp[])
++ 		   "  --killit=<n>   send signal(n) to child\n"
++ 		   "  --forkfor=<n>  fork and make child sleep for <n> sec\n"
++ 		   "  ==             re-exec(capsh) with args as for --\n"
++-		   "  --             remaing arguments are for /bin/bash\n"
+++		   "  --             remaing arguments are for " SHELL "\n"
++ 		   "                 (without -- [%s] will simply exit(0))\n",
++ 		   argv[0], argv[0]);
++ 
+-- 
+2.7.4
+
