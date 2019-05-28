@@ -29,11 +29,11 @@ define Package/turris-version/postinst
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • bind, libxslt, libpng, dovecot, gnutls, wget, samba4, tiff, suricata: bezpečnostní aktualizace
- • schnapps, netdata, youtube-dl, libhtp, foris, resolver-conf: aktualizace
- • python3-pyroute: nové balíčky
+ • schnapps, netdata, youtube-dl, libhtp, foris, syslog-ng, resolver-conf: aktualizace
+ • python-certifi, python-urllib3, python3-pyroute: nové balíčky
  • kernel: aktualizace" " • bind, libxslt, libpng, dovecot, gnutls, wget, samba4, tiff, suricata: security updates
- • schnapps, netdata, youtube-dl, libhtp, foris, resolver-conf: update
- • python3-pyroute2: new packages
+ • schnapps, netdata, youtube-dl, libhtp, foris, syslog-ng, resolver-conf: update
+ • python-certifi, python-urllib3, python3-pyroute2: new packages
  • kernel: update"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
