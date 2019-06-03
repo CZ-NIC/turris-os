@@ -30,7 +30,7 @@ define Package/turris-version/postinst
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • bind, libxslt, libpng, dovecot, gnutls, wget, samba4, tiff, suricata: bezpečnostní aktualizace
  • schnapps, netdata, youtube-dl, libhtp, foris, syslog-ng, resolver-conf: aktualizace
- • python-certifi, python-urllib3, python3-pyroute: nové balíčky
+ • python-certifi, python-urllib3, python3-pyroute2: nové balíčky
  • kernel: aktualizace" " • bind, libxslt, libpng, dovecot, gnutls, wget, samba4, tiff, suricata: security updates
  • schnapps, netdata, youtube-dl, libhtp, foris, syslog-ng, resolver-conf: update
  • python-certifi, python-urllib3, python3-pyroute2: new packages
