@@ -46,7 +46,7 @@ index e88221e0..b070608e 100644
 +define Package/netdata
 +  SECTION:=admin
 +  CATEGORY:=Administration
-+  DEPENDS:=+zlib +USE_UCLIBC:libpthread +libuuid +libmnl +libopenssl +liblz4
++  DEPENDS:=+zlib +USE_UCLIBC:libpthread +libuuid +libmnl +libopenssl +liblz4 +libuv
 +  TITLE:=Real-time performance monitoring tool
 +  URL:=https://my-netdata.io/
 +endef
