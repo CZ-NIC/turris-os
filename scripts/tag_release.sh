@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 die() {
     echo "$1"
     exit 1
@@ -22,7 +22,7 @@ THASH="`cat ./feeds.conf.default | sed -n 's|.*turris-os-packages.git^||p'`"
 [ -n "$THASH" ] || die "Can't get ToS hash"
 GIT_TAGGER_DATE="$DATE" GIT_COMMITTER_DATE="$DATE" GIT_AUTHOR_DATE="$DATE" git tag -F /tmp/turrisos-$VERSION -s --force v$VERSION || die "Can't tag OpenWRT"
 git push --tags
-cd feeds/turrispackages
+cd feeds/turrispackages || die "No feeds? Not tagging tos-packages!"
 git fetch
 git checkout $THASH
 GIT_TAGGER_DATE="$DATE" GIT_COMMITTER_DATE="$DATE" GIT_AUTHOR_DATE="$DATE" git tag -F /tmp/turrisos-$VERSION -s --force v$VERSION || die "Can't tag TOS"
