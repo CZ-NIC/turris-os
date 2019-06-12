@@ -1,6 +1,6 @@
 #!/bin/sh
-for file in `grep -Rl DEPENDS.*libpcap package/`; do
+for file in `grep -Rl "DEPENDS.*$1" package/`; do
 	NUM="`sed -n 's|.*PKG_RELEASE[^0-9]*\([0-9]*\)$|\1|p' "$file"`"
 	NEXT_NUM="`expr $NUM + 1`"
-	[ -z "$NEXT_NUM" ] || echo "$file $NUM $NEXT_NUM" >> release-override
+	[ -z "$NEXT_NUM" ] || echo "$file $NUM $NEXT_NUM" | sed -n 's|/Makefile||p' >> release-override
 done

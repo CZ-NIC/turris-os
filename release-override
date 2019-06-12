@@ -173,3 +173,17 @@ package/feeds/packages/snort 4 7
 package/feeds/packages/softflowd 2 3
 package/feeds/telephony/pcapsipdump 2 3
 package/feeds/turrispackages/samba4 4 5
+package/network/utils/curl 1 2
+package/feeds/turrispackages/knot 1 2
+package/feeds/turrispackages/libsoup 1 2
+package/feeds/turrispackages/openconnect 5 6
+package/feeds/turrispackages/squid 2 3
+package/feeds/packages/libmicrohttpd 1 2
+package/feeds/packages/aria2 1 2
+package/feeds/packages/ocserv 1 2
+package/feeds/packages/libradcli 1 2
+package/feeds/packages/vpnc 5 6
+package/feeds/packages/gnurl 1 2
+package/feeds/packages/pianod 2 3
+package/feeds/packages/taskwarrior 2 3
+package/feeds/telephony/iksemel 1 2
