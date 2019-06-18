@@ -32,11 +32,11 @@ create_notification -s news " • bind, libxslt, libpng, dovecot, gnutls, wget, 
  • schnapps, netdata, youtube-dl, libhtp, foris, syslog-ng, nextcloud, resolver-conf: aktualizace
  • python-certifi, python-urllib3, python3-pyroute2: nové balíčky
  • foris: experimentální centrální správa zařízení
- • kernel: aktualizace" " • bind, libxslt, libpng, dovecot, gnutls, wget, samba4, tiff, suricata: security updates
+ • kernel: aktualizace (CVE-2019-11477, CVE-2019-11478, CVE-2019-11479)" " • bind, libxslt, libpng, dovecot, gnutls, wget, samba4, tiff, suricata: security updates
  • schnapps, netdata, youtube-dl, libhtp, foris, syslog-ng, nextcloud, resolver-conf: update
  • python-certifi, python-urllib3, python3-pyroute2: new packages
  • foris: experimental centralized device management
- • kernel: update"
+ • kernel: update (CVE-2019-11477, CVE-2019-11478, CVE-2019-11479)"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
 	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do
