@@ -9,17 +9,13 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=meson
 PKG_VERSION:=0.51.0
-PKG_RELEASE:=1
 
-PKG_SOURCE:=meson-$(PKG_VERSION).tar.gz
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/mesonbuild/meson/releases/download/$(PKG_VERSION)/
 PKG_HASH:=2f75fdf6d586d3595c03a07afcd0eaae11f68dd33fea5906a434d22a409ed63f
 
-PKG_MAINTAINER:=Jan Pavlinec <jan.pavlinec@nic.cz>
 PKG_LICENSE:=Apache-2.0
 PKG_LICENSE_FILES:=COPYING
-
-HOST_BUILD_DIR:=$(BUILD_DIR)/meson-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/host-build.mk
 
