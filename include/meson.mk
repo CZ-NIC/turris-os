@@ -13,7 +13,7 @@ BINPATH=$(TOPDIR)/staging_dir/host/usr/bin:$(PATH)
 define Build/Meson/Configure
 	cd $(PKG_BUILD_DIR) && [ ! -d $(MESON_BUILD_DIR) ] && mkdir $(MESON_BUILD_DIR)
 	cd $(PKG_BUILD_DIR) && \
-	 PATH=$(BINPATH) PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) $(HOST_PYTHON3_BIN) $(HOST_MESON_BIN) $(MESON_BUILD_DIR) --cross-file $(CROSS_CONF_FILE) $(MESON_ARGS)
+	PATH=$(BINPATH) PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) $(HOST_PYTHON3_BIN) $(HOST_MESON_BIN) $(MESON_BUILD_DIR) --cross-file $(CROSS_CONF_FILE) $(MESON_ARGS)
 endef
 
 define Build/Meson/Compile
