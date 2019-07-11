@@ -19,32 +19,8 @@ PKG_LICENSE_FILES:=COPYING
 
 include $(INCLUDE_DIR)/host-build.mk
 
-ENDIAN := $(if $(CONFIG_BIG_ENDIAN),big,little)
-
-#CROSS_CONF contains utility which will be used
-#to crosscompile target based on meson.build file
-CROSS_CONF=$(STAGING_DIR)/cross_conf.txt
-
 define Host/Compile
-	echo [binaries] >$(CROSS_CONF)
-	echo c = \'$(TARGET_CC_NOCACHE)\' >>$(CROSS_CONF)
-	echo cpp = \'$(TARGET_CXX_NOCACHE)\'>>$(CROSS_CONF)
-	echo ar = \'$(TARGET_AR)\'>>$(CROSS_CONF)
-	echo strip = \'$(TARGET_CROSS)strip\' >> $(CROSS_CONF)
-	echo nm = \'$(TARGET_NM)\' >> $(CROSS_CONF)
-	echo ld = \'$(TARGET_CROSS)ld\' >> $(CROSS_CONF)
-	echo pkgconfig = \'$(PKG_CONFIG).real\'>>$(CROSS_CONF)
-
-	echo [host_machine]>>$(CROSS_CONF)
-	echo system = \'linux\'>>$(CROSS_CONF)
-	echo cpu_family = \'$(ARCH)\'>>$(CROSS_CONF)
-	echo cpu = \'$(CONFIG_TARGET_SUBTARGET)\'>>$(CROSS_CONF)
-	echo endian = \'$(ENDIAN)\' >> $(CROSS_CONF)
-	echo [build_machine]>>$(CROSS_CONF)
-	echo system = \'linux\'>>$(CROSS_CONF)
-	echo cpu_family = \'x86_64\'>>$(CROSS_CONF)
-	echo cpu = \'i686\'>>$(CROSS_CONF)
-	echo endian = \'little\'>>$(CROSS_CONF)
+	true
 endef
 
 define Host/Install
