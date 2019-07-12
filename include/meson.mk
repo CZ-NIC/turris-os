@@ -35,7 +35,7 @@ endef
 
 define Build/Meson/Configure
 	$(call CreateCrossconf)
-	cd $(PKG_BUILD_DIR) && [ ! -d "$(PKG_BUILD_DIR)/$(MESON_BUILD_DIR)" ] && mkdir -p $(PKG_BUILD_DIR)/$(MESON_BUILD_DIR)
+	cd $(PKG_BUILD_DIR) && [ ! -d "$(PKG_BUILD_DIR)/$(MESON_BUILD_DIR)" ] && mkdir -p $(PKG_BUILD_DIR)/$(MESON_BUILD_DIR) || true
 	cd $(PKG_BUILD_DIR) && \
 	PATH=$(BINPATH) PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) $(HOST_PYTHON3_BIN) $(HOST_MESON_BIN) $(MESON_BUILD_DIR) --cross-file $(CROSS_CONF_FILE) $(MESON_ARGS)
 endef
