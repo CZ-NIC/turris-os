@@ -28,4 +28,9 @@ define Host/Install
 	$(CP) -R $(HOST_BUILD_DIR)/* $(STAGING_DIR_HOST)/meson/
 endef
 
+define Host/Clean
+	$(call Host/Clean/Default)
+	rm -rf $(STAGING_DIR_HOST)/meson
+endef
+
 $(eval $(call HostBuild))
