@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.11.5
+PKG_VERSION:=3.11.6
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,15 +28,15 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • bind, libxslt, libpng, dovecot, gnutls, wget, samba4, tiff, suricata: bezpečnostní aktualizace
- • schnapps, netdata, youtube-dl, libhtp, foris, syslog-ng, nextcloud, resolver-conf: aktualizace
- • python-certifi, python-urllib3, python3-pyroute2: nové balíčky
- • foris: experimentální centrální správa zařízení
- • kernel: aktualizace (CVE-2019-11477, CVE-2019-11478, CVE-2019-11479)" " • bind, libxslt, libpng, dovecot, gnutls, wget, samba4, tiff, suricata: security updates
- • schnapps, netdata, youtube-dl, libhtp, foris, syslog-ng, nextcloud, resolver-conf: update
- • python-certifi, python-urllib3, python3-pyroute2: new packages
- • foris: experimental centralized device management
- • kernel: update (CVE-2019-11477, CVE-2019-11478, CVE-2019-11479)"
+create_notification -s news " • iptables: bezpečnostní aktualizace (CVE-2019-11360)
+ • knot-resolver, netdata, youtube-dl, foris, syslog-ng, wireguard, python-idna: aktualizace
+ • resolver-conf: podpora sekundární adresy DNS serveru (IPv4 a IPv6)
+ • turris-netboot: drobné úpravy a přidání parametru force
+ • dev-detect: přidání nové verze pro detekci zařízení (opt-in)" " • iptables: security update (CVE-2019-11360)
+ • knot-resolver, netdata, youtube-dl, foris, syslog-ng, wireguard, python-idna: update
+ • resolver-conf: add secondary IP for DNS server (IPv4 and IPv6)
+ • turris-netboot: minor fixes and add parameter force
+ • dev-detect: introduce a new lightweight version than pakon-dev-detect (opt-in)"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
 	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do
