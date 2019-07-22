@@ -27,7 +27,7 @@ index 9bf7d4b1a..1681d3102 100644
    TITLE:=Things Gateway by Mozilla
    URL:=https://iot.mozilla.org/gateway/
 -  DEPENDS:= +libpthread +node +node-npm +libopenzwave +openzwave-config +python +python3-light +python3-pip +openssl-util
-+  DEPENDS:= +libpthread +node +node-npm +libopenzwave +openzwave-config +python +python3-light +python3-pip +openssl-util +mozilla-iot-gateway-webapp
++  DEPENDS:= +libpthread +libc +node +node-npm +libopenzwave +openzwave-config +python +python3-light +python3-pip +openssl-util +mozilla-iot-gateway-webapp
    DEPENDS+= +MOIT_enable-plugin-support:git-http
    MENU:=1
  endef
