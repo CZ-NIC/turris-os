@@ -1,15 +1,14 @@
-From c16702223f4ae18245720eb4b6d50a466af4c8bc Mon Sep 17 00:00:00 2001
+From d6b5911f7c08ea85789851222a1c9b221ab10224 Mon Sep 17 00:00:00 2001
 From: Josef Schlehofer <josef.schlehofer@nic.cz>
-Date: Sun, 21 Jul 2019 16:52:47 +0200
-Subject: [PATCH] youtube-dl: update to version 2019.07.16
+Date: Mon, 29 Jul 2019 10:36:27 +0200
+Subject: [PATCH] youtube-dl: update to version 2019.07.27
 
-Add python-setuptools as dependency
 ---
  multimedia/youtube-dl/Makefile | 19 +++++++++++--------
  1 file changed, 11 insertions(+), 8 deletions(-)
 
 diff --git a/multimedia/youtube-dl/Makefile b/multimedia/youtube-dl/Makefile
-index eaa43393d..4ca35acd9 100644
+index eaa43393d..ce4ce32f0 100644
 --- a/multimedia/youtube-dl/Makefile
 +++ b/multimedia/youtube-dl/Makefile
 @@ -8,18 +8,17 @@
@@ -17,14 +16,14 @@ index eaa43393d..4ca35acd9 100644
  
  PKG_NAME:=youtube-dl
 -PKG_VERSION:=2016.05.16
-+PKG_VERSION:=2019.07.16
++PKG_VERSION:=2019.07.27
  PKG_RELEASE:=1
  
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 -PKG_SOURCE_URL:=http://youtube-dl.org/downloads/$(PKG_VERSION)/
 -PKG_MD5SUM:=f50b53b9938eeb43a2466e451e71f474
 +PKG_SOURCE_URL:=https://yt-dl.org/downloads/$(PKG_VERSION)/
-+PKG_HASH:=7ea654afe4879e0e9da449a1d039f2afff0a09c105c57d76e20a75aed3370d1b
++PKG_HASH:=cdfc691ca9dcc63addb52dbbadb1b9e86325dd2d53d38ac844d504f482468bcc
  PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
  
  PKG_LICENSE:=Unlicense
