@@ -144,10 +144,10 @@ Index: linux-4.4.187/net/bridge/br_multicast.c
  		     type == IGMPV3_MODE_IS_INCLUDE) &&
  		    nsrcs == 0) {
 -			br_ip4_multicast_leave_group(br, port, group, vid);
-+			br_ip4_multicast_leave_group(br, port, group, vid. src);
++			br_ip4_multicast_leave_group(br, port, group, vid, src);
  		} else {
 -			err = br_ip4_multicast_add_group(br, port, group, vid);
-+			err = br_ip4_multicast_add_group(br, port, group, vid. src);
++			err = br_ip4_multicast_add_group(br, port, group, vid, src);
  			if (err)
  				break;
  		}
