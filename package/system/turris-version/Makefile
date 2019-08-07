@@ -29,11 +29,11 @@ define Package/turris-version/postinst
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • iptables: bezpečnostní aktualizace (CVE-2019-11360)
- • knot-resolver, netdata, youtube-dl, foris, syslog-ng, wireguard, python-idna: aktualizace
+ • knot-resolver, netdata, youtube-dl, foris, sentinel-certgen, wireguard, python3-idna, kernel: aktualizace
  • resolver-conf: podpora sekundární adresy DNS serveru (IPv4 a IPv6)
  • turris-netboot: drobné úpravy a přidání parametru force
  • dev-detect: přidání nové verze pro detekci zařízení (opt-in)" " • iptables: security update (CVE-2019-11360)
- • knot-resolver, netdata, youtube-dl, foris, syslog-ng, wireguard, python-idna: update
+ • knot-resolver, netdata, youtube-dl, foris, sentinel-certgen, wireguard, python3-idna, kernel: update
  • resolver-conf: add secondary IP for DNS server (IPv4 and IPv6)
  • turris-netboot: minor fixes and add parameter force
  • dev-detect: introduce a new lightweight version than pakon-dev-detect (opt-in)"
