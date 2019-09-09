@@ -1,7 +1,7 @@
 From 62ef03ddf024ec7b137d456bd5734f911ff7603c Mon Sep 17 00:00:00 2001
 From: Josef Schlehofer <josef.schlehofer@nic.cz>
 Date: Tue, 6 Nov 2018 01:04:39 +0100
-Subject: [PATCH] haveged: update to version 1.9.4
+Subject: [PATCH] haveged: update to version 1.9.6
 
 ---
  utils/haveged/Makefile | 22 ++++++++++------------
@@ -17,15 +17,15 @@ index f02038478..d1525ef33 100644
  PKG_NAME:=haveged
 -PKG_VERSION:=1.9.1
 -PKG_RELEASE:=5
-+PKG_VERSION:=1.9.4
++PKG_VERSION:=1.9.6
 +PKG_RELEASE:=1
 
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 -PKG_SOURCE_URL:=http://www.issihosts.com/$(PKG_NAME) \
 -	http://pkgs.fedoraproject.org/repo/pkgs/haveged/haveged-1.9.1.tar.gz/015ff58cd10607db0e0de60aeca2f5f8/
 -PKG_MD5SUM:=015ff58cd10607db0e0de60aeca2f5f8
-+PKG_SOURCE_URL:=https://codeload.github.com/jirka-h/haveged/tar.gz/$(PKG_VERSION)?
-+PKG_HASH:=c4959d3cb1fa6391d16a3aa1ba4d82cd3a0d497206ae4b87d638088c0664e5aa
++PKG_SOURCE_URL:=https://codeload.github.com/jirka-h/haveged/tar.gz/v$(PKG_VERSION)?
++PKG_HASH:=4d4c046755476d3734ffb78772c242c25913ff0eb7509c143671dae6ec9d1189
 +PKG_BUILD_DIR:=$(BUILD_DIR)/haveged-$(PKG_VERSION)
  PKG_LICENSE:=GPLv3
 

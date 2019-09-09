@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.11.6
+PKG_VERSION:=3.11.7
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,15 +28,11 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • iptables: bezpečnostní aktualizace (CVE-2019-11360)
- • knot-resolver, netdata, youtube-dl, foris, sentinel-certgen, wireguard, python3-idna, kernel: aktualizace
- • resolver-conf: podpora sekundární adresy DNS serveru (IPv4 a IPv6)
- • turris-netboot: drobné úpravy a přidání parametru force
- • dev-detect: přidání nové verze pro detekci zařízení (opt-in)" " • iptables: security update (CVE-2019-11360)
- • knot-resolver, netdata, youtube-dl, foris, sentinel-certgen, wireguard, python3-idna, kernel: update
- • resolver-conf: add secondary IP for DNS server (IPv4 and IPv6)
- • turris-netboot: minor fixes and add parameter force
- • dev-detect: introduce a new lightweight version than pakon-dev-detect (opt-in)"
+create_notification -s news " • unbound, haveged, youtube-dl, wireguard, nextcloud, kernel: aktualizace
+ • bind, lighttpd: bezpečnostní aktualizace
+ • ucollect: aktualizace CA certifikatu" " • unbound, haveged, youtube-dl, wireguard, nexcloud, kernel: update
+ • bind, lighttpd: security update
+ • ucollect: CA certificate update"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
 	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do
