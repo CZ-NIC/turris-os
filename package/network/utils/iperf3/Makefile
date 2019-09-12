@@ -8,14 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=iperf
-PKG_VERSION:=3.0.11
+PKG_VERSION:=3.7
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://downloads.es.net/pub/iperf
-PKG_MD5SUM:=a3b2bed7961ba184566df3c3d47f96a6
+PKG_SOURCE_URL:=https://github.com/esnet/iperf/archive/3.7.tar.gz
+PKG_HASH:=d846040224317caf2f75c843d309a950a7db23f9b44b94688ccbe557d6d1710c
 
-PKG_MAINTAINER:=Felix Fietkau <nbd@openwrt.org>
+PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 PKG_LICENSE:=BSD-3-Clause
 
 PKG_BUILD_PARALLEL:=1
@@ -27,7 +27,8 @@ define Package/iperf3
   SECTION:=net
   CATEGORY:=Network
   TITLE:=Internet Protocol bandwidth measuring tool
-  URL:=http://sourceforge.net/projects/iperf/
+  DEPENDS:=+libopenssl
+  URL:=https://github.com/esnet/iperf
 endef
 
 TARGET_CFLAGS += -D_GNU_SOURCE
