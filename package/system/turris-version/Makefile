@@ -30,7 +30,7 @@ define Package/turris-version/postinst
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • unbound, haveged, youtube-dl, wireguard, nextcloud, kernel: aktualizace
  • bind, lighttpd: bezpečnostní aktualizace
- • ucollect: aktualizace CA certifikatu" " • unbound, haveged, youtube-dl, wireguard, nexcloud, kernel: update
+ • ucollect: aktualizace CA certifikatu" " • unbound, haveged, youtube-dl, wireguard, nextcloud, kernel: update
  • bind, lighttpd: security update
  • ucollect: CA certificate update"
 
