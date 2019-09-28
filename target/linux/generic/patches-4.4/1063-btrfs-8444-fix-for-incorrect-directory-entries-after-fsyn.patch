@@ -107,7 +107,7 @@ index 58ae0a2..23df70e 100644
 +			if (!ret && ctx && ctx->log_new_dentries)
 +				ret = log_new_dir_dentries(trans, root,
 +							   dir_inode, ctx);
- 			iput(dir_inode);
+ 			btrfs_add_delayed_iput(dir_inode);
  			if (ret)
  				goto out;
 @@ -5651,11 +5656,9 @@ void btrfs_record_unlink_dir(struct btrfs_trans_handle *trans,
