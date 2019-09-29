@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=uhttpd
 PKG_VERSION:=2015-09-07
-PKG_RELEASE=$(PKG_SOURCE_VERSION)
+PKG_RELEASE=$(PKG_SOURCE_VERSION)-2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git://nbd.name/uhttpd2.git
@@ -53,7 +53,7 @@ define Package/uhttpd-mod-tls
   $(Package/uhttpd/default)
   TITLE+= (TLS plugin)
   DEPENDS:=uhttpd \
-	+PACKAGE_uhttpd-mod-tls_polarssl:libustream-polarssl \
+	+PACKAGE_uhttpd-mod-tls_mbedtls:libustream-mbedtls \
 	+PACKAGE_uhttpd-mod-tls_cyassl:libustream-cyassl \
 	+PACKAGE_uhttpd-mod-tls_openssl:libustream-openssl
 endef
@@ -66,10 +66,10 @@ define Package/uhttpd-mod-tls/config
   choice
     depends on PACKAGE_uhttpd-mod-tls
     prompt "TLS Provider"
-    default PACKAGE_uhttpd-mod-tls_polarssl
+    default PACKAGE_uhttpd-mod-tls_mbedtls
 
-    config PACKAGE_uhttpd-mod-tls_polarssl
-      bool "PolarSSL"
+    config PACKAGE_uhttpd-mod-tls_mbedtls
+      bool "MbedTLS"
 
     config PACKAGE_uhttpd-mod-tls_cyassl
       bool "CyaSSL"
