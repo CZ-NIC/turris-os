@@ -30,11 +30,9 @@ define Package/turris-version/postinst
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • foris, youtube-dl, wireguard, nextcloud, kernel: aktualizace
  • bird, python[3]-urllib3, netdata, ustream-ssl: aktualizace
- • openssl: bezpečnostní aktualizace
- • ludus: drobné úpravy" " • foris, youtube-dl, wireguard, nextcloud, kernel: update
+ • openssl, unbound: bezpečnostní aktualizace" • foris, youtube-dl, wireguard, nextcloud, kernel: update
  • bird, python[3]-urllib3, netdata, ustream-ssl: update
- • openssl: security update
- • ludus: various improvements"
+ • openssl, unbound: security update"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
 	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do
