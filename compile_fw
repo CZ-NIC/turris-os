@@ -164,30 +164,26 @@ if [ -n "$BUILD_ALL" ]; then
 	else
 		MED_ARCH=mvebu-musl
 	fi
-	BASE_PATH="`pwd`"
+	BASE_PATH="$(pwd)"
 	MED_PATH="bin-nand/${MED_ARCH}/medkit"
 	MED_TAR="$TARGET_BOARD-medkit-$(date -d "$COMMIT_DATE" +%Y%m%d%H%M).tar.gz"
+	MED_TAR_LATEST="$BOARD-medkit-latest.tar.gz"
 	mkdir -p "$MED_PATH"
 	MED_BIN_SOURCE="bin-nand/${MED_ARCH}"
 	ERR_CMD="false"
 	if fakeroot ./scripts/updater-medkit.sh --model "$TARGET_BOARD" $MED_ARGS $MED_BIN_SOURCE "$MED_PATH/$MED_TAR"; then
 		pushd "$MED_PATH"
-		ln -s "$MED_TAR" "$TARGET_BOARD"-medkit-latest.tar.gz || 
-		if [ -f "$HOME"/mime.key ]; then
-			"$BASE_PATH"/staging_dir/host/bin/usign -S -m "$MED_TAR" -s "$HOME"/mime.key
-			ln -s "$MED_TAR".sig "$TARGET_BOARD"-medkit-latest.tar.gz.sig
-		fi
-		../../../staging_dir/host/bin/usign -S -m "$MED_TAR" -s "$HOME"/mime.key
+		ln -sf "$MED_TAR" "$TARGET_BOARD"-medkit-latest.tar.gz
+		"$BASE_PATH"/staging_dir/host/bin/usign -S -m "$MED_TAR" -s "$HOME"/mime.key
 		ln -s "$MED_TAR".sig "$TARGET_BOARD"-medkit-latest.tar.gz.sig
 		md5sum "$MED_TAR" > "$MED_TAR".md5
-		ln -s "$MED_TAR".md5 "$TARGET_BOARD"-medkit-latest.tar.gz.md5
+		md5sum "$MED_TAR_LATEST" > "$MED_TAR_LATEST".md5
 		sha256sum "$MED_TAR" > "$MED_TAR".sha256
-		ln -s "$MED_TAR".sha256 "$TARGET_BOARD"-medkit-latest.tar.gz.sha256
+		sha256sum "$MED_TAR_LATEST" > "$MED_TAR_LATEST".sha256
 		popd
-	elif [ -n "`echo "$@" | grep 'IGNORE_ERRORS="m"'`" ]; then
-		true
 	else
-		false
+		# This triggers failure if errors should not be ignored
+		echo "$@" | grep -q 'IGNORE_ERRORS="m"'
 	fi
 fi
 
