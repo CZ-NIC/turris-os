@@ -182,8 +182,7 @@ if [ -n "$BUILD_ALL" ]; then
 		sha256sum "$MED_TAR_LATEST" > "$MED_TAR_LATEST".sha256
 		popd
 	else
-		# This triggers failure if errors should not be ignored
-		echo "$@" | grep -q 'IGNORE_ERRORS="m"'
+		echo "$@" | grep -q 'IGNORE_ERRORS="m"' || exit 1
 	fi
 fi
 
