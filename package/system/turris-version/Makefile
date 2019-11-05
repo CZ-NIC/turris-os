@@ -1,5 +1,5 @@
 #
-## Copyright (C) 2014-2019 CZ.NIC z.s.p.o. (http://www.nic.cz/)
+## Copyright (C) 2014-2019 CZ.NIC z.s.p.o. (https://www.nic.cz/)
 #
 ## This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.11.8
+PKG_VERSION:=3.11.9
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,13 +28,13 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • foris, youtube-dl, wireguard, nextcloud, kernel: aktualizace
- • bird, python[3]-urllib3, netdata, ustream-ssl: aktualizace
- • openssl: bezpečnostní aktualizace
- • ludus: drobné úpravy" " • foris, youtube-dl, wireguard, nextcloud, kernel: update
- • bird, python[3]-urllib3, netdata, ustream-ssl: update
- • openssl: security update
- • ludus: various improvements"
+create_notification -s news " • tcpdump, sudo, uci: bezpečnostní aktualizace
+ • knot-resolver, wireguard, kernel, youtube-dl, turris-maintain: aktualizace
+ • foris-controller-openvpn-module: oprava autodetekce server ip adresy
+ • ripe-atlas-probe, atlas-sw-probe: nový balíčky" " • tcpdump, sudo, uci: security update
+ • knot-resolver, wireguard, kernel, youtube-dl, turris-maintain: update
+ • foris-controller-openvpn-module: fix server ip address autodetection
+ • ripe-atlas-probe, atlas-sw-probe: new packages"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
 	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do
