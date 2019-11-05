@@ -1,14 +1,14 @@
-From 28d42718d43550125e145f1fa49670712387c339 Mon Sep 17 00:00:00 2001
+From 552d0e64a4efa335074241bef0dd2a3444c23918 Mon Sep 17 00:00:00 2001
 From: Josef Schlehofer <pepe.schlehofer@gmail.com>
-Date: Sat, 28 Sep 2019 22:01:31 +0200
-Subject: [PATCH] youtube-dl: Update to version 2019.09.28
+Date: Tue, 5 Nov 2019 22:22:33 +0100
+Subject: [PATCH] youtube-dl: Update to version 2019.11.05
 
 ---
  multimedia/youtube-dl/Makefile | 19 +++++++++++--------
  1 file changed, 11 insertions(+), 8 deletions(-)
 
 diff --git a/multimedia/youtube-dl/Makefile b/multimedia/youtube-dl/Makefile
-index eaa43393d..69973dada 100644
+index eaa43393d..b06114cb9 100644
 --- a/multimedia/youtube-dl/Makefile
 +++ b/multimedia/youtube-dl/Makefile
 @@ -8,18 +8,17 @@
@@ -16,14 +16,14 @@ index eaa43393d..69973dada 100644
  
  PKG_NAME:=youtube-dl
 -PKG_VERSION:=2016.05.16
-+PKG_VERSION:=2019.09.28
++PKG_VERSION:=2019.11.05
  PKG_RELEASE:=1
  
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 -PKG_SOURCE_URL:=http://youtube-dl.org/downloads/$(PKG_VERSION)/
 -PKG_MD5SUM:=f50b53b9938eeb43a2466e451e71f474
 +PKG_SOURCE_URL:=https://yt-dl.org/downloads/$(PKG_VERSION)/
-+PKG_HASH:=50a0dfbf6d86eb2b7b461fd3aaa4fc2bc653d8bc0c728a9ead564f6ae602335b
++PKG_HASH:=05ad24f831e915b65520f6abfa1c1d52be4aad6cc9603b24a67a804062302489
  PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
  
  PKG_LICENSE:=Unlicense
