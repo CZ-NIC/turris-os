@@ -28,10 +28,10 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • tcpdump, sudo, uci: bezpečnostní aktualizace
+create_notification -s news " • tcpdump, sudo, uci, libarchive: bezpečnostní aktualizace
  • knot-resolver, wireguard, kernel, youtube-dl, turris-maintain: aktualizace
  • foris-controller-openvpn-module: oprava autodetekce server ip adresy
- • ripe-atlas-probe, atlas-sw-probe: nový balíčky" " • tcpdump, sudo, uci: security update
+ • ripe-atlas-probe, atlas-sw-probe: nový balíčky" " • tcpdump, sudo, uci, libarchive: security update
  • knot-resolver, wireguard, kernel, youtube-dl, turris-maintain: update
  • foris-controller-openvpn-module: fix server ip address autodetection
  • ripe-atlas-probe, atlas-sw-probe: new packages"
