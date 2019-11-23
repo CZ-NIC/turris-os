@@ -1,24 +1,34 @@
+From ea211f6c4ea73dd31f8742efb9ab45820091e8af Mon Sep 17 00:00:00 2001
+From: Josef Schlehofer <pepe.schlehofer@gmail.com>
+Date: Sat, 23 Nov 2019 20:38:46 +0100
+Subject: [PATCH] php7: Update to version 7.1.33
+
+---
+ lang/php7/Makefile | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
 diff --git a/lang/php7/Makefile b/lang/php7/Makefile
-index f7bdd66e..4f7f074e 100644
+index f7bdd66..214f06a 100644
 --- a/lang/php7/Makefile
 +++ b/lang/php7/Makefile
 @@ -6,7 +6,7 @@
  include $(TOPDIR)/rules.mk
- 
+
  PKG_NAME:=php
 -PKG_VERSION:=7.1.6
-+PKG_VERSION:=7.1.23
++PKG_VERSION:=7.1.33
  PKG_RELEASE:=1
- 
+
  PKG_MAINTAINER:=Michael Heimpold <mhei@heimpold.de>
-@@ -16,8 +16,8 @@ PKG_LICENSE_FILES:=LICENSE
- 
+@@ -16,8 +16,7 @@ PKG_LICENSE_FILES:=LICENSE
+
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
  PKG_SOURCE_URL:=http://www.php.net/distributions/
 -PKG_MD5SUM:=eafc7a79cc8cc62c9292c96f9c9ccf90
 -PKG_HASH:=01584dc521ab7ec84b502b61952f573652fe6aa00c18d6d844fb9209f14b245b
-+PKG_MD5SUM:=227a3c76133c3dc1cec937989456cbd89ed00e68e7260c651900dbe1f5b798bc
-+PKG_HASH:=227a3c76133c3dc1cec937989456cbd89ed00e68e7260c651900dbe1f5b798bc
- 
++PKG_HASH:=bd7c0a9bd5433289ee01fd440af3715309faf583f75832b64fe169c100d52968
+
  PKG_FIXUP:=libtool autoreconf
  PKG_BUILD_PARALLEL:=1
+--
+2.24.0
