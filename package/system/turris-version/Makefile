@@ -29,8 +29,8 @@ define Package/turris-version/postinst
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • php7: bezpečnostní aktualizace
- • kernel: aktualizace" " • php7: security update
- • kernel: update"
+ • kernel, unbound, python3-uci: aktualizace" " • php7: security update
+ • kernel, unbound, python3-uci: update"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
 	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do
