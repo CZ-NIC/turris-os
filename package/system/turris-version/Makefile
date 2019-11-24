@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.11.9
+PKG_VERSION:=3.11.10
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,13 +28,9 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • tcpdump, sudo, uci, libarchive: bezpečnostní aktualizace
- • knot-resolver, wireguard, kernel, youtube-dl, turris-maintain, knot: aktualizace
- • foris-controller-openvpn-module: oprava autodetekce server ip adresy
- • ripe-atlas-probe, atlas-sw-probe: nový balíčky" " • tcpdump, sudo, uci, libarchive: security update
- • knot-resolver, wireguard, kernel, youtube-dl, turris-maintain, knot: update
- • foris-controller-openvpn-module: fix server ip address autodetection
- • ripe-atlas-probe, atlas-sw-probe: new packages"
+create_notification -s news " • php7: bezpečnostní aktualizace
+ • kernel, unbound, python3-uci: aktualizace" " • php7: security update
+ • kernel, unbound, python3-uci: update"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
 	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do
