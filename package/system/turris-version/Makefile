@@ -28,7 +28,9 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • knot-resolver: bezpečnostní aktualizace" "• knot-resolver: security update"
+create_notification -s news " • Šťastné a veselé Vánoce!
+ • knot-resolver: bezpečnostní aktualizace" " • Merry Christmas!
+ • knot-resolver: security update"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
 	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do
