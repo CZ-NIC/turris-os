@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.11.10
+PKG_VERSION:=3.11.11
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,9 +28,7 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • php7: bezpečnostní aktualizace
- • kernel, unbound, python3-uci: aktualizace" " • php7: security update
- • kernel, unbound, python3-uci: update"
+create_notification -s news " • knot-resolver: bezpečnostní aktualizace" "• knot-resolver: security update"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
 	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do
