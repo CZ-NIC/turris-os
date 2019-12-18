@@ -1,7 +1,7 @@
-From cb7683f158d80050e79df5f42d5b8412581afe54 Mon Sep 17 00:00:00 2001
-From: Josef Schlehofer <josef.schlehofer@nic.cz>
-Date: Thu, 3 Jan 2019 02:38:09 +0100
-Subject: [PATCH] git: update to version 2.20.1
+From 48406e1c5780a27799c7c44fb90f142421300cef Mon Sep 17 00:00:00 2001
+From: Josef Schlehofer <pepe.schlehofer@gmail.com>
+Date: Wed, 18 Dec 2019 23:34:59 +0100
+Subject: [PATCH] git: Update to version 2.20.2
 
 ---
  net/git/Makefile                              |  58 +++--
@@ -14,7 +14,7 @@ Subject: [PATCH] git: update to version 2.20.1
  delete mode 100644 net/git/patches/200-disable_fasthash.patch
 
 diff --git a/net/git/Makefile b/net/git/Makefile
-index 1b9d7729e..fbcd6eec8 100644
+index 1b9d7729e..4cbb7f850 100644
 --- a/net/git/Makefile
 +++ b/net/git/Makefile
 @@ -1,5 +1,5 @@
@@ -29,13 +29,13 @@ index 1b9d7729e..fbcd6eec8 100644
  
  PKG_NAME:=git
 -PKG_VERSION:=2.8.2
-+PKG_VERSION:=2.20.1
++PKG_VERSION:=2.20.2
  PKG_RELEASE:=1
  
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
  PKG_SOURCE_URL:=@KERNEL/software/scm/git/
 -PKG_MD5SUM:=b8edb4ae34828fda6aa2a4478089b107
-+PKG_HASH:=9d2e91e2faa2ea61ba0a70201d023b36f54d846314591a002c610ea2ab81c3e9
++PKG_HASH:=a93c4ceab3e86701d649993e40e8cb26bfa71fcb67eebae6df058bccb0370a85
  
  PKG_INSTALL:=1
 -PKG_BUILD_PARALLEL:=1
@@ -430,5 +430,5 @@ index a83970553..75268a48f 100644
   	curl_check := $(shell (echo 072200; $(CURL_CONFIG) --vernum | sed -e '/^70[BC]/s/^/0/') 2>/dev/null | sort -r | sed -ne 2p)
   	ifeq "$(curl_check)" "072200"
 -- 
-2.17.1
+2.24.1
 
