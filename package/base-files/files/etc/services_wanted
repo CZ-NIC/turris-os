@@ -43,6 +43,7 @@ haas-proxy
 sentinel-dynfw-client
 sentinel-minipot
 sentinel-proxy
+srv
 haveged
 mozilla-iot-gateway
 dev-detect
