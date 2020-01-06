@@ -39,6 +39,7 @@ asm1062-fix
 foris-controller
 foris-ws
 fosquitto
+haas-proxy
 haveged
 mozilla-iot-gateway
 dev-detect
