@@ -1,6 +1,8 @@
---- a/drivers/mtd/Kconfig
-+++ b/drivers/mtd/Kconfig
-@@ -12,6 +12,23 @@ menuconfig MTD
+Index: linux-4.4.208/drivers/mtd/Kconfig
+===================================================================
+--- linux-4.4.208.orig/drivers/mtd/Kconfig	2020-01-06 15:29:19.945838637 +0100
++++ linux-4.4.208/drivers/mtd/Kconfig	2020-01-06 15:29:19.945838637 +0100
+@@ -12,6 +12,23 @@
  
  if MTD
  
@@ -24,8 +26,10 @@
  config MTD_TESTS
  	tristate "MTD tests support (DANGEROUS)"
  	depends on m
---- a/drivers/mtd/mtdpart.c
-+++ b/drivers/mtd/mtdpart.c
+Index: linux-4.4.208/drivers/mtd/mtdpart.c
+===================================================================
+--- linux-4.4.208.orig/drivers/mtd/mtdpart.c	2020-01-06 15:29:19.945838637 +0100
++++ linux-4.4.208/drivers/mtd/mtdpart.c	2020-01-06 15:31:59.334720545 +0100
 @@ -29,11 +29,13 @@
  #include <linux/kmod.h>
  #include <linux/mtd/mtd.h>
@@ -40,7 +44,7 @@
  
  /* Our partition linked list */
  static LIST_HEAD(mtd_partitions);
-@@ -47,6 +49,8 @@ struct mtd_part {
+@@ -47,6 +49,8 @@
  	struct list_head list;
  };
  
@@ -49,15 +53,15 @@
  /*
   * Given a pointer to the MTD object in the mtd_part structure, we can retrieve
   * the pointer to that structure with this macro.
-@@ -612,6 +616,7 @@ int mtd_add_partition(struct mtd_info *m
- 	mutex_unlock(&mtd_partitions_mutex);
+@@ -615,6 +619,7 @@
+ 	if (ret)
+ 		goto err_remove_part;
  
- 	add_mtd_device(&new->mtd);
 +	mtd_partition_split(master, new);
- 
  	mtd_add_partition_attrs(new);
  
-@@ -644,6 +649,35 @@ int mtd_del_partition(struct mtd_info *m
+ 	return 0;
+@@ -655,6 +660,35 @@
  }
  EXPORT_SYMBOL_GPL(mtd_del_partition);
  
@@ -93,17 +97,19 @@
  /*
   * This function, given a master MTD object and a partition table, creates
   * and registers slave MTD objects which are bound to the master according to
-@@ -675,6 +709,7 @@ int add_mtd_partitions(struct mtd_info *
- 		mutex_unlock(&mtd_partitions_mutex);
+@@ -695,6 +729,7 @@
+ 			goto err_del_partitions;
+ 		}
  
- 		add_mtd_device(&slave->mtd);
 +		mtd_partition_split(master, slave);
  		mtd_add_partition_attrs(slave);
  
  		cur_offset = slave->offset + slave->mtd.size;
---- a/include/linux/mtd/partitions.h
-+++ b/include/linux/mtd/partitions.h
-@@ -84,5 +84,7 @@ int mtd_add_partition(struct mtd_info *m
+Index: linux-4.4.208/include/linux/mtd/partitions.h
+===================================================================
+--- linux-4.4.208.orig/include/linux/mtd/partitions.h	2020-01-06 15:29:19.945838637 +0100
++++ linux-4.4.208/include/linux/mtd/partitions.h	2020-01-06 15:29:19.945838637 +0100
+@@ -84,5 +84,7 @@
  		      long long offset, long long length);
  int mtd_del_partition(struct mtd_info *master, int partno);
  uint64_t mtd_get_device_size(const struct mtd_info *mtd);
