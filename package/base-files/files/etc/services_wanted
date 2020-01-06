@@ -40,6 +40,9 @@ foris-controller
 foris-ws
 fosquitto
 haas-proxy
+sentinel-dynfw-client
+sentinel-minipot
+sentinel-proxy
 haveged
 mozilla-iot-gateway
 dev-detect
