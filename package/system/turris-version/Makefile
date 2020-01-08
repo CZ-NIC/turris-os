@@ -1,5 +1,5 @@
 #
-## Copyright (C) 2014-2019 CZ.NIC z.s.p.o. (https://www.nic.cz/)
+## Copyright (C) 2014-2020 CZ.NIC z.s.p.o. (https://www.nic.cz/)
 #
 ## This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.11.12
+PKG_VERSION:=3.11.13
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,7 +28,9 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • git: bezpečnostní aktualizace" "• git: security update"
+create_notification -s news " • openssl, ffmpeg, unbound: bezpečnostní aktualizace
+ • kernel, resolver-conf, knot-resolver, nextcloud: aktualizace" " • openssl, ffmpeg, unbound: security update
+ • kernel, resolver-conf, knot-resolver, nextcloud: update"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
 	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do
