@@ -61,9 +61,6 @@ Install("ca-certificates", { priority = 40 })
 
 _FEATURE_GUARD_
 
--- It's Christmas time
-Install('christmas', { priority = 10 })
-
 -- Updater utility
 Install('updater-ng-opkg', { priority = 40 })
 if features.replan_string then
