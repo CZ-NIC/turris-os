@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.11.13
+PKG_VERSION:=3.11.14
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,9 +28,9 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • openssl, ffmpeg, unbound: bezpečnostní aktualizace
- • kernel, resolver-conf, knot-resolver, nextcloud: aktualizace" " • openssl, ffmpeg, unbound: security update
- • kernel, resolver-conf, knot-resolver, nextcloud: update"
+create_notification -s news " • kernel: bezpečnostní aktualizace
+ • wireguard, youtube-dl: aktualizace" " • kernel: security update
+ • wireguard, youtube-dl: update"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
 	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do
