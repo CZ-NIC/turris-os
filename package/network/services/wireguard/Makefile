@@ -11,12 +11,12 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=wireguard
 
-PKG_VERSION:=0.0.20191205
+PKG_VERSION:=0.0.20191219
 PKG_RELEASE:=1
 
 PKG_SOURCE:=WireGuard-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=https://git.zx2c4.com/WireGuard/snapshot/
-PKG_MD5SUM:=4de4c0efa35f8eb170c27a0bc8977e5c0634b8e19c03915d03218cc88bb0adbe
+PKG_SOURCE_URL:=https://download.wireguard.com/monolithic-historical/
+PKG_MD5SUM:=5aba6f0c38e97faa0b155623ba594bb0e4bd5e29deacd8d5ed8bda8d8283b0e7
 
 PKG_LICENSE:=GPL-2.0 Apache-2.0
 PKG_LICENSE_FILES:=COPYING
