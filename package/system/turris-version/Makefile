@@ -28,8 +28,8 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • kernel: bezpečnostní aktualizace
- • wireguard, youtube-dl: aktualizace" " • kernel: security update
+create_notification -s news " • opkg: bezpečnostní aktualizace
+ • wireguard, youtube-dl: aktualizace" " • opkg: security update
  • wireguard, youtube-dl: update"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
