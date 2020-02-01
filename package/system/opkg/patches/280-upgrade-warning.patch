@@ -5,7 +5,7 @@
  	int err = 0;
  
 +	char answer[5];
-+	fprintf(stderr, "The opkg upgrade is *DANGEROUS* on TurrisOS releases.\n"
++	fprintf(stderr, "The opkg upgrade is *DANGEROUS* on Turris OS releases.\n"
 +	                "It *WILL* break your system.\n"
 +	                "Do you really want to continue? Write upper-case yes if do.\n");
 +
