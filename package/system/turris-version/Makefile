@@ -28,8 +28,8 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • suricata: bezpečnostní aktualizace
- • nextcloud, turris-firewall-rules, unbound: aktualizace" " • suricata: security update
+create_notification -s news " • suricata, ppp: bezpečnostní aktualizace
+ • nextcloud, turris-firewall-rules, unbound: aktualizace" " • suricata, ppp: security update
  • nextcloud, turris-firewall-rules, unbound: update"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
