@@ -1,14 +1,14 @@
-From 44ba70941cf1fa89a49f195726a2209d2ebf1f4b Mon Sep 17 00:00:00 2001
+From 7224ab756462121a6711ea08a9a9873741f6d350 Mon Sep 17 00:00:00 2001
 From: Josef Schlehofer <pepe.schlehofer@gmail.com>
-Date: Sat, 1 Feb 2020 23:27:23 +0100
-Subject: [PATCH] youtube-dl: update to version 2020.01.24
+Date: Sun, 15 Mar 2020 22:15:34 +0100
+Subject: [PATCH] youtube-dl: update to version 2020.03.08
 
 ---
  multimedia/youtube-dl/Makefile | 19 +++++++++++--------
  1 file changed, 11 insertions(+), 8 deletions(-)
 
 diff --git a/multimedia/youtube-dl/Makefile b/multimedia/youtube-dl/Makefile
-index eaa43393d..b29aa93a6 100644
+index eaa43393d..8ae52873d 100644
 --- a/multimedia/youtube-dl/Makefile
 +++ b/multimedia/youtube-dl/Makefile
 @@ -8,18 +8,17 @@
@@ -16,14 +16,14 @@ index eaa43393d..b29aa93a6 100644
  
  PKG_NAME:=youtube-dl
 -PKG_VERSION:=2016.05.16
-+PKG_VERSION:=2020.01.24
++PKG_VERSION:=2020.03.08
  PKG_RELEASE:=1
  
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 -PKG_SOURCE_URL:=http://youtube-dl.org/downloads/$(PKG_VERSION)/
 -PKG_MD5SUM:=f50b53b9938eeb43a2466e451e71f474
 +PKG_SOURCE_URL:=https://yt-dl.org/downloads/$(PKG_VERSION)/
-+PKG_HASH:=0b1dcc96d204984df1ee364e81cddd5645421f6065d2815472258ccdad5c36ff
++PKG_HASH:=76114c82015386eda24fe110e2c24a35f0551ce298b915e1c48c2acb495073f5
  PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
  
  PKG_LICENSE:=Unlicense
@@ -59,5 +59,5 @@ index eaa43393d..b29aa93a6 100644
  	$(INSTALL_DIR) $(1)/usr/bin
  	$(INSTALL_BIN) $(PKG_BUILD_DIR)/youtube-dl $(1)/usr/bin/
 -- 
-2.25.0
+2.25.1
 
