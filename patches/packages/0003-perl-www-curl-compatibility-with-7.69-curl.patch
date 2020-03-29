@@ -1,0 +1,45 @@
+From 286ab74e9b717c5830cd12abdfe8aa92eb9e06bf Mon Sep 17 00:00:00 2001
+From: Alexander Ryzhov <github@ryzhov-al.ru>
+Date: Fri, 13 Mar 2020 12:56:30 +0300
+Subject: [PATCH] perl-www-curl: curl 7.69.0 compatibility
+
+Signed-off-by: Alexander Ryzhov <github@ryzhov-al.ru>
+---
+ lang/perl-www-curl/Makefile                           |  2 +-
+ lang/perl-www-curl/patches/220-curl_7.69_compat.patch | 11 +++++++++++
+ 2 files changed, 12 insertions(+), 1 deletion(-)
+ create mode 100644 lang/perl-www-curl/patches/220-curl_7.69_compat.patch
+
+diff --git a/lang/perl-www-curl/Makefile b/lang/perl-www-curl/Makefile
+index 2a4e8ccaa..858ffa097 100644
+--- a/lang/perl-www-curl/Makefile
++++ b/lang/perl-www-curl/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=perl-www-curl
+ PKG_VERSION:=4.17
+-PKG_RELEASE:=6
++PKG_RELEASE:=7
+ 
+ PKG_SOURCE_URL:=http://www.cpan.org/authors/id/S/SZ/SZBALINT/
+ PKG_SOURCE:=WWW-Curl-$(PKG_VERSION).tar.gz
+diff --git a/lang/perl-www-curl/patches/220-curl_7.69_compat.patch b/lang/perl-www-curl/patches/220-curl_7.69_compat.patch
+new file mode 100644
+index 000000000..1b59a30a9
+--- /dev/null
++++ b/lang/perl-www-curl/patches/220-curl_7.69_compat.patch
+@@ -0,0 +1,11 @@
++--- a/Makefile.PL
+++++ b/Makefile.PL
++@@ -127,7 +127,7 @@
++     close H;
++ 
++     for my $e (sort @syms) {
++-       if($e =~ /(OBSOLETE|^CURL_EXTERN|^CURL_STRICTER\z|_LAST\z|_LASTENTRY\z)/) {
+++       if($e =~ /(OBSOLETE|^CURL_EXTERN|CURLOPT\z|^CURL_STRICTER\z|_LAST\z|_LASTENTRY\z|WIN32)/) {
++           next;
++        }
++        my ($group) = $e =~ m/^([^_]+_)/;
+-- 
+2.25.1
+
