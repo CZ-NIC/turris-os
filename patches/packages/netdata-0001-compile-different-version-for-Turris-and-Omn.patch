@@ -27,7 +27,7 @@ index e88221e0..b070608e 100644
 +ifeq ($(CONFIG_TARGET_mvebu_Turris-Omnia),y)
 +
 +PKG_NAME:=netdata
-+PKG_VERSION:=1.17.1
++PKG_VERSION:=1.20.0
 +PKG_RELEASE:=1
 +PKG_MAINTAINER:=Josef Schlehofer <pepe.schlehofer@gmail.com>, Daniel Engberg <daniel.engberg.lists@pyret.net>
 +PKG_LICENSE:=GPL-3.0-or-later
@@ -36,7 +36,7 @@ index e88221e0..b070608e 100644
 +
 +PKG_SOURCE:=$(PKG_NAME)-v$(PKG_VERSION).tar.gz
 +PKG_SOURCE_URL:=https://github.com/netdata/netdata/releases/download/v$(PKG_VERSION)
-+PKG_HASH:=fce02e4b2d9d6d050bc5eac0c30c802124af29f6d8dbb9196331ad9284ae894c
++PKG_HASH:=dc51869e3e541ca569e75d601133a413a8e56ce2b606dbfe84b35b1d7806216e
 +PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-v$(PKG_VERSION)
 +PKG_INSTALL:=1
 +PKG_FIXUP:=autoreconf
@@ -56,7 +56,7 @@ index e88221e0..b070608e 100644
 +  monitoring for Linux systems, applications and SNMP devices over the web.
 +endef
 +
-+TARGET_CFLAGS := $(filter-out -O%,$(TARGET_CFLAGS))
++TARGET_CFLAGS := $(filter-out -O%,$(TARGET_CFLAGS)) -std=gnu99
 +TARGET_CFLAGS += -ffunction-sections -fdata-sections -O3
 +TARGET_LDFLAGS += -Wl,--gc-sections
 +
