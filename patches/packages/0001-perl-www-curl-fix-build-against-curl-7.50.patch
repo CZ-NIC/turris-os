@@ -13,10 +13,24 @@ Upstream bug: https://rt.cpan.org/Public/Bug/Display.html?id=117793
 
 Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 ---
+ lang/perl-www-curl/Makefile                        |  2 +-
  .../patches/101-skip-preprocessor-symbol.path | 34 +++++++++++++++++++
  1 file changed, 34 insertions(+)
  create mode 100644 lang/perl-www-curl/patches/101-skip-preprocessor-symbol.path
 
+diff --git a/lang/perl-www-curl/Makefile b/lang/perl-www-curl/Makefile
+index 1e424cb..9b83109 100644
+--- a/lang/perl-www-curl/Makefile
++++ b/lang/perl-www-curl/Makefile
+@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=perl-www-curl
+ PKG_VERSION:=4.17
+-PKG_RELEASE:=4
++PKG_RELEASE:=5
+ 
+ PKG_SOURCE_URL:=http://www.cpan.org/authors/id/S/SZ/SZBALINT/
+ PKG_SOURCE:=WWW-Curl-$(PKG_VERSION).tar.gz
 diff --git a/lang/perl-www-curl/patches/101-skip-preprocessor-symbol.path b/lang/perl-www-curl/patches/101-skip-preprocessor-symbol.path
 new file mode 100644
 index 000000000..34221c0d2
