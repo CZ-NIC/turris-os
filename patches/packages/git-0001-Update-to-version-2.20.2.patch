@@ -1,7 +1,7 @@
 From 48406e1c5780a27799c7c44fb90f142421300cef Mon Sep 17 00:00:00 2001
 From: Josef Schlehofer <pepe.schlehofer@gmail.com>
 Date: Wed, 18 Dec 2019 23:34:59 +0100
-Subject: [PATCH] git: Update to version 2.20.2
+Subject: [PATCH] git: Update to version 2.20.3
 
 ---
  net/git/Makefile                              |  58 +++--
@@ -29,13 +29,13 @@ index 1b9d7729e..4cbb7f850 100644
  
  PKG_NAME:=git
 -PKG_VERSION:=2.8.2
-+PKG_VERSION:=2.20.2
++PKG_VERSION:=2.20.3
  PKG_RELEASE:=1
  
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
  PKG_SOURCE_URL:=@KERNEL/software/scm/git/
 -PKG_MD5SUM:=b8edb4ae34828fda6aa2a4478089b107
-+PKG_HASH:=a93c4ceab3e86701d649993e40e8cb26bfa71fcb67eebae6df058bccb0370a85
++PKG_HASH:=7e95a2fec5ceee4de44d0fd4a38f1299eea818565cb22d01dbe25ba86b76119f
  
  PKG_INSTALL:=1
 -PKG_BUILD_PARALLEL:=1
