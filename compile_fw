@@ -186,37 +186,4 @@ if [ -n "$BUILD_ALL" ]; then
 	fi
 fi
 
-if [ "$TARGET_BOARD" = omnia ]; then
-	cp configs/config-omnia-rescue .config
-	[ -n "$USE_CCACHE" ] && echo "CONFIG_CCACHE=y" >> .config
-    # Ugly hack, make python compile first to avoid possible race
-    ./scripts/feeds uninstall python
-	make defconfig CONFDEFAULT=n
-	make clean
-	make "$@"
-	echo -e "CONFIG_TARGET_ROOTFS_INITRAMFS=y\nCONFIG_TARGET_INITRAMFS_COMPRESSION_XZ=y" >> .config
-	sed -i 's/^TARGET_ROOTFS_INCLUDE_KERNEL=.*/# TARGET_ROOTFS_INCLUDE_KERNEL is not set/' .config
-	sed -i 's/^CONFIG_TARGET_ROOTFS_INCLUDE_DTB.*/# CONFIG_TARGET_ROOTFS_INCLUDE_DTB is not set/' .config
-	make defconfig
-	cp build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/root-mvebu/boot/uboot* build_dir
-	rm -f build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/root-mvebu/boot/* build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/root-mvebu/etc/rc.d/*rainbow
-	make target/linux/compile "$@"
-	cp `ls -d build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/linux-mvebu`/{zImage-initramfs,zImage-initramfs-armada-385-turris-omnia}
-	cat build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/linux-mvebu/linux-4.4*/arch/arm/boot/dts/armada-385-turris-omnia.dtb >> `ls -d build_dir/target-arm_cortex-a9+vfpv3_musl-*_eabi/linux-mvebu`/zImage-initramfs-armada-385-turris-omnia
-	[ \! -d ./logs ] || cp ./.config logs/config
-	[ \! -d ./logs ] || mv ./logs ./logs-initram
-	cp build_dir/target-arm_*/linux-mvebu/zImage-initramfs-armada-385-turris-omnia bin/mvebu-musl/omnia-initramfs-zimage
-	SIZE="`du -b bin/mvebu-musl/omnia-initramfs-zimage | sed 's|[[:blank:]].*||'`"
-	echo "Rescue image size is ${SIZE}."
-	if [ "$SIZE" -ge $(( 7 * 1024 * 1024 )) ]; then
-		echo FATAL: Image too big.
-		exit 1
-	fi
-	mv build_dir/uboot* bin/mvebu-musl
-	mkdir -p bin/mvebu-musl/x86-64
-	cp build_dir/host/uboot-turris-omnia*/turris-omnia-uboot/* bin/mvebu-musl/x86-64
-	mv bin bin-nor
-	rm -rf bin-nor/mvebu-musl/packages
-elif [ "$TARGET_BOARD" = turris ]; then
-	cp -r turris-legacy/* .
-fi
+cp -r "$TARGET_BOARD-legacy"/* .
