@@ -28,10 +28,10 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • git, samba4, krb5: bezpečnostní aktualizace
- • updater-ng, nextcloud, knot-resolver, knot, btrfs-progs, resolver-conf: aktualizace
- • python3-msgack, sentinel-dynfw-client: aktualizace" " • git, samba4, krb5: security update
- • updater-ng, nextcloud, knot-resolver, knot, btrfs-progs, resolver-conf: update
+create_notification -s news " • git, samba4, krb5, unbound, knot-resolver, bind: bezpečnostní aktualizace
+ • updater-ng, nextcloud, knot, btrfs-progs, resolver-conf: aktualizace
+ • python3-msgack, sentinel-dynfw-client: aktualizace" " • git, samba4, krb5, unbound, knot-resolver, bind: security update
+ • updater-ng, nextcloud, btrfs-progs, resolver-conf: update
  • python3-msgpack, sentinel-dynfw-client: update"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
