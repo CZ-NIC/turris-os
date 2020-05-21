@@ -27,6 +27,7 @@ for pkg in `find $pkg_dir -name '*.ipk' | sort`; do
 Size: $file_size\\
 MD5Sum: $md5sum\\
 SHA256sum: $sha256sum\\
+SHA256Sum: $sha256sum\\
 Description:/"
 	echo ""
 done

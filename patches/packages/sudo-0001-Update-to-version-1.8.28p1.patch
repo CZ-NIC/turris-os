@@ -1,0 +1,45 @@
+From 556314986fbb93cde5d6c3ba28291851c203f335 Mon Sep 17 00:00:00 2001
+From: Josef Schlehofer <pepe.schlehofer@gmail.com>
+Date: Thu, 7 Nov 2019 21:45:55 +0100
+Subject: [PATCH] sudo: Update to version 1.8.28p1
+
+---
+ admin/sudo/Makefile | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/admin/sudo/Makefile b/admin/sudo/Makefile
+index 43e92977d..cb4b36654 100644
+--- a/admin/sudo/Makefile
++++ b/admin/sudo/Makefile
+@@ -8,14 +8,14 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=sudo
+-PKG_VERSION:=1.8.14p3
++PKG_VERSION:=1.8.28p1
+ PKG_RELEASE:=1
+ PKG_LICENSE:=ISC
+ PKG_LICENSE_FILES:=doc/LICENSE
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+-PKG_SOURCE_URL:=http://www.sudo.ws/dist
+-PKG_MD5SUM:=93dbd1e47c136179ff1b01494c1c0e75
++PKG_SOURCE_URL:=https://www.sudo.ws/dist
++PKG_MD5SUM:=23ba5a84af31e3b5ded58d4be6d3f6939a495a55561fba92c6941b79a6e8b027
+ 
+ PKG_INSTALL:=1
+ 
+@@ -27,8 +27,9 @@ define Package/sudo
+   SECTION:=admin
+   CATEGORY:=Administration
+   TITLE:=Delegate authority to run commands
+-  URL:=http://www.sudo.ws/
++  URL:=https://www.sudo.ws/
+   MAINTAINER:=Gergely Kiss <mail.gery@gmail.com>
++  DEPENDS:=+USE_UCLIBC:libpthread
+ endef
+ 
+ define Package/sudo/description
+-- 
+2.20.1
+

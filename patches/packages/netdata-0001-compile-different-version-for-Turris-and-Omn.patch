@@ -27,16 +27,16 @@ index e88221e0..b070608e 100644
 +ifeq ($(CONFIG_TARGET_mvebu_Turris-Omnia),y)
 +
 +PKG_NAME:=netdata
-+PKG_VERSION:=1.14.0
++PKG_VERSION:=1.20.0
 +PKG_RELEASE:=1
-+PKG_MAINTAINER:=
-+PKG_LICENSE:=GPL-3.0
++PKG_MAINTAINER:=Josef Schlehofer <pepe.schlehofer@gmail.com>, Daniel Engberg <daniel.engberg.lists@pyret.net>
++PKG_LICENSE:=GPL-3.0-or-later
 +PKG_LICENSE_FILES:=COPYING
 +PKG_BUILD_DEPENDS:=+util-linux
 +
 +PKG_SOURCE:=$(PKG_NAME)-v$(PKG_VERSION).tar.gz
 +PKG_SOURCE_URL:=https://github.com/netdata/netdata/releases/download/v$(PKG_VERSION)
-+PKG_HASH:=f3768f6927e3712dce73794c6943a12f4454410c872eb3dfd19af4f52296187a
++PKG_HASH:=dc51869e3e541ca569e75d601133a413a8e56ce2b606dbfe84b35b1d7806216e
 +PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-v$(PKG_VERSION)
 +PKG_INSTALL:=1
 +PKG_FIXUP:=autoreconf
@@ -46,7 +46,7 @@ index e88221e0..b070608e 100644
 +define Package/netdata
 +  SECTION:=admin
 +  CATEGORY:=Administration
-+  DEPENDS:=+zlib +USE_UCLIBC:libpthread +libuuid +libmnl
++  DEPENDS:=+zlib +USE_UCLIBC:libpthread +libuuid +libmnl +libopenssl +liblz4 +libuv +libjson-c
 +  TITLE:=Real-time performance monitoring tool
 +  URL:=https://my-netdata.io/
 +endef
@@ -56,7 +56,7 @@ index e88221e0..b070608e 100644
 +  monitoring for Linux systems, applications and SNMP devices over the web.
 +endef
 +
-+TARGET_CFLAGS := $(filter-out -O%,$(TARGET_CFLAGS))
++TARGET_CFLAGS := $(filter-out -O%,$(TARGET_CFLAGS)) -std=gnu99
 +TARGET_CFLAGS += -ffunction-sections -fdata-sections -O3
 +TARGET_LDFLAGS += -Wl,--gc-sections
 +

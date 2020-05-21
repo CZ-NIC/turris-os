@@ -1,5 +1,5 @@
 #
-## Copyright (C) 2014-2019 CZ.NIC z.s.p.o. (http://www.nic.cz/)
+## Copyright (C) 2014-2020 CZ.NIC z.s.p.o. (https://www.nic.cz/)
 #
 ## This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.11.5
+PKG_VERSION:=3.11.17
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,13 +28,11 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • bind, libxslt, libpng, dovecot, gnutls, wget, samba4, tiff, suricata: bezpečnostní aktualizace
- • schnapps, netdata, youtube-dl, libhtp, foris, resolver-conf: aktualizace
- • python3-pyroute: nové balíčky
- • kernel: aktualizace" " • bind, libxslt, libpng, dovecot, gnutls, wget, samba4, tiff, suricata: security updates
- • schnapps, netdata, youtube-dl, libhtp, foris, resolver-conf: update
- • python3-pyroute2: new packages
- • kernel: update"
+create_notification -s news " • git, samba4, krb5, unbound, knot-resolver, bind: bezpečnostní aktualizace
+ • updater-ng, nextcloud, knot, btrfs-progs, resolver-conf: aktualizace
+ • python3-msgack, sentinel-dynfw-client: aktualizace" " • git, samba4, krb5, unbound, knot-resolver, bind: security update
+ • updater-ng, nextcloud, btrfs-progs, resolver-conf: update
+ • python3-msgpack, sentinel-dynfw-client: update"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
 	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do

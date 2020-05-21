@@ -27,11 +27,11 @@ index 9bf7d4b1a..1681d3102 100644
    TITLE:=Things Gateway by Mozilla
    URL:=https://iot.mozilla.org/gateway/
 -  DEPENDS:= +libpthread +node +node-npm +libopenzwave +openzwave-config +python +python3-light +python3-pip +openssl-util
-+  DEPENDS:= +libpthread +node +node-npm +libopenzwave +openzwave-config +python +python3-light +python3-pip +openssl-util +mozilla-iot-gateway-webapp
++  DEPENDS:= +libpthread +libc +node +node-npm +libopenzwave +openzwave-config +python +python3-light +python3-pip +openssl-util +mozilla-iot-gateway-webapp
    DEPENDS+= +MOIT_enable-plugin-support:git-http
    MENU:=1
  endef
-@@ -65,18 +65,23 @@ define Build/Compile
+@@ -65,18 +65,25 @@ define Build/Compile
  endef
  
  define Package/node-mozilla-iot-gateway/install
@@ -50,6 +50,8 @@ index 9bf7d4b1a..1681d3102 100644
 +	$(RM) -r $(1)/srv/mozilla-iot/gateway/node_modules/sqlite3/lib/binding/node-v57-linux-x64
 +	$(RM) -r $(1)/srv/mozilla-iot/gateway/node_modules/ursa-optional/build/Release/ursaNative.node
 +	$(RM) -r $(1)/srv/mozilla-iot/gateway/node_modules/ursa-optional/build/Release/obj.target/ursaNative.node
++	$(RM) -r $(1)/srv/mozilla-iot/gateway/node_modules/nanomsg/build/Release/obj.target/node_nanomsg.node
++	$(RM) -r $(1)/srv/mozilla-iot/gateway/node_modules/nanomsg/build/Release/node_nanomsg.node
  
 -	$(INSTALL_DIR) $(1)/opt/mozilla-iot/gateway/node_modules/sqlite3/lib/binding/node-v57-linux-arm/
 +	$(INSTALL_DIR) $(1)/srv/mozilla-iot/gateway/node_modules/sqlite3/lib/binding/node-v57-linux-arm/

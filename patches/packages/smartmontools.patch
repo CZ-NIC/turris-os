@@ -1,0 +1,28 @@
+diff --git a/utils/smartmontools/Makefile b/utils/smartmontools/Makefile
+index 88d684020..507769a55 100644
+--- a/utils/smartmontools/Makefile
++++ b/utils/smartmontools/Makefile
+@@ -9,12 +9,12 @@ include $(TOPDIR)/rules.mk
+ include $(INCLUDE_DIR)/uclibc++.mk
+ 
+ PKG_NAME:=smartmontools
+-PKG_VERSION:=6.5
++PKG_VERSION:=7.0
+ PKG_RELEASE:=1
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=@SF/smartmontools
+-PKG_MD5SUM:=093aeec3f8f39fa9a37593c4012d3156
++PKG_MD5SUM:=b2a80e4789af23d67dfe1e88a997abbf
+ PKG_MAINTAINER:=Maxim Storchak <m.storchak@gmail.com>
+ PKG_LICENSE:=GPL-2.0+
+ PKG_LICENSE_FILES:=COPYING
+@@ -72,6 +72,8 @@ endef
+ define Package/smartmontools/install
+ 	$(INSTALL_DIR) $(1)/usr/sbin
+ 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/smartctl $(1)/usr/sbin/
++	$(INSTALL_DIR) $(1)/usr/share/smartmontools
++	$(INSTALL_BIN) $(PKG_BUILD_DIR)/drivedb.h $(1)/usr/share/smartmontools
+ endef
+ 
+ define Package/smartd/install

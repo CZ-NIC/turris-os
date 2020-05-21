@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=valgrind
 PKG_VERSION:=3.13.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://sourceware.org/pub/valgrind/
@@ -23,6 +23,9 @@ PKG_INSTALL := 1
 PKG_BUILD_PARALLEL := 1
 PKG_USE_MIPS16:=0
 PKG_SSP:=0
+
+PKG_CC_STACKPROTECTOR_REGULAR := 0
+PKG_CC_STACKPROTECTOR_STRONG := 0
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/kernel.mk
@@ -105,7 +108,7 @@ CONFIGURE_ARGS += \
 	--without-included-gettext \
 	--with-pagesize=4 \
 
-define Package/valgrind/install	
+define Package/valgrind/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/valgrind* $(1)/usr/bin/
 	$(INSTALL_DIR) $(1)/usr/lib/valgrind
