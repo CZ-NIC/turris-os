@@ -30,9 +30,9 @@ define Package/turris-version/postinst
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • git, samba4, krb5, unbound, knot-resolver, bind: bezpečnostní aktualizace
  • updater-ng, nextcloud, knot, btrfs-progs, resolver-conf: aktualizace
- • python3-msgack, sentinel-dynfw-client: aktualizace" " • git, samba4, krb5, unbound, knot-resolver, bind: security update
+ • python3-msgack, atlas-sw-probe, sentinel-dynfw-client: aktualizace" " • git, samba4, krb5, unbound, knot-resolver, bind: security update
  • updater-ng, nextcloud, btrfs-progs, resolver-conf: update
- • python3-msgpack, sentinel-dynfw-client: update"
+ • python3-msgpack, atlas-sw-probe, sentinel-dynfw-client: update"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
 	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do
