@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.11.18
+PKG_VERSION:=3.11.19
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,11 +28,13 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • gnutls: bezpečnostní aktualizace
- • foris, foris-openvpn-plugin, knot-resolver: aktualizace
- • 3xmigrate: novy userliste" " • gnutls: security update
- • foris, foris-openvpn-plugin, knot-resolver: update
- • 3xmigrate: new userlist"
+create_notification -s news " • notifikace: pokud není nastaven region pro správné fungování Wi-Fi
+ • unbound, mdadm, curl, youtube-dl, smartmontools, msmtp: aktualizace
+ • knot-resolver: DNSSEC klíč je nyní read-only
+ • obfsproxy, obfs4proxy, yara: odstranění nekompilujících se balíčků" " • notification: check if country is set for stable working Wi-Fi
+ • unbound, mdadm, curl, youtube-dl, smartmontools, msmtp: update
+ • obfsproxy, obfs4proxy, yara: removed not-available packages
+ • knot-resolver: DNSSEC key is read-only"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
 	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do
