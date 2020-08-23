@@ -27,7 +27,7 @@ index e88221e0..b070608e 100644
 +ifeq ($(CONFIG_TARGET_mvebu_Turris-Omnia),y)
 +
 +PKG_NAME:=netdata
-+PKG_VERSION:=1.20.0
++PKG_VERSION:=1.23.2
 +PKG_RELEASE:=1
 +PKG_MAINTAINER:=Josef Schlehofer <pepe.schlehofer@gmail.com>, Daniel Engberg <daniel.engberg.lists@pyret.net>
 +PKG_LICENSE:=GPL-3.0-or-later
@@ -36,7 +36,7 @@ index e88221e0..b070608e 100644
 +
 +PKG_SOURCE:=$(PKG_NAME)-v$(PKG_VERSION).tar.gz
 +PKG_SOURCE_URL:=https://github.com/netdata/netdata/releases/download/v$(PKG_VERSION)
-+PKG_HASH:=dc51869e3e541ca569e75d601133a413a8e56ce2b606dbfe84b35b1d7806216e
++PKG_HASH:=b6dd13292e0b1fb4137b1f7c0dc3d7c5e8a1bf408b82c2b8394f3751800e0eb5
 +PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-v$(PKG_VERSION)
 +PKG_INSTALL:=1
 +PKG_FIXUP:=autoreconf
@@ -60,7 +60,7 @@ index e88221e0..b070608e 100644
 +TARGET_CFLAGS += -ffunction-sections -fdata-sections -O3
 +TARGET_LDFLAGS += -Wl,--gc-sections
 +
-+CONFIGURE_ARGS += --with-zlib --with-math --disable-x86-sse --enable-lto --without-libcap --disable-plugin-nfacct
++CONFIGURE_ARGS += --with-zlib --with-math --disable-x86-sse --enable-lto --without-libcap --disable-plugin-nfacct --disable-cloud --disable-unit-tests --disable-plugin-nfacct --disable-plugin-freeipmi
 +
 +define Package/netdata/conffiles
 +/etc/netdata/
@@ -72,7 +72,7 @@ index e88221e0..b070608e 100644
 +	$(CP) ./files/netdata.conf $(1)/etc/netdata
 +	$(INSTALL_DIR) $(1)/usr/share/netdata
 +	$(CP) $(PKG_INSTALL_DIR)/usr/share/netdata $(1)/usr/share
-+	rm -rf $(1)/usr/lib/netdata/python.d/python_modules/pyyaml2
++	rm -rf $(1)/usr/share/netdata/web/old
 +	rm -rf $(1)/usr/lib/netdata/python.d/python_modules/pyyaml3
 +	rm $(1)/usr/share/netdata/web/demo*html
 +	rm $(1)/usr/share/netdata/web/fonts/*.svg
