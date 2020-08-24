@@ -29,10 +29,12 @@ define Package/turris-version/postinst
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • notifikace: pokud není nastaven region pro správné fungování Wi-Fi
- • unbound, mdadm, curl, youtube-dl, smartmontools, msmtp: aktualizace
+ • curl, mbedtls: bezpečnostní aktualizace
+ • unbound, mdadm, youtube-dl, smartmontools, msmtp, haveged: aktualizace
  • knot-resolver: DNSSEC klíč je nyní read-only
  • obfsproxy, obfs4proxy, yara: odstranění nekompilujících se balíčků" " • notification: check if country is set for stable working Wi-Fi
- • unbound, mdadm, curl, youtube-dl, smartmontools, msmtp: update
+ • curl, mbedtls: security updates
+ • unbound, mdadm, youtube-dl, smartmontools, msmtp, haveged: update
  • obfsproxy, obfs4proxy, yara: removed not-available packages
  • knot-resolver: DNSSEC key is read-only"
 
