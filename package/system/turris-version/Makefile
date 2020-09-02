@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.11.19
+PKG_VERSION:=3.11.19.1
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,15 +28,8 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • notifikace: pokud není nastaven region pro správné fungování Wi-Fi
- • curl, mbedtls: bezpečnostní aktualizace
- • unbound, mdadm, youtube-dl, smartmontools, msmtp, haveged: aktualizace
- • knot-resolver: DNSSEC klíč je nyní read-only
- • obfsproxy, obfs4proxy, yara: odstranění nekompilujících se balíčků" " • notification: check if country is set for stable working Wi-Fi
- • curl, mbedtls: security updates
- • unbound, mdadm, youtube-dl, smartmontools, msmtp, haveged: update
- • obfsproxy, obfs4proxy, yara: removed not-available packages
- • knot-resolver: DNSSEC key is read-only"
+create_notification -s news " • mbedtls: bezpečnostní aktualizace
+ • experimentální migrace pro Turris 1.x routery je dočasně zakázana" " • mbedtls: security update"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
 	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do
