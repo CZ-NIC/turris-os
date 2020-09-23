@@ -68,6 +68,12 @@ if features.replan_string then
 	Package('updater-ng-localrepo', { replan = 'finished' })
 end
 
+-- Notification about optional migration to new version of Turris OS
+if model and not model:match("^[Tt]urris$") then
+	Install("optin-migration", { priority = 40 })
+end
+
+
 -- Utility
 Install("ip-full", "iptables", "ip6tables", { priority = 40 })
 Install("shadow", "shadow-utils", "uboot-envtools", "i2c-tools", { priority = 40 })
