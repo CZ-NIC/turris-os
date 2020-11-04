@@ -29,8 +29,10 @@ define Package/turris-version/postinst
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • openssl, gnutls, opkg, samba4: bezpečnostní aktualizace
- • knot-resolver, knot, netmetr, unbound: aktualizace" " • openssl, gnutls, opkg, samba4: security updates
- • knot-resolver, knot, netmetr, unbound: update"
+ • knot-resolver, knot, netmetr, unbound: aktualizace
+ • nf-nathelper-extra: odstraněn z userlistu (CVE-2020-28041)" " • openssl, gnutls, opkg, samba4: security updates
+ • knot-resolver, knot, netmetr, unbound: update
+ • nf-nathelper-extra: removed from userlist (CVE-2020-28041)"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
 	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do
