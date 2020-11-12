@@ -1,0 +1,46 @@
+From b38e7819cae946e2edf869e604af1e65a5d241c5 Mon Sep 17 00:00:00 2001
+From: Eric Dumazet <edumazet@google.com>
+Date: Thu, 15 Oct 2020 11:42:00 -0700
+Subject: icmp: randomize the global rate limiter
+
+Keyu Man reported that the ICMP rate limiter could be used
+by attackers to get useful signal. Details will be provided
+in an upcoming academic publication.
+
+Our solution is to add some noise, so that the attackers
+no longer can get help from the predictable token bucket limiter.
+
+Fixes: 4cdf507d5452 ("icmp: add a global rate limitation")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Keyu Man <kman001@ucr.edu>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+---
+ net/ipv4/icmp.c                        | 7 +++++--
+ 2 files changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
+index 07f67ced962a6..005faea415a48 100644
+--- a/net/ipv4/icmp.c
++++ b/net/ipv4/icmp.c
+@@ -239,7 +239,7 @@ static struct {
+ /**
+  * icmp_global_allow - Are we allowed to send one more ICMP message ?
+  *
+- * Uses a token bucket to limit our ICMP messages to sysctl_icmp_msgs_per_sec.
++ * Uses a token bucket to limit our ICMP messages to ~sysctl_icmp_msgs_per_sec.
+  * Returns false if we reached the limit and can not send another packet.
+  * Note: called with BH disabled
+  */
+@@ -267,7 +267,10 @@ bool icmp_global_allow(void)
+ 	}
+ 	credit = min_t(u32, icmp_global.credit + incr, sysctl_icmp_msgs_burst);
+ 	if (credit) {
+-		credit--;
++		/* We want to use a credit of one in average, but need to randomize
++		 * it for security reasons.
++		 */
++		credit = max_t(int, credit - prandom_u32_max(3), 0);
+ 		rc = true;
+ 	}
+ 	WRITE_ONCE(icmp_global.credit, credit);
+-- 
