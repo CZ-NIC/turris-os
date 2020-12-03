@@ -29,8 +29,8 @@ define Package/turris-version/postinst
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • base-files: nevyžaduje explicitní povolení hodnoty v nf_conntrack_helper
- • updater-ng: aktualizace" " • base-files: do not require explicit enabling of nf_conntrack_helper
- • updater-ng: update"
+ • updater-ng, knot-resolver: aktualizace" " • base-files: do not require explicit enabling of nf_conntrack_helper
+ • updater-ng, knot-resolver: update"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
 	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do
