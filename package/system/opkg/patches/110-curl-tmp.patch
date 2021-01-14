@@ -1,11 +1,18 @@
 --- a/libopkg/opkg_download.c
 +++ b/libopkg/opkg_download.c
-@@ -90,27 +90,19 @@ opkg_download(const char *src, const cha
- 		const char *argv[8];
+@@ -91,34 +91,20 @@ opkg_download(const char *src, const cha
+ 		const char *argv[11];
  		int i = 0;
- 
+
 -		argv[i++] = "wget";
 -		argv[i++] = "-q";
+-		if (conf->no_check_certificate) {
+-			argv[i++] = "--no-check-certificate";
+-		}
+-		if (conf->http_timeout) {
+-			argv[i++] = "--timeout";
+-			argv[i++] = conf->http_timeout;
+-		}
 -		if (conf->http_proxy || conf->ftp_proxy) {
 -			argv[i++] = "-Y";
 -			argv[i++] = "on";
@@ -17,11 +24,12 @@
 +		argv[i++] = "--compressed";
 +		argv[i++] = "-f";
 +		argv[i++] = "-o";
++
  		argv[i++] = tmp_file_location;
  		argv[i++] = src;
  		argv[i++] = NULL;
  		res = xsystem(argv);
- 
+
  		if (res) {
 -			opkg_msg(ERROR,
 -				 "Failed to download %s, wget returned %d.\n",
@@ -34,4 +42,4 @@
 +			opkg_msg(ERROR, "Failed to download %s, curl returned %d.\n", src, res);
  		}
  	}
- 
+
