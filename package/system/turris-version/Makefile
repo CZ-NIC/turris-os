@@ -1,5 +1,5 @@
 #
-## Copyright (C) 2014-2020 CZ.NIC z.s.p.o. (https://www.nic.cz/)
+## Copyright (C) 2014-2021 CZ.NIC z.s.p.o. (https://www.nic.cz/)
 #
 ## This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -29,8 +29,11 @@ define Package/turris-version/postinst
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • base-files: nevyžaduje explicitní povolení hodnoty v nf_conntrack_helper
- • updater-ng, knot-resolver: aktualizace" " • base-files: do not require explicit enabling of nf_conntrack_helper
- • updater-ng, knot-resolver: update"
+ • updater-ng, knot-resolver, unbound: aktualizace
+ • experimentální migrace pro Turris 1.x routery je dočasně zakázana
+ • foris: oprava XSS chyby" " • base-files: do not require explicit enabling of nf_conntrack_helper
+ • updater-ng, knot-resolver, unbound: update"
+ • foris: XSS bug fix"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
 	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do
