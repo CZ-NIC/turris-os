@@ -32,7 +32,7 @@ create_notification -s news " • base-files: nevyžaduje explicitní povolení 
  • updater-ng, knot-resolver, unbound: aktualizace
  • experimentální migrace pro Turris 1.x routery je dočasně zakázana
  • foris: oprava XSS chyby" " • base-files: do not require explicit enabling of nf_conntrack_helper
- • updater-ng, knot-resolver, unbound: update"
+ • updater-ng, knot-resolver, unbound: update
  • foris: XSS bug fix"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
