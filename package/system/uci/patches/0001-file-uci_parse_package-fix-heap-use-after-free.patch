@@ -1,4 +1,4 @@
-From 5943c99ce1cb44f88cb30db72be806a8c1dd1a88 Mon Sep 17 00:00:00 2001
+From 3d87ad31b09ee84d7a515b2d5bd4a2d0e3890ab4 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>
 Date: Sat, 3 Oct 2020 01:29:21 +0200
 Subject: [PATCH] file: uci_parse_package: fix heap use after free
@@ -32,10 +32,8 @@ to a reallocated address:
 Reported-by: Jeremy Galindo <jgalindo@datto.com>
 Signed-off-by: Petr Štetiar <ynezz@true.cz>
 ---
- file.c                                             |   2 +-
- ...sig-06,src-000079,time-22005942,op-ext_AO,pos-8 | Bin 0 -> 56 bytes
- 2 files changed, 1 insertion(+), 1 deletion(-)
- create mode 100644 tests/fuzz/corpus/id-000000,sig-06,src-000079,time-22005942,op-ext_AO,pos-8
+ file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/file.c b/file.c
 index cf0dfaf..1599b20 100644
@@ -51,17 +49,6 @@ index cf0dfaf..1599b20 100644
  	if (single)
  		return;
  
-diff --git a/tests/fuzz/corpus/id-000000,sig-06,src-000079,time-22005942,op-ext_AO,pos-8 b/tests/fuzz/corpus/id-000000,sig-06,src-000079,time-22005942,op-ext_AO,pos-8
-new file mode 100644
-index 0000000000000000000000000000000000000000..dc92b9dbb1ea9a540d60176c97ee9803c42dd3bf
-GIT binary patch
-literal 56
-zcmXR&OwLYBPgN*@(lHFFjAeOc1$jzbTncy18yFZE5{noZKdkG_3=k<=xL-@**{y7@
-Go{s<;LKIT~
-
-literal 0
-HcmV?d00001
-
 -- 
 2.25.1
 
