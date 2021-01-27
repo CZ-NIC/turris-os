@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=turris-version
-PKG_VERSION:=3.11.22
+PKG_VERSION:=3.11.23
 
 PKG_MAINTAINER:=CZ.NIC <packaging@nic.cz>
 
@@ -28,12 +28,9 @@ define Package/turris-version/postinst
 #!/bin/sh
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
-create_notification -s news " • base-files: nevyžaduje explicitní povolení hodnoty v nf_conntrack_helper
- • updater-ng, knot-resolver, unbound: aktualizace
- • experimentální migrace pro Turris 1.x routery je dočasně zakázana
- • foris: oprava XSS chyby" " • base-files: do not require explicit enabling of nf_conntrack_helper
- • updater-ng, knot-resolver, unbound: update
- • foris: XSS bug fix"
+create_notification -s news " • sudo, ffmpeg, curl, uci, dnsmasq: bezpečnostní aktualizace
+ • youtube-dl, msmtp, netdata, tar: aktualizace" " • sudo, ffmpeg, curl, uci, dnsmasq: security update
+ • youtube-dl, msmtp, netdata, tar: update"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
 	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do
