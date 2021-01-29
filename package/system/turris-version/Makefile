@@ -29,8 +29,8 @@ define Package/turris-version/postinst
 # Danger: spaces are not ordinary spaces, but special unicode ones
 [ -n "$$IPKG_INSTROOT" ] || {
 create_notification -s news " • sudo, ffmpeg, curl, uci, dnsmasq: bezpečnostní aktualizace
- • youtube-dl, msmtp, netdata, tar: aktualizace" " • sudo, ffmpeg, curl, uci, dnsmasq: security update
- • youtube-dl, msmtp, netdata, tar: update"
+ • youtube-dl, msmtp, netdata, tar, foris: aktualizace" " • sudo, ffmpeg, curl, uci, dnsmasq: security update
+ • youtube-dl, msmtp, netdata, tar, foris: update"
 
 LXC_ROOT="$$(lxc-config lxc.lxcpath)"
 	[ -z "$$LXC_ROOT" -o -z "$$(lxc-ls)" ] || for name in $$(lxc-ls); do
