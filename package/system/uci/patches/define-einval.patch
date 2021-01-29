@@ -1,0 +1,12 @@
+Index: uci-2015-05-25.1/file.c
+===================================================================
+--- a/file.c
++++ b/file.c
+@@ -33,6 +33,7 @@
+ #include "uci_internal.h"
+ 
+ #define LINEBUF	32
++#define EINVAL 22      /* Invalid argument */
+ 
+ /*
+  * Fetch a new line from the input stream and resize buffer if necessary

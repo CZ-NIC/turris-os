@@ -1,98 +1,123 @@
-From f7e04da21a3659ba68fed63d736e1564cc36a75e Mon Sep 17 00:00:00 2001
+From 7af2b34f1f2c9d0e53d3a21f19322b93fc839e5e Mon Sep 17 00:00:00 2001
 From: Jan Pavlinec <jan.pavlinec@nic.cz>
 Date: Wed, 30 May 2018 09:05:16 +0200
 Subject: [PATCH] netdata: compile different version for Turris and Omnia
 
 ---
- admin/netdata/Makefile                  |  80 +++++++-
+ admin/netdata/Makefile                  | 106 ++++++++++-
  admin/netdata/files/netdata.conf        | 232 +++++++++++++++++++++++-
  admin/netdata/files/netdata.conf_turris |  16 ++
  admin/netdata/files/netdata.init        |  22 ++-
  admin/netdata/files/netdata.init_turris |  11 ++
- 5 files changed, 344 insertions(+), 17 deletions(-)
+ 5 files changed, 370 insertions(+), 17 deletions(-)
  create mode 100644 admin/netdata/files/netdata.conf_turris
  create mode 100644 admin/netdata/files/netdata.init_turris
 
 diff --git a/admin/netdata/Makefile b/admin/netdata/Makefile
-index e88221e0..b070608e 100644
+index e88221e09..15a79af23 100644
 --- a/admin/netdata/Makefile
 +++ b/admin/netdata/Makefile
-@@ -5,8 +5,74 @@
+@@ -5,8 +5,99 @@
  # See /LICENSE for more information.
  #
-
+ 
 +
  include $(TOPDIR)/rules.mk
-
+ 
 +ifeq ($(CONFIG_TARGET_mvebu_Turris-Omnia),y)
 +
 +PKG_NAME:=netdata
-+PKG_VERSION:=1.20.0
++PKG_VERSION:=1.28.0
 +PKG_RELEASE:=1
++
 +PKG_MAINTAINER:=Josef Schlehofer <pepe.schlehofer@gmail.com>, Daniel Engberg <daniel.engberg.lists@pyret.net>
 +PKG_LICENSE:=GPL-3.0-or-later
 +PKG_LICENSE_FILES:=COPYING
-+PKG_BUILD_DEPENDS:=+util-linux
++PKG_CPE_ID:=cpe:/a:my-netdata:netdata
 +
 +PKG_SOURCE:=$(PKG_NAME)-v$(PKG_VERSION).tar.gz
-+PKG_SOURCE_URL:=https://github.com/netdata/netdata/releases/download/v$(PKG_VERSION)
-+PKG_HASH:=dc51869e3e541ca569e75d601133a413a8e56ce2b606dbfe84b35b1d7806216e
-+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-v$(PKG_VERSION)
++PKG_SOURCE_URL:=https://codeload.github.com/netdata/netdata/tar.gz/v$(PKG_VERSION)?
++PKG_HASH:=35f681abddfc307ffa8f026dbded4eadf3752a7cbb3078501a64d4f9b605491e
++
 +PKG_INSTALL:=1
++PKG_BUILD_PARALLEL:=1
 +PKG_FIXUP:=autoreconf
++PKG_USE_MIPS16:=0
 +
 +include $(INCLUDE_DIR)/package.mk
 +
 +define Package/netdata
 +  SECTION:=admin
 +  CATEGORY:=Administration
-+  DEPENDS:=+zlib +USE_UCLIBC:libpthread +libuuid +libmnl +libopenssl +liblz4 +libuv +libjson-c
++  DEPENDS:=+zlib +libuuid +libuv +libmnl +libjson-c
 +  TITLE:=Real-time performance monitoring tool
-+  URL:=https://my-netdata.io/
++  URL:=https://www.netdata.cloud/
 +endef
 +
 +define Package/netdata/description
 +  netdata is a highly optimized Linux daemon providing real-time performance
 +  monitoring for Linux systems, applications and SNMP devices over the web.
++
++  If you want to use Python plugins install python3, python3-yaml and
++  python3-urllib3
 +endef
 +
 +TARGET_CFLAGS := $(filter-out -O%,$(TARGET_CFLAGS)) -std=gnu99
 +TARGET_CFLAGS += -ffunction-sections -fdata-sections -O3
 +TARGET_LDFLAGS += -Wl,--gc-sections
 +
-+CONFIGURE_ARGS += --with-zlib --with-math --disable-x86-sse --enable-lto --without-libcap --disable-plugin-nfacct
++CONFIGURE_ARGS += \
++	--with-zlib \
++	--with-math \
++	--disable-x86-sse \
++	--enable-lto \
++	--disable-ebpf \
++	--without-libcap \
++	--disable-https \
++	--disable-dbengine \
++	--disable-plugin-nfacct \
++	--disable-plugin-freeipmi \
++	--disable-plugin-cups \
++	--disable-plugin-xenstat \
++	--disable-backend-prometheus-remote-write \
++	--disable-unit-tests \
++	--disable-cloud
 +
 +define Package/netdata/conffiles
 +/etc/netdata/
 +endef
 +
 +define Package/netdata/install
-+	mkdir -p $(1)/etc/netdata
++	$(INSTALL_DIR) $(1)/etc/netdata/custom-plugins.d
 +	$(CP) $(PKG_INSTALL_DIR)/etc/netdata $(1)/etc
 +	$(CP) ./files/netdata.conf $(1)/etc/netdata
++	touch $(1)/etc/netdata/.opt-out-from-anonymous-statistics
++	$(INSTALL_DIR) $(1)/usr/lib
++	$(CP) $(PKG_INSTALL_DIR)/usr/lib/netdata $(1)/usr/lib
++	$(CP) $(1)/usr/lib/netdata/conf.d/fping.conf $(1)/etc
++	$(CP) $(1)/usr/lib/netdata/conf.d/health_alarm_notify.conf $(1)/etc
++	$(CP) $(1)/usr/lib/netdata/plugins.d/tc-qos-helper.sh $(1)/etc
++	$(INSTALL_DIR) $(1)/usr/sbin
++	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/netdata $(1)/usr/sbin
 +	$(INSTALL_DIR) $(1)/usr/share/netdata
 +	$(CP) $(PKG_INSTALL_DIR)/usr/share/netdata $(1)/usr/share
-+	rm -rf $(1)/usr/lib/netdata/python.d/python_modules/pyyaml2
-+	rm -rf $(1)/usr/lib/netdata/python.d/python_modules/pyyaml3
 +	rm $(1)/usr/share/netdata/web/demo*html
 +	rm $(1)/usr/share/netdata/web/fonts/*.svg
 +	rm $(1)/usr/share/netdata/web/fonts/*.ttf
 +	rm $(1)/usr/share/netdata/web/fonts/*.woff
-+	mkdir -p $(1)/usr/lib/netdata
-+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/netdata $(1)/usr/lib
-+	$(INSTALL_DIR) $(1)/etc/netdata/custom-plugins.d
-+	chmod 4755 $(1)/usr/lib/netdata/plugins.d/apps.plugin
++	rm $(1)/usr/share/netdata/web/images/*.png
++	rm $(1)/usr/share/netdata/web/images/*.gif
++	rm $(1)/usr/share/netdata/web/images/*.ico
++	rm -rf $(1)/usr/share/netdata/web/old
 +	$(INSTALL_DIR) $(1)/etc/init.d
 +	$(INSTALL_BIN) ./files/netdata.init $(1)/etc/init.d/netdata
-+	$(INSTALL_DIR) $(1)/usr/sbin
-+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/netdata $(1)/usr/sbin
 +endef
 +
 +else
  PKG_NAME:=netdata
  PKG_VERSION:=20160508-devel
  PKG_RELEASE:=1
-@@ -28,7 +93,7 @@ include $(INCLUDE_DIR)/package.mk
+@@ -28,7 +119,7 @@ include $(INCLUDE_DIR)/package.mk
  define Package/netdata
    SECTION:=admin
    CATEGORY:=Administration
@@ -101,22 +126,22 @@ index e88221e0..b070608e 100644
    TITLE:=Real-time performance monitoring tool
    URL:=http://netdata.firehol.org/
  endef
-@@ -46,9 +111,9 @@ define Package/netdata/install
+@@ -46,9 +137,9 @@ define Package/netdata/install
  	$(INSTALL_DIR) $(1)/etc/netdata
  	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/netdata/apps_groups.conf $(1)/etc/netdata
  	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/netdata/charts.d.conf $(1)/etc/netdata
 -	$(INSTALL_CONF) ./files/netdata.conf $(1)/etc/netdata
-+	$(INSTALL_CONF) ./files/netdata.conf_turris $(1)/etc/netdata
++	$(INSTALL_CONF) ./files/netdata.conf_turris $(1)/etc/netdata/netdata.conf
  	$(INSTALL_DIR) $(1)/etc/init.d
 -	$(INSTALL_BIN) ./files/netdata.init $(1)/etc/init.d/netdata
 +	$(INSTALL_BIN) ./files/netdata.init_turris $(1)/etc/init.d/netdata
  	$(INSTALL_DIR) $(1)/usr/sbin
  	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/netdata $(1)/usr/sbin/
  	$(INSTALL_DIR) $(1)/usr/share/netdata
-@@ -58,4 +123,13 @@ define Package/netdata/install
+@@ -58,4 +149,13 @@ define Package/netdata/install
  	chmod 4755 $(1)/usr/lib/netdata/plugins.d/apps.plugin
  endef
-
+ 
 +endif
 +
 +define disable_plugins
@@ -128,7 +153,7 @@ index e88221e0..b070608e 100644
 +
  $(eval $(call BuildPackage,netdata))
 diff --git a/admin/netdata/files/netdata.conf b/admin/netdata/files/netdata.conf
-index e1f09644..13418b55 100644
+index e1f096441..ab2802eda 100644
 --- a/admin/netdata/files/netdata.conf
 +++ b/admin/netdata/files/netdata.conf
 @@ -1,16 +1,232 @@
@@ -193,7 +218,7 @@ index e1f09644..13418b55 100644
 +	web files group = root
 +	# default port = 19999
 +	# bind to = *
-
+ 
  [plugins]
 +	# PATH environment variable = /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin
 +	tc = no
@@ -374,7 +399,7 @@ index e1f09644..13418b55 100644
 +	# NFS v4 procedures = yes
 diff --git a/admin/netdata/files/netdata.conf_turris b/admin/netdata/files/netdata.conf_turris
 new file mode 100644
-index 00000000..e1f09644
+index 000000000..e1f096441
 --- /dev/null
 +++ b/admin/netdata/files/netdata.conf_turris
 @@ -0,0 +1,16 @@
@@ -395,21 +420,21 @@ index 00000000..e1f09644
 +	node.d = no
 +	tc = no
 diff --git a/admin/netdata/files/netdata.init b/admin/netdata/files/netdata.init
-index 448e56d9..d4be0a7c 100644
+index 448e56d91..d4be0a7c2 100644
 --- a/admin/netdata/files/netdata.init
 +++ b/admin/netdata/files/netdata.init
 @@ -1,11 +1,21 @@
  #!/bin/sh /etc/rc.common
-
+ 
  START=99
 +USE_PROCD=1
-
+ 
 -start() {
 -	service_start /usr/sbin/netdata
 -}
 +APPBINARY=/usr/sbin/netdata
 +CONFIGFILE=/etc/netdata/netdata.conf
-
+ 
 -stop() {
 -	service_stop /usr/sbin/netdata
 -}
@@ -428,7 +453,7 @@ index 448e56d9..d4be0a7c 100644
 +	}
 diff --git a/admin/netdata/files/netdata.init_turris b/admin/netdata/files/netdata.init_turris
 new file mode 100644
-index 00000000..448e56d9
+index 000000000..448e56d91
 --- /dev/null
 +++ b/admin/netdata/files/netdata.init_turris
 @@ -0,0 +1,11 @@
@@ -443,5 +468,6 @@ index 00000000..448e56d9
 +stop() {
 +	service_stop /usr/sbin/netdata
 +}
---
-2.17.0
+-- 
+2.25.1
+
