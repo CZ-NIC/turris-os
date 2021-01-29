@@ -1284,19 +1284,6 @@ SECURITY UPDATE: Multiple security issues
 
 --- a/Makefile
 +++ b/Makefile
-@@ -61,8 +61,10 @@
- ct_libs =       `echo $(COPTS) | $(top)/bld/pkg-wrapper HAVE_CONNTRACK $(PKG_CONFIG) --libs libnetfilter_conntrack`
- lua_cflags =    `echo $(COPTS) | $(top)/bld/pkg-wrapper HAVE_LUASCRIPT $(PKG_CONFIG) --cflags lua5.2` 
- lua_libs =      `echo $(COPTS) | $(top)/bld/pkg-wrapper HAVE_LUASCRIPT $(PKG_CONFIG) --libs lua5.2` 
--nettle_cflags = `echo $(COPTS) | $(top)/bld/pkg-wrapper HAVE_DNSSEC $(PKG_CONFIG) --cflags nettle hogweed`
--nettle_libs =   `echo $(COPTS) | $(top)/bld/pkg-wrapper HAVE_DNSSEC $(PKG_CONFIG) --libs nettle hogweed`
-+nettle_cflags = `echo $(COPTS) | $(top)/bld/pkg-wrapper HAVE_DNSSEC     $(PKG_CONFIG) --cflags 'nettle hogweed' \
-+                                                        HAVE_NETTLEHASH $(PKG_CONFIG) --cflags nettle`
-+nettle_libs =   `echo $(COPTS) | $(top)/bld/pkg-wrapper HAVE_DNSSEC     $(PKG_CONFIG) --libs 'nettle hogweed' \
-+                                                        HAVE_NETTLEHASH $(PKG_CONFIG) --libs nettle`
- gmp_libs =      `echo $(COPTS) | $(top)/bld/pkg-wrapper HAVE_DNSSEC NO_GMP --copy -lgmp`
- sunos_libs =    `if uname | grep SunOS >/dev/null 2>&1; then echo -lsocket -lnsl -lposix4; fi`
- version =     -DVERSION='\"`$(top)/bld/get-version $(top)`\"'
 @@ -76,7 +78,7 @@
         helper.o tftp.o log.o conntrack.o dhcp6.o rfc3315.o \
         dhcp-common.o outpacket.o radv.o slaac.o auth.o ipset.o \
