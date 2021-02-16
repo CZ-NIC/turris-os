@@ -1,7 +1,7 @@
 From 99ebb5630ed16442de684772a8f66512179f591b Mon Sep 17 00:00:00 2001
 From: Josef Schlehofer <josef.schlehofer@nic.cz>
 Date: Mon, 10 Dec 2018 23:59:35 +0100
-Subject: [PATCH] subversion: update to version 1.10.6
+Subject: [PATCH] subversion: update to version 1.10.7
 
 ---
  net/subversion/Makefile | 18 +++++++++++-------
@@ -23,11 +23,11 @@ index d78596202..6cbf19bf3 100644
  PKG_NAME:=subversion
  PKG_RELEASE:=1
 -PKG_VERSION:=1.9.4
-+PKG_VERSION:=1.10.6
++PKG_VERSION:=1.10.7
  PKG_SOURCE_URL:=@APACHE/subversion
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 -PKG_MD5SUM:=29121a038f87641055a8183f49e9739f
-+PKG_HASH:=18c8e72691e6d2e7d3137ae4ad98b9f8977cca5eb2504fab48d55e584b10eca7
++PKG_HASH:=9c0b8f66ce8da896569b6177d0c72baad886516afefeec33609a24663e6a19da
  PKG_LICENSE:=Apache-2.0
  PKG_LICENSE_FILES:=LICENSE
 -PKG_MAINTAINER:=Donald Rumata <donald.rumata@gmail.com>
