@@ -1,5 +1,10 @@
 include(utils.m4)dnl Include utility macros
 include(repository.m4)dnl Include Repository command
+-- Migration
+if model and model:match("[Oo]mnia") then
+	Install("tos3to4-notify")
+end
+
 -- Updater itself
 Install('updater-ng', 'updater-ng-supervisor', { critical = true })
 
